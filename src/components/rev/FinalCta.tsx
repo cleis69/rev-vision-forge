@@ -1,16 +1,18 @@
 import { ArrowUpRight, Instagram, Linkedin, Youtube, Mail, Phone } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 import { Container, Cta } from "./ui";
 import { Reveal } from "./Reveal";
 
 const NAV = [
-  { label: "Accueil", href: "#home" },
-  { label: "Expertises", href: "#services" },
-  { label: "Portfolio", href: "#portfolio" },
-  { label: "Études de cas", href: "#case-studies" },
-  { label: "Écosystème", href: "#about" },
-  { label: "FAQ", href: "#faq" },
-];
+  { label: "Accueil", to: "/" },
+  { label: "Expertises", to: "/services" },
+  { label: "Portfolio", to: "/portfolio" },
+  { label: "Études de cas", to: "/case-studies" },
+  { label: "À propos", to: "/about" },
+  { label: "Insights", to: "/insights" },
+  { label: "Contact", to: "/contact" },
+] as const;
 
 const SOCIALS = [
   { label: "Instagram", icon: Instagram, href: "https://instagram.com" },
@@ -39,14 +41,14 @@ export function FinalCta() {
             d'acquisition et d'automatisation.
           </p>
           <div className="relative mt-10 flex flex-wrap justify-center gap-3">
-            <Cta href="mailto:contact@rev-agency.com">
+            <Cta href="/contact">
               Planifier un appel stratégique
               <ArrowUpRight
                 size={16}
                 className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
               />
             </Cta>
-            <Cta href="#portfolio" variant="ghost">
+            <Cta href="/portfolio" variant="ghost">
               Découvrir nos réalisations
             </Cta>
           </div>
@@ -95,12 +97,12 @@ export function Footer() {
             <ul className="mt-6 space-y-3">
               {NAV.map((item) => (
                 <li key={item.label}>
-                  <a
-                    href={item.href}
+                  <Link
+                    to={item.to}
                     className="text-sm text-muted-foreground transition-colors duration-300 hover:text-foreground"
                   >
                     {item.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { Header } from "@/components/rev/Header";
 import { Hero } from "@/components/rev/Hero";
 import { TrustedBy } from "@/components/rev/TrustedBy";
 import { Ecosystem } from "@/components/rev/Ecosystem";
@@ -10,7 +9,7 @@ import { CaseStudies } from "@/components/rev/CaseStudies";
 import { WhyRev } from "@/components/rev/WhyRev";
 import { Testimonials } from "@/components/rev/Testimonials";
 import { Faq, FAQ_ITEMS } from "@/components/rev/Faq";
-import { FinalCta, Footer } from "@/components/rev/FinalCta";
+import { FinalCta } from "@/components/rev/FinalCta";
 
 const TITLE = "REV — Marketing visuel & croissance immobilière";
 const DESCRIPTION =
@@ -24,10 +23,8 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/" }],
     scripts: [
       {
         type: "application/ld+json",
@@ -61,20 +58,16 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <>
-      <Header />
-      <main>
-        <Hero />
-        <TrustedBy />
-        <Ecosystem />
-        <Services />
-        <Portfolio />
-        <CaseStudies />
-        <WhyRev />
-        <Testimonials />
-        <Faq />
-        <FinalCta />
-      </main>
-      <Footer />
+      <Hero />
+      <TrustedBy />
+      <Ecosystem />
+      <Services />
+      <Portfolio />
+      <CaseStudies />
+      <WhyRev />
+      <Testimonials />
+      <Faq />
+      <FinalCta />
     </>
   );
 }

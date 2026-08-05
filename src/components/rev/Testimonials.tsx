@@ -37,7 +37,7 @@ export function Testimonials() {
     return () => clearInterval(id);
   }, [go]);
 
-  const active = QUOTES[index];
+  const active = QUOTES[index] ?? QUOTES[0]!;
 
   return (
     <Section className="border-t border-border/70">

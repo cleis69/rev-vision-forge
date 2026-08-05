@@ -65,14 +65,14 @@ export function Hero() {
           </p>
 
           <div className="mt-10 flex flex-wrap items-center gap-3">
-            <Cta href="#portfolio">
+            <Cta href="/portfolio">
               Découvrir nos réalisations
               <ArrowUpRight
                 size={16}
                 className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
               />
             </Cta>
-            <Cta href="#contact" variant="ghost">
+            <Cta href="/contact" variant="ghost">
               <Play size={14} className="text-primary" />
               Prendre rendez-vous
             </Cta>

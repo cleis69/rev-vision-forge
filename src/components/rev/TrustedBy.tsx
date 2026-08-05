@@ -15,7 +15,7 @@ export function TrustedBy() {
     <section className="border-y border-border/70 py-10">
       <Container>
         <p className="text-center text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-          Trusted by developers, agencies and agents
+          Ils nous font confiance
         </p>
       </Container>
       <div className="relative mt-8 overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]">

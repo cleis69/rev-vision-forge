@@ -2,16 +2,17 @@ import { Container, Section, SectionHeading } from "./ui";
 import { Reveal } from "./Reveal";
 
 const STEPS = [
-  { label: "Property", note: "Asset intake & positioning" },
-  { label: "Visual Production", note: "Photo, film, drone, Matterport" },
-  { label: "Creative Strategy", note: "Narrative & offer design" },
-  { label: "Content Distribution", note: "Owned & social channels" },
-  { label: "Paid Advertising", note: "Meta, Google, TikTok" },
-  { label: "Landing Pages", note: "High-intent conversion" },
-  { label: "HubSpot CRM", note: "Single source of truth" },
-  { label: "Lead Qualification", note: "Scoring & routing" },
-  { label: "Automation", note: "Email & WhatsApp follow-up" },
-  { label: "More Sales", note: "Faster absorption rate" },
+  { label: "Bien immobilier", note: "Analyse du bien et positionnement" },
+  { label: "Production Visuelle", note: "Photo, vidéo, drone, Matterport, 3D" },
+  { label: "Création de contenu", note: "Narration, formats courts, personal branding" },
+  { label: "Réseaux sociaux", note: "Distribution organique et éditoriale" },
+  { label: "Campagnes publicitaires", note: "Meta Ads, Google Ads, TikTok Ads" },
+  { label: "Landing Page", note: "Pages de conversion à forte intention" },
+  { label: "HubSpot CRM", note: "Centralisation de la donnée commerciale" },
+  { label: "Qualification automatique", note: "Scoring et routage des leads" },
+  { label: "Automatisation", note: "Séquences email et WhatsApp" },
+  { label: "Prospects qualifiés", note: "Rendez-vous réellement exploitables" },
+  { label: "Plus de ventes", note: "Délai de commercialisation réduit" },
 ];
 
 export function Ecosystem() {
@@ -19,9 +20,9 @@ export function Ecosystem() {
     <Section id="about">
       <Container>
         <SectionHeading
-          eyebrow="Our Ecosystem"
-          title="One connected system from property to signature."
-          description="Every stage feeds the next. Visuals create attention, strategy converts it, automation compounds it."
+          eyebrow="Notre écosystème"
+          title="Un système connecté, du bien immobilier à la signature."
+          description="Chaque étape alimente la suivante. Le contenu crée l'attention, la stratégie la convertit, l'automatisation la démultiplie."
         />
 
         <div className="relative mt-20">
@@ -45,9 +46,7 @@ export function Ecosystem() {
                 </span>
                 <div
                   className={
-                    i % 2 === 0
-                      ? "md:col-start-1 md:pr-16 md:text-right"
-                      : "md:col-start-2 md:pl-16"
+                    i % 2 === 0 ? "md:col-start-1 md:pr-16 md:text-right" : "md:col-start-2 md:pl-16"
                   }
                 >
                   <div className="surface p-6 transition-all duration-500 hover:-translate-y-1 hover:border-primary/30 md:my-2">

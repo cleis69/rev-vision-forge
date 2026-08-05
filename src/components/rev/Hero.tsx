@@ -4,7 +4,7 @@ import { ArrowUpRight, Play } from "lucide-react";
 import heroVilla from "@/assets/hero-villa.jpg";
 import { Container, Cta } from "./ui";
 
-const TAGS = ["Luxury Villas", "Drone", "Interior", "Matterport", "Lifestyle", "Architecture"];
+const TAGS = ["Villa de luxe", "Drone", "Architecture", "Intérieur", "Matterport", "Lifestyle"];
 
 export function Hero() {
   const [offset, setOffset] = useState(0);
@@ -25,14 +25,15 @@ export function Hero() {
   return (
     <section id="home" className="relative flex min-h-[100svh] items-center overflow-hidden">
       <div
-        className="absolute inset-0 -z-20 scale-110"
+        className="absolute inset-0 -z-20"
         style={{ transform: `translate3d(0, ${offset * 0.25}px, 0) scale(1.12)` }}
       >
         <img
           src={heroVilla}
-          alt="Cinematic night view of a luxury villa with glass facade and infinity pool"
+          alt="Villa de luxe éclairée de nuit avec façade vitrée et piscine à débordement"
           width={1920}
           height={1088}
+          fetchPriority="high"
           className="h-full w-full object-cover opacity-70"
         />
       </div>
@@ -46,34 +47,34 @@ export function Hero() {
         aria-hidden
       />
 
-      <Container className="relative pt-32 pb-28">
+      <Container className="relative pb-28 pt-32">
         <div className="max-w-4xl">
-          <div className="reveal is-visible inline-flex items-center gap-3 rounded-full border border-border bg-card/50 px-4 py-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground backdrop-blur-md">
+          <div className="inline-flex items-center gap-3 rounded-full border border-border bg-card/50 px-4 py-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground backdrop-blur-md">
             <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-            Real Estate Growth Agency
+            Agence de croissance immobilière
           </div>
 
-          <h1 className="mt-8 font-display text-[clamp(2.6rem,7.4vw,5.6rem)] font-medium leading-[0.98] tracking-[-0.04em] text-gradient">
-            Visual Marketing That
-            <br className="hidden sm:block" /> Sells Real Estate.
+          <h1 className="mt-8 font-display text-[clamp(2.4rem,6.6vw,5.2rem)] font-medium leading-[0.99] tracking-[-0.04em] text-gradient">
+            Le marketing visuel qui accélère les ventes immobilières.
           </h1>
 
           <p className="mt-7 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
-            Premium visual production, strategic marketing, lead generation and automation for real
-            estate professionals.
+            REV accompagne les promoteurs, agences et professionnels de l'immobilier avec une
+            stratégie complète de contenu, d'acquisition de prospects et d'automatisation
+            commerciale.
           </p>
 
           <div className="mt-10 flex flex-wrap items-center gap-3">
-            <Cta href="#contact">
-              Book a Strategy Call
+            <Cta href="#portfolio">
+              Découvrir nos réalisations
               <ArrowUpRight
                 size={16}
-                className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
               />
             </Cta>
-            <Cta href="#portfolio" variant="ghost">
+            <Cta href="#contact" variant="ghost">
               <Play size={14} className="text-primary" />
-              Explore Our Work
+              Prendre rendez-vous
             </Cta>
           </div>
 

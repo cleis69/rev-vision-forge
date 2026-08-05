@@ -5,11 +5,11 @@ import { cn } from "@/lib/utils";
 import { Container } from "./ui";
 
 const NAV = [
-  { label: "Home", href: "#home" },
-  { label: "Services", href: "#services" },
+  { label: "Accueil", href: "#home" },
+  { label: "Écosystème", href: "#about" },
+  { label: "Expertises", href: "#services" },
   { label: "Portfolio", href: "#portfolio" },
-  { label: "Case Studies", href: "#case-studies" },
-  { label: "About", href: "#about" },
+  { label: "Études de cas", href: "#case-studies" },
   { label: "Contact", href: "#contact" },
 ];
 
@@ -44,7 +44,7 @@ export function Header() {
           </span>
         </a>
 
-        <nav className="hidden items-center gap-1 lg:flex">
+        <nav className="hidden items-center gap-1 lg:flex" aria-label="Navigation principale">
           {NAV.map((item) => (
             <a
               key={item.label}
@@ -61,13 +61,13 @@ export function Header() {
             href="#contact"
             className="inline-flex h-10 items-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors duration-300 hover:bg-primary-hover"
           >
-            Book a Strategy Call
+            Prendre rendez-vous
           </a>
         </div>
 
         <button
           type="button"
-          aria-label={open ? "Close menu" : "Open menu"}
+          aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
           onClick={() => setOpen((v) => !v)}
           className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border bg-card/60 lg:hidden"
         >
@@ -93,7 +93,7 @@ export function Header() {
               onClick={() => setOpen(false)}
               className="mt-2 flex h-11 items-center justify-center rounded-xl bg-primary text-sm font-medium text-primary-foreground"
             >
-              Book a Strategy Call
+              Prendre rendez-vous
             </a>
           </div>
         </Container>

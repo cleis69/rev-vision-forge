@@ -156,7 +156,7 @@ function ServicesPage() {
         <Section
           key={service.id}
           id={service.id}
-          className={i > 0 ? "border-t border-border/70" : undefined}
+          className={i > 0 ? "border-t border-border/70" : ""}
         >
           <Container>
             <div className="grid gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-20">

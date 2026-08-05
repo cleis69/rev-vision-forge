@@ -5,21 +5,19 @@ import {
   Box,
   Building2,
   Lightbulb,
-  PenTool,
   UserRound,
   Share2,
   Target,
   Megaphone,
   Search,
   Music2,
-  Filter,
   LayoutTemplate,
-  Workflow,
   Database,
   Mail,
   MessageCircle,
   Route,
   BarChart3,
+  DoorOpen,
   type LucideIcon,
 } from "lucide-react";
 
@@ -27,6 +25,7 @@ import { Container, Section, SectionHeading } from "./ui";
 import { Reveal } from "./Reveal";
 
 type Group = {
+  index: string;
   title: string;
   summary: string;
   items: { label: string; icon: LucideIcon }[];
@@ -34,45 +33,48 @@ type Group = {
 
 const GROUPS: Group[] = [
   {
-    title: "Visual Production",
-    summary: "Cinema-grade assets that make a property impossible to scroll past.",
+    index: "01",
+    title: "Production Visuelle",
+    summary: "Des images au niveau du luxe automobile, pensées pour arrêter le scroll.",
     items: [
-      { label: "Real Estate Photography", icon: Camera },
-      { label: "Cinematic Videos", icon: Film },
+      { label: "Photographie Immobilière", icon: Camera },
+      { label: "Vidéo cinématographique", icon: Film },
+      { label: "Room Tour", icon: DoorOpen },
       { label: "Drone", icon: Plane },
       { label: "Matterport", icon: Box },
-      { label: "3D Architectural Visualization", icon: Building2 },
+      { label: "Architecture 3D", icon: Building2 },
     ],
   },
   {
+    index: "02",
     title: "Marketing",
-    summary: "Positioning, story and content that build desire before the first viewing.",
+    summary: "Positionnement, récit et contenu qui créent le désir avant la première visite.",
     items: [
-      { label: "Creative Strategy", icon: Lightbulb },
-      { label: "Content Creation", icon: PenTool },
+      { label: "Stratégie de contenu", icon: Lightbulb },
       { label: "Personal Branding", icon: UserRound },
-      { label: "Social Media", icon: Share2 },
+      { label: "Réseaux sociaux", icon: Share2 },
     ],
   },
   {
+    index: "03",
     title: "Growth",
-    summary: "Paid acquisition engineered for qualified buyer and seller pipeline.",
+    summary: "Acquisition payante et organique conçue pour générer du pipeline qualifié.",
     items: [
       { label: "Lead Generation", icon: Target },
       { label: "Meta Ads", icon: Megaphone },
       { label: "Google Ads", icon: Search },
       { label: "TikTok Ads", icon: Music2 },
-      { label: "Funnels", icon: Filter },
       { label: "Landing Pages", icon: LayoutTemplate },
     ],
   },
   {
+    index: "04",
     title: "Automation",
-    summary: "The infrastructure that follows up, routes and reports while you sell.",
+    summary: "L'infrastructure qui relance, qualifie et mesure pendant que vous vendez.",
     items: [
       { label: "HubSpot CRM", icon: Database },
-      { label: "Email Automation", icon: Mail },
       { label: "WhatsApp Automation", icon: MessageCircle },
+      { label: "Email Automation", icon: Mail },
       { label: "Lead Routing", icon: Route },
       { label: "Dashboards", icon: BarChart3 },
     ],
@@ -84,17 +86,19 @@ export function Services() {
     <Section id="services" className="border-t border-border/70">
       <Container>
         <SectionHeading
-          eyebrow="Services"
-          title="Four disciplines. One growth engine."
-          description="We do not sell shoots. We build the full commercial layer around your inventory."
+          eyebrow="Nos expertises"
+          title="Quatre disciplines. Un seul moteur de croissance."
+          description="Nous ne vendons pas des shootings. Nous construisons toute la couche commerciale autour de vos biens."
         />
 
         <div className="mt-16 grid gap-5 md:grid-cols-2">
           {GROUPS.map((group, gi) => (
             <Reveal key={group.title} delay={gi * 90}>
-              <article className="surface group h-full p-8 transition-all duration-500 hover:-translate-y-1 hover:border-primary/25 hover:shadow-[var(--shadow-lift)]">
-                <div className="flex items-center gap-3">
-                  <Workflow size={16} className="text-primary" />
+              <article className="surface group h-full p-8 transition-all duration-500 hover:-translate-y-1 hover:border-primary/25 hover:shadow-[var(--shadow-lift)] md:p-10">
+                <div className="flex items-baseline gap-3">
+                  <span className="font-display text-xs tracking-[0.2em] text-primary">
+                    {group.index}
+                  </span>
                   <h3 className="font-display text-2xl font-medium tracking-tight">
                     {group.title}
                   </h3>

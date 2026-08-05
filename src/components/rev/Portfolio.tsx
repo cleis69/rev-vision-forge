@@ -12,9 +12,9 @@ import { Container, Section, SectionHeading } from "./ui";
 import { Reveal } from "./Reveal";
 
 const FILTERS = [
-  "All",
-  "Photography",
-  "Video",
+  "Tout",
+  "Photo",
+  "Vidéo",
   "Drone",
   "Matterport",
   "Architecture",
@@ -26,73 +26,73 @@ type Filter = (typeof FILTERS)[number];
 const WORK: {
   src: string;
   alt: string;
-  tag: Exclude<Filter, "All">;
+  tag: Exclude<Filter, "Tout">;
   title: string;
   w: number;
   h: number;
 }[] = [
   {
     src: drone,
-    alt: "Aerial dusk view of a cliffside villa",
+    alt: "Vue aérienne au crépuscule d'une villa contemporaine en bord de falaise",
     tag: "Drone",
-    title: "Cliff House — Aerial Film",
+    title: "Cliff House — Film aérien",
     w: 1024,
     h: 1280,
   },
   {
     src: interior,
-    alt: "Dark minimalist luxury living room",
-    tag: "Photography",
-    title: "Noir Residence — Interiors",
+    alt: "Salon d'une résidence de luxe aux tonalités sombres",
+    tag: "Photo",
+    title: "Résidence Noir — Intérieurs",
     w: 1024,
     h: 768,
   },
   {
     src: video,
-    alt: "Penthouse terrace overlooking a night skyline",
-    tag: "Video",
-    title: "Skyline Penthouse — Lifestyle Film",
+    alt: "Terrasse de penthouse surplombant une skyline de nuit",
+    tag: "Vidéo",
+    title: "Penthouse Skyline — Film lifestyle",
     w: 1024,
     h: 1280,
   },
   {
     src: matterport,
-    alt: "3D digital twin dollhouse view of an apartment",
+    alt: "Jumeau numérique 3D d'un appartement en vue maison de poupée",
     tag: "Matterport",
-    title: "Tower 04 — Digital Twin",
+    title: "Tour 04 — Visite virtuelle",
     w: 1024,
     h: 768,
   },
   {
     src: architecture,
-    alt: "Geometric concrete facade in shadow",
+    alt: "Façade en béton aux lignes géométriques dans l'ombre",
     tag: "Architecture",
-    title: "Grid Facade — Architectural Study",
+    title: "Grid Facade — Étude architecturale",
     w: 1024,
     h: 1024,
   },
   {
     src: branding,
-    alt: "Dark matte business cards with embossed monogram",
+    alt: "Cartes de visite noires mates avec monogramme embossé",
     tag: "Branding",
-    title: "Meridian — Identity System",
+    title: "Meridian — Identité de marque",
     w: 1024,
     h: 1024,
   },
   {
     src: photography,
-    alt: "Glass residential tower at twilight",
-    tag: "Photography",
-    title: "Vertical Living — Exteriors",
+    alt: "Tour résidentielle vitrée photographiée au crépuscule",
+    tag: "Photo",
+    title: "Vertical Living — Extérieurs",
     w: 1024,
     h: 768,
   },
 ];
 
 export function Portfolio() {
-  const [active, setActive] = useState<Filter>("All");
+  const [active, setActive] = useState<Filter>("Tout");
   const items = useMemo(
-    () => (active === "All" ? WORK : WORK.filter((w) => w.tag === active)),
+    () => (active === "Tout" ? WORK : WORK.filter((w) => w.tag === active)),
     [active],
   );
 
@@ -101,8 +101,8 @@ export function Portfolio() {
       <Container>
         <SectionHeading
           eyebrow="Portfolio"
-          title="Work that moves inventory."
-          description="A selection of recent productions across residential, commercial and development projects."
+          title="Des réalisations qui font vendre."
+          description="Une sélection de productions récentes en résidentiel, commercial et programmes neufs."
         />
 
         <Reveal className="mt-10 flex flex-wrap gap-2">
@@ -111,6 +111,7 @@ export function Portfolio() {
               key={f}
               type="button"
               onClick={() => setActive(f)}
+              aria-pressed={active === f}
               className={cn(
                 "h-9 rounded-full border px-4 text-xs uppercase tracking-[0.14em] transition-all duration-300",
                 active === f

@@ -7,31 +7,31 @@ import { Reveal, useInView } from "./Reveal";
 const PILLARS = [
   {
     icon: Gem,
-    title: "Luxury Visuals",
-    body: "Production standards borrowed from fashion and automotive, applied to property.",
+    title: "Production Premium",
+    body: "Des standards empruntés à la mode et à l'automobile de luxe, appliqués à l'immobilier.",
   },
   {
     icon: Compass,
-    title: "Marketing Strategy",
-    body: "Positioning, offer and narrative defined before a single frame is captured.",
+    title: "Marketing Stratégique",
+    body: "Positionnement, offre et récit définis avant la première image capturée.",
   },
   {
     icon: Target,
-    title: "Qualified Leads",
-    body: "Paid acquisition built around buyer intent, not vanity impressions.",
+    title: "Lead Generation",
+    body: "Acquisition construite autour de l'intention d'achat, pas des impressions.",
   },
   {
     icon: Cpu,
-    title: "Automation",
-    body: "CRM, routing and follow-up that keep every opportunity warm around the clock.",
+    title: "Automatisation CRM",
+    body: "HubSpot, routage et relances qui gardent chaque opportunité vivante.",
   },
 ];
 
 const STATS = [
-  { value: 250, suffix: "+", label: "Projects" },
-  { value: 98, suffix: "%", label: "Satisfied Clients" },
-  { value: 24, suffix: "h", label: "Delivery" },
-  { value: 7, suffix: "+", label: "Years Experience" },
+  { value: 250, suffix: "+", label: "Projets réalisés" },
+  { value: 98, suffix: "%", label: "Clients satisfaits" },
+  { value: 24, suffix: "h", label: "Délai de livraison" },
+  { value: 7, suffix: "+", label: "Années d'expérience" },
 ];
 
 function Counter({ value, suffix }: { value: number; suffix: string }) {
@@ -72,9 +72,9 @@ export function WhyRev() {
     <Section className="border-t border-border/70">
       <Container>
         <SectionHeading
-          eyebrow="Why REV"
-          title="A partner, not a supplier."
-          description="Four capabilities that compound when they run inside one team."
+          eyebrow="Pourquoi REV"
+          title="Un partenaire, pas un prestataire."
+          description="Quatre expertises dont la valeur se démultiplie lorsqu'elles vivent dans une seule équipe."
         />
 
         <div className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">

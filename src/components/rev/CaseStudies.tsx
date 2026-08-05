@@ -6,48 +6,53 @@ import { Reveal } from "./Reveal";
 
 const CASES = [
   {
-    client: "Meridian Developments",
-    title: "42 units sold before completion",
+    client: "Meridian Développement",
+    title: "42 lots vendus avant la livraison",
     image: drone,
-    alt: "Aerial view of a cliffside development at dusk",
-    challenge: "A coastal development launching into a saturated market with no visual identity.",
+    alt: "Vue aérienne d'un programme immobilier en bord de falaise au crépuscule",
+    challenge:
+      "Un programme côtier lancé sur un marché saturé, sans identité visuelle ni tunnel d'acquisition.",
     solution:
-      "Cinematic launch film, drone masters, Matterport twins and a conversion-first landing page fed by Meta and Google.",
-    results: "Sell-out reached five months ahead of the projected absorption curve.",
+      "Film de lancement cinématographique, masters drone, visites Matterport et landing page de conversion alimentée par Meta et Google Ads.",
+    results:
+      "Commercialisation complète atteinte cinq mois avant la courbe d'absorption prévisionnelle.",
     kpis: [
-      { value: "42", label: "Units sold" },
-      { value: "3.1x", label: "ROAS" },
-      { value: "−38%", label: "Cost per lead" },
+      { value: "42", label: "Lots vendus" },
+      { value: "3,1x", label: "ROAS" },
+      { value: "−38%", label: "Coût par lead" },
     ],
   },
   {
     client: "Alta Group",
-    title: "From cold list to qualified pipeline",
+    title: "D'un fichier dormant à un pipeline qualifié",
     image: interior,
-    alt: "Dark luxury interior living room",
-    challenge: "An agency with strong inventory but a CRM full of unworked, unscored leads.",
+    alt: "Intérieur de résidence de luxe aux tonalités sombres",
+    challenge:
+      "Une agence disposant d'un beau portefeuille mais d'un CRM saturé de leads non traités.",
     solution:
-      "HubSpot rebuild, lead scoring, WhatsApp and email automation, plus a monthly premium content engine.",
-    results: "Response time collapsed and viewings per agent nearly doubled in one quarter.",
+      "Refonte HubSpot, scoring des leads, automatisations email et WhatsApp, et moteur de contenu premium mensuel.",
+    results:
+      "Temps de réponse divisé par dix et nombre de visites par conseiller quasiment doublé en un trimestre.",
     kpis: [
-      { value: "+186%", label: "Viewings booked" },
-      { value: "4 min", label: "Response time" },
-      { value: "92%", label: "Leads qualified" },
+      { value: "+186%", label: "Visites générées" },
+      { value: "4 min", label: "Temps de réponse" },
+      { value: "92%", label: "Leads qualifiés" },
     ],
   },
   {
     client: "Orion Estates",
-    title: "A personal brand that outsells the portal",
+    title: "Un personal branding plus performant que les portails",
     image: photography,
-    alt: "Glass residential tower at twilight",
-    challenge: "A top agent invisible outside of portal listings and dependent on paid inventory.",
+    alt: "Tour résidentielle vitrée photographiée au crépuscule",
+    challenge:
+      "Un agent référent invisible en dehors des portails et dépendant de mandats achetés.",
     solution:
-      "Personal branding production, weekly short-form distribution and a listing-magnet funnel.",
-    results: "Inbound seller enquiries became the primary acquisition channel within 90 days.",
+      "Production personal branding, distribution hebdomadaire en format court et tunnel d'acquisition de mandats.",
+    results: "Les demandes vendeurs entrantes sont devenues le premier canal en 90 jours.",
     kpis: [
-      { value: "5.4M", label: "Organic views" },
-      { value: "77", label: "Inbound sellers" },
-      { value: "24h", label: "Asset delivery" },
+      { value: "5,4M", label: "Vues organiques" },
+      { value: "77", label: "Mandats entrants" },
+      { value: "24h", label: "Livraison des assets" },
     ],
   },
 ];
@@ -57,9 +62,9 @@ export function CaseStudies() {
     <Section id="case-studies" className="border-t border-border/70">
       <Container>
         <SectionHeading
-          eyebrow="Case Studies"
-          title="Proof, measured in signed contracts."
-          description="Selected engagements where visual production and growth infrastructure worked as one."
+          eyebrow="Études de cas"
+          title="La preuve, mesurée en contrats signés."
+          description="Une sélection de missions où production visuelle et infrastructure d'acquisition avancent ensemble."
         />
 
         <div className="mt-16 space-y-6">
@@ -87,11 +92,11 @@ export function CaseStudies() {
 
                     <dl className="mt-8 space-y-5">
                       {[
-                        ["Challenge", item.challenge],
+                        ["Problématique", item.challenge],
                         ["Solution", item.solution],
-                        ["Results", item.results],
+                        ["Résultats", item.results],
                       ].map(([label, body]) => (
-                        <div key={label} className="grid gap-1 sm:grid-cols-[110px_minmax(0,1fr)]">
+                        <div key={label} className="grid gap-1 sm:grid-cols-[130px_minmax(0,1fr)]">
                           <dt className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                             {label}
                           </dt>

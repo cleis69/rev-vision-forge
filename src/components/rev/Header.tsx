@@ -4,6 +4,8 @@ import { Menu, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Container } from "./ui";
+import { RevLogo } from "./Logo";
+
 
 const NAV = [
   { label: "Accueil", to: "/" },

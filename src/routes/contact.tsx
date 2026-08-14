@@ -54,7 +54,7 @@ function ContactPage() {
               </h2>
               <form
                 className="mt-8 space-y-5"
-                action="mailto:contact@rev-agency.com"
+                action="mailto:contact@realestatevision360.com"
                 method="post"
                 encType="text/plain"
               >
@@ -78,8 +78,8 @@ function ContactPage() {
                         aria-pressed={need === n}
                         className={
                           need === n
-                            ? "h-9 rounded-full border border-primary/50 bg-primary/10 px-4 text-xs text-foreground"
-                            : "h-9 rounded-full border border-border px-4 text-xs text-muted-foreground transition-colors hover:border-foreground/25 hover:text-foreground"
+                            ? "h-9 rounded-lg border border-primary/50 bg-primary/10 px-4 text-xs text-foreground"
+                            : "h-9 rounded-lg border border-border px-4 text-xs text-muted-foreground transition-colors hover:border-foreground/25 hover:text-foreground"
                         }
                       >
                         {n}
@@ -97,14 +97,14 @@ function ContactPage() {
                     name="message"
                     rows={5}
                     required
-                    className="mt-2 w-full rounded-xl border border-border bg-elevated px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/50"
+                    className="mt-2 w-full rounded-lg border border-border bg-elevated px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/50"
                     placeholder="Programme, typologie, échéance de commercialisation…"
                   />
                 </label>
 
                 <button
                   type="submit"
-                  className="group inline-flex h-12 items-center gap-2 rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-hover"
+                  className="group inline-flex h-12 items-center gap-2 rounded-lg bg-primary px-6 text-sm font-medium text-primary-foreground transition-all duration-300 hover:bg-primary-hover active:scale-[0.98]"
                 >
                   Envoyer la demande
                   <ArrowUpRight size={16} />
@@ -125,7 +125,7 @@ function ContactPage() {
                   href="https://calendly.com/rev-agency/30min"
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-5 inline-flex h-11 items-center gap-2 rounded-full border border-border px-5 text-sm transition-colors hover:border-primary/50 hover:text-primary"
+                  className="mt-5 inline-flex h-11 items-center gap-2 rounded-lg border border-border px-5 text-sm transition-colors hover:border-primary/50 hover:text-primary"
                 >
                   Ouvrir Calendly
                   <ArrowUpRight size={15} />
@@ -139,10 +139,10 @@ function ContactPage() {
                   Pour une question rapide ou un devis urgent.
                 </p>
                 <a
-                  href="https://wa.me/33100000000"
+                  href="https://wa.me/33675627707?text=${WA_TEXT}"
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-5 inline-flex h-11 items-center gap-2 rounded-full border border-border px-5 text-sm transition-colors hover:border-primary/50 hover:text-primary"
+                  className="mt-5 inline-flex h-11 items-center gap-2 rounded-lg border border-border px-5 text-sm transition-colors hover:border-primary/50 hover:text-primary"
                 >
                   Écrire sur WhatsApp
                   <ArrowUpRight size={15} />
@@ -156,20 +156,20 @@ function ContactPage() {
                 <ul className="mt-6 space-y-4 text-sm">
                   <li>
                     <a
-                      href="mailto:contact@rev-agency.com"
+                      href="mailto:contact@realestatevision360.com"
                       className="flex items-center gap-3 text-muted-foreground transition-colors hover:text-foreground"
                     >
                       <Mail size={15} className="shrink-0" />
-                      contact@rev-agency.com
+                      contact@realestatevision360.com
                     </a>
                   </li>
                   <li>
                     <a
-                      href="tel:+33100000000"
+                      href="tel:+33675627707"
                       className="flex items-center gap-3 text-muted-foreground transition-colors hover:text-foreground"
                     >
                       <Phone size={15} className="shrink-0" />
-                      +33 1 00 00 00 00
+                      +33 6 75 62 77 07
                     </a>
                   </li>
                   <li className="flex items-start gap-3 text-muted-foreground">
@@ -215,7 +215,7 @@ function Field({
         name={name}
         required
         autoComplete={autoComplete}
-        className="mt-2 h-11 w-full rounded-xl border border-border bg-elevated px-4 text-sm text-foreground outline-none transition-colors focus:border-primary/50"
+        className="mt-2 h-11 w-full rounded-lg border border-border bg-elevated px-4 text-sm text-foreground outline-none transition-colors focus:border-primary/50"
       />
     </label>
   );

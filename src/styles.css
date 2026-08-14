@@ -45,7 +45,7 @@
 }
 
 :root {
-  --radius: 1rem;
+  --radius: 0.625rem;
 
   --background: oklch(0.146 0 0); /* #090909 */
   --foreground: oklch(0.965 0.003 106); /* #F5F5F3 */
@@ -55,9 +55,9 @@
   --popover: oklch(0.178 0 0);
   --popover-foreground: oklch(0.965 0.003 106);
 
-  --primary: oklch(0.623 0.188 259.8); /* #3B82F6 */
-  --primary-hover: oklch(0.714 0.143 254.6); /* #60A5FA */
-  --primary-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.745 0.062 78); /* #C8A96A champagne */
+  --primary-hover: oklch(0.812 0.052 80); /* #D9BD85 */
+  --primary-foreground: oklch(0.16 0 0); /* #0B0B0B */
 
   --secondary: oklch(0.205 0 0);
   --secondary-foreground: oklch(0.965 0.003 106);
@@ -70,7 +70,7 @@
 
   --border: oklch(0.269 0 0); /* #262626 */
   --input: oklch(0.269 0 0);
-  --ring: oklch(0.623 0.188 259.8);
+  --ring: oklch(0.745 0.062 78);
 
   --shadow-soft: 0 1px 0 0 oklch(1 0 0 / 4%) inset, 0 24px 60px -24px oklch(0 0 0 / 80%);
   --shadow-lift: 0 1px 0 0 oklch(1 0 0 / 6%) inset, 0 40px 90px -30px oklch(0 0 0 / 90%);
@@ -136,7 +136,7 @@
 @utility surface {
   background: var(--gradient-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-soft);
 }
 

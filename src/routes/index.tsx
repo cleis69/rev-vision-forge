@@ -34,8 +34,8 @@ export const Route = createFileRoute("/")({
           name: "REV — Real Estate Vision",
           description: DESCRIPTION,
           areaServed: "FR",
-          email: "contact@rev-agency.com",
-          telephone: "+33100000000",
+          email: "contact@realestatevision360.com",
+          telephone: "+33675627707",
         }),
       },
       {

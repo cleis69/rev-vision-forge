@@ -113,20 +113,20 @@ export function Footer() {
             <ul className="mt-6 space-y-3 text-sm">
               <li>
                 <a
-                  href="mailto:contact@rev-agency.com"
+                  href="mailto:contact@realestatevision360.com"
                   className="flex items-center gap-3 text-muted-foreground transition-colors duration-300 hover:text-foreground"
                 >
                   <Mail size={15} className="shrink-0" />
-                  contact@rev-agency.com
+                  contact@realestatevision360.com
                 </a>
               </li>
               <li>
                 <a
-                  href="tel:+33100000000"
+                  href="tel:+33675627707"
                   className="flex items-center gap-3 text-muted-foreground transition-colors duration-300 hover:text-foreground"
                 >
                   <Phone size={15} className="shrink-0" />
-                  +33 1 00 00 00 00
+                  +33 6 75 62 77 07
                 </a>
               </li>
             </ul>

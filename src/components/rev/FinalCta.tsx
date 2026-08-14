@@ -12,6 +12,7 @@ import { Link } from "@tanstack/react-router";
 import { Container, Cta } from "./ui";
 import { WHATSAPP_URL } from "@/lib/contact";
 import { Reveal } from "./Reveal";
+import { RevLogo } from "./Logo";
 
 const NAV = [
   { label: "Accueil", to: "/" },
@@ -73,12 +74,7 @@ export function Footer() {
       <Container>
         <div className="grid gap-14 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)]">
           <div>
-            <div className="flex items-center gap-3">
-              <span className="grid h-9 w-9 place-items-center rounded-xl border border-border bg-card font-display text-[13px] font-semibold">
-                R
-              </span>
-              <span className="font-display text-sm font-semibold tracking-[0.18em]">REV</span>
-            </div>
+            <RevLogo className="h-5 w-auto text-foreground" />
             <p className="mt-6 max-w-sm text-sm leading-relaxed text-muted-foreground">
               Agence de croissance immobilière. Production visuelle premium, marketing stratégique,
               génération de leads et automatisation.

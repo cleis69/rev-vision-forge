@@ -1,7 +1,16 @@
-import { ArrowUpRight, Instagram, Linkedin, Youtube, Mail, Phone } from "lucide-react";
+import {
+  ArrowUpRight,
+  Instagram,
+  Linkedin,
+  Youtube,
+  Mail,
+  MessageCircle,
+  Phone,
+} from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 import { Container, Cta } from "./ui";
+import { WHATSAPP_URL } from "@/lib/contact";
 import { Reveal } from "./Reveal";
 
 const NAV = [

@@ -80,10 +80,10 @@ type CtaProps = {
 
 export function Cta({ children, href, variant = "primary", className }: CtaProps) {
   const classes = cn(
-    "group inline-flex h-12 items-center justify-center gap-2 rounded-full px-6 text-sm font-medium transition-all duration-300",
+    "group inline-flex h-12 items-center justify-center gap-2 rounded-lg px-6 text-sm font-medium transition-all duration-300 active:scale-[0.98]",
     variant === "primary"
-      ? "bg-primary text-primary-foreground shadow-[0_10px_40px_-12px_var(--primary)] hover:-translate-y-0.5 hover:bg-primary-hover"
-      : "border border-border bg-card/40 text-foreground backdrop-blur-md hover:-translate-y-0.5 hover:border-foreground/25 hover:bg-elevated",
+      ? "bg-primary text-primary-foreground hover:bg-primary-hover"
+      : "border border-border bg-transparent text-foreground backdrop-blur-md hover:bg-foreground/10",
     className,
   );
 

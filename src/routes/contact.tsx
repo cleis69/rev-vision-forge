@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CalendarClock, Mail, MapPin, MessageCircle, Phone, ArrowUpRight } from "lucide-react";
 
 import { Container, PageHero, Section } from "@/components/rev/ui";
+import { WHATSAPP_URL } from "@/lib/contact";
 import { Reveal } from "@/components/rev/Reveal";
 import heroVilla from "@/assets/hero-villa.jpg";
 
@@ -139,7 +140,7 @@ function ContactPage() {
                   Pour une question rapide ou un devis urgent.
                 </p>
                 <a
-                  href="https://wa.me/33675627707?text=${WA_TEXT}"
+                  href={WHATSAPP_URL}
                   target="_blank"
                   rel="noreferrer"
                   className="mt-5 inline-flex h-11 items-center gap-2 rounded-lg border border-border px-5 text-sm transition-colors hover:border-primary/50 hover:text-primary"

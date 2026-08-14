@@ -129,6 +129,17 @@ export function Footer() {
                   +33 6 75 62 77 07
                 </a>
               </li>
+              <li>
+                <a
+                  href={WHATSAPP_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-3 text-muted-foreground transition-colors duration-300 hover:text-foreground"
+                >
+                  <MessageCircle size={15} className="shrink-0" />
+                  WhatsApp · 06 75 62 77 07
+                </a>
+              </li>
             </ul>
           </div>
         </div>

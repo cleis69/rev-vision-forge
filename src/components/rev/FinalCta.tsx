@@ -1,7 +1,16 @@
-import { ArrowUpRight, Instagram, Linkedin, Youtube, Mail, Phone } from "lucide-react";
+import {
+  ArrowUpRight,
+  Instagram,
+  Linkedin,
+  Youtube,
+  Mail,
+  MessageCircle,
+  Phone,
+} from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 import { Container, Cta } from "./ui";
+import { WHATSAPP_URL } from "@/lib/contact";
 import { Reveal } from "./Reveal";
 
 const NAV = [
@@ -113,20 +122,31 @@ export function Footer() {
             <ul className="mt-6 space-y-3 text-sm">
               <li>
                 <a
-                  href="mailto:contact@rev-agency.com"
+                  href="mailto:contact@realestatevision360.com"
                   className="flex items-center gap-3 text-muted-foreground transition-colors duration-300 hover:text-foreground"
                 >
                   <Mail size={15} className="shrink-0" />
-                  contact@rev-agency.com
+                  contact@realestatevision360.com
                 </a>
               </li>
               <li>
                 <a
-                  href="tel:+33100000000"
+                  href="tel:+33675627707"
                   className="flex items-center gap-3 text-muted-foreground transition-colors duration-300 hover:text-foreground"
                 >
                   <Phone size={15} className="shrink-0" />
-                  +33 1 00 00 00 00
+                  +33 6 75 62 77 07
+                </a>
+              </li>
+              <li>
+                <a
+                  href={WHATSAPP_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-3 text-muted-foreground transition-colors duration-300 hover:text-foreground"
+                >
+                  <MessageCircle size={15} className="shrink-0" />
+                  WhatsApp · 06 75 62 77 07
                 </a>
               </li>
             </ul>

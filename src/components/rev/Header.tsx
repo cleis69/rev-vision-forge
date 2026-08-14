@@ -4,6 +4,8 @@ import { Menu, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Container } from "./ui";
+import { RevLogo } from "./Logo";
+
 
 const NAV = [
   { label: "Accueil", to: "/" },
@@ -38,17 +40,10 @@ export function Header() {
       )}
     >
       <Container className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 lg:flex lg:justify-between">
-        <Link to="/" className="flex min-w-0 items-center gap-3">
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border bg-card font-display text-[13px] font-semibold tracking-tight">
-            R
-          </span>
-          <span className="min-w-0">
-            <span className="block font-display text-sm font-semibold tracking-[0.18em]">REV</span>
-            <span className="block truncate text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-              Real Estate Vision
-            </span>
-          </span>
+        <Link to="/" className="flex min-w-0 items-center" aria-label="REV — Real Estate Vision">
+          <RevLogo className="h-5 w-auto text-foreground" />
         </Link>
+
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Navigation principale">
           {NAV.map((item) => (

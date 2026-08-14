@@ -2,9 +2,15 @@ import { useEffect, useState } from "react";
 import { ArrowUpRight, Play } from "lucide-react";
 
 import heroVilla from "@/assets/hero-villa.jpg";
+import { WHATSAPP_URL } from "@/lib/contact";
 import { Container, Cta } from "./ui";
 
-const TAGS = ["Villa de luxe", "Drone", "Architecture", "Intérieur", "Matterport", "Lifestyle"];
+const PILLARS = [
+  { n: "01", title: "Production visuelle", items: "photo · vidéo · drone · 3D" },
+  { n: "02", title: "Marketing & contenu", items: "ligne éditoriale · branding" },
+  { n: "03", title: "Acquisition", items: "Meta · Google · TikTok" },
+  { n: "04", title: "Automation & CRM", items: "HubSpot · WhatsApp" },
+] as const;
 
 export function Hero() {
   const [offset, setOffset] = useState(0);
@@ -23,7 +29,10 @@ export function Hero() {
   }, []);
 
   return (
-    <section id="home" className="relative flex min-h-[100svh] items-center overflow-hidden">
+    <section
+      id="home"
+      className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden"
+    >
       <div
         className="absolute inset-0 -z-20"
         style={{ transform: `translate3d(0, ${offset * 0.25}px, 0) scale(1.12)` }}
@@ -47,7 +56,7 @@ export function Hero() {
         aria-hidden
       />
 
-      <Container className="relative pb-28 pt-32">
+      <Container className="relative flex-1 pb-20 pt-40">
         <div className="max-w-4xl">
           <div className="inline-flex items-center gap-3 rounded-full border border-border bg-card/50 px-4 py-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground backdrop-blur-md">
             <span className="h-1.5 w-1.5 rounded-full bg-primary" />
@@ -76,23 +85,32 @@ export function Hero() {
               <Play size={14} className="text-primary" />
               Prendre rendez-vous
             </Cta>
+            <Cta href={WHATSAPP_URL} variant="ghost">
+              WhatsApp · 06 75 62 77 07
+            </Cta>
           </div>
-
-          <ul className="mt-14 flex flex-wrap gap-x-6 gap-y-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-            {TAGS.map((tag) => (
-              <li key={tag}>{tag}</li>
-            ))}
-          </ul>
         </div>
       </Container>
 
-      <div className="absolute inset-x-0 bottom-8 flex justify-center">
-        <div className="flex h-10 w-6 items-start justify-center rounded-full border border-border/80 p-1.5">
-          <span
-            className="h-1.5 w-1.5 rounded-full bg-primary"
-            style={{ animation: "rev-scroll-dot 2s cubic-bezier(0.16,1,0.3,1) infinite" }}
-          />
-        </div>
+      <div className="relative border-t border-border bg-card">
+        <Container className="grid grid-cols-2 lg:grid-cols-4">
+          {PILLARS.map((p, i) => (
+            <div
+              key={p.n}
+              className={
+                i === 0
+                  ? "px-5 py-8 md:px-8 md:py-10"
+                  : "border-l border-border px-5 py-8 md:px-8 md:py-10"
+              }
+            >
+              <span className="text-[11px] font-medium tracking-[0.22em] text-primary">{p.n}</span>
+              <p className="mt-4 font-display text-sm font-medium tracking-tight md:text-base">
+                {p.title}
+              </p>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{p.items}</p>
+            </div>
+          ))}
+        </Container>
       </div>
     </section>
   );

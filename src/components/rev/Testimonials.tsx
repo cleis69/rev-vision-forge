@@ -65,7 +65,7 @@ export function Testimonials() {
                   type="button"
                   aria-label="Avis précédent"
                   onClick={() => go(-1)}
-                  className="grid h-10 w-10 place-items-center rounded-full border border-border transition-colors duration-300 hover:border-primary/50 hover:text-primary"
+                  className="grid h-10 w-10 place-items-center rounded-lg border border-border transition-colors duration-300 hover:border-primary/50 hover:text-primary"
                 >
                   <ArrowLeft size={16} />
                 </button>
@@ -73,7 +73,7 @@ export function Testimonials() {
                   type="button"
                   aria-label="Avis suivant"
                   onClick={() => go(1)}
-                  className="grid h-10 w-10 place-items-center rounded-full border border-border transition-colors duration-300 hover:border-primary/50 hover:text-primary"
+                  className="grid h-10 w-10 place-items-center rounded-lg border border-border transition-colors duration-300 hover:border-primary/50 hover:text-primary"
                 >
                   <ArrowRight size={16} />
                 </button>

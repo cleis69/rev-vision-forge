@@ -53,7 +53,7 @@ export function Header() {
               activeOptions={{ exact: item.to === "/" }}
               activeProps={{ className: "text-foreground" }}
               inactiveProps={{ className: "text-muted-foreground" }}
-              className="rounded-full px-4 py-2 text-sm transition-colors duration-300 hover:text-foreground"
+              className="rounded-lg px-4 py-2 text-sm transition-colors duration-300 hover:text-foreground"
             >
               {item.label}
             </Link>
@@ -63,7 +63,7 @@ export function Header() {
         <div className="hidden lg:block">
           <Link
             to="/contact"
-            className="inline-flex h-10 items-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors duration-300 hover:bg-primary-hover"
+            className="inline-flex h-10 items-center rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors duration-300 hover:bg-primary-hover"
           >
             Prendre rendez-vous
           </Link>
@@ -73,7 +73,7 @@ export function Header() {
           type="button"
           aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
           onClick={() => setOpen((v) => !v)}
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border bg-card/60 lg:hidden"
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-border bg-card/60 lg:hidden"
         >
           {open ? <X size={18} /> : <Menu size={18} />}
         </button>

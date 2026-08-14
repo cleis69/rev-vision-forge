@@ -29,3 +29,16 @@ export function RevLogo({ className }: { className?: string }) {
     </svg>
   );
 }
+
+export function RevMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 92 100" className={className} role="img" aria-label="REV" fill="currentColor">
+      <path d="M0 0 L22 0 L22 100 L0 100 Z" />
+      <path
+        d="M22 0 L58 0 C74.57 0 88 13.43 88 30 C88 46.57 74.57 60 58 60 L22 60 Z M22 19 L58 19 C64.07 19 69 23.93 69 30 C69 36.07 64.07 41 58 41 L22 41 Z"
+        fillRule="evenodd"
+      />
+      <path d="M46 54 L70 54 L92 100 L68 100 Z" />
+    </svg>
+  );
+}

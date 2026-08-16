@@ -37,10 +37,10 @@ export function Ecosystem() {
       }
 
       const tl = gsap.timeline({
-        scrollTrigger: { trigger: root, start: "top 78%", end: "bottom 70%", scrub: 0.6, once: false },
+        scrollTrigger: { trigger: root, start: "top 72%", once: true },
       });
 
-      tl.fromTo(line, { scaleY: 0 }, { scaleY: 1, ease: "none", duration: STEPS.length });
+      tl.fromTo(line, { scaleY: 0 }, { scaleY: 1, ease: "none", duration: STEPS.length * 0.92 });
       nodes.forEach((node, i) => {
         tl.fromTo(
           node,

@@ -10,6 +10,7 @@ import interior from "@/assets/work-interior.jpg";
 import { cn } from "@/lib/utils";
 import { Container, Section, SectionHeading } from "./ui";
 import { Reveal } from "./Reveal";
+import { SpotlightCard } from "@/components/reactbits/SpotlightCard";
 
 const FILTERS = [
   "Tout",
@@ -127,7 +128,8 @@ export function Portfolio() {
         <div className="mt-10 columns-1 gap-5 sm:columns-2 lg:columns-3">
           {items.map((item, i) => (
             <Reveal key={item.title} delay={i * 60} className="mb-5 break-inside-avoid">
-              <figure className="group relative overflow-hidden rounded-2xl border border-border bg-card">
+              <SpotlightCard className="group rounded-2xl border border-border bg-card transition-colors duration-500 hover:border-primary/30">
+              <figure className="relative overflow-hidden rounded-2xl">
                 <img
                   src={item.src}
                   alt={item.alt}
@@ -143,6 +145,7 @@ export function Portfolio() {
                   </span>
                 </figcaption>
               </figure>
+              </SpotlightCard>
             </Reveal>
           ))}
         </div>

@@ -4,6 +4,8 @@ import { ArrowUpRight, Play } from "lucide-react";
 import heroVilla from "@/assets/hero-villa.jpg";
 import { WHATSAPP_URL } from "@/lib/contact";
 import { Container, Cta } from "./ui";
+import { VantaBackground } from "./VantaBackground";
+import { SplitText } from "@/components/reactbits/SplitText";
 
 const PILLARS = [
   { n: "01", title: "Production visuelle", items: "photo · vidéo · drone · 3D" },
@@ -46,6 +48,18 @@ export function Hero() {
           className="h-full w-full object-cover opacity-70"
         />
       </div>
+      <VantaBackground
+        className="absolute inset-0 -z-[15] opacity-45 mix-blend-screen"
+        options={{
+          highlightColor: 0x1a1a1a,
+          midtoneColor: 0x2a2418,
+          lowlightColor: 0x0d0d0d,
+          baseColor: 0x090909,
+          blurFactor: 0.62,
+          speed: 0.7,
+          zoom: 0.85,
+        }}
+      />
       <div
         className="absolute inset-0 -z-10"
         style={{ background: "var(--gradient-veil)" }}
@@ -63,9 +77,13 @@ export function Hero() {
             Agence de croissance immobilière
           </div>
 
-          <h1 className="mt-8 font-display text-[clamp(2.4rem,6.6vw,5.2rem)] font-medium leading-[0.99] tracking-[-0.04em] text-gradient">
-            Le marketing visuel qui accélère les ventes immobilières.
-          </h1>
+          <SplitText
+            as="h1"
+            text="Le marketing visuel qui accélère les ventes immobilières."
+            delay={0.15}
+            start="top 95%"
+            className="mt-8 block font-display text-[clamp(2.4rem,6.6vw,5.2rem)] font-medium leading-[0.99] tracking-[-0.04em] text-gradient"
+          />
 
           <p className="mt-7 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
             REV accompagne les promoteurs, agences et professionnels de l'immobilier avec une

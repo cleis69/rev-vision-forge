@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
+import { useGSAP } from "@gsap/react";
 import { Gem, Compass, Target, Cpu } from "lucide-react";
 
+import { ensureGsap, prefersReducedMotion } from "@/lib/gsap";
 import { Container, Section, SectionHeading } from "./ui";
-import { Reveal, useInView } from "./Reveal";
+import { Reveal } from "./Reveal";
 
 const PILLARS = [
   {
@@ -35,33 +37,40 @@ const STATS = [
 ];
 
 function Counter({ value, suffix }: { value: number; suffix: string }) {
-  const { ref, inView } = useInView<HTMLParagraphElement>(0.4);
-  const [display, setDisplay] = useState(0);
-  const started = useRef(false);
+  const ref = useRef<HTMLParagraphElement | null>(null);
 
-  useEffect(() => {
-    if (!inView || started.current) return;
-    started.current = true;
-    const duration = 1600;
-    const start = performance.now();
-    let frame = 0;
+  useGSAP(
+    () => {
+      const el = ref.current;
+      const target = el?.querySelector<HTMLElement>("[data-count]");
+      if (!el || !target) return;
+      const { gsap } = ensureGsap();
 
-    const tick = (now: number) => {
-      const t = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - t, 3);
-      setDisplay(Math.round(value * eased));
-      if (t < 1) frame = requestAnimationFrame(tick);
-    };
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [inView, value]);
+      if (prefersReducedMotion()) {
+        target.textContent = String(value);
+        return;
+      }
+
+      const counter = { v: 0 };
+      gsap.to(counter, {
+        v: value,
+        duration: 1.8,
+        ease: "power2.out",
+        onUpdate: () => {
+          target.textContent = String(Math.round(counter.v));
+        },
+        scrollTrigger: { trigger: el, start: "top 85%", once: true },
+      });
+    },
+    { scope: ref, dependencies: [value] },
+  );
 
   return (
     <p
       ref={ref}
       className="font-display text-[clamp(2.4rem,5vw,3.6rem)] font-medium leading-none tracking-[-0.04em]"
     >
-      {display}
+      <span data-count>0</span>
       <span className="text-primary">{suffix}</span>
     </p>
   );

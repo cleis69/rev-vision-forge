@@ -218,6 +218,7 @@ html.lenis body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  [data-split-part],
   .reveal-init {
     opacity: 1 !important;
     filter: none !important;

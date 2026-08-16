@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 
 import { cn } from "@/lib/utils";
 import { Reveal } from "./Reveal";
+import { SplitText } from "@/components/reactbits/SplitText";
 
 export function Container({
   children,
@@ -39,9 +40,11 @@ export function SectionHeading({
   return (
     <Reveal className={cn("max-w-2xl", align === "center" && "mx-auto text-center")}>
       <Eyebrow>{eyebrow}</Eyebrow>
-      <h2 className="mt-5 font-display text-[clamp(2rem,4.4vw,3.4rem)] font-medium leading-[1.05] tracking-[-0.03em] text-gradient">
-        {title}
-      </h2>
+      <SplitText
+        as="h2"
+        text={title}
+        className="mt-5 block font-display text-[clamp(2rem,4.4vw,3.4rem)] font-medium leading-[1.05] tracking-[-0.03em] text-gradient"
+      />
       {description ? (
         <p className="mt-5 text-base leading-relaxed text-muted-foreground md:text-lg">
           {description}
@@ -133,9 +136,11 @@ export function PageHero({
       <Container>
         <Reveal className="max-w-4xl">
           <Eyebrow>{eyebrow}</Eyebrow>
-          <h1 className="mt-6 font-display text-[clamp(2.4rem,6vw,4.6rem)] font-medium leading-[1.0] tracking-[-0.04em] text-gradient">
-            {title}
-          </h1>
+          <SplitText
+            as="h1"
+            text={title}
+            className="mt-6 block font-display text-[clamp(2.4rem,6vw,4.6rem)] font-medium leading-[1.0] tracking-[-0.04em] text-gradient"
+          />
           <p className="mt-7 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
             {description}
           </p>

@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "@/components/rev/Header";
 import { Footer } from "@/components/rev/FinalCta";
+import { SmoothScroll } from "@/components/rev/SmoothScroll";
 
 function NotFoundComponent() {
   return (
@@ -130,12 +131,14 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Header />
-      <main>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-      </main>
-      <Footer />
+      <SmoothScroll>
+        <Header />
+        <main>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+        </main>
+        <Footer />
+      </SmoothScroll>
     </QueryClientProvider>
   );
 }

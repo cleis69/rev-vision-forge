@@ -83,24 +83,37 @@ type CtaProps = {
 
 export function Cta({ children, href, variant = "primary", className }: CtaProps) {
   const classes = cn(
-    "group inline-flex h-12 items-center justify-center gap-2 rounded-lg px-6 text-sm font-medium transition-all duration-300 active:scale-[0.98]",
+    "group relative isolate inline-flex h-12 items-center justify-center gap-2 overflow-hidden rounded-lg px-6 text-sm font-medium",
+    "transition-[background-color,border-color,transform] duration-300 active:scale-[0.98]",
     variant === "primary"
       ? "bg-primary text-primary-foreground hover:bg-primary-hover"
-      : "border border-border bg-transparent text-foreground backdrop-blur-md hover:bg-foreground/10",
+      : "border border-border bg-transparent text-foreground backdrop-blur-md",
     className,
+  );
+
+  const content = (
+    <>
+      {variant === "ghost" ? (
+        <span
+          aria-hidden
+          className="absolute inset-0 -z-10 origin-left scale-x-0 bg-foreground/10 transition-transform duration-[350ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-x-100"
+        />
+      ) : null}
+      {children}
+    </>
   );
 
   if (isInternalRoute(href)) {
     return (
       <Link to={href as never} className={classes}>
-        {children}
+        {content}
       </Link>
     );
   }
 
   return (
     <a href={href} className={classes}>
-      {children}
+      {content}
     </a>
   );
 }

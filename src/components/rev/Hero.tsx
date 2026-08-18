@@ -4,8 +4,9 @@ import { ArrowUpRight, Play } from "lucide-react";
 import heroVilla from "@/assets/hero-villa.jpg";
 import { WHATSAPP_URL } from "@/lib/contact";
 import { Container, Cta } from "./ui";
+import { LineReveal } from "./LineReveal";
+import { Reveal } from "./Reveal";
 import { VantaBackground } from "./VantaBackground";
-import { SplitText } from "@/components/reactbits/SplitText";
 
 const PILLARS = [
   { n: "01", title: "Production visuelle", items: "photo · vidéo · drone · 3D" },
@@ -72,26 +73,29 @@ export function Hero() {
 
       <Container className="relative flex-1 pb-20 pt-40">
         <div className="max-w-4xl">
-          <div className="inline-flex items-center gap-3 rounded-full border border-border bg-card/50 px-4 py-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground backdrop-blur-md">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-            Agence de croissance immobilière
-          </div>
+          <Reveal>
+            <div className="inline-flex items-center gap-3 rounded-full border border-border bg-card/50 px-4 py-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground backdrop-blur-md">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+              Agence de croissance immobilière
+            </div>
+          </Reveal>
 
-          <SplitText
-            as="h1"
-            text="Le marketing visuel qui accélère les ventes immobilières."
-            delay={0.15}
-            start="top 95%"
-            className="mt-8 block font-display text-[clamp(2.4rem,6.6vw,5.2rem)] font-medium leading-[0.99] tracking-[-0.04em] text-gradient"
-          />
+          <h1 className="mt-8 font-display text-[clamp(2.4rem,6.6vw,5.2rem)] font-medium leading-[0.99] tracking-[-0.04em] text-gradient">
+            <LineReveal
+              delay={120}
+              lines={["Le marketing visuel qui", "accélère les ventes", "immobilières."]}
+            />
+          </h1>
 
-          <p className="mt-7 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
-            REV accompagne les promoteurs, agences et professionnels de l'immobilier avec une
-            stratégie complète de contenu, d'acquisition de prospects et d'automatisation
-            commerciale.
-          </p>
+          <Reveal delay={420}>
+            <p className="mt-7 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
+              REV accompagne les promoteurs, agences et professionnels de l'immobilier avec une
+              stratégie complète de contenu, d'acquisition de prospects et d'automatisation
+              commerciale.
+            </p>
+          </Reveal>
 
-          <div className="mt-10 flex flex-wrap items-center gap-3">
+          <Reveal delay={500} className="mt-10 flex flex-wrap items-center gap-3">
             <Cta href="/portfolio">
               Découvrir nos réalisations
               <ArrowUpRight
@@ -106,15 +110,16 @@ export function Hero() {
             <Cta href={WHATSAPP_URL} variant="ghost">
               WhatsApp · 06 75 62 77 07
             </Cta>
-          </div>
+          </Reveal>
         </div>
       </Container>
 
       <div className="relative border-t border-border bg-card">
         <Container className="grid grid-cols-2 lg:grid-cols-4">
           {PILLARS.map((p, i) => (
-            <div
+            <Reveal
               key={p.n}
+              delay={600 + i * 80}
               className={
                 i === 0
                   ? "px-5 py-8 md:px-8 md:py-10"
@@ -126,7 +131,7 @@ export function Hero() {
                 {p.title}
               </p>
               <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{p.items}</p>
-            </div>
+            </Reveal>
           ))}
         </Container>
       </div>

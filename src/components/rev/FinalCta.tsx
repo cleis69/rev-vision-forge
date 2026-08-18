@@ -17,6 +17,7 @@ import { RevLogo } from "./Logo";
 const NAV = [
   { label: "Accueil", to: "/" },
   { label: "Expertises", to: "/services" },
+  { label: "Tarifs", to: "/tarifs" },
   { label: "Portfolio", to: "/portfolio" },
   { label: "Études de cas", to: "/case-studies" },
   { label: "À propos", to: "/about" },

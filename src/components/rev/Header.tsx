@@ -10,6 +10,7 @@ import { RevLogo } from "./Logo";
 const NAV = [
   { label: "Accueil", to: "/" },
   { label: "Expertises", to: "/services" },
+  { label: "Tarifs", to: "/tarifs" },
   { label: "Portfolio", to: "/portfolio" },
   { label: "Études de cas", to: "/case-studies" },
   { label: "À propos", to: "/about" },
@@ -51,9 +52,9 @@ export function Header() {
               key={item.label}
               to={item.to}
               activeOptions={{ exact: item.to === "/" }}
-              activeProps={{ className: "text-foreground" }}
+              activeProps={{ className: "text-foreground after:scale-x-100" }}
               inactiveProps={{ className: "text-muted-foreground" }}
-              className="rounded-lg px-4 py-2 text-sm transition-colors duration-300 hover:text-foreground"
+              className="relative rounded-lg px-4 py-2 text-sm transition-colors duration-300 hover:text-foreground after:absolute after:inset-x-4 after:bottom-1 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-[250ms] after:ease-[cubic-bezier(0.16,1,0.3,1)] after:content-[''] hover:after:scale-x-100"
             >
               {item.label}
             </Link>

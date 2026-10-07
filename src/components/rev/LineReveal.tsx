@@ -23,7 +23,7 @@ export function LineReveal({
   return (
     <span ref={ref} className={cn("block", className)}>
       {lines.map((line, index) => (
-        <span key={line} className="block overflow-hidden pb-[0.06em]">
+        <span key={line} className="-mb-[0.12em] block overflow-hidden pb-[0.18em] pt-[0.04em]">
           <span
             className="block will-change-transform"
             style={{

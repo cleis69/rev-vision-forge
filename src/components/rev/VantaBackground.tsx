@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 
 import { cn } from "@/lib/utils";
-import { isLowPowerDevice, prefersReducedMotion } from "@/lib/gsap";
+import { isLowPowerDevice, prefersReducedMotion } from "@/lib/motion";
 
 type VantaEffect = { destroy: () => void; resize?: () => void };
 

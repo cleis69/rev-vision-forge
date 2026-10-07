@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6.00 22.00 216.00 214.00" width="216" height="214" role="img" aria-label="REV — Real Estate Vision">
+  <title>REV — Real Estate Vision</title>
+  <defs>
+    <mask id="i-couleur-fond-sombre-globe" maskUnits="userSpaceOnUse" x="-50" y="-50" width="400" height="400"><rect x="-50" y="-50" width="400" height="400" fill="#fff"/><path d="M74 150L124 100L174 150" fill="none" stroke="#000" stroke-width="23.0"/><path d="M88 150.2L124 114.2L160 150.2V178H88Z" fill="#000" stroke="#000" stroke-width="10.0" stroke-linejoin="round"/><path d="M119 99L47 121.5L108 112.5Z" fill="#000" stroke="#000" stroke-width="10.0" stroke-linejoin="round"/><path d="M119 99L47 121.5L74 150Z" fill="#000"/><path d="M128 34Q131.2 58.6 143 62Q131.2 65.4 128 90Q124.8 65.4 113 62Q124.8 58.6 128 34Z" fill="#000" stroke="#000" stroke-width="10.0" stroke-linejoin="round"/><path d="M54 44C-4 94 14 214 128 212C170 211 200 200 214 182C192 192 160 199 128 198C42 196 18 120 54 44Z" fill="#000" stroke="#000" stroke-width="10.0"/><path d="M30 76C-14 136 20 232 128 228C168 226 194 214 204 203C188 214 160 220 128 220C34 222 6 150 30 76Z" fill="#000" stroke="#000" stroke-width="10.0"/></mask>
+    <mask id="i-couleur-fond-sombre-swoosh" maskUnits="userSpaceOnUse" x="-50" y="-50" width="400" height="400"><rect x="-50" y="-50" width="400" height="400" fill="#fff"/><path d="M74 150L124 100L174 150" fill="none" stroke="#000" stroke-width="23.0"/><path d="M88 150.2L124 114.2L160 150.2V178H88Z" fill="#000" stroke="#000" stroke-width="10.0" stroke-linejoin="round"/><path d="M119 99L47 121.5L108 112.5Z" fill="#000" stroke="#000" stroke-width="10.0" stroke-linejoin="round"/><path d="M119 99L47 121.5L74 150Z" fill="#000"/></mask>
+    <clipPath id="i-couleur-fond-sombre-inner"><circle cx="128.0" cy="106.0" r="67.75"/></clipPath>
+  </defs>
+  <g mask="url(#i-couleur-fond-sombre-globe)" fill="none" stroke="#F5F5F3" stroke-linecap="round">
+    <g stroke-width="7.5"><circle cx="128.0" cy="106.0" r="76.0"/></g>
+    <g clip-path="url(#i-couleur-fond-sombre-inner)" stroke-width="5.0"><ellipse cx="128.0" cy="106.0" rx="27" ry="76.0"/><ellipse cx="128.0" cy="106.0" rx="53" ry="76.0"/><path d="M62.2 68Q128 77 193.8 68"/><path d="M52 106Q128 120 204 106"/><path d="M62.2 144Q128 153 193.8 144"/></g>
+  </g>
+  <g mask="url(#i-couleur-fond-sombre-swoosh)" fill="#C8A96A"><path d="M54 44C-4 94 14 214 128 212C170 211 200 200 214 182C192 192 160 199 128 198C42 196 18 120 54 44Z"/><path d="M30 76C-14 136 20 232 128 228C168 226 194 214 204 203C188 214 160 220 128 220C34 222 6 150 30 76Z"/></g>
+  <path d="M128 34Q131.2 58.6 143 62Q131.2 65.4 128 90Q124.8 65.4 113 62Q124.8 58.6 128 34Z" fill="#C8A96A"/>
+  <path d="M119 99L47 121.5L108 112.5Z" fill="#F5F5F3"/>
+  <path d="M74 150L124 100L174 150" fill="none" stroke="#F5F5F3" stroke-width="13.0" stroke-linejoin="miter" stroke-miterlimit="4"/>
+  <path d="M88 150.2L124 114.2L160 150.2V178H88Z M101.25 140.25h10v10h-10Z M114.75 140.25h10v10h-10Z M101.25 153.75h10v10h-10Z M114.75 153.75h10v10h-10Z M136 178V158.5A6.5 6.5 0 0 1 149 158.5V178Z" fill="#F5F5F3" fill-rule="evenodd"/>
+</svg>

@@ -1,6 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="REV">
-  <rect x="0" y="0" width="128" height="128" rx="26" fill="#090909"/>
-  <path d="M0 0 L22 0 L22 100 L0 100 Z" transform="matrix(0.64 0 0 0.64 34.56 32)" fill="#ffffff"/>
-  <path d="M22 0 L58 0 C74.57 0 88 13.43 88 30 C88 46.57 74.57 60 58 60 L22 60 Z M22 19 L58 19 C64.07 19 69 23.93 69 30 C69 36.07 64.07 41 58 41 L22 41 Z" transform="matrix(0.64 0 0 0.64 34.56 32)" fill="#ffffff" fill-rule="evenodd"/>
-  <path d="M46 54 L70 54 L92 100 L68 100 Z" transform="matrix(0.64 0 0 0.64 34.56 32)" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-24.00 -9.00 276.00 276.00" width="276" height="276" role="img" aria-label="REV">
+  <title>REV</title>
+  <rect x="-24.00" y="-9.00" width="276.00" height="276.00" rx="60.72" fill="#090909"/>
+  <defs>
+    <mask id="fav-globe" maskUnits="userSpaceOnUse" x="-50" y="-50" width="400" height="400"><rect x="-50" y="-50" width="400" height="400" fill="#fff"/><path d="M74 150L124 100L174 150" fill="none" stroke="#000" stroke-width="23.0"/><path d="M88 150.2L124 114.2L160 150.2V178H88Z" fill="#000" stroke="#000" stroke-width="10.0" stroke-linejoin="round"/><path d="M119 99L47 121.5L108 112.5Z" fill="#000" stroke="#000" stroke-width="10.0" stroke-linejoin="round"/><path d="M128 34Q131.2 58.6 143 62Q131.2 65.4 128 90Q124.8 65.4 113 62Q124.8 58.6 128 34Z" fill="#000" stroke="#000" stroke-width="10.0" stroke-linejoin="round"/><path d="M54 44C-4 94 14 214 128 212C170 211 200 200 214 182C192 192 160 199 128 198C42 196 18 120 54 44Z" fill="#000" stroke="#000" stroke-width="10.0"/><path d="M30 76C-14 136 20 232 128 228C168 226 194 214 204 203C188 214 160 220 128 220C34 222 6 150 30 76Z" fill="#000" stroke="#000" stroke-width="10.0"/></mask>
+    <mask id="fav-swoosh" maskUnits="userSpaceOnUse" x="-50" y="-50" width="400" height="400"><rect x="-50" y="-50" width="400" height="400" fill="#fff"/><path d="M74 150L124 100L174 150" fill="none" stroke="#000" stroke-width="23.0"/><path d="M88 150.2L124 114.2L160 150.2V178H88Z" fill="#000" stroke="#000" stroke-width="10.0" stroke-linejoin="round"/><path d="M119 99L47 121.5L108 112.5Z" fill="#000" stroke="#000" stroke-width="10.0" stroke-linejoin="round"/></mask>
+    <clipPath id="fav-inner"><circle cx="128.0" cy="106.0" r="67.75"/></clipPath>
+  </defs>
+  <g mask="url(#fav-globe)" fill="none" stroke="#F5F5F3" stroke-linecap="round">
+    <g stroke-width="11.25"><circle cx="128.0" cy="106.0" r="76.0"/></g>
+    
+  </g>
+  <g mask="url(#fav-swoosh)" fill="#C8A96A"><path d="M54 44C-4 94 14 214 128 212C170 211 200 200 214 182C192 192 160 199 128 198C42 196 18 120 54 44Z"/></g>
+  <path d="M128 34Q131.2 58.6 143 62Q131.2 65.4 128 90Q124.8 65.4 113 62Q124.8 58.6 128 34Z" fill="#C8A96A"/>
+  
+  <path d="M74 150L124 100L174 150" fill="none" stroke="#F5F5F3" stroke-width="13.0" stroke-linejoin="miter" stroke-miterlimit="4"/>
+  <path d="M88 150.2L124 114.2L160 150.2V178H88Z M101.25 140.25h10v10h-10Z M114.75 140.25h10v10h-10Z M101.25 153.75h10v10h-10Z M114.75 153.75h10v10h-10Z M136 178V158.5A6.5 6.5 0 0 1 149 158.5V178Z" fill="#F5F5F3" fill-rule="evenodd"/>
 </svg>

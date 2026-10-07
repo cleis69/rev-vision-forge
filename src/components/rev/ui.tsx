@@ -1,9 +1,15 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 
+import type { Photo } from "@/lib/images";
 import { cn } from "@/lib/utils";
 import { Reveal } from "./Reveal";
 import { SplitText } from "@/components/reactbits/SplitText";
+
+/** Entrance played by CSS on load (above-the-fold content, no JavaScript needed). */
+export const fadeUp = (delay: number) => ({
+  animation: `rev-fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s both`,
+});
 
 export function Container({
   children,
@@ -13,7 +19,7 @@ export function Container({
   className?: string;
 }) {
   return (
-    <div className={cn("mx-auto w-full max-w-[1240px] px-6 md:px-10", className)}>{children}</div>
+    <div className={cn("mx-auto w-full max-w-[1240px] px-5 sm:px-6 md:px-10", className)}>{children}</div>
   );
 }
 
@@ -43,10 +49,10 @@ export function SectionHeading({
       <SplitText
         as="h2"
         text={title}
-        className="mt-5 block font-display text-[clamp(2rem,4.4vw,3.4rem)] font-medium leading-[1.05] tracking-[-0.03em] text-gradient"
+        className="mt-4 block font-display text-[clamp(1.75rem,3.6vw,3rem)] font-medium leading-[1.08] tracking-[-0.03em] text-gradient"
       />
       {description ? (
-        <p className="mt-5 text-base leading-relaxed text-muted-foreground md:text-lg">
+        <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground md:text-base lg:text-lg">
           {description}
         </p>
       ) : null}
@@ -64,7 +70,7 @@ export function Section({
   className?: string;
 }) {
   return (
-    <section id={id} className={cn("scroll-mt-24 py-24 md:py-36", className)}>
+    <section id={id} className={cn("scroll-mt-20 py-14 sm:py-16 lg:py-24", className)}>
       {children}
     </section>
   );
@@ -128,15 +134,17 @@ export function PageHero({
   eyebrow: string;
   title: string;
   description: string;
-  image?: string;
+  image?: Photo;
   imageAlt?: string;
 }) {
   return (
-    <section className="relative overflow-hidden border-b border-border/70 pb-20 pt-40 md:pb-28 md:pt-52">
+    <section className="relative overflow-hidden border-b border-border/70 pb-12 pt-28 md:pb-16 md:pt-36">
       {image ? (
         <div className="absolute inset-0 -z-10">
           <img
-            src={image}
+            src={image.src}
+            srcSet={image.srcSet}
+            sizes="100vw"
             alt={imageAlt ?? ""}
             width={1920}
             height={1088}
@@ -147,17 +155,25 @@ export function PageHero({
         </div>
       ) : null}
       <Container>
-        <Reveal className="max-w-4xl">
-          <Eyebrow>{eyebrow}</Eyebrow>
+        {/* CSS-only entrance: the page title shows before any JavaScript runs. */}
+        <div className="max-w-4xl">
+          <div style={fadeUp(0)}>
+            <Eyebrow>{eyebrow}</Eyebrow>
+          </div>
           <SplitText
             as="h1"
             text={title}
-            className="mt-6 block font-display text-[clamp(2.4rem,6vw,4.6rem)] font-medium leading-[1.0] tracking-[-0.04em] text-gradient"
+            immediate
+            delay={0.08}
+            className="mt-5 block font-display text-[clamp(2.1rem,5vw,4rem)] font-medium leading-[1.02] tracking-[-0.04em] text-gradient"
           />
-          <p className="mt-7 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
+          <p
+            className="mt-5 max-w-2xl text-[15px] leading-relaxed text-muted-foreground md:text-lg"
+            style={fadeUp(0.25)}
+          >
             {description}
           </p>
-        </Reveal>
+        </div>
       </Container>
     </section>
   );

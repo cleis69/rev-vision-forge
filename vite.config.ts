@@ -6,10 +6,28 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
+// STATIC_BUILD=1 prerenders every route to plain HTML for Cloudflare
+// (realestatevision360.com). Lovable builds leave it unset and keep SSR.
+const isStatic = process.env["STATIC_BUILD"] === "1";
+
 export default defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
+    ...(isStatic
+      ? {
+          prerender: { enabled: true, crawlLinks: true, failOnError: true },
+          // Not linked from anywhere, so not found by the crawler. The AI agent
+          // page is private for now (PRIVATE_PAGES in src/lib/i18n.ts).
+          pages: [{ path: "/404" }, { path: "/en/404" }, { path: "/agent-ia" }, { path: "/en/ai-agent" }],
+        }
+      : {}),
+  },
+  ...(isStatic ? { nitro: false as const } : {}),
+  vite: {
+    // Photos are listed in one module (src/lib/images.ts): never inline them
+    // as base64 there, or every page using a photo would download them all.
+    build: { assetsInlineLimit: (file: string) => (file.endsWith(".webp") ? false : undefined) },
   },
 });

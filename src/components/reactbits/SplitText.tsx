@@ -1,13 +1,14 @@
-import { useRef, type ElementType } from "react";
-import { useGSAP } from "@gsap/react";
+import type { CSSProperties, ElementType } from "react";
 
+import { useReveal } from "@/components/rev/Reveal";
 import { cn } from "@/lib/utils";
-import { EASE, ensureGsap, prefersReducedMotion } from "@/lib/gsap";
 
 /**
- * React Bits — SplitText (adapted, SSR-safe).
+ * React Bits — SplitText (adapted, SSR-safe, CSS only).
  * The split markup is rendered on the server too, so there is no hydration
- * mismatch and no flash of unsplit text.
+ * mismatch and no flash of unsplit text. Words rise in one after another when
+ * the heading scrolls into view, or right away with `immediate` (page titles,
+ * so they show before any JavaScript runs).
  */
 export function SplitText({
   text,
@@ -16,7 +17,7 @@ export function SplitText({
   splitBy = "words",
   delay = 0,
   stagger = 0.045,
-  start = "top 88%",
+  immediate = false,
 }: {
   text: string;
   as?: ElementType;
@@ -24,53 +25,34 @@ export function SplitText({
   splitBy?: "words" | "chars";
   delay?: number;
   stagger?: number;
-  start?: string;
+  immediate?: boolean;
 }) {
-  const ref = useRef<HTMLElement | null>(null);
+  const { ref, revealed } = useReveal<HTMLElement>();
 
   const tokens =
     splitBy === "chars"
-      ? Array.from(text).map((c) => (c === " " ? "\u00A0" : c))
-      : text.split(" ").map((w, i, arr) => (i < arr.length - 1 ? `${w}\u00A0` : w));
+      ? Array.from(text).map((c) => (c === " " ? " " : c))
+      : text.split(" ").map((w, i, arr) => (i < arr.length - 1 ? `${w} ` : w));
 
-  useGSAP(
-    () => {
-      const el = ref.current;
-      if (!el) return;
-      const { gsap } = ensureGsap();
-      const parts = el.querySelectorAll<HTMLElement>("[data-split-part]");
-
-      if (prefersReducedMotion()) {
-        gsap.set(parts, { opacity: 1, y: 0, filter: "none" });
-        return;
-      }
-
-      gsap.fromTo(
-        parts,
-        { yPercent: 115, opacity: 0, filter: "blur(8px)" },
-        {
-          yPercent: 0,
-          opacity: 1,
-          filter: "blur(0px)",
-          duration: 1.1,
-          ease: EASE,
-          delay,
-          stagger,
-          clearProps: "filter",
-          scrollTrigger: { trigger: el, start, once: true },
-        },
-      );
-    },
-    { scope: ref, dependencies: [text, splitBy] },
-  );
+  const style = {
+    "--split-delay": `${delay * 1000}ms`,
+    "--split-stagger": `${stagger * 1000}ms`,
+  } as CSSProperties;
 
   return (
-    <Tag ref={ref as never} className={className} aria-label={text}>
-      <span className="sr-only">{text}</span>
+    <Tag
+      ref={immediate ? undefined : (ref as never)}
+      className={cn(className, immediate ? "split-now" : revealed && "is-revealed")}
+      style={style}
+      aria-label={text}
+    >
       <span aria-hidden className="inline">
         {tokens.map((token, i) => (
-          <span key={`${token}-${i}`} className="inline-block overflow-hidden align-bottom">
-            <span data-split-part className={cn("inline-block will-change-transform opacity-0")}>
+          <span
+            key={`${token}-${i}`}
+            className="-mb-[0.18em] -mt-[0.1em] inline-block overflow-hidden pb-[0.18em] pt-[0.1em] align-bottom"
+          >
+            <span data-split-part className="inline-block" style={{ "--i": i } as CSSProperties}>
               {token}
             </span>
           </span>

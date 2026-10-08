@@ -22,13 +22,18 @@ export function sessionId(): string {
   }
 }
 
-/** Fire and forget: a lost event never bothers the visitor. */
+/**
+ * Fire and forget: a lost event never bothers the visitor. Nothing is recorded
+ * from a browser signed in to the promoter space: the team checking its own
+ * page would inflate the statistics (visitors never have an account).
+ */
 export function track(projectId: string, type: Enums<"lot_event_type">, lotId?: string) {
-  void getSupabase()
-    .from("lot_events")
-    .insert({ project_id: projectId, type, lot_id: lotId ?? null, session_id: sessionId() })
-    .then(
-      () => undefined,
-      () => undefined,
-    );
+  const supabase = getSupabase();
+  void (async () => {
+    const { data } = await supabase.auth.getSession();
+    if (data.session) return;
+    await supabase
+      .from("lot_events")
+      .insert({ project_id: projectId, type, lot_id: lotId ?? null, session_id: sessionId() });
+  })().catch(() => undefined);
 }

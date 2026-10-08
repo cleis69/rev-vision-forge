@@ -46,7 +46,20 @@ Demandes de visite :
 - La fonction ne traite qu'une demande de moins de 10 minutes pas encore notifiée : un
   appel venu d'ailleurs ne peut rien faire envoyer d'autre.
 
+Statistiques :
+
+- Les pages publiques enregistrent dans `lot_events` les affichages de la page, les
+  fiches de lots ouvertes, les clics sur le plan et les partages, avec un identifiant
+  aléatoire par onglet (`sessionStorage`, sans cookie). Rien n'est enregistré depuis un
+  navigateur connecté à l'espace promoteur, ni en mode présentation.
+- L'onglet Statistiques lit `project_stats(programme, jours, fuseau)` : les totaux de la
+  période (jours calendaires dans le fuseau de l'utilisateur), ceux de la période
+  précédente de même durée, une ligne par jour et une par lot. Fonction
+  `security invoker` : la RLS s'applique, et un non-membre est refusé.
+
 Audit de sécurité Supabase : il signale `public_lots` et `public_projects`
 (« security definer view »), ainsi que `submit_lead` et `create_organization`
 appelables par l'API. C'est voulu : ce sont les seules portes d'entrée publiques,
-et elles ne laissent passer que ce qui est permis.
+et elles ne laissent passer que ce qui est permis. Il signale aussi l'extension
+`pg_net` installée dans le schéma `public` : à déplacer dans `extensions` (la
+supprimer puis la recréer, l'extension ne se déplace pas).

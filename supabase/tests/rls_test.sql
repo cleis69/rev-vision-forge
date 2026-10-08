@@ -25,6 +25,9 @@ declare
   n int;
   v numeric;
   new_org public.organizations;
+  stats jsonb;
+  leads_pub int;
+  leads_lot int;
 begin
   ------------------------------------------------------------------ fixtures
   insert into auth.users (id, email) values
@@ -45,6 +48,13 @@ begin
     (p_pub, lot_pub, 'Fixture', '+212600000000', 'fixture');
   insert into public.media (project_id, lot_id, kind, path) values
     (p_pub, lot_pub, 'image', 'fixture/pub.webp'), (p_draft, null, 'image', 'fixture/draft.webp');
+  -- Visits for the statistics: today, 10 days ago (previous week), 40 days ago.
+  insert into public.lot_events (project_id, lot_id, type, session_id, created_at) values
+    (p_pub, null, 'vue_page', 'stat-a', now()),
+    (p_pub, lot_pub, 'vue_lot', 'stat-a', now()),
+    (p_pub, lot_pub, 'clic_lot', 'stat-b', now()),
+    (p_pub, null, 'vue_page', 'stat-c', now() - interval '10 days'),
+    (p_pub, null, 'vue_page', 'stat-d', now() - interval '40 days');
 
   ---------------------------------------------------------------- visitor
   perform set_config('request.jwt.claims', '{"role":"anon"}', true);
@@ -212,6 +222,12 @@ begin
   reset role;
   total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : envoie un faux signal sur le canal'::text; end if;
 
+  set local role anon;
+  begin perform public.project_stats(p_pub, 7, 'UTC'); ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : lit les statistiques'::text; end if;
+
   ------------------------------------------- signed in, other organization
   perform set_config('request.jwt.claims', json_build_object('sub', owner_b, 'role', 'authenticated')::text, true);
   perform set_config('request.jwt.claim.sub', owner_b::text, true);
@@ -276,9 +292,52 @@ begin
   reset role;
   total := total + 1; if not ok then failed := failed + 1; report := report || 'membre : ne peut pas téléverser dans son programme'::text; end if;
 
+  set local role authenticated;
+  begin perform public.project_stats(p_pub, 7, 'UTC'); ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'autre organisation : lit les statistiques'::text; end if;
+
   ------------------------------------------------------ commercial of A
   perform set_config('request.jwt.claims', json_build_object('sub', commercial_a, 'role', 'authenticated')::text, true);
   perform set_config('request.jwt.claim.sub', commercial_a::text, true);
+
+  -- Today: the visitor's lot view (s1), stat-a and stat-b; the requests made so far.
+  select count(*), count(*) filter (where lot_id = lot_pub) into leads_pub, leads_lot
+    from public.leads where project_id = p_pub;
+  set local role authenticated;
+  stats := public.project_stats(p_pub, 7, 'Africa/Casablanca');
+  reset role;
+  total := total + 1;
+  if (stats->'totals'->>'visites')::int <> 3 or (stats->'totals'->>'vues_lot')::int <> 2
+     or (stats->'totals'->>'clics_lot')::int <> 1 or (stats->'totals'->>'demandes')::int <> leads_pub
+     or (stats->'previous'->>'visites')::int <> 1 or jsonb_array_length(stats->'daily') <> 7
+     or (stats->'sources'->>'page')::int <> leads_pub or leads_pub = 0 then
+    failed := failed + 1; report := report || ('statistiques 7 jours fausses : ' || stats::text);
+  end if;
+  total := total + 1;
+  if not exists (
+    select 1 from jsonb_array_elements(stats->'lots') l
+    where l->>'lot_id' = lot_pub::text and (l->>'vues')::int = 2 and (l->>'clics')::int = 1
+      and (l->>'demandes')::int = leads_lot
+  ) then
+    failed := failed + 1; report := report || ('statistiques par lot fausses : ' || (stats->'lots')::text);
+  end if;
+
+  set local role authenticated;
+  stats := public.project_stats(p_pub, 30, 'pas/un-fuseau');
+  reset role;
+  total := total + 1;
+  if (stats->'totals'->>'visites')::int <> 4 or (stats->'previous'->>'visites')::int <> 1
+     or stats->>'tz' <> 'UTC' or jsonb_array_length(stats->'daily') <> 30 then
+    failed := failed + 1; report := report || ('statistiques 30 jours fausses : ' || stats::text);
+  end if;
+
+  set local role authenticated;
+  begin perform public.project_stats(p_pub, 0, 'UTC'); ok := false;
+  exception when invalid_parameter_value then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'statistiques : période invalide acceptée'::text; end if;
 
   set local role authenticated;
   update public.lots set statut = 'reservee' where id = lot_pub; get diagnostics n = row_count;

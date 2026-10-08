@@ -16,14 +16,14 @@ export const Route = createFileRoute("/app/_espace/projets/$id")({
   component: ProjectLayout,
 });
 
-// Tabs of the spec; each development step enables the next one.
+// Tabs of the programme, in the order of the spec.
 const TABS = [
   { label: "Plan", to: "/app/projets/$id/plan" },
   { label: "Lots", to: "/app/projets/$id/lots" },
   { label: "Médias", to: "/app/projets/$id/medias" },
   { label: "Marque", to: "/app/projets/$id/marque" },
   { label: "Demandes", to: "/app/projets/$id/demandes" },
-  { label: "Statistiques" },
+  { label: "Statistiques", to: "/app/projets/$id/statistiques" },
   { label: "Partage", to: "/app/projets/$id/partage" },
   { label: "Réglages", to: "/app/projets/$id/reglages" },
 ] as const;
@@ -124,39 +124,26 @@ function ProjectLayout() {
             <ul className="flex min-w-max gap-1">
               {TABS.map((tab) => (
                 <li key={tab.label}>
-                  {"to" in tab ? (
-                    <Link
-                      to={tab.to}
-                      params={{ id }}
-                      className="relative inline-flex h-11 items-center rounded-t px-3 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      activeProps={{
-                        className:
-                          "text-foreground after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary",
-                        "aria-current": "page",
-                      }}
-                    >
-                      {tab.label}
-                      {tab.label === "Demandes" && fresh > 0 ? (
-                        <span
-                          className="ml-1.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold leading-none text-primary-foreground"
-                          aria-label={`${fresh} nouvelle${fresh > 1 ? "s" : ""}`}
-                        >
-                          {fresh}
-                        </span>
-                      ) : null}
-                    </Link>
-                  ) : (
-                    <span
-                      aria-disabled="true"
-                      title="Disponible prochainement"
-                      className="inline-flex h-11 cursor-not-allowed items-center gap-1.5 px-3 text-sm text-muted-foreground/50"
-                    >
-                      {tab.label}
-                      <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground/70">
-                        Bientôt
+                  <Link
+                    to={tab.to}
+                    params={{ id }}
+                    className="relative inline-flex h-11 items-center rounded-t px-3 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    activeProps={{
+                      className:
+                        "text-foreground after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary",
+                      "aria-current": "page",
+                    }}
+                  >
+                    {tab.label}
+                    {tab.label === "Demandes" && fresh > 0 ? (
+                      <span
+                        className="ml-1.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold leading-none text-primary-foreground"
+                        aria-label={`${fresh} nouvelle${fresh > 1 ? "s" : ""}`}
+                      >
+                        {fresh}
                       </span>
-                    </span>
-                  )}
+                    ) : null}
+                  </Link>
                 </li>
               ))}
             </ul>

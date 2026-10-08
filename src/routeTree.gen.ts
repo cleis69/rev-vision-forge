@@ -52,6 +52,7 @@ import { Route as AppEspaceProjetsIdMediasRouteImport } from './routes/app/_espa
 import { Route as AppEspaceProjetsIdPartageRouteImport } from './routes/app/_espace/projets/$id/partage'
 import { Route as AppEspaceProjetsIdPlanRouteImport } from './routes/app/_espace/projets/$id/plan'
 import { Route as AppEspaceProjetsIdReglagesRouteImport } from './routes/app/_espace/projets/$id/reglages'
+import { Route as AppEspaceProjetsIdStatistiquesRouteImport } from './routes/app/_espace/projets/$id/statistiques'
 
 const SiteRouteRoute = SiteRouteRouteImport.update({
   id: '/_site',
@@ -272,6 +273,12 @@ const AppEspaceProjetsIdReglagesRoute =
     path: '/reglages',
     getParentRoute: () => AppEspaceProjetsIdRouteRoute,
   } as any)
+const AppEspaceProjetsIdStatistiquesRoute =
+  AppEspaceProjetsIdStatistiquesRouteImport.update({
+    id: '/statistiques',
+    path: '/statistiques',
+    getParentRoute: () => AppEspaceProjetsIdRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
@@ -314,6 +321,7 @@ export interface FileRoutesByFullPath {
   '/app/projets/$id/partage': typeof AppEspaceProjetsIdPartageRoute
   '/app/projets/$id/plan': typeof AppEspaceProjetsIdPlanRoute
   '/app/projets/$id/reglages': typeof AppEspaceProjetsIdReglagesRoute
+  '/app/projets/$id/statistiques': typeof AppEspaceProjetsIdStatistiquesRoute
   '/app/projets/$id/': typeof AppEspaceProjetsIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -355,6 +363,7 @@ export interface FileRoutesByTo {
   '/app/projets/$id/partage': typeof AppEspaceProjetsIdPartageRoute
   '/app/projets/$id/plan': typeof AppEspaceProjetsIdPlanRoute
   '/app/projets/$id/reglages': typeof AppEspaceProjetsIdReglagesRoute
+  '/app/projets/$id/statistiques': typeof AppEspaceProjetsIdStatistiquesRoute
   '/app/projets/$id': typeof AppEspaceProjetsIdIndexRoute
 }
 export interface FileRoutesById {
@@ -401,6 +410,7 @@ export interface FileRoutesById {
   '/app/_espace/projets/$id/partage': typeof AppEspaceProjetsIdPartageRoute
   '/app/_espace/projets/$id/plan': typeof AppEspaceProjetsIdPlanRoute
   '/app/_espace/projets/$id/reglages': typeof AppEspaceProjetsIdReglagesRoute
+  '/app/_espace/projets/$id/statistiques': typeof AppEspaceProjetsIdStatistiquesRoute
   '/app/_espace/projets/$id/': typeof AppEspaceProjetsIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -446,6 +456,7 @@ export interface FileRouteTypes {
     | '/app/projets/$id/partage'
     | '/app/projets/$id/plan'
     | '/app/projets/$id/reglages'
+    | '/app/projets/$id/statistiques'
     | '/app/projets/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -487,6 +498,7 @@ export interface FileRouteTypes {
     | '/app/projets/$id/partage'
     | '/app/projets/$id/plan'
     | '/app/projets/$id/reglages'
+    | '/app/projets/$id/statistiques'
     | '/app/projets/$id'
   id:
     | '__root__'
@@ -532,6 +544,7 @@ export interface FileRouteTypes {
     | '/app/_espace/projets/$id/partage'
     | '/app/_espace/projets/$id/plan'
     | '/app/_espace/projets/$id/reglages'
+    | '/app/_espace/projets/$id/statistiques'
     | '/app/_espace/projets/$id/'
   fileRoutesById: FileRoutesById
 }
@@ -845,6 +858,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEspaceProjetsIdReglagesRouteImport
       parentRoute: typeof AppEspaceProjetsIdRouteRoute
     }
+    '/app/_espace/projets/$id/statistiques': {
+      id: '/app/_espace/projets/$id/statistiques'
+      path: '/statistiques'
+      fullPath: '/app/projets/$id/statistiques'
+      preLoaderRoute: typeof AppEspaceProjetsIdStatistiquesRouteImport
+      parentRoute: typeof AppEspaceProjetsIdRouteRoute
+    }
   }
 }
 
@@ -906,6 +926,7 @@ interface AppEspaceProjetsIdRouteRouteChildren {
   AppEspaceProjetsIdPartageRoute: typeof AppEspaceProjetsIdPartageRoute
   AppEspaceProjetsIdPlanRoute: typeof AppEspaceProjetsIdPlanRoute
   AppEspaceProjetsIdReglagesRoute: typeof AppEspaceProjetsIdReglagesRoute
+  AppEspaceProjetsIdStatistiquesRoute: typeof AppEspaceProjetsIdStatistiquesRoute
   AppEspaceProjetsIdIndexRoute: typeof AppEspaceProjetsIdIndexRoute
 }
 
@@ -918,6 +939,7 @@ const AppEspaceProjetsIdRouteRouteChildren: AppEspaceProjetsIdRouteRouteChildren
     AppEspaceProjetsIdPartageRoute: AppEspaceProjetsIdPartageRoute,
     AppEspaceProjetsIdPlanRoute: AppEspaceProjetsIdPlanRoute,
     AppEspaceProjetsIdReglagesRoute: AppEspaceProjetsIdReglagesRoute,
+    AppEspaceProjetsIdStatistiquesRoute: AppEspaceProjetsIdStatistiquesRoute,
     AppEspaceProjetsIdIndexRoute: AppEspaceProjetsIdIndexRoute,
   }
 

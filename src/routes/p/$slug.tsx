@@ -13,6 +13,7 @@ import { toast } from "sonner";
 
 import { CompareBar, CompareDialog } from "@/components/public/Compare";
 import { Gallery } from "@/components/public/Gallery";
+import { VisitForm } from "@/components/public/VisitForm";
 import { LotSheet, StatusChip } from "@/components/public/LotSheet";
 import { PublicPlan, priceLabel } from "@/components/public/PublicPlan";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -324,6 +325,12 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
                 Galerie
               </a>
             ) : null}
+            <a
+              href="#visite"
+              className="rounded-full border border-white/20 px-4 py-1.5 text-white hover:border-white/50"
+            >
+              Planifier une visite
+            </a>
           </nav>
         </div>
       </header>
@@ -370,15 +377,23 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
                 <Stat label="À partir de">{formatPrice(from, programme.currency)}</Stat>
               ) : null}
             </dl>
-            {plan ? (
+            <div className="mt-10 flex flex-wrap gap-3">
+              {plan ? (
+                <a
+                  href="#plan"
+                  className="inline-flex h-12 items-center gap-2 rounded-full bg-[color:var(--brand)] px-6 text-sm font-medium text-black transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                >
+                  Voir le plan de vente
+                  <ArrowDown className="size-4" aria-hidden />
+                </a>
+              ) : null}
               <a
-                href="#plan"
-                className="mt-10 inline-flex h-12 items-center gap-2 rounded-full bg-[color:var(--brand)] px-6 text-sm font-medium text-black transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                href="#visite"
+                className="inline-flex h-12 items-center rounded-full border border-white/25 px-6 text-sm font-medium text-white transition-colors hover:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
               >
-                Voir le plan de vente
-                <ArrowDown className="size-4" aria-hidden />
+                Planifier une visite
               </a>
-            ) : null}
+            </div>
           </div>
         </section>
 
@@ -491,6 +506,25 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
             </div>
           </section>
         ) : null}
+
+        <section id="visite" className="scroll-mt-20 border-t border-white/10">
+          <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 sm:px-8 sm:py-20 lg:grid-cols-[1fr_1.3fr]">
+            <div>
+              <SectionTitle title="Planifier une visite" />
+              <p className="mt-4 max-w-md text-base leading-relaxed text-white/65">
+                Laissez vos coordonnées : {programme.organization.name || "l'équipe commerciale"}{" "}
+                vous rappelle pour organiser la visite du programme ou du lot qui vous intéresse.
+              </p>
+            </div>
+            <VisitForm
+              projectId={programme.id}
+              slug={programme.slug}
+              owner={programme.organization.name}
+              lots={lots}
+              preview={preview}
+            />
+          </div>
+        </section>
       </main>
 
       <footer className="border-t border-white/10">
@@ -519,6 +553,16 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
                 onWhatsApp: () => {
                   if (!preview) track(programme.id, "partage", lot.id);
                 },
+                visit:
+                  lot.statut === "vendue" ? null : (
+                    <VisitForm
+                      projectId={programme.id}
+                      slug={programme.slug}
+                      owner={programme.organization.name}
+                      lot={lot}
+                      preview={preview}
+                    />
+                  ),
               }
             : null
         }

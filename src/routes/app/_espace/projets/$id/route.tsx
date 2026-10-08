@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Link, Outlet, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, MapPin } from "lucide-react";
+import { toast } from "sonner";
 
 import { EmptyState, StatusBadge } from "@/components/app/Blocks";
 import { useOrganizations } from "@/components/app/Organizations";
@@ -8,6 +9,7 @@ import { ProjectProvider } from "@/components/app/ProjectContext";
 import { Container } from "@/components/rev/ui";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLeads, useLiveLeads } from "@/lib/app/leads";
 import { useProject } from "@/lib/app/projects";
 
 export const Route = createFileRoute("/app/_espace/projets/$id")({
@@ -20,7 +22,7 @@ const TABS = [
   { label: "Lots", to: "/app/projets/$id/lots" },
   { label: "Médias", to: "/app/projets/$id/medias" },
   { label: "Marque" },
-  { label: "Demandes" },
+  { label: "Demandes", to: "/app/projets/$id/demandes" },
   { label: "Statistiques" },
   { label: "Partage", to: "/app/projets/$id/partage" },
   { label: "Réglages", to: "/app/projets/$id/reglages" },
@@ -31,6 +33,18 @@ function ProjectLayout() {
   const navigate = useNavigate();
   const { memberships, active, setActiveId, loading } = useOrganizations();
   const query = useProject(id);
+
+  // New visit requests: counted on the tab and announced wherever the user is.
+  const leads = useLeads(id);
+  const fresh = leads.data?.filter((l) => l.status === "nouveau").length ?? 0;
+  useLiveLeads(id, (lead) =>
+    toast(`Nouvelle demande de visite : ${lead.nom}`, {
+      action: {
+        label: "Voir",
+        onClick: () => void navigate({ to: "/app/projets/$id/demandes", params: { id } }),
+      },
+    }),
+  );
   const project = query.data;
   const membership = project
     ? memberships.find((m) => m.organization.id === project.organization_id)
@@ -122,6 +136,14 @@ function ProjectLayout() {
                       }}
                     >
                       {tab.label}
+                      {tab.label === "Demandes" && fresh > 0 ? (
+                        <span
+                          className="ml-1.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold leading-none text-primary-foreground"
+                          aria-label={`${fresh} nouvelle${fresh > 1 ? "s" : ""}`}
+                        >
+                          {fresh}
+                        </span>
+                      ) : null}
                     </Link>
                   ) : (
                     <span

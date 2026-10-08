@@ -68,7 +68,11 @@ function mediaHeaders(source) {
 }
 
 function withMediaHeaders(res) {
-  return new Response(res.body, { status: res.status, statusText: res.statusText, headers: mediaHeaders(res.headers) });
+  return new Response(res.body, {
+    status: res.status,
+    statusText: res.statusText,
+    headers: mediaHeaders(res.headers),
+  });
 }
 
 /** Passes through bytes start..end (inclusive) of a stream, then stops reading. */
@@ -105,7 +109,12 @@ async function programmePage(request, env) {
   let meta = null;
   try {
     const numero = match[2] ? decodeURIComponent(match[2]) : null;
-    meta = await loadPreview(env, decodeURIComponent(match[1]), numero, `https://${url.host}${url.pathname}`);
+    meta = await loadPreview(
+      env,
+      decodeURIComponent(match[1]),
+      numero,
+      `https://${url.host}${url.pathname}`,
+    );
   } catch {
     // Supabase unreachable: the page still works, only the preview is generic.
   }

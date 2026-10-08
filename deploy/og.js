@@ -17,7 +17,11 @@ export function escapeHtml(text) {
 
 export function money(value, currency) {
   try {
-    return new Intl.NumberFormat("fr-FR", { style: "currency", currency, maximumFractionDigits: 0 }).format(value);
+    return new Intl.NumberFormat("fr-FR", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(value);
   } catch {
     return `${value} ${currency}`;
   }
@@ -34,9 +38,14 @@ export function previewMeta({ programme, lot, image, url }) {
   if (lot) {
     const status = STATUS[lot.statut] ?? "";
     const price =
-      lot.statut === "vendue" ? null : lot.prix != null ? money(lot.prix, programme.currency ?? "EUR") : "Prix sur demande";
+      lot.statut === "vendue"
+        ? null
+        : lot.prix != null
+          ? money(lot.prix, programme.currency ?? "EUR")
+          : "Prix sur demande";
     const area = lot.surface_habitable != null ? `${Math.round(lot.surface_habitable)} m²` : null;
-    const rooms = lot.chambres != null ? `${lot.chambres} chambre${lot.chambres > 1 ? "s" : ""}` : null;
+    const rooms =
+      lot.chambres != null ? `${lot.chambres} chambre${lot.chambres > 1 ? "s" : ""}` : null;
     return {
       title: `Lot ${lot.numero}${lot.type ? ` · ${lot.type}` : ""} — ${programme.name}`,
       description: [status, price, area, rooms, programme.city].filter(Boolean).join(" · "),
@@ -73,7 +82,9 @@ export function metaTags(meta) {
   if (meta.image) {
     tags.push(["property", "og:image", meta.image], ["name", "twitter:image", meta.image]);
   }
-  return tags.map(([attr, key, value]) => `<meta ${attr}="${key}" content="${escapeHtml(value)}"/>`).join("");
+  return tags
+    .map(([attr, key, value]) => `<meta ${attr}="${key}" content="${escapeHtml(value)}"/>`)
+    .join("");
 }
 
 const withSuffix = (path, suffix) => path.replace(/(\.[a-z0-9]+)$/i, `${suffix}$1`);
@@ -101,7 +112,9 @@ export async function loadPreview(env, slug, numero, pageUrl) {
           `public_lots?project_id=eq.${programme.id}&numero=eq.${encodeURIComponent(numero)}&select=id,numero,type,statut,prix,surface_habitable,chambres&limit=1`,
         )
       : Promise.resolve([]),
-    rest(`media?project_id=eq.${programme.id}&kind=eq.image&select=path,lot_id&order=sort_order&limit=50`),
+    rest(
+      `media?project_id=eq.${programme.id}&kind=eq.image&select=path,lot_id&order=sort_order&limit=50`,
+    ),
   ]);
   const lot = lots[0] ?? null;
 

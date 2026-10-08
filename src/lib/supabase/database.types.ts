@@ -26,6 +26,7 @@ export type Database = {
           lot_id: string | null
           message: string | null
           nom: string
+          notified_at: string | null
           project_id: string
           session_id: string | null
           source: string
@@ -40,6 +41,7 @@ export type Database = {
           lot_id?: string | null
           message?: string | null
           nom: string
+          notified_at?: string | null
           project_id: string
           session_id?: string | null
           source?: string
@@ -54,6 +56,7 @@ export type Database = {
           lot_id?: string | null
           message?: string | null
           nom?: string
+          notified_at?: string | null
           project_id?: string
           session_id?: string | null
           source?: string

@@ -33,6 +33,19 @@ Règles retenues :
   `<organization_id>/<project_id>/…` ou `<organization_id>/brand/…`, écriture réservée
   aux membres de l'organisation.
 
+Demandes de visite :
+
+- Le formulaire de la page publique passe par `submit_lead`. Chaque nouvelle demande
+  apparaît en direct dans l'onglet Demandes (temps réel sur `leads`, filtré par la RLS) et
+  déclenche la fonction `functions/notify-lead` (via `pg_net`), qui écrit aux membres de
+  l'organisation.
+- Tant qu'aucun service d'e-mail n'est configuré, la fonction n'envoie rien (réponse
+  « skipped »). Pour l'activer avec Resend : créer le compte, valider le domaine
+  realestatevision360.com (DNS chez Cloudflare), puis dans Supabase, Edge Functions,
+  Secrets, ajouter `RESEND_API_KEY` (et `NOTIFY_FROM` si l'expéditeur change).
+- La fonction ne traite qu'une demande de moins de 10 minutes pas encore notifiée : un
+  appel venu d'ailleurs ne peut rien faire envoyer d'autre.
+
 Audit de sécurité Supabase : il signale `public_lots` et `public_projects`
 (« security definer view »), ainsi que `submit_lead` et `create_organization`
 appelables par l'API. C'est voulu : ce sont les seules portes d'entrée publiques,

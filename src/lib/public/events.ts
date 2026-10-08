@@ -5,8 +5,10 @@ import type { Enums } from "@/lib/supabase/database.types";
    anonymous, one random id per browser tab (sessionStorage), no cookie. */
 
 const KEY = "rev-visit";
+const fallback = crypto.randomUUID();
 
-function sessionId(): string {
+/** Random id of this browser tab, shared by the visit statistics and the rate limit of visit requests. */
+export function sessionId(): string {
   try {
     let id = window.sessionStorage.getItem(KEY);
     if (!id) {
@@ -15,7 +17,8 @@ function sessionId(): string {
     }
     return id;
   } catch {
-    return "sans-session";
+    // Storage blocked: an id for this page only, never one shared by every such visitor.
+    return fallback;
   }
 }
 

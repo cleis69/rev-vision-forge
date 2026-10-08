@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
-import { BedDouble, GitCompareArrows, Maximize2, Share2, Trees } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { BedDouble, CalendarCheck, GitCompareArrows, Maximize2, Share2, Trees } from "lucide-react";
 
 import {
   Sheet,
@@ -48,6 +48,8 @@ export type LotActions = {
   onShare: () => void;
   whatsappUrl: string;
   onWhatsApp: () => void;
+  /** Visit request form of this lot; null when the lot is sold. */
+  visit: ReactNode | null;
 };
 
 export function LotSheet({
@@ -65,6 +67,16 @@ export function LotSheet({
   onOpenChange: (open: boolean) => void;
   actions: LotActions | null;
 }) {
+  // The form shows under the details of the lot it was opened for.
+  const [visitFor, setVisitFor] = useState<string | null>(null);
+  const showVisit = Boolean(lot && visitFor === lot.id && actions?.visit);
+  const visitRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!showVisit) return;
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    visitRef.current?.scrollIntoView({ block: "start", behavior: still ? "auto" : "smooth" });
+  }, [showVisit]);
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full overflow-y-auto border-white/10 bg-[#0d0d0d] p-0 sm:max-w-md">
@@ -166,8 +178,27 @@ export function LotSheet({
               ) : null}
             </div>
 
+            {showVisit && actions?.visit ? (
+              <div ref={visitRef} className="scroll-mt-4 border-t border-white/10 p-6">
+                <h3 className="font-display text-lg font-medium tracking-tight">
+                  Planifier une visite
+                </h3>
+                <div className="mt-4">{actions.visit}</div>
+              </div>
+            ) : null}
+
             {actions ? (
               <div className="sticky bottom-0 flex flex-wrap gap-2 border-t border-white/10 bg-[#0d0d0d]/95 p-4 backdrop-blur">
+                {actions.visit && !showVisit ? (
+                  <button
+                    type="button"
+                    onClick={() => setVisitFor(lot.id)}
+                    className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[color:var(--brand)] px-5 text-sm font-medium text-black transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                  >
+                    <CalendarCheck className="size-4" aria-hidden />
+                    Planifier une visite
+                  </button>
+                ) : null}
                 <button
                   type="button"
                   onClick={actions.onToggleCompare}
@@ -195,9 +226,10 @@ export function LotSheet({
                   target="_blank"
                   rel="noopener"
                   onClick={actions.onWhatsApp}
-                  className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 text-sm font-medium text-black transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                  aria-label={`Partager le lot ${lot.numero} sur WhatsApp`}
+                  className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full border border-[#25D366]/50 px-4 text-sm text-[#5fe08f] transition-colors hover:border-[#25D366] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                 >
-                  Envoyer sur WhatsApp
+                  WhatsApp
                 </a>
               </div>
             ) : null}

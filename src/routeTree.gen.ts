@@ -39,9 +39,11 @@ import { Route as SiteEnPricingRouteImport } from './routes/_site/en/pricing'
 import { Route as SiteEnServicesRouteImport } from './routes/_site/en/services'
 import { Route as AppEspaceIndexRouteImport } from './routes/app/_espace/index'
 import { Route as AppEspaceOrganisationRouteImport } from './routes/app/_espace/organisation'
+import { Route as PSlugDonneesPersonnellesRouteImport } from './routes/p/$slug/donnees-personnelles'
 import { Route as AppEspaceProjetsIdRouteRouteImport } from './routes/app/_espace/projets/$id/route'
 import { Route as PSlugLotNumeroRouteImport } from './routes/p/$slug/lot/$numero'
 import { Route as AppEspaceProjetsIdIndexRouteImport } from './routes/app/_espace/projets/$id/index'
+import { Route as AppEspaceProjetsIdDemandesRouteImport } from './routes/app/_espace/projets/$id/demandes'
 import { Route as AppEspaceProjetsIdLotsRouteImport } from './routes/app/_espace/projets/$id/lots'
 import { Route as AppEspaceProjetsIdMediasRouteImport } from './routes/app/_espace/projets/$id/medias'
 import { Route as AppEspaceProjetsIdPartageRouteImport } from './routes/app/_espace/projets/$id/partage'
@@ -196,6 +198,12 @@ const AppEspaceOrganisationRoute = AppEspaceOrganisationRouteImport.update({
   path: '/organisation',
   getParentRoute: () => AppEspaceRouteRoute,
 } as any)
+const PSlugDonneesPersonnellesRoute =
+  PSlugDonneesPersonnellesRouteImport.update({
+    id: '/donnees-personnelles',
+    path: '/donnees-personnelles',
+    getParentRoute: () => PSlugRoute,
+  } as any)
 const AppEspaceProjetsIdRouteRoute = AppEspaceProjetsIdRouteRouteImport.update({
   id: '/projets/$id',
   path: '/projets/$id',
@@ -211,6 +219,12 @@ const AppEspaceProjetsIdIndexRoute = AppEspaceProjetsIdIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppEspaceProjetsIdRouteRoute,
 } as any)
+const AppEspaceProjetsIdDemandesRoute =
+  AppEspaceProjetsIdDemandesRouteImport.update({
+    id: '/demandes',
+    path: '/demandes',
+    getParentRoute: () => AppEspaceProjetsIdRouteRoute,
+  } as any)
 const AppEspaceProjetsIdLotsRoute = AppEspaceProjetsIdLotsRouteImport.update({
   id: '/lots',
   path: '/lots',
@@ -267,10 +281,12 @@ export interface FileRoutesByFullPath {
   '/en/pricing': typeof SiteEnPricingRoute
   '/en/services': typeof SiteEnServicesRoute
   '/app/organisation': typeof AppEspaceOrganisationRoute
+  '/p/$slug/donnees-personnelles': typeof PSlugDonneesPersonnellesRoute
   '/en/': typeof SiteEnIndexRoute
   '/app/': typeof AppEspaceIndexRoute
   '/app/projets/$id': typeof AppEspaceProjetsIdRouteRouteWithChildren
   '/p/$slug/lot/$numero': typeof PSlugLotNumeroRoute
+  '/app/projets/$id/demandes': typeof AppEspaceProjetsIdDemandesRoute
   '/app/projets/$id/lots': typeof AppEspaceProjetsIdLotsRoute
   '/app/projets/$id/medias': typeof AppEspaceProjetsIdMediasRoute
   '/app/projets/$id/partage': typeof AppEspaceProjetsIdPartageRoute
@@ -305,8 +321,10 @@ export interface FileRoutesByTo {
   '/en/pricing': typeof SiteEnPricingRoute
   '/en/services': typeof SiteEnServicesRoute
   '/app/organisation': typeof AppEspaceOrganisationRoute
+  '/p/$slug/donnees-personnelles': typeof PSlugDonneesPersonnellesRoute
   '/en': typeof SiteEnIndexRoute
   '/p/$slug/lot/$numero': typeof PSlugLotNumeroRoute
+  '/app/projets/$id/demandes': typeof AppEspaceProjetsIdDemandesRoute
   '/app/projets/$id/lots': typeof AppEspaceProjetsIdLotsRoute
   '/app/projets/$id/medias': typeof AppEspaceProjetsIdMediasRoute
   '/app/projets/$id/partage': typeof AppEspaceProjetsIdPartageRoute
@@ -344,10 +362,12 @@ export interface FileRoutesById {
   '/_site/en/pricing': typeof SiteEnPricingRoute
   '/_site/en/services': typeof SiteEnServicesRoute
   '/app/_espace/organisation': typeof AppEspaceOrganisationRoute
+  '/p/$slug/donnees-personnelles': typeof PSlugDonneesPersonnellesRoute
   '/_site/en/': typeof SiteEnIndexRoute
   '/app/_espace/': typeof AppEspaceIndexRoute
   '/app/_espace/projets/$id': typeof AppEspaceProjetsIdRouteRouteWithChildren
   '/p/$slug/lot/$numero': typeof PSlugLotNumeroRoute
+  '/app/_espace/projets/$id/demandes': typeof AppEspaceProjetsIdDemandesRoute
   '/app/_espace/projets/$id/lots': typeof AppEspaceProjetsIdLotsRoute
   '/app/_espace/projets/$id/medias': typeof AppEspaceProjetsIdMediasRoute
   '/app/_espace/projets/$id/partage': typeof AppEspaceProjetsIdPartageRoute
@@ -384,10 +404,12 @@ export interface FileRouteTypes {
     | '/en/pricing'
     | '/en/services'
     | '/app/organisation'
+    | '/p/$slug/donnees-personnelles'
     | '/en/'
     | '/app/'
     | '/app/projets/$id'
     | '/p/$slug/lot/$numero'
+    | '/app/projets/$id/demandes'
     | '/app/projets/$id/lots'
     | '/app/projets/$id/medias'
     | '/app/projets/$id/partage'
@@ -422,8 +444,10 @@ export interface FileRouteTypes {
     | '/en/pricing'
     | '/en/services'
     | '/app/organisation'
+    | '/p/$slug/donnees-personnelles'
     | '/en'
     | '/p/$slug/lot/$numero'
+    | '/app/projets/$id/demandes'
     | '/app/projets/$id/lots'
     | '/app/projets/$id/medias'
     | '/app/projets/$id/partage'
@@ -460,10 +484,12 @@ export interface FileRouteTypes {
     | '/_site/en/pricing'
     | '/_site/en/services'
     | '/app/_espace/organisation'
+    | '/p/$slug/donnees-personnelles'
     | '/_site/en/'
     | '/app/_espace/'
     | '/app/_espace/projets/$id'
     | '/p/$slug/lot/$numero'
+    | '/app/_espace/projets/$id/demandes'
     | '/app/_espace/projets/$id/lots'
     | '/app/_espace/projets/$id/medias'
     | '/app/_espace/projets/$id/partage'
@@ -690,6 +716,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEspaceOrganisationRouteImport
       parentRoute: typeof AppEspaceRouteRoute
     }
+    '/p/$slug/donnees-personnelles': {
+      id: '/p/$slug/donnees-personnelles'
+      path: '/donnees-personnelles'
+      fullPath: '/p/$slug/donnees-personnelles'
+      preLoaderRoute: typeof PSlugDonneesPersonnellesRouteImport
+      parentRoute: typeof PSlugRoute
+    }
     '/app/_espace/projets/$id': {
       id: '/app/_espace/projets/$id'
       path: '/projets/$id'
@@ -709,6 +742,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/app/projets/$id/'
       preLoaderRoute: typeof AppEspaceProjetsIdIndexRouteImport
+      parentRoute: typeof AppEspaceProjetsIdRouteRoute
+    }
+    '/app/_espace/projets/$id/demandes': {
+      id: '/app/_espace/projets/$id/demandes'
+      path: '/demandes'
+      fullPath: '/app/projets/$id/demandes'
+      preLoaderRoute: typeof AppEspaceProjetsIdDemandesRouteImport
       parentRoute: typeof AppEspaceProjetsIdRouteRoute
     }
     '/app/_espace/projets/$id/lots': {
@@ -800,6 +840,7 @@ const SiteRouteRouteWithChildren = SiteRouteRoute._addFileChildren(
 )
 
 interface AppEspaceProjetsIdRouteRouteChildren {
+  AppEspaceProjetsIdDemandesRoute: typeof AppEspaceProjetsIdDemandesRoute
   AppEspaceProjetsIdLotsRoute: typeof AppEspaceProjetsIdLotsRoute
   AppEspaceProjetsIdMediasRoute: typeof AppEspaceProjetsIdMediasRoute
   AppEspaceProjetsIdPartageRoute: typeof AppEspaceProjetsIdPartageRoute
@@ -810,6 +851,7 @@ interface AppEspaceProjetsIdRouteRouteChildren {
 
 const AppEspaceProjetsIdRouteRouteChildren: AppEspaceProjetsIdRouteRouteChildren =
   {
+    AppEspaceProjetsIdDemandesRoute: AppEspaceProjetsIdDemandesRoute,
     AppEspaceProjetsIdLotsRoute: AppEspaceProjetsIdLotsRoute,
     AppEspaceProjetsIdMediasRoute: AppEspaceProjetsIdMediasRoute,
     AppEspaceProjetsIdPartageRoute: AppEspaceProjetsIdPartageRoute,
@@ -858,10 +900,12 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
 )
 
 interface PSlugRouteChildren {
+  PSlugDonneesPersonnellesRoute: typeof PSlugDonneesPersonnellesRoute
   PSlugLotNumeroRoute: typeof PSlugLotNumeroRoute
 }
 
 const PSlugRouteChildren: PSlugRouteChildren = {
+  PSlugDonneesPersonnellesRoute: PSlugDonneesPersonnellesRoute,
   PSlugLotNumeroRoute: PSlugLotNumeroRoute,
 }
 

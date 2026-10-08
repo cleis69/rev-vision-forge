@@ -365,6 +365,12 @@ begin
   reset role;
   total := total + 1; if not ok then failed := failed + 1; report := report || 'commercial : n''écoute pas son brouillon en direct'::text; end if;
 
+  set local role authenticated;
+  begin update public.leads set notified_at = now() where project_id = p_pub; ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'commercial : modifie la date de notification d''une demande'::text; end if;
+
   ---------------------------------------------------------- owner of A
   perform set_config('request.jwt.claims', json_build_object('sub', owner_a, 'role', 'authenticated')::text, true);
   perform set_config('request.jwt.claim.sub', owner_a::text, true);
@@ -437,6 +443,11 @@ begin
   total := total + 1; if not ok then failed := failed + 1; report := report || 'forme rattachée au mauvais programme'::text; end if;
 
 
+
+  select count(*) into n from net.http_request_queue where url like '%/functions/v1/notify-lead';
+  insert into public.leads (project_id, nom, telephone, session_id) values (p_pub, 'Notification', '+212600000009', 'notif');
+  select count(*) - n into n from net.http_request_queue where url like '%/functions/v1/notify-lead';
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'nouvelle demande sans appel de notification'::text; end if;
   select count(*) into n from realtime.messages where topic = 'programme:' || p_pub and payload->>'statut' = 'vendue';
   update public.lots set statut = 'vendue' where id = lot_pub;
   select count(*) - n into n from realtime.messages where topic = 'programme:' || p_pub and payload->>'statut' = 'vendue';

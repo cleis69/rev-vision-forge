@@ -7,7 +7,7 @@ import { fitWithin } from "./geometry";
 export const PLAN_TYPES = ["image/jpeg", "image/png", "image/webp"];
 export const MAX_SOURCE_BYTES = 50 * 1024 * 1024;
 // Largest canvas that every browser accepts (iOS Safari: 16.7 megapixels).
-const MAX_PIXELS = 16_000_000;
+export const MAX_PIXELS = 16_000_000;
 
 export class ImageError extends Error {}
 
@@ -18,13 +18,17 @@ export type EncodedImage = {
   extension: "webp" | "jpg" | "png";
 };
 
-export async function decodeImage(file: File): Promise<ImageBitmap> {
+export async function decodeImage(file: File, maxBytes = MAX_SOURCE_BYTES): Promise<ImageBitmap> {
   if (!PLAN_TYPES.includes(file.type)) {
     throw new ImageError(
       "Format non pris en charge : JPEG, PNG ou WebP. Pour un plan en PDF, exportez d'abord la page en image.",
     );
   }
-  if (file.size > MAX_SOURCE_BYTES) throw new ImageError("Image trop lourde : 50 Mo au maximum.");
+  if (file.size > maxBytes) {
+    throw new ImageError(
+      `Image trop lourde : ${Math.round(maxBytes / 1024 / 1024)} Mo au maximum.`,
+    );
+  }
   try {
     return await createImageBitmap(file, { imageOrientation: "from-image" });
   } catch {
@@ -37,14 +41,15 @@ export async function decodeImage(file: File): Promise<ImageBitmap> {
 const toBlob = (canvas: HTMLCanvasElement, type: string, quality: number) =>
   new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, type, quality));
 
-/** The image reduced to fit in `maxSide` pixels. */
+/** The image reduced to fit in `maxSide` pixels (and `maxPixels` in all). */
 export async function encodeImage(
   source: ImageBitmap,
   maxSide: number,
   quality = 0.85,
   fallback: "jpg" | "png" = "jpg",
+  maxPixels = MAX_PIXELS,
 ): Promise<EncodedImage> {
-  const { width, height } = fitWithin(source.width, source.height, maxSide, MAX_PIXELS);
+  const { width, height } = fitWithin(source.width, source.height, maxSide, maxPixels);
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;

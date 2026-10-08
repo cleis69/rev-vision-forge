@@ -288,7 +288,7 @@ function LotsPage() {
             ? `Supprimer le lot n° ${toDelete.lots[0]?.numero} ?`
             : `Supprimer ${toDelete.lots.length} lots ?`
         }
-        description="Le lot et sa forme sur le plan sont supprimés. Les demandes de visite qui le concernent sont conservées."
+        description={`${toDelete.lots.length === 1 ? "Le lot, ses formes sur les vues, ses photos et sa visite 360° sont supprimés" : "Les lots, leurs formes sur les vues, leurs photos et leurs visites 360° sont supprimés"}. Les demandes de visite qui les concernent sont conservées, comme les visites 360° faites pour un type de lot.`}
         actionLabel={toDelete.lots.length === 1 ? "Supprimer le lot" : "Supprimer les lots"}
         onConfirm={async () => {
           const ids = toDelete.lots.map((l) => l.id);

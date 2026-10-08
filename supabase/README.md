@@ -68,6 +68,20 @@ Vues du plan :
   est devenu sa première vue (« Vue aérienne »), en deux migrations pour que le site en
   ligne continue de marcher entre les deux.
 
+Visite 360° :
+
+- `panoramas` : une pièce par ligne, panorama équirectangulaire 2:1 en trois tailles
+  (8 192 px quand le navigateur le permet, 4 096 px pour les téléphones et l'éditeur,
+  vignette de 640 px), fichiers dans `<organisation>/<programme>/panoramas/`. Une visite
+  est faite pour un lot (`lot_id`) ou pour tous les lots d'un type (`lot_type`, comparé
+  sans tenir compte de la casse) ; la visite propre à un lot passe avant celle de son
+  type. La première pièce (`sort_order`) est l'entrée ; `start_yaw` et `start_pitch`
+  (radians) donnent la direction à l'arrivée.
+- `panorama_links` : la flèche d'une pièce vers une autre, à l'endroit de la porte
+  (`yaw`, `pitch`), une par couple de pièces du même programme. Supprimer une pièce
+  supprime ses flèches ; supprimer un lot supprime sa propre visite (l'espace promoteur
+  efface aussi ses fichiers et ses photos).
+
 Vue orbitale :
 
 - La séquence est dans `media` : `orbit_frame` (vues WebP en 2 048 et 1 280 px) et

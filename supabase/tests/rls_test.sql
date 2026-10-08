@@ -22,6 +22,11 @@ declare
   view_rdc constant uuid := '00000000-0000-4000-8000-00000a000002';
   view_draft constant uuid := '00000000-0000-4000-8000-00000a000003';
   view_other constant uuid := '00000000-0000-4000-8000-00000b000001';
+  pano_entree constant uuid := '00000000-0000-4000-8000-0000000c0001';
+  pano_salon constant uuid := '00000000-0000-4000-8000-0000000c0002';
+  pano_lot constant uuid := '00000000-0000-4000-8000-0000000c0003';
+  pano_draft constant uuid := '00000000-0000-4000-8000-0000000c0004';
+  pano_other constant uuid := '00000000-0000-4000-8000-0000000d0001';
   report text[] := '{}';
   total int := 0;
   failed int := 0;
@@ -54,6 +59,15 @@ begin
     (lot_pub, p_pub, view_pub, '[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]]');
   insert into public.leads (project_id, lot_id, nom, telephone, session_id) values
     (p_pub, lot_pub, 'Fixture', '+212600000000', 'fixture');
+  -- A tour for the type "Villa" (two rooms, one arrow), one for lot_pub, one in the draft.
+  insert into public.panoramas (id, project_id, lot_id, lot_type, name, image_path, image_width, image_height, sort_order) values
+    (pano_entree, p_pub, null, 'Villa', 'Entrée', 'fixture/entree.webp', 8192, 4096, 0),
+    (pano_salon, p_pub, null, 'Villa', 'Salon', 'fixture/salon.webp', 8192, 4096, 1),
+    (pano_lot, p_pub, lot_pub, null, 'Suite', 'fixture/suite.webp', 8192, 4096, 0),
+    (pano_draft, p_draft, lot_draft, null, 'Brouillon', 'fixture/brouillon.webp', 8192, 4096, 0),
+    (pano_other, p_other, null, 'Villa', 'Ailleurs', 'fixture/ailleurs.webp', 8192, 4096, 0);
+  insert into public.panorama_links (project_id, from_id, to_id, yaw, pitch) values
+    (p_pub, pano_entree, pano_salon, 1.5, -0.2);
   insert into public.media (project_id, lot_id, kind, path) values
     (p_pub, lot_pub, 'image', 'fixture/pub.webp'), (p_draft, null, 'image', 'fixture/draft.webp');
   insert into public.orbit_colors (project_id, hex, share, lot_id) values
@@ -266,6 +280,28 @@ begin
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'visiteur : niveau absent de public_lots'::text; end if;
 
   set local role anon;
+  select (select count(*) from public.panoramas where project_id in (p_pub, p_draft))
+       + (select count(*) from public.panorama_links where project_id = p_pub) * 10
+    into n;
+  reset role;
+  total := total + 1; if n <> 13 then failed := failed + 1; report := report || 'visiteur : visites 360° d''un brouillon visibles (ou celles du publié absentes)'::text; end if;
+
+  set local role anon;
+  begin
+    insert into public.panoramas (project_id, lot_type, name, image_path, image_width, image_height)
+      values (p_pub, 'Villa', 'Pirate', 'pirate.webp', 8192, 4096);
+    ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : ajoute une pièce à une visite'::text; end if;
+
+  set local role anon;
+  begin delete from public.panorama_links where project_id = p_pub; get diagnostics n = row_count; ok := n = 0;
+  exception when insufficient_privilege then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : supprime un passage'::text; end if;
+
+  set local role anon;
   begin perform public.project_stats(p_pub, 7, 'UTC'); ok := false;
   exception when insufficient_privilege then ok := true; end;
   reset role;
@@ -361,6 +397,24 @@ begin
   select count(*) into n from public.project_views where project_id = p_draft;
   reset role;
   total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'autre organisation : voit les vues du brouillon de A'::text; end if;
+
+  set local role authenticated;
+  update public.panoramas set name = 'Piratée' where project_id = p_pub; get diagnostics n = row_count;
+  reset role;
+  total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'autre organisation : renomme une pièce de A'::text; end if;
+
+  set local role authenticated;
+  begin
+    insert into public.panorama_links (project_id, from_id, to_id, yaw, pitch) values (p_pub, pano_salon, pano_entree, 0, 0);
+    ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'autre organisation : ajoute un passage chez A'::text; end if;
+
+  set local role authenticated;
+  select count(*) into n from public.panoramas where project_id = p_draft;
+  reset role;
+  total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'autre organisation : voit la visite du brouillon de A'::text; end if;
 
   ------------------------------------------------------ commercial of A
   perform set_config('request.jwt.claims', json_build_object('sub', commercial_a, 'role', 'authenticated')::text, true);
@@ -494,6 +548,20 @@ begin
   delete from public.project_views where project_id = p_pub and name = 'R+1'; get diagnostics n = row_count;
   reset role;
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas supprimer une vue'::text; end if;
+
+  set local role authenticated;
+  insert into public.panoramas (project_id, lot_type, name, image_path, image_width, image_height, sort_order)
+    values (p_pub, 'Villa', 'Cuisine', 'fixture/cuisine.webp', 8192, 4096, 2);
+  update public.panoramas set start_yaw = 3.1, start_pitch = -0.1 where id = pano_salon;
+  insert into public.panorama_links (project_id, from_id, to_id, yaw, pitch) values (p_pub, pano_salon, pano_entree, 4.7, -0.3);
+  select count(*) into n from public.panorama_links where project_id = p_pub;
+  reset role;
+  total := total + 1; if n <> 2 then failed := failed + 1; report := report || 'commercial : ne peut pas compléter une visite 360°'::text; end if;
+
+  set local role authenticated;
+  delete from public.panorama_links where from_id = pano_salon; get diagnostics n = row_count;
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas supprimer un passage'::text; end if;
 
   set local role authenticated;
   update public.media set meta = '{"caption": "Vue mer"}' where project_id = p_pub; get diagnostics n = row_count;
@@ -633,6 +701,42 @@ begin
   select count(*) into n from public.lot_shapes where view_id = view_rdc;
   total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'suppression d''une vue : formes restantes'::text; end if;
 
+  begin
+    insert into public.panoramas (project_id, lot_id, lot_type, name, image_path, image_width, image_height)
+      values (p_pub, lot_pub, 'Villa', 'Les deux', 'x.webp', 8192, 4096);
+    ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'pièce rattachée à un lot et à un type acceptée'::text; end if;
+
+  begin
+    insert into public.panoramas (project_id, name, image_path, image_width, image_height)
+      values (p_pub, 'Aucun', 'x.webp', 8192, 4096);
+    ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'pièce rattachée à rien acceptée'::text; end if;
+
+  begin
+    insert into public.panorama_links (project_id, from_id, to_id, yaw, pitch) values (p_pub, pano_entree, pano_entree, 0, 0);
+    ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'passage d''une pièce vers elle-même accepté'::text; end if;
+
+  begin
+    insert into public.panorama_links (project_id, from_id, to_id, yaw, pitch) values (p_pub, pano_entree, pano_other, 0, 0);
+    ok := false;
+  exception when foreign_key_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'passage vers la pièce d''un autre programme accepté'::text; end if;
+
+  begin
+    update public.panoramas set start_yaw = 7 where id = pano_entree;
+    ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'vue de départ hors limites acceptée'::text; end if;
+
+  delete from public.panoramas where id = pano_salon;
+  select count(*) into n from public.panorama_links where from_id = pano_salon or to_id = pano_salon;
+  total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'suppression d''une pièce : passages restants'::text; end if;
+
   select count(*) into n from net.http_request_queue where url like '%/functions/v1/notify-lead';
   insert into public.leads (project_id, nom, telephone, session_id) values (p_pub, 'Notification', '+212600000009', 'notif');
   select count(*) - n into n from net.http_request_queue where url like '%/functions/v1/notify-lead';
@@ -646,6 +750,10 @@ begin
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'suppression d''un lot : demande perdue'::text; end if;
   select count(*) into n from public.orbit_colors where project_id = p_pub and hex = '#ff0000' and lot_id is null;
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'suppression d''un lot : couleur orbitale perdue'::text; end if;
+  select (select count(*) from public.panoramas where id = pano_lot) * 10
+       + (select count(*) from public.panoramas where id = pano_entree)
+    into n;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'suppression d''un lot : sa visite reste, ou celle de son type est perdue'::text; end if;
 
   begin delete from public.organizations where id = org_b; ok := true;
   exception when others then ok := false; end;

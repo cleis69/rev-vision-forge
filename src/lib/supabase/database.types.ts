@@ -421,6 +421,111 @@ export type Database = {
         };
         Relationships: [];
       };
+      panorama_links: {
+        Row: {
+          created_at: string;
+          from_id: string;
+          id: string;
+          pitch: number;
+          project_id: string;
+          to_id: string;
+          yaw: number;
+        };
+        Insert: {
+          created_at?: string;
+          from_id: string;
+          id?: string;
+          pitch: number;
+          project_id: string;
+          to_id: string;
+          yaw: number;
+        };
+        Update: {
+          created_at?: string;
+          from_id?: string;
+          id?: string;
+          pitch?: number;
+          project_id?: string;
+          to_id?: string;
+          yaw?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "panorama_links_from_id_project_id_fkey";
+            columns: ["from_id", "project_id"];
+            isOneToOne: false;
+            referencedRelation: "panoramas";
+            referencedColumns: ["id", "project_id"];
+          },
+          {
+            foreignKeyName: "panorama_links_to_id_project_id_fkey";
+            columns: ["to_id", "project_id"];
+            isOneToOne: false;
+            referencedRelation: "panoramas";
+            referencedColumns: ["id", "project_id"];
+          },
+        ];
+      };
+      panoramas: {
+        Row: {
+          created_at: string;
+          id: string;
+          image_height: number;
+          image_path: string;
+          image_width: number;
+          lot_id: string | null;
+          lot_type: string | null;
+          name: string;
+          project_id: string;
+          sort_order: number;
+          start_pitch: number;
+          start_yaw: number;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          image_height: number;
+          image_path: string;
+          image_width: number;
+          lot_id?: string | null;
+          lot_type?: string | null;
+          name: string;
+          project_id: string;
+          sort_order?: number;
+          start_pitch?: number;
+          start_yaw?: number;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          image_height?: number;
+          image_path?: string;
+          image_width?: number;
+          lot_id?: string | null;
+          lot_type?: string | null;
+          name?: string;
+          project_id?: string;
+          sort_order?: number;
+          start_pitch?: number;
+          start_yaw?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "panoramas_lot_id_project_id_fkey";
+            columns: ["lot_id", "project_id"];
+            isOneToOne: false;
+            referencedRelation: "lots";
+            referencedColumns: ["id", "project_id"];
+          },
+          {
+            foreignKeyName: "panoramas_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       project_views: {
         Row: {
           created_at: string;

@@ -5,9 +5,12 @@ import { getSupabase } from "@/lib/supabase/client";
 import type { TablesInsert, TablesUpdate } from "@/lib/supabase/database.types";
 import { AppError, NO_RIGHTS, dbErrorMessage } from "./errors";
 import { compareNumeros, type Lot, type LotStatus } from "./lot-fields";
+import { removeFiles } from "./storage";
+import { lotFiles } from "./tours";
 
 /* Lots of a programme. Every member (owner or commercial) adds, edits and
-   deletes them (RLS); deleting a lot keeps its visit requests. */
+   deletes them (RLS); deleting a lot keeps its visit requests, and removes
+   its photos and its own 360° tour. */
 
 const lotsKey = (projectId: string) => ["lots", projectId] as const;
 
@@ -114,9 +117,12 @@ export function useDeleteLots(projectId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (ids: string[]) => {
+      // Their photos and their own 360° tour go with them (cascade): files listed first.
+      const files = await lotFiles(ids).catch(() => []);
       const { data, error } = await getSupabase().from("lots").delete().in("id", ids).select("id");
       if (error) throw error;
       if (data.length < ids.length) throw new AppError(NO_RIGHTS);
+      if (files.length) await removeFiles(files).catch(() => undefined);
       return ids;
     },
     onSuccess: (ids) => {
@@ -124,6 +130,9 @@ export function useDeleteLots(projectId: string) {
       queryClient.setQueryData<Lot[]>(lotsKey(projectId), (lots = []) =>
         lots.filter((lot) => !removed.has(lot.id)),
       );
+      void queryClient.invalidateQueries({ queryKey: ["media", projectId] });
+      void queryClient.invalidateQueries({ queryKey: ["panoramas", projectId] });
+      void queryClient.invalidateQueries({ queryKey: ["panorama-links", projectId] });
     },
   });
 }

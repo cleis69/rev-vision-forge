@@ -10,6 +10,12 @@
   // www is redirected to the apex by a Cloudflare redirect rule on the zone.
   "routes": [{ "pattern": "realestatevision360.com", "custom_domain": true }],
   "workers_dev": true,
+  // Link previews of the public pages read Supabase with the publishable key,
+  // the same one the site's JavaScript already carries (RLS decides access).
+  "vars": {
+    "SUPABASE_URL": "https://hbihlcnhmjommcnpujam.supabase.co",
+    "SUPABASE_KEY": "sb_publishable_RWzgJ5zeKV7Ke0x-KRrTDg_LPLR-8_V"
+  },
   "assets": {
     "directory": "../dist/client",
     "binding": "ASSETS",

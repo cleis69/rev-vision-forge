@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+import { Toaster } from "@/components/ui/sonner";
+
 // Public pages of the programmes, in the promoters' colours. Rendered in the
 // browser (data from Supabase) and never indexed: they are shared by link.
 export const Route = createFileRoute("/p")({
@@ -20,6 +22,8 @@ function PublicRoot() {
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
+      {/* Top: the comparison bar sits at the bottom of the page. */}
+      <Toaster position="top-center" />
     </QueryClientProvider>
   );
 }

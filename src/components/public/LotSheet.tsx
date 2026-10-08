@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { BedDouble, Maximize2, Trees } from "lucide-react";
+import { BedDouble, GitCompareArrows, Maximize2, Share2, Trees } from "lucide-react";
 
 import {
   Sheet,
@@ -42,18 +42,28 @@ export function StatusChip({ status, className }: { status: LotStatus; className
 }
 
 /** Details of a lot: side panel on a computer, full screen on a phone. */
+export type LotActions = {
+  compared: boolean;
+  onToggleCompare: () => void;
+  onShare: () => void;
+  whatsappUrl: string;
+  onWhatsApp: () => void;
+};
+
 export function LotSheet({
   lot,
   photos,
   currency,
   open,
   onOpenChange,
+  actions,
 }: {
   lot: PublicLot | null;
   photos: MediaItem[];
   currency: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  actions: LotActions | null;
 }) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -155,6 +165,42 @@ export function LotSheet({
                 </div>
               ) : null}
             </div>
+
+            {actions ? (
+              <div className="sticky bottom-0 flex flex-wrap gap-2 border-t border-white/10 bg-[#0d0d0d]/95 p-4 backdrop-blur">
+                <button
+                  type="button"
+                  onClick={actions.onToggleCompare}
+                  aria-pressed={actions.compared}
+                  className={cn(
+                    "inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full border px-4 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                    actions.compared
+                      ? "border-[color:var(--brand)] bg-[color:var(--brand)]/15 text-[color:var(--brand)]"
+                      : "border-white/15 text-white/85 hover:border-white/35",
+                  )}
+                >
+                  <GitCompareArrows className="size-4" aria-hidden />
+                  {actions.compared ? "Dans le comparateur" : "Comparer"}
+                </button>
+                <button
+                  type="button"
+                  onClick={actions.onShare}
+                  className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full border border-white/15 px-4 text-sm text-white/85 transition-colors hover:border-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                >
+                  <Share2 className="size-4" aria-hidden />
+                  Partager
+                </button>
+                <a
+                  href={actions.whatsappUrl}
+                  target="_blank"
+                  rel="noopener"
+                  onClick={actions.onWhatsApp}
+                  className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 text-sm font-medium text-black transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                >
+                  Envoyer sur WhatsApp
+                </a>
+              </div>
+            ) : null}
           </article>
         ) : null}
       </SheetContent>

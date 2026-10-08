@@ -55,6 +55,7 @@ export function PublicPlan({
   shapes,
   currency,
   filter,
+  highlight,
   onOpen,
 }: {
   image: PlanImage;
@@ -62,6 +63,8 @@ export function PublicPlan({
   shapes: Map<string, Point[]>;
   currency: string;
   filter: LotStatus | null;
+  /** Lots that just changed (live update): briefly outlined. */
+  highlight?: ReadonlySet<string>;
   onOpen: (lot: PublicLot, from: "plan" | "keyboard") => void;
 }) {
   const { width: W, height: H } = image;
@@ -332,7 +335,8 @@ export function PublicPlan({
               if (!points) return null;
               const [cx, cy] = centroid(points);
               const dimmed = filter !== null && lot.statut !== filter;
-              const active = hover?.id === lot.id || focused === lot.id;
+              const live = highlight?.has(lot.id) ?? false;
+              const active = hover?.id === lot.id || focused === lot.id || live;
               const label = `Lot ${lot.numero}${lot.type ? `, ${lot.type}` : ""}, ${statusAndPrice(lot, currency).replace(" · ", ", ")}`;
               return (
                 <g
@@ -344,7 +348,10 @@ export function PublicPlan({
                   onKeyDown={(e) => onKeyDown(e, lot)}
                   onFocus={() => setFocused(lot.id)}
                   onBlur={() => setFocused((f) => (f === lot.id ? null : f))}
-                  className="cursor-pointer outline-none transition-opacity duration-300 motion-reduce:transition-none"
+                  className={cn(
+                    "cursor-pointer outline-none transition-opacity duration-300 motion-reduce:transition-none",
+                    live && "animate-pulse motion-reduce:animate-none",
+                  )}
                   style={{ opacity: dimmed ? 0.18 : 1 }}
                 >
                   <polygon

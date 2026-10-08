@@ -5,21 +5,26 @@
 //   password is the Worker secret AGENT_PASSWORD; while it is not set, the
 //   pages stay closed to everyone.
 // - /app/…: the promoter space, and /p/…: the public pages of the programmes,
-//   both rendered in the browser from the SPA shell (_shell.html).
+//   both rendered in the browser from the SPA shell (_shell.html); for /p/…
+//   the Worker also writes the link preview (title, description, image).
 // Everything else on the site is served straight from static assets.
 import SIZES from "./media-sizes.json";
+import { loadPreview, metaTags } from "./og.js";
 
 const PRIVATE = /^\/(agent-ia|en\/ai-agent)(\.html|\/)?$/;
 // Promoter space and public programme pages: rendered in the browser from the
 // SPA shell of the build, never indexed (programmes are shared by link).
 const APP = /^\/app(\/|$)/;
 const PROGRAMME = /^\/p\/[^/]+/;
+// Programme page or lot page, whose link preview is written by the Worker.
+const PREVIEWED = /^\/p\/([^/]+)(?:\/lot\/([^/]+))?\/?$/;
 
 export default {
   async fetch(request, env) {
     const { pathname } = new URL(request.url);
     if (PRIVATE.test(pathname)) return privatePage(request, env);
-    if (APP.test(pathname) || PROGRAMME.test(pathname)) return appShell(request, env);
+    if (PROGRAMME.test(pathname)) return programmePage(request, env);
+    if (APP.test(pathname)) return appShell(request, env);
 
     const res = await env.ASSETS.fetch(request);
     const range = request.headers.get("range");
@@ -89,6 +94,34 @@ async function appShell(request, env) {
   headers.set("cache-control", "no-cache");
   headers.set("x-robots-tag", "noindex, nofollow");
   return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
+}
+
+/** The shell, with the title, description and image of the programme or lot for link previews. */
+async function programmePage(request, env) {
+  const shell = await appShell(request, env);
+  const url = new URL(request.url);
+  const match = PREVIEWED.exec(url.pathname);
+  if (!match || !env.SUPABASE_URL || !env.SUPABASE_KEY || shell.status !== 200) return shell;
+  let meta = null;
+  try {
+    const numero = match[2] ? decodeURIComponent(match[2]) : null;
+    meta = await loadPreview(env, decodeURIComponent(match[1]), numero, `https://${url.host}${url.pathname}`);
+  } catch {
+    // Supabase unreachable: the page still works, only the preview is generic.
+  }
+  if (!meta) {
+    // Unknown or unpublished programme: a neutral title instead of the shell's.
+    return new HTMLRewriter()
+      .on("title", { element: (el) => void el.setInnerContent("Programme non disponible") })
+      .transform(shell);
+  }
+  return new HTMLRewriter()
+    .on("title", { element: (el) => void el.setInnerContent(meta.title) })
+    .on('meta[name="description"], meta[property^="og:"], meta[name^="twitter:"]', {
+      element: (el) => void el.remove(),
+    })
+    .on("head", { element: (el) => void el.append(metaTags(meta), { html: true }) })
+    .transform(shell);
 }
 
 async function privatePage(request, env) {

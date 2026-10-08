@@ -40,6 +40,7 @@ import { Route as SiteEnServicesRouteImport } from './routes/_site/en/services'
 import { Route as AppEspaceIndexRouteImport } from './routes/app/_espace/index'
 import { Route as AppEspaceOrganisationRouteImport } from './routes/app/_espace/organisation'
 import { Route as AppEspaceProjetsIdRouteRouteImport } from './routes/app/_espace/projets/$id/route'
+import { Route as PSlugLotNumeroRouteImport } from './routes/p/$slug/lot/$numero'
 import { Route as AppEspaceProjetsIdIndexRouteImport } from './routes/app/_espace/projets/$id/index'
 import { Route as AppEspaceProjetsIdLotsRouteImport } from './routes/app/_espace/projets/$id/lots'
 import { Route as AppEspaceProjetsIdMediasRouteImport } from './routes/app/_espace/projets/$id/medias'
@@ -200,6 +201,11 @@ const AppEspaceProjetsIdRouteRoute = AppEspaceProjetsIdRouteRouteImport.update({
   path: '/projets/$id',
   getParentRoute: () => AppEspaceRouteRoute,
 } as any)
+const PSlugLotNumeroRoute = PSlugLotNumeroRouteImport.update({
+  id: '/lot/$numero',
+  path: '/lot/$numero',
+  getParentRoute: () => PSlugRoute,
+} as any)
 const AppEspaceProjetsIdIndexRoute = AppEspaceProjetsIdIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -250,7 +256,7 @@ export interface FileRoutesByFullPath {
   '/app/confirmer': typeof AppConfirmerRoute
   '/app/login': typeof AppLoginRoute
   '/app/reinitialiser': typeof AppReinitialiserRoute
-  '/p/$slug': typeof PSlugRoute
+  '/p/$slug': typeof PSlugRouteWithChildren
   '/en/404': typeof SiteEn404Route
   '/en/about': typeof SiteEnAboutRoute
   '/en/ai-agent': typeof SiteEnAiAgentRoute
@@ -264,6 +270,7 @@ export interface FileRoutesByFullPath {
   '/en/': typeof SiteEnIndexRoute
   '/app/': typeof AppEspaceIndexRoute
   '/app/projets/$id': typeof AppEspaceProjetsIdRouteRouteWithChildren
+  '/p/$slug/lot/$numero': typeof PSlugLotNumeroRoute
   '/app/projets/$id/lots': typeof AppEspaceProjetsIdLotsRoute
   '/app/projets/$id/medias': typeof AppEspaceProjetsIdMediasRoute
   '/app/projets/$id/partage': typeof AppEspaceProjetsIdPartageRoute
@@ -286,7 +293,7 @@ export interface FileRoutesByTo {
   '/app/confirmer': typeof AppConfirmerRoute
   '/app/login': typeof AppLoginRoute
   '/app/reinitialiser': typeof AppReinitialiserRoute
-  '/p/$slug': typeof PSlugRoute
+  '/p/$slug': typeof PSlugRouteWithChildren
   '/': typeof SiteIndexRoute
   '/en/404': typeof SiteEn404Route
   '/en/about': typeof SiteEnAboutRoute
@@ -299,6 +306,7 @@ export interface FileRoutesByTo {
   '/en/services': typeof SiteEnServicesRoute
   '/app/organisation': typeof AppEspaceOrganisationRoute
   '/en': typeof SiteEnIndexRoute
+  '/p/$slug/lot/$numero': typeof PSlugLotNumeroRoute
   '/app/projets/$id/lots': typeof AppEspaceProjetsIdLotsRoute
   '/app/projets/$id/medias': typeof AppEspaceProjetsIdMediasRoute
   '/app/projets/$id/partage': typeof AppEspaceProjetsIdPartageRoute
@@ -324,7 +332,7 @@ export interface FileRoutesById {
   '/app/confirmer': typeof AppConfirmerRoute
   '/app/login': typeof AppLoginRoute
   '/app/reinitialiser': typeof AppReinitialiserRoute
-  '/p/$slug': typeof PSlugRoute
+  '/p/$slug': typeof PSlugRouteWithChildren
   '/_site/': typeof SiteIndexRoute
   '/_site/en/404': typeof SiteEn404Route
   '/_site/en/about': typeof SiteEnAboutRoute
@@ -339,6 +347,7 @@ export interface FileRoutesById {
   '/_site/en/': typeof SiteEnIndexRoute
   '/app/_espace/': typeof AppEspaceIndexRoute
   '/app/_espace/projets/$id': typeof AppEspaceProjetsIdRouteRouteWithChildren
+  '/p/$slug/lot/$numero': typeof PSlugLotNumeroRoute
   '/app/_espace/projets/$id/lots': typeof AppEspaceProjetsIdLotsRoute
   '/app/_espace/projets/$id/medias': typeof AppEspaceProjetsIdMediasRoute
   '/app/_espace/projets/$id/partage': typeof AppEspaceProjetsIdPartageRoute
@@ -378,6 +387,7 @@ export interface FileRouteTypes {
     | '/en/'
     | '/app/'
     | '/app/projets/$id'
+    | '/p/$slug/lot/$numero'
     | '/app/projets/$id/lots'
     | '/app/projets/$id/medias'
     | '/app/projets/$id/partage'
@@ -413,6 +423,7 @@ export interface FileRouteTypes {
     | '/en/services'
     | '/app/organisation'
     | '/en'
+    | '/p/$slug/lot/$numero'
     | '/app/projets/$id/lots'
     | '/app/projets/$id/medias'
     | '/app/projets/$id/partage'
@@ -452,6 +463,7 @@ export interface FileRouteTypes {
     | '/_site/en/'
     | '/app/_espace/'
     | '/app/_espace/projets/$id'
+    | '/p/$slug/lot/$numero'
     | '/app/_espace/projets/$id/lots'
     | '/app/_espace/projets/$id/medias'
     | '/app/_espace/projets/$id/partage'
@@ -685,6 +697,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEspaceProjetsIdRouteRouteImport
       parentRoute: typeof AppEspaceRouteRoute
     }
+    '/p/$slug/lot/$numero': {
+      id: '/p/$slug/lot/$numero'
+      path: '/lot/$numero'
+      fullPath: '/p/$slug/lot/$numero'
+      preLoaderRoute: typeof PSlugLotNumeroRouteImport
+      parentRoute: typeof PSlugRoute
+    }
     '/app/_espace/projets/$id/': {
       id: '/app/_espace/projets/$id/'
       path: '/'
@@ -838,12 +857,22 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
   AppRouteRouteChildren,
 )
 
+interface PSlugRouteChildren {
+  PSlugLotNumeroRoute: typeof PSlugLotNumeroRoute
+}
+
+const PSlugRouteChildren: PSlugRouteChildren = {
+  PSlugLotNumeroRoute: PSlugLotNumeroRoute,
+}
+
+const PSlugRouteWithChildren = PSlugRoute._addFileChildren(PSlugRouteChildren)
+
 interface PRouteRouteChildren {
-  PSlugRoute: typeof PSlugRoute
+  PSlugRoute: typeof PSlugRouteWithChildren
 }
 
 const PRouteRouteChildren: PRouteRouteChildren = {
-  PSlugRoute: PSlugRoute,
+  PSlugRoute: PSlugRouteWithChildren,
 }
 
 const PRouteRouteWithChildren =

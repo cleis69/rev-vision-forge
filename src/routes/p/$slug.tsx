@@ -1,7 +1,17 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowDown, BedDouble, Eye, MapPin, Maximize2 } from "lucide-react";
+import {
+  Link,
+  Outlet,
+  createFileRoute,
+  useNavigate,
+  useParams,
+  useRouter,
+} from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { ArrowDown, BedDouble, Eye, GitCompareArrows, MapPin, Maximize2 } from "lucide-react";
+import { toast } from "sonner";
 
+import { CompareBar, CompareDialog } from "@/components/public/Compare";
 import { Gallery } from "@/components/public/Gallery";
 import { LotSheet, StatusChip } from "@/components/public/LotSheet";
 import { PublicPlan, priceLabel } from "@/components/public/PublicPlan";
@@ -9,7 +19,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { LOT_STATUSES, STATUS_LABELS, type LotStatus } from "@/lib/app/lot-fields";
 import { formatPrice } from "@/lib/app/lot-format";
 import { mediaImage } from "@/lib/app/media";
+import { MAX_COMPARE, toggleCompared } from "@/lib/public/compare";
 import { track } from "@/lib/public/events";
+import { liveMessages, useLiveProgramme } from "@/lib/public/live";
 import {
   startingPrice,
   usePublicProgramme,
@@ -57,7 +69,13 @@ function ProgrammePage() {
       />
     );
   }
-  return <Programme data={query.data} />;
+  return (
+    <>
+      <Programme data={query.data} slug={slug} />
+      {/* /p/$slug/lot/$numero: the child route only names the open lot. */}
+      <Outlet />
+    </>
+  );
 }
 
 function Message({ title, text }: { title: string; text: string }) {
@@ -89,14 +107,122 @@ function PoweredBy({ className }: { className?: string }) {
   );
 }
 
-function Programme({ data }: { data: PublicData }) {
+const COMPARE_KEY = "rev-comparer-";
+
+function readCompared(projectId: string): string[] {
+  try {
+    const ids: unknown = JSON.parse(window.sessionStorage.getItem(COMPARE_KEY + projectId) ?? "[]");
+    return Array.isArray(ids)
+      ? ids.filter((id): id is string => typeof id === "string").slice(0, MAX_COMPARE)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function Programme({ data, slug }: { data: PublicData; slug: string }) {
   const { programme, lots, shapes, media, preview } = data;
+  const navigate = useNavigate();
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const [filter, setFilter] = useState<LotStatus | null>(null);
-  const [sheet, setSheet] = useState<{ lot: PublicLot | null; open: boolean }>({
-    lot: null,
-    open: false,
-  });
   const tracked = useRef(false);
+
+  /* ----- open lot: from the address /p/$slug/lot/$numero (shareable link) */
+  const { numero } = useParams({ strict: false }) as { numero?: string };
+  const lot = numero ? (lots.find((l) => l.numero === numero) ?? null) : null;
+  // Kept while the panel closes, so its content does not vanish mid-animation.
+  const [shownLot, setShownLot] = useState<PublicLot | null>(lot);
+  useEffect(() => {
+    if (lot) setShownLot(lot);
+  }, [lot]);
+  const openedHere = useRef(false);
+  useEffect(() => {
+    if (!numero) openedHere.current = false;
+  }, [numero]);
+
+  useEffect(() => {
+    if (!numero || lot) return;
+    toast.error("Ce lot n'existe pas ou n'est plus présenté.", { id: "lot-inconnu" });
+    void navigate({ to: "/p/$slug", params: { slug }, replace: true, resetScroll: false });
+  }, [numero, lot, navigate, slug]);
+
+  const lotId = lot?.id;
+  useEffect(() => {
+    if (lotId && !preview) track(programme.id, "vue_lot", lotId);
+  }, [lotId, preview, programme.id]);
+
+  /* ----- comparison (kept for the visit, in this tab) */
+  const [compareIds, setCompareIds] = useState<string[]>(() => readCompared(programme.id));
+  useEffect(() => {
+    try {
+      window.sessionStorage.setItem(COMPARE_KEY + programme.id, JSON.stringify(compareIds));
+    } catch {
+      /* storage unavailable: the comparison lasts until the page closes */
+    }
+  }, [compareIds, programme.id]);
+  const compared = compareIds.flatMap((id) => lots.filter((l) => l.id === id));
+  const [comparing, setComparing] = useState(false);
+  const toggleCompare = (target: PublicLot) => {
+    const next = toggleCompared(compareIds, target.id);
+    if (!next) {
+      toast.error(`${MAX_COMPARE} lots au maximum : retirez-en un pour en ajouter un autre.`);
+      return;
+    }
+    setCompareIds(next);
+  };
+
+  /* ----- live status: the lots are read again, visitors see what changed */
+  const [highlight, setHighlight] = useState<ReadonlySet<string>>(new Set());
+  const highlightTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(highlightTimer.current), []);
+  useLiveProgramme(
+    programme.id,
+    (signals) => {
+      void queryClient.invalidateQueries({ queryKey: ["public-programme", slug] });
+      for (const message of liveMessages(signals)) toast(message);
+    },
+    // The new status shows at once; the read that follows brings prices and new lots.
+    (signal) => {
+      setHighlight((ids) => new Set(ids).add(signal.lot_id));
+      window.clearTimeout(highlightTimer.current);
+      highlightTimer.current = window.setTimeout(() => setHighlight(new Set()), 2600);
+      if (signal.op !== "UPDATE" || !signal.statut) return;
+      const statut = signal.statut;
+      queryClient.setQueryData<PublicData | null>(["public-programme", slug], (current) =>
+        current
+          ? {
+              ...current,
+              lots: current.lots.map((l) => (l.id === signal.lot_id ? { ...l, statut } : l)),
+            }
+          : current,
+      );
+    },
+  );
+
+  /* ----- sharing a lot */
+  const lotUrl = (l: PublicLot) =>
+    `${window.location.origin}/p/${programme.slug}/lot/${encodeURIComponent(l.numero)}`;
+  const lotTitle = (l: PublicLot) =>
+    `Lot ${l.numero}${l.type ? ` · ${l.type}` : ""} — ${programme.name}`;
+  const share = async (l: PublicLot) => {
+    const url = lotUrl(l);
+    if (!preview) track(programme.id, "partage", l.id);
+    if (typeof navigator.share === "function") {
+      try {
+        await navigator.share({ title: lotTitle(l), url });
+      } catch {
+        /* cancelled by the visitor */
+      }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Lien du lot copié");
+    } catch {
+      toast(url);
+    }
+  };
 
   const gallery = useMemo(() => media.filter((m) => !m.lot_id), [media]);
   const hero = gallery[0] ? mediaImage(gallery[0]) : null;
@@ -112,19 +238,38 @@ function Programme({ data }: { data: PublicData }) {
   const shownLots = filter ? lots.filter((l) => l.statut === filter) : lots;
 
   useEffect(() => {
-    const owner = programme.organization.name;
-    document.title = owner ? `${programme.name} — ${owner}` : programme.name;
     if (!preview && !tracked.current) {
       tracked.current = true;
       track(programme.id, "vue_page");
     }
-  }, [programme, preview]);
+  }, [programme.id, preview]);
 
-  const open = (lot: PublicLot, from: "plan" | "list" | "keyboard") => {
-    setSheet({ lot, open: true });
-    if (preview) return;
-    if (from === "plan") track(programme.id, "clic_lot", lot.id);
-    track(programme.id, "vue_lot", lot.id);
+  // Same titles as the link previews written by the Worker.
+  const lotLabel = lot ? `Lot ${lot.numero}${lot.type ? ` · ${lot.type}` : ""}` : null;
+  useEffect(() => {
+    const owner = programme.organization.name;
+    document.title = lotLabel
+      ? `${lotLabel} — ${programme.name}`
+      : owner
+        ? `${programme.name} — ${owner}`
+        : programme.name;
+  }, [lotLabel, programme.name, programme.organization.name]);
+
+  const open = (target: PublicLot, from: "plan" | "list" | "keyboard" | "compare") => {
+    if (!preview && from === "plan") track(programme.id, "clic_lot", target.id);
+    // Back closes the panel when it was opened on this page.
+    if (!numero) openedHere.current = true;
+    void navigate({
+      to: "/p/$slug/lot/$numero",
+      params: { slug, numero: target.numero },
+      replace: Boolean(numero),
+      resetScroll: false,
+    });
+  };
+
+  const close = () => {
+    if (openedHere.current) router.history.back();
+    else void navigate({ to: "/p/$slug", params: { slug }, replace: true, resetScroll: false });
   };
 
   const style = {
@@ -133,7 +278,11 @@ function Programme({ data }: { data: PublicData }) {
   } as CSSProperties;
 
   return (
-    <div style={style} className="min-h-svh bg-[#080808] text-white">
+    <div
+      style={style}
+      // Room for the comparison bar at the bottom of the page.
+      className={cn("min-h-svh bg-[#080808] text-white", compared.length > 0 && "pb-36 sm:pb-24")}
+    >
       {preview ? (
         <div className="bg-amber-400 px-5 py-2 text-center text-sm font-medium text-black">
           <Eye className="mr-2 inline size-4 align-[-3px]" aria-hidden />
@@ -246,6 +395,7 @@ function Programme({ data }: { data: PublicData }) {
                   shapes={shapes}
                   currency={programme.currency}
                   filter={filter}
+                  highlight={highlight}
                   onOpen={open}
                 />
               </div>
@@ -267,11 +417,14 @@ function Programme({ data }: { data: PublicData }) {
             ) : (
               <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {shownLots.map((lot) => (
-                  <li key={lot.id}>
+                  <li key={lot.id} className="relative">
                     <button
                       type="button"
                       onClick={() => open(lot, "list")}
-                      className="group flex h-full w-full flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition-colors hover:border-white/25 hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                      className={cn(
+                        "group flex h-full w-full flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 pb-16 text-left transition-colors duration-700 hover:border-white/25 hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                        highlight.has(lot.id) && "border-white/60 bg-white/[0.09] duration-150",
+                      )}
                     >
                       <span className="flex items-start justify-between gap-3">
                         <span className="font-display text-lg font-medium tracking-tight">
@@ -306,6 +459,21 @@ function Programme({ data }: { data: PublicData }) {
                         {priceLabel(lot, programme.currency)}
                       </span>
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => toggleCompare(lot)}
+                      aria-pressed={compareIds.includes(lot.id)}
+                      aria-label={`${compareIds.includes(lot.id) ? "Retirer du" : "Ajouter au"} comparateur : lot ${lot.numero}`}
+                      className={cn(
+                        "absolute bottom-4 right-4 inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                        compareIds.includes(lot.id)
+                          ? "border-[color:var(--brand)] bg-[color:var(--brand)]/15 text-[color:var(--brand)]"
+                          : "border-white/15 text-white/60 hover:border-white/35 hover:text-white",
+                      )}
+                    >
+                      <GitCompareArrows className="size-3.5" aria-hidden />
+                      Comparer
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -336,11 +504,42 @@ function Programme({ data }: { data: PublicData }) {
       </footer>
 
       <LotSheet
-        lot={sheet.lot}
-        photos={media.filter((m) => m.lot_id && m.lot_id === sheet.lot?.id)}
+        lot={lot ?? shownLot}
+        photos={media.filter((m) => m.lot_id && m.lot_id === (lot ?? shownLot)?.id)}
         currency={programme.currency}
-        open={sheet.open}
-        onOpenChange={(o) => setSheet((s) => ({ ...s, open: o }))}
+        open={Boolean(lot)}
+        onOpenChange={(o) => !o && close()}
+        actions={
+          lot
+            ? {
+                compared: compareIds.includes(lot.id),
+                onToggleCompare: () => toggleCompare(lot),
+                onShare: () => void share(lot),
+                whatsappUrl: `https://wa.me/?text=${encodeURIComponent(`${lotTitle(lot)} ${lotUrl(lot)}`)}`,
+                onWhatsApp: () => {
+                  if (!preview) track(programme.id, "partage", lot.id);
+                },
+              }
+            : null
+        }
+      />
+
+      <CompareBar
+        lots={compared}
+        onRemove={(l) => toggleCompare(l)}
+        onClear={() => setCompareIds([])}
+        onCompare={() => setComparing(true)}
+      />
+      <CompareDialog
+        lots={compared}
+        media={media}
+        currency={programme.currency}
+        open={comparing && compared.length >= 2}
+        onOpenChange={setComparing}
+        onOpenLot={(l) => {
+          setComparing(false);
+          open(l, "compare");
+        }}
       />
     </div>
   );

@@ -198,6 +198,20 @@ begin
   reset role;
   total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : ajoute une photo'::text; end if;
 
+  set local role anon;
+  select private.can_listen('programme:' || p_pub) and not private.can_listen('programme:' || p_draft) into ok;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : écoute un brouillon en direct (ou pas le publié)'::text; end if;
+
+  set local role anon;
+  begin
+    insert into realtime.messages (topic, extension, event, payload, private)
+      values ('programme:' || p_pub, 'broadcast', 'lot', '{"faux": true}', true);
+    ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : envoie un faux signal sur le canal'::text; end if;
+
   ------------------------------------------- signed in, other organization
   perform set_config('request.jwt.claims', json_build_object('sub', owner_b, 'role', 'authenticated')::text, true);
   perform set_config('request.jwt.claim.sub', owner_b::text, true);
@@ -248,6 +262,11 @@ begin
   select private.can_write_media(org_a || '/' || p_pub || '/plan/plan.webp') into ok;
   reset role;
   total := total + 1; if ok then failed := failed + 1; report := report || 'autre organisation : peut remplacer ou supprimer le plan de A'::text; end if;
+
+  set local role authenticated;
+  select private.can_listen('programme:' || p_draft) into ok;
+  reset role;
+  total := total + 1; if ok then failed := failed + 1; report := report || 'autre organisation : écoute le brouillon de A'::text; end if;
 
   set local role authenticated;
   begin
@@ -341,6 +360,11 @@ begin
   reset role;
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne voit pas les photos de son brouillon'::text; end if;
 
+  set local role authenticated;
+  select private.can_listen('programme:' || p_draft) into ok;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'commercial : n''écoute pas son brouillon en direct'::text; end if;
+
   ---------------------------------------------------------- owner of A
   perform set_config('request.jwt.claims', json_build_object('sub', owner_a, 'role', 'authenticated')::text, true);
   perform set_config('request.jwt.claim.sub', owner_a::text, true);
@@ -412,6 +436,11 @@ begin
   exception when foreign_key_violation then ok := true; end;
   total := total + 1; if not ok then failed := failed + 1; report := report || 'forme rattachée au mauvais programme'::text; end if;
 
+
+  select count(*) into n from realtime.messages where topic = 'programme:' || p_pub and payload->>'statut' = 'vendue';
+  update public.lots set statut = 'vendue' where id = lot_pub;
+  select count(*) - n into n from realtime.messages where topic = 'programme:' || p_pub and payload->>'statut' = 'vendue';
+  total := total + 1; if n < 1 then failed := failed + 1; report := report || 'changement de statut sans signal en direct'::text; end if;
   delete from public.lots where id = lot_pub;
   select count(*) into n from public.leads where project_id = p_pub and lot_id is null and nom = 'Fixture';
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'suppression d''un lot : demande perdue'::text; end if;

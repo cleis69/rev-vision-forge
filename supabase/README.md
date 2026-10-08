@@ -25,6 +25,10 @@ Règles retenues :
   propriétaire ; une organisation garde toujours au moins un propriétaire.
 - Les membres (propriétaires et commerciaux) créent et modifient les programmes ; seuls
   les propriétaires les suppriment, car cela efface aussi leurs lots et leurs demandes.
+- Temps réel : chaque modification d'un lot envoie un signal (numéro et statut, jamais
+  le prix) sur le canal privé `programme:<id>`. Les visiteurs ne peuvent écouter que les
+  programmes publiés, les membres aussi leurs brouillons, et personne ne peut y écrire
+  depuis un navigateur (aucune règle d'écriture sur `realtime.messages`).
 - Fichiers : bucket `project-media`, lecture publique, chemins
   `<organization_id>/<project_id>/…` ou `<organization_id>/brand/…`, écriture réservée
   aux membres de l'organisation.

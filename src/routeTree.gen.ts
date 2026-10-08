@@ -40,6 +40,7 @@ import { Route as AppEspaceOrganisationRouteImport } from './routes/app/_espace/
 import { Route as AppEspaceProjetsIdRouteRouteImport } from './routes/app/_espace/projets/$id/route'
 import { Route as AppEspaceProjetsIdIndexRouteImport } from './routes/app/_espace/projets/$id/index'
 import { Route as AppEspaceProjetsIdLotsRouteImport } from './routes/app/_espace/projets/$id/lots'
+import { Route as AppEspaceProjetsIdPlanRouteImport } from './routes/app/_espace/projets/$id/plan'
 import { Route as AppEspaceProjetsIdReglagesRouteImport } from './routes/app/_espace/projets/$id/reglages'
 
 const SiteRouteRoute = SiteRouteRouteImport.update({
@@ -195,6 +196,11 @@ const AppEspaceProjetsIdLotsRoute = AppEspaceProjetsIdLotsRouteImport.update({
   path: '/lots',
   getParentRoute: () => AppEspaceProjetsIdRouteRoute,
 } as any)
+const AppEspaceProjetsIdPlanRoute = AppEspaceProjetsIdPlanRouteImport.update({
+  id: '/plan',
+  path: '/plan',
+  getParentRoute: () => AppEspaceProjetsIdRouteRoute,
+} as any)
 const AppEspaceProjetsIdReglagesRoute =
   AppEspaceProjetsIdReglagesRouteImport.update({
     id: '/reglages',
@@ -231,6 +237,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppEspaceIndexRoute
   '/app/projets/$id': typeof AppEspaceProjetsIdRouteRouteWithChildren
   '/app/projets/$id/lots': typeof AppEspaceProjetsIdLotsRoute
+  '/app/projets/$id/plan': typeof AppEspaceProjetsIdPlanRoute
   '/app/projets/$id/reglages': typeof AppEspaceProjetsIdReglagesRoute
   '/app/projets/$id/': typeof AppEspaceProjetsIdIndexRoute
 }
@@ -261,6 +268,7 @@ export interface FileRoutesByTo {
   '/app/organisation': typeof AppEspaceOrganisationRoute
   '/en': typeof SiteEnIndexRoute
   '/app/projets/$id/lots': typeof AppEspaceProjetsIdLotsRoute
+  '/app/projets/$id/plan': typeof AppEspaceProjetsIdPlanRoute
   '/app/projets/$id/reglages': typeof AppEspaceProjetsIdReglagesRoute
   '/app/projets/$id': typeof AppEspaceProjetsIdIndexRoute
 }
@@ -296,6 +304,7 @@ export interface FileRoutesById {
   '/app/_espace/': typeof AppEspaceIndexRoute
   '/app/_espace/projets/$id': typeof AppEspaceProjetsIdRouteRouteWithChildren
   '/app/_espace/projets/$id/lots': typeof AppEspaceProjetsIdLotsRoute
+  '/app/_espace/projets/$id/plan': typeof AppEspaceProjetsIdPlanRoute
   '/app/_espace/projets/$id/reglages': typeof AppEspaceProjetsIdReglagesRoute
   '/app/_espace/projets/$id/': typeof AppEspaceProjetsIdIndexRoute
 }
@@ -330,6 +339,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/projets/$id'
     | '/app/projets/$id/lots'
+    | '/app/projets/$id/plan'
     | '/app/projets/$id/reglages'
     | '/app/projets/$id/'
   fileRoutesByTo: FileRoutesByTo
@@ -360,6 +370,7 @@ export interface FileRouteTypes {
     | '/app/organisation'
     | '/en'
     | '/app/projets/$id/lots'
+    | '/app/projets/$id/plan'
     | '/app/projets/$id/reglages'
     | '/app/projets/$id'
   id:
@@ -394,6 +405,7 @@ export interface FileRouteTypes {
     | '/app/_espace/'
     | '/app/_espace/projets/$id'
     | '/app/_espace/projets/$id/lots'
+    | '/app/_espace/projets/$id/plan'
     | '/app/_espace/projets/$id/reglages'
     | '/app/_espace/projets/$id/'
   fileRoutesById: FileRoutesById
@@ -622,6 +634,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEspaceProjetsIdLotsRouteImport
       parentRoute: typeof AppEspaceProjetsIdRouteRoute
     }
+    '/app/_espace/projets/$id/plan': {
+      id: '/app/_espace/projets/$id/plan'
+      path: '/plan'
+      fullPath: '/app/projets/$id/plan'
+      preLoaderRoute: typeof AppEspaceProjetsIdPlanRouteImport
+      parentRoute: typeof AppEspaceProjetsIdRouteRoute
+    }
     '/app/_espace/projets/$id/reglages': {
       id: '/app/_espace/projets/$id/reglages'
       path: '/reglages'
@@ -684,6 +703,7 @@ const SiteRouteRouteWithChildren = SiteRouteRoute._addFileChildren(
 
 interface AppEspaceProjetsIdRouteRouteChildren {
   AppEspaceProjetsIdLotsRoute: typeof AppEspaceProjetsIdLotsRoute
+  AppEspaceProjetsIdPlanRoute: typeof AppEspaceProjetsIdPlanRoute
   AppEspaceProjetsIdReglagesRoute: typeof AppEspaceProjetsIdReglagesRoute
   AppEspaceProjetsIdIndexRoute: typeof AppEspaceProjetsIdIndexRoute
 }
@@ -691,6 +711,7 @@ interface AppEspaceProjetsIdRouteRouteChildren {
 const AppEspaceProjetsIdRouteRouteChildren: AppEspaceProjetsIdRouteRouteChildren =
   {
     AppEspaceProjetsIdLotsRoute: AppEspaceProjetsIdLotsRoute,
+    AppEspaceProjetsIdPlanRoute: AppEspaceProjetsIdPlanRoute,
     AppEspaceProjetsIdReglagesRoute: AppEspaceProjetsIdReglagesRoute,
     AppEspaceProjetsIdIndexRoute: AppEspaceProjetsIdIndexRoute,
   }

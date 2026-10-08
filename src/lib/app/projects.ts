@@ -3,6 +3,8 @@ import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tansta
 import { getSupabase } from "@/lib/supabase/client";
 import type { Tables, TablesUpdate } from "@/lib/supabase/database.types";
 import { AppError, NO_RIGHTS } from "./errors";
+import { assertOwner } from "./organizations";
+import { removeFolder } from "./storage";
 
 /* Programmes of an organization. Members create and edit them; only owners
    delete them, since that also erases their lots and visit requests (RLS). */
@@ -103,6 +105,9 @@ export function useDeleteProject() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (project: Pick<Project, "id" | "organization_id">) => {
+      // Files first (plan…): the storage rules need the programme to exist.
+      await assertOwner(project.organization_id);
+      await removeFolder(`${project.organization_id}/${project.id}`);
       const { data, error } = await getSupabase()
         .from("projects")
         .delete()

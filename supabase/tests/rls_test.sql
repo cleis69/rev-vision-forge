@@ -172,6 +172,14 @@ begin
   reset role;
   total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : téléverse un fichier'::text; end if;
 
+  set local role anon;
+  begin
+    insert into public.lot_shapes (lot_id, project_id, points) values (lot_draft, p_draft, '[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]]');
+    ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : trace une forme'::text; end if;
+
   ------------------------------------------- signed in, other organization
   perform set_config('request.jwt.claims', json_build_object('sub', owner_b, 'role', 'authenticated')::text, true);
   perform set_config('request.jwt.claim.sub', owner_b::text, true);
@@ -209,6 +217,19 @@ begin
   exception when insufficient_privilege then ok := true; end;
   reset role;
   total := total + 1; if not ok then failed := failed + 1; report := report || 'autre organisation : ajoute un lot chez A'::text; end if;
+
+  set local role authenticated;
+  begin
+    insert into public.lot_shapes (lot_id, project_id, points) values (lot_draft, p_draft, '[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]]');
+    ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'autre organisation : trace une forme chez A'::text; end if;
+
+  set local role authenticated;
+  select private.can_write_media(org_a || '/' || p_pub || '/plan/plan.webp') into ok;
+  reset role;
+  total := total + 1; if ok then failed := failed + 1; report := report || 'autre organisation : peut remplacer ou supprimer le plan de A'::text; end if;
 
   set local role authenticated;
   begin
@@ -279,6 +300,18 @@ begin
   delete from public.lots where project_id = p_pub and numero = '2'; get diagnostics n = row_count;
   reset role;
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas supprimer un lot'::text; end if;
+
+  set local role authenticated;
+  insert into public.lot_shapes (lot_id, project_id, points) values (lot_pub, p_pub, '[[0.5, 0.5], [0.6, 0.5], [0.6, 0.6]]')
+    on conflict (lot_id) do update set points = excluded.points;
+  get diagnostics n = row_count;
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas modifier une forme'::text; end if;
+
+  set local role authenticated;
+  select private.can_write_media(org_a || '/' || p_pub || '/plan/plan.webp') into ok;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'commercial : ne peut pas gérer le plan de son programme'::text; end if;
 
   ---------------------------------------------------------- owner of A
   perform set_config('request.jwt.claims', json_build_object('sub', owner_a, 'role', 'authenticated')::text, true);

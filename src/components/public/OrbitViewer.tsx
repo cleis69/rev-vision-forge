@@ -12,17 +12,19 @@ import { smallFramePath } from "@/lib/app/orbit";
 import { publicUrl } from "@/lib/app/storage";
 import type { LotStatus } from "@/lib/app/lot-fields";
 import { loadLabels, type LabelData } from "@/lib/orbit-loader";
-import { paintLabels, rgbOf, type Paint } from "@/lib/orbit-mask";
+import { labelCenters, paintLabels, rgbOf, type LabelCenter, type Paint } from "@/lib/orbit-mask";
 import type { PublicLot, PublicOrbit } from "@/lib/public/programme";
 import { loadingOrder, nearestLoaded, useOrbitFrames } from "@/lib/use-orbit-frames";
 import { cn } from "@/lib/utils";
-import { StatusLegend, statusAndPrice } from "./PublicPlan";
+import { StatusLegend, statusAndPrice } from "./status";
 
-/* Orbital view of the public pages: the sequence turned by dragging (with a
-   little inertia), the arrow keys, or a slow half turn on opening; the lots
-   painted in the colour of their status on every view, from the label maps
-   of the masks; the lot under the pointer lit up, a click opens its sheet.
-   Phones load the 1 280 px views, large screens the 2 048 px ones. */
+/* Orbital view of the public pages (one per view of the programme: aerial
+   view, roof, floor, pedestrian view…): the sequence turned by dragging (with
+   a little inertia), the arrow keys, or a slow half turn on opening; the lots
+   painted in the colour of their status on every image, from the label maps
+   of the masks, with their number written on them; the lot under the
+   pointer lit up, a click opens its sheet. The 1 280 px images turn; on
+   large screens the 2 048 px one replaces the image shown once it stops. */
 
 const AMBER = [251, 191, 36] as const;
 const SOLD = [70, 70, 78] as const;
@@ -34,9 +36,11 @@ function hexRgb(hex: string): [number, number, number] {
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
-/** Label maps of the masks, loaded in the same order as the views. */
+type LabelView = LabelData & { centers: (LabelCenter | null)[] };
+
+/** Label maps of the masks (and where each lot's number goes), loaded in the same order as the images. */
 function useOrbitLabels(urls: readonly string[], colors: readonly number[]) {
-  const maps = useRef<(LabelData | null)[]>([]);
+  const maps = useRef<(LabelView | null)[]>([]);
   const [ready, setReady] = useState(0);
   useEffect(() => {
     let live = true;
@@ -49,7 +53,14 @@ function useOrbitLabels(urls: readonly string[], colors: readonly number[]) {
         try {
           const data = await loadLabels(urls[i] as string, colors);
           if (!live) return;
-          maps.current[i] = data;
+          // Slivers of a lot (behind another one) get no number.
+          const centers = labelCenters(
+            data.labels,
+            data.width,
+            colors.length,
+            data.labels.length * 0.0008,
+          );
+          maps.current[i] = { ...data, centers };
           setReady(++count);
         } catch {
           /* a missing mask: that view simply has no colours */
@@ -64,8 +75,38 @@ function useOrbitLabels(urls: readonly string[], colors: readonly number[]) {
   return { maps, ready };
 }
 
+/** The 2 048 px image of the one shown, fetched once the rotation stops (large screens). */
+function useSharpFrame(urls: readonly string[] | null, index: number, moving: boolean) {
+  const sharp = useRef(new Map<number, HTMLImageElement>());
+  const [loaded, setLoaded] = useState(0);
+  useEffect(() => {
+    sharp.current = new Map();
+  }, [urls]);
+  useEffect(() => {
+    if (!urls || moving || sharp.current.has(index)) return;
+    let live = true;
+    const timer = window.setTimeout(() => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.decoding = "async";
+      img.onload = () => {
+        if (!live) return;
+        sharp.current.set(index, img);
+        setLoaded((n) => n + 1);
+      };
+      img.src = urls[index] as string;
+    }, 150);
+    return () => {
+      live = false;
+      window.clearTimeout(timer);
+    };
+  }, [urls, index, moving]);
+  return { sharp, loaded };
+}
+
 export function OrbitViewer({
   orbit,
+  viewName,
   lots,
   currency,
   brandColor,
@@ -77,6 +118,8 @@ export function OrbitViewer({
   onOpen,
 }: {
   orbit: PublicOrbit;
+  /** Name of the view (aerial view, R+1…), for screen readers. */
+  viewName: string;
   lots: PublicLot[];
   currency: string;
   brandColor: string;
@@ -91,7 +134,7 @@ export function OrbitViewer({
   const count = orbit.frames.length;
   const first = orbit.frames[0];
 
-  // Views sized for the screen: phones never download the 2 048 px ones.
+  // Large screens: the 2 048 px image of the one shown once it stops; phones never download them.
   const [big] = useState(
     () =>
       typeof window !== "undefined" && window.innerWidth * (window.devicePixelRatio || 1) > 1700,
@@ -101,7 +144,11 @@ export function OrbitViewer({
   const maskKey = orbit.masks.map((m) => m.path).join("|");
   const colorKey = orbit.colors.map((c) => c.hex).join("|");
   const frameList = useMemo(
-    () => frameKey.split("|").map((path) => publicUrl(big ? path : smallFramePath(path))),
+    () => frameKey.split("|").map((path) => publicUrl(smallFramePath(path))),
+    [frameKey],
+  );
+  const largeList = useMemo(
+    () => (big ? frameKey.split("|").map((path) => publicUrl(path)) : null),
     [frameKey, big],
   );
   const maskList = useMemo(() => maskKey.split("|").map((path) => publicUrl(path)), [maskKey]);
@@ -192,16 +239,19 @@ export function OrbitViewer({
     return () => observer.disconnect();
   }, [first]);
 
-  // The view: drawn from the image decoded in advance.
+  const { sharp, loaded: sharpLoaded } = useSharpFrame(largeList, index, moving);
+
+  // The view: drawn from the image decoded in advance, the sharp one when it has come.
   useEffect(() => {
     const canvas = frameCanvas.current;
     const shown = nearestLoaded(images.current, index);
-    const img = shown >= 0 ? images.current[shown] : null;
+    const img =
+      (!moving && sharp.current.get(index)) || (shown >= 0 ? images.current[shown] : null);
     if (!canvas || !img) return;
     if (canvas.width !== img.naturalWidth) canvas.width = img.naturalWidth;
     if (canvas.height !== img.naturalHeight) canvas.height = img.naturalHeight;
     canvas.getContext("2d")?.drawImage(img, 0, 0);
-  }, [index, ready, images]);
+  }, [index, ready, images, moving, sharp, sharpLoaded]);
 
   // The lots in the colour of their status, on the same view.
   const activeIds = useMemo(() => {
@@ -344,6 +394,16 @@ export function OrbitViewer({
   const tipLot = hover ? lotByLabel[hover.label] : null;
   const loading = ready < Math.min(6, count);
 
+  // Numbers of the lots, where they are on the image shown.
+  const shownMap = nearestLoaded(maps.current, index);
+  const centers = shownMap >= 0 ? (maps.current[shownMap]?.centers ?? []) : [];
+  const tags = size
+    ? centers.flatMap((c, label) => {
+        const lot = c ? lotByLabel[label] : null;
+        return c && lot ? [{ lot, x: c.x * size.w, y: c.y * size.h }] : [];
+      })
+    : [];
+
   return (
     <div className={large ? "flex h-full min-h-0 flex-col gap-3" : "space-y-3"}>
       <div
@@ -359,7 +419,7 @@ export function OrbitViewer({
           role="group"
           tabIndex={0}
           aria-roledescription="vue 3D"
-          aria-label={`Vue 3D du programme, vue ${index + 1} sur ${count}. Flèches gauche et droite pour tourner.`}
+          aria-label={`${viewName}, image ${index + 1} sur ${count}. Flèches gauche et droite pour tourner.`}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
@@ -387,6 +447,29 @@ export function OrbitViewer({
             aria-hidden
             className="pointer-events-none absolute inset-0 h-full w-full"
           />
+          {tags.map(({ lot, x, y }) => (
+            <span
+              key={lot.id}
+              aria-hidden
+              className={cn(
+                "pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-md font-semibold tabular-nums leading-none shadow-[0_2px_8px_rgba(0,0,0,0.45)]",
+                large
+                  ? "px-2 py-1 text-xs"
+                  : size && size.w < 480
+                    ? "px-1 py-0.5 text-[9px]"
+                    : "px-1.5 py-0.5 text-[10px]",
+                lot.statut === "disponible"
+                  ? "bg-[color:var(--brand)] text-[color:var(--brand-contrast)]"
+                  : lot.statut === "reservee"
+                    ? "bg-amber-400 text-black"
+                    : "bg-zinc-700 text-white/75",
+                filter !== null && lot.statut !== filter && "opacity-30",
+              )}
+              style={{ left: x, top: y }}
+            >
+              {lot.numero}
+            </span>
+          ))}
           {tipLot && hover ? (
             <div
               aria-hidden
@@ -414,7 +497,7 @@ export function OrbitViewer({
                   style={{ width: `${(ready / Math.min(6, count)) * 100}%` }}
                 />
               </div>
-              <p className="text-xs text-white/70">Chargement de la vue 3D…</p>
+              <p className="text-xs text-white/70">Chargement de la vue…</p>
             </div>
           </div>
         ) : null}

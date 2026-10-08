@@ -2,10 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 
 import { toMediaItem, type MediaItem } from "@/lib/app/media";
 import { toView, type OrbitView } from "@/lib/app/orbit";
-import { viewImage, type PlanImage } from "@/lib/app/plan";
 import { publicUrl } from "@/lib/app/storage";
 import { LOT_STATUSES, compareNumeros, type LotStatus } from "@/lib/app/lot-fields";
-import { parsePoints, type Point } from "@/lib/geometry";
+import type { Tables } from "@/lib/supabase/database.types";
 import type { ViewLike } from "@/lib/views";
 import { getSupabase } from "@/lib/supabase/client";
 import { DEFAULT_BRAND } from "@/lib/brand";
@@ -31,11 +30,17 @@ export type PublicLot = {
   niveau: number | null;
 };
 
-/** A view of the programme with its image and the shapes of the lots drawn on it. */
+/** Orbital sequence of a view, and the lot of each mask colour (linked colours only). */
+export type PublicOrbit = {
+  frames: OrbitView[];
+  masks: OrbitView[];
+  colors: { hex: string; lotId: string }[];
+};
+
+/** A view of the programme (aerial view, roof, floor, pedestrian view…) and its sequence. */
 export type PublicView = ViewLike & {
-  image: PlanImage;
-  shapes: Map<string, Point[]>;
-  /** Lots traced on this view. */
+  orbit: PublicOrbit;
+  /** Lots shown on this view (their colour is linked). */
   lots: ReadonlySet<string>;
 };
 
@@ -61,21 +66,12 @@ export type PublicProgramme = {
   places: Place[];
 };
 
-/** Orbital view: the sequence, and the lot of each mask colour (linked colours only). */
-export type PublicOrbit = {
-  frames: OrbitView[];
-  masks: OrbitView[];
-  colors: { hex: string; lotId: string }[];
-};
-
 export type PublicData = {
   programme: PublicProgramme;
   lots: PublicLot[];
-  /** Views with an image, in the promoter's order (floors are sorted by the pages). */
+  /** Views with a sequence and a linked colour, in the promoter's order (floors are sorted by the pages). */
   views: PublicView[];
   media: MediaItem[];
-  /** Null when the programme has no orbital view, or none of its colours is linked to a lot. */
-  orbit: PublicOrbit | null;
   /** Draft seen by a member of its organization. */
   preview: boolean;
 };
@@ -108,15 +104,13 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
   const lotsQuery = preview
     ? supabase.from("lots").select("*").eq("project_id", source.id)
     : supabase.from("public_lots").select("*").eq("project_id", source.id);
-  const [lots, views, shapes, media, orbitMedia, orbitColors] = await Promise.all([
+  const [lots, views, media, orbitMedia, orbitColors] = await Promise.all([
     lotsQuery,
     supabase
       .from("project_views")
-      .select("*")
+      .select("id, name, kind, level, sort_order, is_main")
       .eq("project_id", source.id)
-      .not("image_path", "is", null)
       .order("sort_order"),
-    supabase.from("lot_shapes").select("view_id, lot_id, points").eq("project_id", source.id),
     supabase
       .from("media")
       .select("*")
@@ -131,29 +125,23 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
       .order("sort_order"),
     supabase
       .from("orbit_colors")
-      .select("hex, lot_id")
+      .select("view_id, hex, lot_id, share")
       .eq("project_id", source.id)
-      .not("lot_id", "is", null),
+      .not("lot_id", "is", null)
+      .order("share", { ascending: false }),
   ]);
   if (lots.error) throw lots.error;
   if (orbitMedia.error) throw orbitMedia.error;
   if (orbitColors.error) throw orbitColors.error;
   if (views.error) throw views.error;
-  if (shapes.error) throw shapes.error;
   if (media.error) throw media.error;
 
-  const byView = new Map<string, Map<string, Point[]>>();
-  for (const row of shapes.data) {
-    const points = parsePoints(row.points);
-    if (!points) continue;
-    const map = byView.get(row.view_id) ?? new Map<string, Point[]>();
-    map.set(row.lot_id, points);
-    byView.set(row.view_id, map);
-  }
   const publicViews = views.data.flatMap((v): PublicView[] => {
-    const image = viewImage(v);
-    if (!image) return [];
-    const shapesOfView = byView.get(v.id) ?? new Map<string, Point[]>();
+    const orbit = orbitOf(
+      orbitMedia.data.filter((m) => m.view_id === v.id),
+      orbitColors.data.filter((c) => c.view_id === v.id),
+    );
+    if (!orbit) return [];
     return [
       {
         id: v.id,
@@ -162,9 +150,8 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
         level: v.level,
         sort_order: v.sort_order,
         is_main: v.is_main,
-        image,
-        shapes: shapesOfView,
-        lots: new Set(shapesOfView.keys()),
+        orbit,
+        lots: new Set(orbit.colors.map((c) => c.lotId)),
       },
     ];
   });
@@ -216,12 +203,12 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
       .sort((a, b) => compareNumeros(a.numero, b.numero)),
     views: publicViews,
     media: media.data.map(toMediaItem),
-    orbit: orbitOf(orbitMedia.data, orbitColors.data),
   };
 }
 
+/** The sequence of a view, or null when it has none or no colour is linked to a lot. */
 function orbitOf(
-  rows: Parameters<typeof toView>[0][],
+  rows: Tables<"media">[],
   colors: { hex: string; lot_id: string | null }[],
 ): PublicOrbit | null {
   const frames = rows.filter((r) => r.kind === "orbit_frame").map(toView);

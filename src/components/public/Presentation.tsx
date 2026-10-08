@@ -46,7 +46,7 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
   useIdle(IDLE_MS, () => {
     setPanel(null);
     setFilter(null);
-    setViewKey(firstView(data.views, Boolean(data.orbit)));
+    setViewKey(firstView(data.views));
     setResetKey((k) => k + 1);
     setVisitor(crypto.randomUUID());
     // Also closes the personal data notice, or a lot opened from a link.
@@ -63,7 +63,7 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
   }, [programme.name]);
 
   const counts = countByStatus(lots);
-  const hasViews = data.views.length > 0 || Boolean(data.orbit);
+  const hasViews = data.views.length > 0;
   const lot = panel?.kind === "lot" ? (lots.find((l) => l.id === panel.id) ?? null) : null;
   useFollowLot(data, lot, setViewKey);
   const shown = filter ? lots.filter((l) => l.statut === filter) : lots;

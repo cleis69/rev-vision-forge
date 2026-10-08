@@ -147,7 +147,7 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
   const counts = useMemo(() => countByStatus(lots), [lots]);
   const from = programme.showPrices ? startingPrice(lots) : null;
   // Views of the programme: the main one first; an opened lot brings its view.
-  const hasViews = data.views.length > 0 || Boolean(data.orbit);
+  const hasViews = data.views.length > 0;
   const [viewKey, setViewKey] = useViewKey(data);
   useFollowLot(data, lot, setViewKey);
   // Floors of the lots, top floor first: a filter of the list when there are several.

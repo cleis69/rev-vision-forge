@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState, type DragEvent } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, ImagePlus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { EmptyState } from "@/components/app/Blocks";
 import { ConfirmDialog } from "@/components/app/ConfirmDialog";
-import { OrbitSection } from "@/components/app/orbit/OrbitSection";
 import { useCurrentProject } from "@/components/app/ProjectContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -183,7 +182,17 @@ function MediaPage() {
         </ul>
       )}
 
-      <OrbitSection project={project} lots={lots.data ?? []} />
+      <p className="text-sm text-muted-foreground">
+        Les séquences orbitales (vue aérienne, toiture, étages, vue piéton) se règlent dans l'onglet{" "}
+        <Link
+          to="/app/projets/$id/plan"
+          params={{ id: project.id }}
+          className="text-foreground underline underline-offset-4"
+        >
+          Vues
+        </Link>
+        .
+      </p>
 
       <ConfirmDialog
         open={toDelete.open}

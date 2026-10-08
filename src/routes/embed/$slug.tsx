@@ -85,7 +85,7 @@ function EmbeddedPlan({ data, slug }: { data: PublicData; slug: string }) {
 
   const lot = selectedId ? (lots.find((l) => l.id === selectedId) ?? null) : null;
   const counts = countByStatus(lots);
-  const hasViews = data.views.length > 0 || Boolean(data.orbit);
+  const hasViews = data.views.length > 0;
   const [viewKey, setViewKey] = useViewKey(data);
   useFollowLot(data, lot, setViewKey);
 

@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, Box, Plus, Settings2, Star, Trash2 } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { ArrowLeft, ArrowRight, Plus, Settings2, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { EmptyState, SettingsSection } from "@/components/app/Blocks";
 import { ConfirmDialog } from "@/components/app/ConfirmDialog";
-import { PlanEditor } from "@/components/app/plan/PlanEditor";
-import { PlanUploader } from "@/components/app/plan/PlanUploader";
+import { ViewOrbit } from "@/components/app/orbit/ViewOrbit";
 import { useCurrentProject } from "@/components/app/ProjectContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,27 +26,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { dbErrorMessage } from "@/lib/app/errors";
-import type { Lot } from "@/lib/app/lot-fields";
+import { compareNumeros, type Lot } from "@/lib/app/lot-fields";
 import { useLots } from "@/lib/app/lots";
-import { useOrbit } from "@/lib/app/orbit";
+import { orbitOfView, useOrbits, type Orbits } from "@/lib/app/orbit";
 import {
   useCreateView,
   useDeleteView,
   useMoveView,
   useSetMainView,
-  useShapes,
   useUpdateView,
-  useUploadingView,
   useViews,
-  viewImage,
   type ProjectView,
-  type ShapesByView,
 } from "@/lib/app/plan";
-import type { Point } from "@/lib/geometry";
 import { cn } from "@/lib/utils";
 import {
   VIEW_KIND_LABELS,
   VIEW_PRESETS,
+  firstView,
   hasPreset,
   levelLabel,
   type ViewKind,
@@ -58,12 +53,13 @@ export const Route = createFileRoute("/app/_espace/projets/$id/plan")({
   component: ViewsPage,
 });
 
-/** Lots of the floor first on a floor plan: they are the ones to trace there. */
+/** Lots in the order of their numbers, those of the floor first on a floor view. */
 function lotsFor(view: ProjectView, lots: Lot[]): Lot[] {
-  if (view.kind !== "niveau") return lots;
+  const sorted = [...lots].sort((a, b) => compareNumeros(a.numero, b.numero));
+  if (view.kind !== "niveau") return sorted;
   return [
-    ...lots.filter((l) => l.niveau === view.level),
-    ...lots.filter((l) => l.niveau !== view.level),
+    ...sorted.filter((l) => l.niveau === view.level),
+    ...sorted.filter((l) => l.niveau !== view.level),
   ];
 }
 
@@ -71,8 +67,7 @@ function ViewsPage() {
   const { project } = useCurrentProject();
   const views = useViews(project.id);
   const lots = useLots(project.id);
-  const shapes = useShapes(project.id);
-  const orbit = useOrbit(project.id);
+  const orbits = useOrbits(project.id);
   const create = useCreateView(project.id);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [settingsOf, setSettingsOf] = useState<ProjectView | null>(null);
@@ -82,7 +77,6 @@ function ViewsPage() {
     [views.data],
   );
   const selected = list.find((v) => v.id === selectedId) ?? list[0] ?? null;
-  const hasOrbit = (orbit.data?.frames.length ?? 0) > 0;
 
   const add = (preset: ViewPreset, configure = false) =>
     create.mutate(preset, {
@@ -94,7 +88,7 @@ function ViewsPage() {
       onError: (error) => toast.error(dbErrorMessage(error)),
     });
 
-  if (views.isPending || lots.isPending || shapes.isPending) {
+  if (views.isPending || lots.isPending || orbits.isPending) {
     return (
       <div aria-busy="true" aria-label="Chargement des vues" className="space-y-4">
         <Skeleton className="h-11 w-full max-w-xl rounded-xl" />
@@ -102,7 +96,7 @@ function ViewsPage() {
       </div>
     );
   }
-  if (views.isError || lots.isError || shapes.isError) {
+  if (views.isError || lots.isError || orbits.isError) {
     return (
       <EmptyState
         title="Impossible de charger les vues"
@@ -116,7 +110,7 @@ function ViewsPage() {
       <div className="max-w-3xl">
         <SettingsSection
           title="Vues du programme"
-          description="Ajoutez les vues sur lesquelles les visiteurs choisiront leur lot : vue aérienne ou plan de masse, plan de chaque niveau, vue piéton… puis tracez les lots sur chacune."
+          description="Ajoutez les vues sur lesquelles les visiteurs choisiront leur lot : vue aérienne, toiture, chaque niveau, vue piéton… Chacune est une séquence orbitale que le visiteur fait tourner, avec ses masques pour reconnaître les lots."
         >
           <div className="flex flex-wrap gap-2">
             {VIEW_PRESETS.map((preset) => (
@@ -142,9 +136,7 @@ function ViewsPage() {
       <ViewsBar
         views={list}
         selectedId={selected?.id ?? null}
-        shapes={shapes.data}
-        hasOrbit={hasOrbit}
-        projectId={project.id}
+        orbits={orbits.data}
         onSelect={setSelectedId}
         onAdd={add}
         adding={create.isPending}
@@ -155,7 +147,7 @@ function ViewsPage() {
           view={selected}
           views={list}
           lots={lotsFor(selected, lots.data)}
-          shapes={shapes.data.get(selected.id) ?? new Map<string, Point[]>()}
+          orbits={orbits.data}
           onSettings={() => setSettingsOf(selected)}
           onDeleted={() => setSelectedId(null)}
         />
@@ -173,50 +165,30 @@ function ViewsPage() {
 function ViewsBar({
   views,
   selectedId,
-  shapes,
-  hasOrbit,
-  projectId,
+  orbits,
   onSelect,
   onAdd,
   adding,
 }: {
   views: ProjectView[];
   selectedId: string | null;
-  shapes: ShapesByView;
-  hasOrbit: boolean;
-  projectId: string;
+  orbits: Orbits;
   onSelect: (id: string) => void;
   onAdd: (preset: ViewPreset, configure?: boolean) => void;
   adding: boolean;
 }) {
-  const setMain = useSetMainView(projectId);
-  const noMain = !views.some((v) => v.is_main);
+  // Only the views with a sequence reach the public pages.
+  const shown = views.filter((v) => orbitOfView(orbits, v.id).frames.length > 0);
+  const first = firstView(shown);
   const chip =
     "inline-flex h-10 shrink-0 items-center gap-2 rounded-full border px-4 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
-  const star = <Star className="size-3.5 fill-primary text-primary" aria-label="vue principale" />;
 
   return (
     <div className="flex flex-wrap items-center gap-2">
       <ul aria-label="Vues du programme" className="flex flex-wrap gap-2">
-        {hasOrbit ? (
-          <li>
-            <Link
-              to="/app/projets/$id/medias"
-              params={{ id: projectId }}
-              title="La vue orbitale se règle dans l'onglet Médias"
-              className={cn(
-                chip,
-                "border-dashed border-border text-muted-foreground hover:text-foreground",
-              )}
-            >
-              <Box className="size-4" aria-hidden />
-              Vue 3D
-              {noMain ? star : null}
-            </Link>
-          </li>
-        ) : null}
-        {views.map((v, i) => {
-          const count = shapes.get(v.id)?.size ?? 0;
+        {views.map((v) => {
+          const orbit = orbitOfView(orbits, v.id);
+          const count = orbit.colors.filter((c) => c.lot_id).length;
           const active = v.id === selectedId;
           return (
             <li key={v.id}>
@@ -232,15 +204,24 @@ function ViewsBar({
                 )}
               >
                 {v.name}
-                {v.is_main || (noMain && !hasOrbit && i === 0) ? star : null}
-                <span className="text-xs tabular-nums text-muted-foreground" title="Lots tracés">
-                  {count}
-                </span>
-                {!v.image_path ? (
-                  <span className="rounded bg-amber-400/15 px-1.5 py-0.5 text-[10px] text-amber-300">
-                    sans image
-                  </span>
+                {v.id === first ? (
+                  <Star
+                    className="size-3.5 fill-primary text-primary"
+                    aria-label="vue montrée en premier"
+                  />
                 ) : null}
+                {orbit.frames.length > 0 ? (
+                  <span
+                    className="text-xs tabular-nums text-muted-foreground"
+                    title="Lots associés à une couleur"
+                  >
+                    {count}
+                  </span>
+                ) : (
+                  <span className="rounded bg-amber-400/15 px-1.5 py-0.5 text-[10px] text-amber-300">
+                    sans séquence
+                  </span>
+                )}
               </button>
             </li>
           );
@@ -282,20 +263,6 @@ function ViewsBar({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      {hasOrbit && !noMain ? (
-        <button
-          type="button"
-          onClick={() =>
-            setMain.mutate(null, {
-              onSuccess: () => toast.success("La vue 3D s'affichera en premier"),
-              onError: (error) => toast.error(dbErrorMessage(error)),
-            })
-          }
-          className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-        >
-          Montrer la vue 3D en premier
-        </button>
-      ) : null}
     </div>
   );
 }
@@ -304,27 +271,24 @@ function ViewPanel({
   view,
   views,
   lots,
-  shapes,
+  orbits,
   onSettings,
   onDeleted,
 }: {
   view: ProjectView;
   views: ProjectView[];
   lots: Lot[];
-  shapes: Map<string, Point[]>;
+  orbits: Orbits;
   onSettings: () => void;
   onDeleted: () => void;
 }) {
   const { project } = useCurrentProject();
-  const image = viewImage(view);
-  const uploading = useUploadingView(view.id);
   const move = useMoveView(project.id);
   const setMain = useSetMainView(project.id);
   const remove = useDeleteView(project.id);
-  const [replacing, setReplacing] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const index = views.findIndex((v) => v.id === view.id);
-  const traced = shapes.size;
+  const orbit = orbitOfView(orbits, view.id);
 
   const onError = (error: unknown) => toast.error(dbErrorMessage(error));
 
@@ -398,50 +362,16 @@ function ViewPanel({
         </div>
       </div>
 
-      {image ? (
-        <PlanEditor
-          // A new image starts with a fitted view.
-          key={view.image_path}
-          projectId={project.id}
-          viewId={view.id}
-          image={image}
-          lots={lots}
-          shapes={shapes}
-          onReplace={() => setReplacing(true)}
-        />
-      ) : (
-        <div className="max-w-3xl">
-          <PlanUploader project={project} view={view} />
-        </div>
-      )}
-
-      <Dialog open={replacing} onOpenChange={(open) => !uploading && setReplacing(open)}>
-        <DialogContent className="sm:max-w-xl">
-          <DialogHeader>
-            <DialogTitle>Remplacer l'image de « {view.name} »</DialogTitle>
-            <DialogDescription>
-              {traced > 0
-                ? `${traced === 1 ? "La forme déjà tracée est conservée" : `Les ${traced} formes déjà tracées sont conservées`}. Si le cadrage de la nouvelle image change, vérifiez leur position.`
-                : "La nouvelle image remplacera l'actuelle."}
-            </DialogDescription>
-          </DialogHeader>
-          <PlanUploader
-            project={project}
-            view={view}
-            replacing
-            onDone={() => setReplacing(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      <ViewOrbit project={project} view={view} orbit={orbit} lots={lots} />
 
       <ConfirmDialog
         open={deleting}
         onOpenChange={setDeleting}
         title={`Supprimer la vue « ${view.name} » ?`}
         description={
-          traced > 0
-            ? `Son image et les ${traced} forme${traced > 1 ? "s" : ""} tracée${traced > 1 ? "s" : ""} dessus sont effacées. Les lots restent, et leurs formes sur les autres vues aussi.`
-            : "Son image est effacée. Les lots ne changent pas."
+          orbit.frames.length > 0
+            ? "Sa séquence (images et masques) et ses couleurs associées aux lots sont effacées. Les lots ne changent pas, ni les autres vues."
+            : "Les lots ne changent pas, ni les autres vues."
         }
         actionLabel="Supprimer la vue"
         onConfirm={async () => {

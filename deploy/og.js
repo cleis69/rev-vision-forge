@@ -106,7 +106,7 @@ export async function loadPreview(env, slug, numero, pageUrl) {
   );
   if (!programme) return null;
 
-  const [lots, media, views] = await Promise.all([
+  const [lots, media, views, firsts] = await Promise.all([
     numero
       ? rest(
           `public_lots?project_id=eq.${programme.id}&numero=eq.${encodeURIComponent(numero)}&select=id,numero,type,statut,prix,surface_habitable,chambres&limit=1`,
@@ -115,17 +115,24 @@ export async function loadPreview(env, slug, numero, pageUrl) {
     rest(
       `media?project_id=eq.${programme.id}&kind=eq.image&select=path,lot_id&order=sort_order&limit=50`,
     ),
-    // The main view first (else the first one), for programmes without photos.
+    // For programmes without photos: the first image of the main view (else of the first one).
     rest(
-      `project_views?project_id=eq.${programme.id}&image_path=not.is.null&select=image_path&order=is_main.desc,sort_order.asc&limit=1`,
+      `project_views?project_id=eq.${programme.id}&select=id&order=is_main.desc,sort_order.asc`,
+    ),
+    rest(
+      `media?project_id=eq.${programme.id}&kind=eq.orbit_frame&sort_order=eq.0&select=path,view_id`,
     ),
   ]);
   const lot = lots[0] ?? null;
 
   // The lot's photo, else the programme's first photo, else its main view.
   const photo = (lot && media.find((m) => m.lot_id === lot.id)) || media.find((m) => !m.lot_id);
-  const plan = views[0]?.image_path;
-  const path = photo ? withSuffix(photo.path, "-800") : plan ? withSuffix(plan, "-1600") : null;
+  const frame = views.map((v) => firsts.find((f) => f.view_id === v.id)).find(Boolean);
+  const path = photo
+    ? withSuffix(photo.path, "-800")
+    : frame
+      ? withSuffix(frame.path, "-1280")
+      : null;
   const image = path ? `${env.SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}` : null;
 
   return previewMeta({ programme, lot, image, url: pageUrl });

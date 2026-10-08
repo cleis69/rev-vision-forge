@@ -6,7 +6,7 @@ import { mediaImage, type MediaItem } from "@/lib/app/media";
 import type { PublicLot } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
 import { levelLabel } from "@/lib/views";
-import { priceLabel } from "./PublicPlan";
+import { priceLabel } from "./status";
 
 const area = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
 

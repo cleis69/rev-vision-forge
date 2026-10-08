@@ -4,18 +4,16 @@ import { toast } from "sonner";
 
 import { ConfirmDialog } from "@/components/app/ConfirmDialog";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { dbErrorMessage } from "@/lib/app/errors";
 import type { Lot } from "@/lib/app/lot-fields";
-import { compareNumeros } from "@/lib/app/lot-fields";
 import {
   smallFramePath,
   useDeleteOrbit,
   useLinkColor,
-  useOrbit,
   useUploadOrbit,
   type Orbit,
 } from "@/lib/app/orbit";
+import type { ProjectView } from "@/lib/app/plan";
 import type { Project } from "@/lib/app/projects";
 import { publicUrl } from "@/lib/app/storage";
 import { ImageError } from "@/lib/image";
@@ -37,88 +35,85 @@ import { cn } from "@/lib/utils";
 const percent = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 });
 const lotLabel = (lot: Lot) => `Lot ${lot.numero}${lot.type ? ` · ${lot.type}` : ""}`;
 
-/** Orbital view of the programme (Médias tab): the sequence, then which colour is which lot. */
-export function OrbitSection({ project, lots }: { project: Project; lots: Lot[] }) {
-  const orbit = useOrbit(project.id);
+/** Sequence of one view (Vues tab): its images and masks, then which colour is which lot. */
+export function ViewOrbit({
+  project,
+  view,
+  orbit,
+  lots,
+}: {
+  project: Project;
+  view: ProjectView;
+  orbit: Orbit;
+  /** In the order to offer them (the lots of a floor first on that floor). */
+  lots: Lot[];
+}) {
   const remove = useDeleteOrbit(project);
   const [replacing, setReplacing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const has = (orbit.data?.frames.length ?? 0) > 0;
+  const has = orbit.frames.length > 0;
 
   return (
-    <section
-      aria-labelledby="orbit-title"
-      className="rounded-2xl border border-border bg-card p-5 sm:p-6"
-    >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 id="orbit-title" className="font-display text-lg font-medium tracking-tight">
-            Vue orbitale
-          </h2>
-          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            Une séquence d'images tout autour du programme, que le visiteur fait tourner du doigt,
-            et les mêmes vues en masques pour savoir quel lot il touche.
-          </p>
-        </div>
-        {has && !replacing ? (
-          <div className="flex gap-2">
-            <Button variant="outline" className="h-10" onClick={() => setReplacing(true)}>
-              <RefreshCw aria-hidden />
-              Remplacer la séquence
-            </Button>
-            <Button
-              variant="ghost"
-              className="h-10 text-muted-foreground"
-              onClick={() => setConfirmDelete(true)}
-            >
-              <Trash2 aria-hidden />
-              Supprimer
-            </Button>
-          </div>
-        ) : null}
-      </div>
-
-      <div className="mt-5">
-        {orbit.isPending ? (
-          <Skeleton className="h-64 rounded-xl" />
-        ) : orbit.isError ? (
-          <p className="text-sm text-muted-foreground">
-            Impossible de charger la vue orbitale. Rechargez la page.
-          </p>
-        ) : !has || replacing ? (
+    <div>
+      {!has || replacing ? (
+        <div className="max-w-3xl rounded-2xl border border-dashed border-border p-5 sm:p-6">
           <OrbitUpload
             project={project}
+            view={view}
             replacing={has}
             onDone={() => setReplacing(false)}
             onCancel={has ? () => setReplacing(false) : undefined}
           />
-        ) : (
-          <OrbitColors orbit={orbit.data} lots={lots} projectId={project.id} />
-        )}
-      </div>
+        </div>
+      ) : (
+        <OrbitColors
+          orbit={orbit}
+          view={view}
+          lots={lots}
+          projectId={project.id}
+          actions={
+            <>
+              <Button variant="outline" className="h-9" onClick={() => setReplacing(true)}>
+                <RefreshCw aria-hidden />
+                Remplacer la séquence
+              </Button>
+              <Button
+                variant="ghost"
+                className="h-9 text-muted-foreground"
+                onClick={() => setConfirmDelete(true)}
+              >
+                <Trash2 aria-hidden />
+                Retirer la séquence
+              </Button>
+            </>
+          }
+        />
+      )}
 
       <ConfirmDialog
         open={confirmDelete}
         onOpenChange={setConfirmDelete}
-        title="Supprimer la vue orbitale ?"
-        description="Les images, les masques et les couleurs associées aux lots sont effacés. La page publique ne propose plus que le plan."
-        actionLabel="Supprimer la vue orbitale"
+        title={`Retirer la séquence de « ${view.name} » ?`}
+        description="Ses images, ses masques et les couleurs associées aux lots sont effacés. La vue reste, sans séquence : elle n'apparaît plus sur la page publique."
+        actionLabel="Retirer la séquence"
         onConfirm={async () => {
-          await remove.mutateAsync();
-          toast.success("Vue orbitale supprimée");
+          await remove.mutateAsync(view.id);
+          toast.success("Séquence retirée");
         }}
       />
-    </section>
+    </div>
   );
 }
 
 function OrbitUpload({
   project,
+  view,
   replacing,
   onDone,
   onCancel,
 }: {
   project: Project;
+  view: ProjectView;
   replacing: boolean;
   onDone: () => void;
   onCancel: (() => void) | undefined;
@@ -126,7 +121,7 @@ function OrbitUpload({
   const [frames, setFrames] = useState<File[]>([]);
   const [masks, setMasks] = useState<File[]>([]);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
-  const upload = useUploadOrbit(project, (done, total) => setProgress({ done, total }));
+  const upload = useUploadOrbit(project, view, (done, total) => setProgress({ done, total }));
   const frameInput = useRef<HTMLInputElement>(null);
   const maskInput = useRef<HTMLInputElement>(null);
   const problem = frames.length || masks.length ? checkSequence(frames, masks) : null;
@@ -139,6 +134,10 @@ function OrbitUpload({
           toast.success(
             `Séquence de ${report.frames} vues enregistrée · ${report.colors.length} couleur${report.colors.length > 1 ? "s" : ""} trouvée${report.colors.length > 1 ? "s" : ""}`,
           );
+          if (report.carried > 0)
+            toast.success(
+              `${report.carried} couleur${report.carried > 1 ? "s" : ""} associée${report.carried > 1 ? "s" : ""} d'office, comme sur les autres vues : vérifiez-les.`,
+            );
           if (report.noise > 0.01)
             toast.warning(
               "Des bords de lots sont lissés dans les masques : la détection reste bonne, mais exportez-les sans anticrénelage si possible.",
@@ -164,8 +163,8 @@ function OrbitUpload({
     <div className="space-y-5">
       <ul className="space-y-1.5 text-sm text-muted-foreground">
         <li>
-          · Rendez la même caméra en {ORBIT_MIN} à {ORBIT_MAX} vues régulières autour du programme
-          (36 à 72 conseillées), toutes au même format.
+          · Pour « {view.name} », rendez la même caméra en {ORBIT_MIN} à {ORBIT_MAX} vues régulières
+          autour du programme (36 à 72 conseillées), toutes au même format.
         </li>
         <li>
           · Rendez les mêmes vues en masques PNG : chaque lot dans une couleur unie différente, le
@@ -253,11 +252,11 @@ function OrbitUpload({
           </Button>
         ) : null}
       </div>
-      {replacing ? (
-        <p className="text-xs text-muted-foreground">
-          Les couleurs déjà associées à un lot le restent si elles sont dans la nouvelle séquence.
-        </p>
-      ) : null}
+      <p className="text-xs text-muted-foreground">
+        {replacing
+          ? "Les couleurs déjà associées à un lot le restent si elles sont dans la nouvelle séquence."
+          : "Une couleur déjà associée à un lot sur une autre vue est associée d'office au même lot."}
+      </p>
     </div>
   );
 }
@@ -294,21 +293,33 @@ function FilePick({
 }
 
 /** Preview of the sequence and the list of colours, each linked to a lot. */
-function OrbitColors({ orbit, lots, projectId }: { orbit: Orbit; lots: Lot[]; projectId: string }) {
+function OrbitColors({
+  orbit,
+  view,
+  lots,
+  projectId,
+  actions,
+}: {
+  orbit: Orbit;
+  view: ProjectView;
+  lots: Lot[];
+  projectId: string;
+  actions: ReactNode;
+}) {
   const link = useLinkColor(projectId);
   const [selected, setSelected] = useState<string | null>(orbit.colors[0]?.hex ?? null);
   const [hover, setHover] = useState<string | null>(null);
   const rows = useRef(new Map<string, HTMLSelectElement>());
 
-  const sortedLots = useMemo(
-    () => [...lots].sort((a, b) => compareNumeros(a.numero, b.numero)),
-    [lots],
-  );
+  const sortedLots = lots;
   const lotOf = useMemo(() => new Map(lots.map((l) => [l.id, l])), [lots]);
   const colorOfLot = new Map(
     orbit.colors.filter((c) => c.lot_id).map((c) => [c.lot_id as string, c.hex]),
   );
-  const unlinked = sortedLots.filter((l) => !colorOfLot.has(l.id));
+  // On a floor, the lots of that floor are expected; elsewhere a view may show only some lots.
+  const expected =
+    view.kind === "niveau" ? sortedLots.filter((l) => l.niveau === view.level) : sortedLots;
+  const unlinked = expected.filter((l) => !colorOfLot.has(l.id));
   const linked = orbit.colors.filter((c) => c.lot_id && lotOf.has(c.lot_id)).length;
 
   const pick = (hex: string) => {
@@ -337,15 +348,17 @@ function OrbitColors({ orbit, lots, projectId }: { orbit: Orbit; lots: Lot[]; pr
       </div>
 
       <div className="min-w-0">
+        <div className="mb-4 flex flex-wrap gap-2">{actions}</div>
         <p className="text-sm">
-          <span className="font-medium tabular-nums">
-            {linked} / {lots.length}
-          </span>{" "}
-          <span className="text-muted-foreground">lots associés à une couleur</span>
+          <span className="font-medium tabular-nums">{linked}</span>{" "}
+          <span className="text-muted-foreground">
+            lot{linked > 1 ? "s" : ""} sur cette vue
+            {view.kind === "niveau" ? ` · ${expected.length} au niveau ${view.name}` : ""}
+          </span>
         </p>
-        {unlinked.length > 0 && lots.length > 0 ? (
+        {unlinked.length > 0 && expected.length > 0 && view.kind === "niveau" ? (
           <p className="mt-1 text-xs text-amber-200">
-            Sans couleur : {unlinked.map((l) => l.numero).join(", ")} (absents de la vue orbitale).
+            Lots du niveau sans couleur : {unlinked.map((l) => l.numero).join(", ")}.
           </p>
         ) : null}
         <ul className="mt-4 max-h-[460px] space-y-1.5 overflow-y-auto pr-1">
@@ -384,7 +397,7 @@ function OrbitColors({ orbit, lots, projectId }: { orbit: Orbit; lots: Lot[]; pr
                   onFocus={() => setSelected(c.hex)}
                   onChange={(e) =>
                     link.mutate(
-                      { id: c.id, lotId: e.target.value || null },
+                      { id: c.id, viewId: view.id, lotId: e.target.value || null },
                       { onError: (error) => toast.error(dbErrorMessage(error)) },
                     )
                   }

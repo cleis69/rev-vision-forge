@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { dbErrorMessage } from "@/lib/app/errors";
 import { useLots } from "@/lib/app/lots";
 import { useMedia } from "@/lib/app/media";
-import { tracedLots, useShapes, useViews } from "@/lib/app/plan";
+import { useOrbits } from "@/lib/app/orbit";
 import { useUpdateProject } from "@/lib/app/projects";
 import { embedCode } from "@/lib/public/embed";
 import { cn } from "@/lib/utils";
@@ -20,8 +20,7 @@ export const Route = createFileRoute("/app/_espace/projets/$id/partage")({
 function SharePage() {
   const { project } = useCurrentProject();
   const lots = useLots(project.id);
-  const shapes = useShapes(project.id);
-  const views = useViews(project.id);
+  const orbits = useOrbits(project.id);
   const media = useMedia(project.id);
   const update = useUpdateProject(project.id);
   const origin = window.location.origin;
@@ -31,26 +30,27 @@ function SharePage() {
   const published = project.status === "published";
 
   const lotCount = lots.data?.length ?? 0;
-  const placed = tracedLots(shapes.data);
+  const sequences = [...(orbits.data?.values() ?? [])].filter((o) => o.frames.length > 0);
+  const placed = new Set(sequences.flatMap((o) => o.colors.flatMap((c) => c.lot_id ?? [])));
   const traced = lots.data?.filter((l) => placed.has(l.id)).length ?? 0;
-  const withImage = views.data?.filter((v) => v.image_path).length ?? 0;
+  const withSequence = sequences.length;
   const checks = [
     {
-      ok: withImage > 0,
+      ok: withSequence > 0,
       label:
-        withImage > 1
-          ? `${withImage} vues avec leur image`
-          : withImage === 1
-            ? "Une vue avec son image"
-            : "Une vue avec son image (onglet Vues)",
+        withSequence > 1
+          ? `${withSequence} vues avec leur séquence`
+          : withSequence === 1
+            ? "Une vue avec sa séquence"
+            : "Une vue avec sa séquence orbitale (onglet Vues)",
     },
     { ok: lotCount > 0, label: lotCount > 0 ? `${lotCount} lots créés` : "Lots créés" },
     {
       ok: lotCount > 0 && traced === lotCount,
       label:
         lotCount > 0
-          ? `${traced} / ${lotCount} lots tracés sur au moins une vue`
-          : "Lots tracés sur une vue",
+          ? `${traced} / ${lotCount} lots associés à une couleur sur au moins une vue`
+          : "Lots associés à une couleur sur une vue",
     },
     { ok: (media.data?.length ?? 0) > 0, label: "Photos ajoutées (facultatif)", optional: true },
   ];

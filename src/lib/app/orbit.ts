@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fitWithin } from "@/lib/geometry";
 import { ImageError, encodeImage } from "@/lib/image";
 import {
+  carryLinks,
   checkSequence,
   countColors,
   lotColors,
@@ -12,14 +13,18 @@ import {
 import { getSupabase } from "@/lib/supabase/client";
 import type { Tables } from "@/lib/supabase/database.types";
 import { AppError } from "./errors";
+import type { ProjectView } from "./plan";
 import type { Project } from "./projects";
 import { publicUrl, removeFiles, removeFolder, uploadFile } from "./storage";
 
-/* Orbital view of a programme (Médias tab): images in WebP at 2 048 px and
-   1 280 px (phones), masks in PNG at 1 024 px resized without smoothing, so
-   their colours stay exact. Files in <org>/<project>/orbit/<sequence>/, a new
-   folder for each sequence (files never change once uploaded). Media rows:
-   kind orbit_frame and orbit_mask, sort_order = position in the sequence. */
+/* Orbital sequences of the views of a programme (Vues tab): every view
+   (aerial view, roof, each floor, pedestrian view…) turns. Images in WebP at
+   2 048 px and 1 280 px (phones), masks in PNG at 1 024 px resized without
+   smoothing, so their colours stay exact. Files in
+   <org>/<project>/orbit/<sequence>/, a new folder for each sequence (files
+   never change once uploaded). Media rows: kind orbit_frame and orbit_mask
+   with the view, sort_order = position in the sequence. Each view links its
+   own colours to lots. */
 
 export const FRAME_LARGE = 2048;
 export const FRAME_SMALL = 1280;
@@ -30,6 +35,12 @@ export const smallFramePath = (path: string) => path.replace(/(\.[a-z0-9]+)$/i, 
 export type OrbitView = { id: string; path: string; index: number; width: number; height: number };
 export type OrbitColor = Tables<"orbit_colors">;
 export type Orbit = { frames: OrbitView[]; masks: OrbitView[]; colors: OrbitColor[] };
+/** Sequences of the programme, by view. */
+export type Orbits = Map<string, Orbit>;
+
+const EMPTY: Orbit = { frames: [], masks: [], colors: [] };
+export const orbitOfView = (orbits: Orbits | undefined, viewId: string): Orbit =>
+  orbits?.get(viewId) ?? EMPTY;
 
 export const frameUrls = (frame: OrbitView) => ({
   large: publicUrl(frame.path),
@@ -49,7 +60,29 @@ export const toView = (row: Tables<"media">): OrbitView => {
   };
 };
 
-export async function loadOrbit(projectId: string): Promise<Orbit> {
+/** Groups sequence rows and colours by view. */
+export function groupOrbits(media: Tables<"media">[], colors: OrbitColor[]): Orbits {
+  const orbits: Orbits = new Map();
+  const of = (viewId: string) => {
+    let orbit = orbits.get(viewId);
+    if (!orbit) orbits.set(viewId, (orbit = { frames: [], masks: [], colors: [] }));
+    return orbit;
+  };
+  for (const row of media) {
+    if (!row.view_id) continue;
+    if (row.kind === "orbit_frame") of(row.view_id).frames.push(toView(row));
+    else if (row.kind === "orbit_mask") of(row.view_id).masks.push(toView(row));
+  }
+  for (const color of colors) of(color.view_id).colors.push(color);
+  for (const orbit of orbits.values()) {
+    orbit.frames.sort((a, b) => a.index - b.index);
+    orbit.masks.sort((a, b) => a.index - b.index);
+    orbit.colors.sort((a, b) => b.share - a.share);
+  }
+  return orbits;
+}
+
+export async function loadOrbits(projectId: string): Promise<Orbits> {
   const supabase = getSupabase();
   const [media, colors] = await Promise.all([
     supabase
@@ -58,22 +91,20 @@ export async function loadOrbit(projectId: string): Promise<Orbit> {
       .eq("project_id", projectId)
       .in("kind", ["orbit_frame", "orbit_mask"])
       .order("sort_order"),
-    supabase.from("orbit_colors").select("*").eq("project_id", projectId).order("share", {
-      ascending: false,
-    }),
+    supabase.from("orbit_colors").select("*").eq("project_id", projectId),
   ]);
   if (media.error) throw media.error;
   if (colors.error) throw colors.error;
-  return {
-    frames: media.data.filter((m) => m.kind === "orbit_frame").map(toView),
-    masks: media.data.filter((m) => m.kind === "orbit_mask").map(toView),
-    colors: colors.data,
-  };
+  return groupOrbits(media.data, colors.data);
 }
 
-export function useOrbit(projectId: string) {
-  return useQuery({ queryKey: orbitKey(projectId), queryFn: () => loadOrbit(projectId) });
+export function useOrbits(projectId: string) {
+  return useQuery({ queryKey: orbitKey(projectId), queryFn: () => loadOrbits(projectId) });
 }
+
+/** Folders of a sequence (one per upload). */
+const foldersOf = (orbit: Pick<Orbit, "frames" | "masks">) =>
+  new Set([...orbit.frames, ...orbit.masks].map((v) => v.path.slice(0, v.path.lastIndexOf("/"))));
 
 /** Reads an image without colour management, so a mask keeps its exact colours. */
 async function decode(file: File, exact: boolean): Promise<ImageBitmap> {
@@ -105,10 +136,17 @@ async function encodeMask(bitmap: ImageBitmap) {
   return { blob, width, height, pixels };
 }
 
-export type OrbitReport = { frames: number; colors: MaskColor[]; noise: number };
+export type OrbitReport = {
+  frames: number;
+  colors: MaskColor[];
+  noise: number;
+  /** Colours linked to a lot from another view. */
+  carried: number;
+};
 
 export function useUploadOrbit(
   project: Project,
+  view: Pick<ProjectView, "id">,
   onProgress?: (done: number, total: number) => void,
 ) {
   const queryClient = useQueryClient();
@@ -124,8 +162,10 @@ export function useUploadOrbit(
       if (problem) throw new AppError(problem);
       const frames = sortByName(frameFiles);
       const masks = sortByName(maskFiles);
-      const previous =
-        queryClient.getQueryData<Orbit>(orbitKey(project.id)) ?? (await loadOrbit(project.id));
+      const orbits =
+        queryClient.getQueryData<Orbits>(orbitKey(project.id)) ?? (await loadOrbits(project.id));
+      const previous = orbitOfView(orbits, view.id);
+      const otherColors = [...orbits].flatMap(([id, o]) => (id === view.id ? [] : o.colors));
       const folder = `${project.organization_id}/${project.id}/orbit/${crypto.randomUUID()}`;
       const uploaded: string[] = [];
       const counts = new Map<number, number>();
@@ -133,7 +173,11 @@ export function useUploadOrbit(
       let ratio = 0;
       const frameRows: { path: string; width: number; height: number }[] = [];
       const maskRows: { path: string; width: number; height: number }[] = [];
-      let found: { colors: MaskColor[]; noise: number } = { colors: [], noise: 0 };
+      let found: { colors: MaskColor[]; noise: number; carried: number } = {
+        colors: [],
+        noise: 0,
+        carried: 0,
+      };
 
       try {
         for (let i = 0; i < frames.length; i++) {
@@ -177,8 +221,7 @@ export function useUploadOrbit(
         }
         onProgress?.(frames.length, frames.length);
 
-        found = lotColors(counts, pixels);
-        const { colors } = found;
+        const { colors, noise } = lotColors(counts, pixels);
         if (colors.length === 0)
           throw new AppError(
             "Aucune couleur de lot trouvée : les masques semblent entièrement noirs.",
@@ -194,6 +237,7 @@ export function useUploadOrbit(
           ...maskRows.map((m, i) => ({ kind: "orbit_mask" as const, sort_order: i, ...m })),
         ].map(({ kind, sort_order, path, width, height }) => ({
           project_id: project.id,
+          view_id: view.id,
           kind,
           sort_order,
           path,
@@ -202,18 +246,31 @@ export function useUploadOrbit(
         const inserted = await supabase.from("media").insert(rows).select("id");
         if (inserted.error) throw inserted.error;
 
-        // Same colour, same lot: replacing a sequence keeps the links already made.
-        const linked = new Map(previous.colors.map((c) => [c.hex, c.lot_id]));
-        const saved = await supabase.from("orbit_colors").upsert(
-          colors.map((c) => ({
-            project_id: project.id,
-            hex: c.hex,
-            share: Math.min(1, c.share),
-            lot_id: linked.get(c.hex) ?? null,
-          })),
-          { onConflict: "project_id,hex" },
-        );
+        // Same colour, same lot: the links of this view are kept, those of the other views reused.
+        const { lots, carried } = carryLinks(colors, previous.colors, otherColors);
+        found = { colors, noise, carried };
+        // Freed first: a lot moving to another colour must not meet itself.
+        const cleared = previous.colors.some((c) => c.lot_id)
+          ? await supabase.from("orbit_colors").update({ lot_id: null }).eq("view_id", view.id)
+          : { error: null };
+        const saved = cleared.error
+          ? cleared
+          : await supabase.from("orbit_colors").upsert(
+              colors.map((c, i) => ({
+                project_id: project.id,
+                view_id: view.id,
+                hex: c.hex,
+                share: Math.min(1, c.share),
+                lot_id: lots[i] ?? null,
+              })),
+              { onConflict: "view_id,hex" },
+            );
         if (saved.error) {
+          // The links as they were, then the new rows go.
+          for (const c of previous.colors) {
+            if (c.lot_id)
+              await supabase.from("orbit_colors").update({ lot_id: c.lot_id }).eq("id", c.id);
+          }
           await supabase
             .from("media")
             .delete()
@@ -247,8 +304,7 @@ export function useUploadOrbit(
             "id",
             old.map((v) => v.id),
           );
-        const folders = new Set(old.map((v) => v.path.slice(0, v.path.lastIndexOf("/"))));
-        for (const f of folders) await removeFolder(f).catch(() => undefined);
+        for (const f of foldersOf(previous)) await removeFolder(f).catch(() => undefined);
       }
       return { frames: frames.length, ...found };
     },
@@ -260,14 +316,22 @@ export function useUploadOrbit(
 export function useLinkColor(projectId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, lotId }: { id: string; lotId: string | null }) => {
+    mutationFn: async ({
+      id,
+      viewId,
+      lotId,
+    }: {
+      id: string;
+      viewId: string;
+      lotId: string | null;
+    }) => {
       const supabase = getSupabase();
-      // A lot has one colour: the one it had before is freed.
+      // A lot has one colour on a view: the one it had before is freed.
       if (lotId) {
         const freed = await supabase
           .from("orbit_colors")
           .update({ lot_id: null })
-          .eq("project_id", projectId)
+          .eq("view_id", viewId)
           .eq("lot_id", lotId)
           .neq("id", id);
         if (freed.error) throw freed.error;
@@ -275,23 +339,25 @@ export function useLinkColor(projectId: string) {
       const { error } = await supabase.from("orbit_colors").update({ lot_id: lotId }).eq("id", id);
       if (error) throw error;
     },
-    onMutate: async ({ id, lotId }) => {
+    onMutate: async ({ id, viewId, lotId }) => {
       await queryClient.cancelQueries({ queryKey: orbitKey(projectId) });
-      const previous = queryClient.getQueryData<Orbit>(orbitKey(projectId));
-      queryClient.setQueryData<Orbit>(orbitKey(projectId), (orbit) =>
-        orbit
-          ? {
-              ...orbit,
-              colors: orbit.colors.map((c) =>
-                c.id === id
-                  ? { ...c, lot_id: lotId }
-                  : lotId && c.lot_id === lotId
-                    ? { ...c, lot_id: null }
-                    : c,
-              ),
-            }
-          : orbit,
-      );
+      const previous = queryClient.getQueryData<Orbits>(orbitKey(projectId));
+      queryClient.setQueryData<Orbits>(orbitKey(projectId), (orbits) => {
+        const orbit = orbits?.get(viewId);
+        if (!orbits || !orbit) return orbits;
+        const next = new Map(orbits);
+        next.set(viewId, {
+          ...orbit,
+          colors: orbit.colors.map((c) =>
+            c.id === id
+              ? { ...c, lot_id: lotId }
+              : lotId && c.lot_id === lotId
+                ? { ...c, lot_id: null }
+                : c,
+          ),
+        });
+        return next;
+      });
       return { previous };
     },
     onError: (_error, _vars, context) => {
@@ -300,23 +366,40 @@ export function useLinkColor(projectId: string) {
   });
 }
 
-/** Removes the orbital view: its images, masks and colours. */
+/** Removes the sequence of a view: its images, masks and colours (the view stays). */
 export function useDeleteOrbit(project: Project) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (viewId: string) => {
+      const orbit = orbitOfView(queryClient.getQueryData<Orbits>(orbitKey(project.id)), viewId);
       const supabase = getSupabase();
       const media = await supabase
         .from("media")
         .delete()
-        .eq("project_id", project.id)
+        .eq("view_id", viewId)
         .in("kind", ["orbit_frame", "orbit_mask"]);
       if (media.error) throw media.error;
-      const colors = await supabase.from("orbit_colors").delete().eq("project_id", project.id);
+      const colors = await supabase.from("orbit_colors").delete().eq("view_id", viewId);
       if (colors.error) throw colors.error;
-      await removeFolder(`${project.organization_id}/${project.id}/orbit`).catch(() => undefined);
+      for (const f of foldersOf(orbit)) await removeFolder(f).catch(() => undefined);
+      return viewId;
     },
-    onSuccess: () =>
-      queryClient.setQueryData<Orbit>(orbitKey(project.id), { frames: [], masks: [], colors: [] }),
+    onSuccess: (viewId) =>
+      queryClient.setQueryData<Orbits>(orbitKey(project.id), (orbits) => {
+        const next = new Map(orbits);
+        next.delete(viewId);
+        return next;
+      }),
   });
+}
+
+/** Folders of the sequence of a view, read before the view is deleted (its rows go with it). */
+export async function viewOrbitFolders(viewId: string): Promise<string[]> {
+  const { data, error } = await getSupabase()
+    .from("media")
+    .select("path")
+    .eq("view_id", viewId)
+    .in("kind", ["orbit_frame", "orbit_mask"]);
+  if (error) throw error;
+  return [...new Set(data.map((m) => m.path.slice(0, m.path.lastIndexOf("/"))))];
 }

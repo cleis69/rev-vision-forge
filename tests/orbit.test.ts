@@ -14,6 +14,8 @@ import {
   sortByName,
   tintOf,
   tintPixels,
+  carryLinks,
+  labelCenters,
 } from "../src/lib/orbit-mask";
 import { loadingOrder, nearestLoaded } from "../src/lib/use-orbit-frames";
 
@@ -139,5 +141,43 @@ describe("visionneuse publique", () => {
     paintLabels(labels, 4, [null, { rgba: [1, 2, 3, 200], stripes: 1 }, null], out);
     // Stripes one pixel wide: full opacity, then a quarter, and so on.
     expect([0, 1, 2, 3].map((x) => out[x * 4 + 3])).toEqual([200, 50, 200, 50]);
+  });
+});
+
+describe("vues orbitales", () => {
+  test("numéro de chaque lot posé sur le lot", () => {
+    // 6 × 4: lot 1 a block on the left, lot 2 an L whose middle falls outside it.
+    const map = [
+      [1, 1, 0, 2, 0, 0],
+      [1, 1, 0, 2, 0, 0],
+      [0, 0, 0, 2, 0, 0],
+      [0, 0, 0, 2, 2, 2],
+    ].flat();
+    const labels = Uint8Array.from(map);
+    const centers = labelCenters(labels, 6, 3);
+    expect(centers[0]).toBeNull();
+    expect(centers[1]).toEqual({ x: 1 / 6, y: 1 / 4, pixels: 4 });
+    // Lot 2: back on one of its own pixels.
+    const c2 = centers[2]!;
+    expect(labels[Math.floor(c2.y * 4) * 6 + Math.floor(c2.x * 6)]).toBe(2);
+    // Lot 3 is not on this view; a lot too small gets no number.
+    expect(centers[3]).toBeNull();
+    expect(labelCenters(labels, 6, 2, 5)[1]).toBeNull();
+  });
+
+  test("couleurs reprises d'une vue à l'autre", () => {
+    const colors = [{ hex: "#ff0000" }, { hex: "#00ff00" }, { hex: "#0000ff" }, { hex: "#ffff00" }];
+    const same = [{ hex: "#00ff00", lot_id: "b" }];
+    const others = [
+      { hex: "#ff0000", lot_id: "a" },
+      { hex: "#ff0000", lot_id: "a" },
+      // Taken on this view already: not given twice.
+      { hex: "#0000ff", lot_id: "b" },
+      // Two views disagree: no guess.
+      { hex: "#ffff00", lot_id: "c" },
+      { hex: "#ffff00", lot_id: "d" },
+    ];
+    expect(carryLinks(colors, same, others)).toEqual({ lots: ["a", "b", null, null], carried: 1 });
+    expect(carryLinks(colors, [], [])).toEqual({ lots: [null, null, null, null], carried: 0 });
   });
 });

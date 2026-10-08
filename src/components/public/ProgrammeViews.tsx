@@ -1,18 +1,16 @@
 import { useMemo } from "react";
-import { Box } from "lucide-react";
 
 import type { LotStatus } from "@/lib/app/lot-fields";
 import type { PublicData, PublicLot } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
 import type { ViewKey } from "@/lib/public/use-views";
-import { ORBIT, floorsDown, sideViews } from "@/lib/views";
+import { floorsDown, sideViews } from "@/lib/views";
 import { OrbitViewer } from "./OrbitViewer";
-import { PublicPlan } from "./PublicPlan";
 
-/* The views of a programme on the public pages: the orbital view and the
-   other views (aerial view, roof, pedestrian view…) as buttons, the floors
-   as a column from the top floor down, as on a building, each with its
-   number of available lots; the chosen one is shown, plan or 3D. */
+/* The views of a programme on the public pages, each an orbital sequence:
+   the aerial view, the roof, the pedestrian view… as buttons, the floors as
+   a column from the top floor down, as on a building, each with its number
+   of available lots; the chosen one turns in the viewer. */
 
 export function ProgrammeViews({
   data,
@@ -35,19 +33,18 @@ export function ProgrammeViews({
   resetKey?: number;
   onOpen: (lot: PublicLot, from: "plan" | "keyboard") => void;
 }) {
-  const { programme, lots, views, orbit } = data;
+  const { programme, lots, views } = data;
   const large = variant === "presentation";
   const side = useMemo(() => sideViews(views), [views]);
   const floors = useMemo(() => floorsDown(views), [views]);
   const current = views.find((v) => v.id === viewKey) ?? null;
-  const showOrbit = viewKey === ORBIT && orbit;
 
   const available = useMemo(() => {
     const free = new Set(lots.filter((l) => l.statut === "disponible").map((l) => l.id));
     return new Map(views.map((v) => [v.id, [...v.lots].filter((id) => free.has(id)).length]));
   }, [lots, views]);
 
-  const choices = (orbit ? 1 : 0) + side.length;
+  const choices = side.length;
   const button = (active: boolean) =>
     cn(
       "inline-flex shrink-0 items-center gap-2 rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
@@ -57,27 +54,15 @@ export function ProgrammeViews({
         : "border-white/15 text-white/75 hover:border-white/35 hover:text-white",
     );
 
-  const stage = showOrbit ? (
+  const stage = current ? (
     <OrbitViewer
-      orbit={orbit}
+      // Another view starts from its first image.
+      key={current.id}
+      orbit={current.orbit}
+      viewName={current.name}
       lots={lots}
       currency={programme.currency}
       brandColor={programme.organization.brandColor}
-      filter={filter}
-      {...(highlight ? { highlight } : {})}
-      selected={selected}
-      variant={variant}
-      resetKey={resetKey}
-      onOpen={onOpen}
-    />
-  ) : current ? (
-    <PublicPlan
-      // Another view starts fitted.
-      key={current.id}
-      image={current.image}
-      lots={lots}
-      shapes={current.shapes}
-      currency={programme.currency}
       filter={filter}
       {...(highlight ? { highlight } : {})}
       selected={selected}
@@ -91,17 +76,6 @@ export function ProgrammeViews({
     <div className={cn(large ? "flex h-full min-h-0 flex-col gap-3" : "space-y-3")}>
       {choices >= 2 || (choices >= 1 && floors.length > 0) ? (
         <div role="group" aria-label="Vues du programme" className="flex flex-wrap gap-2">
-          {orbit ? (
-            <button
-              type="button"
-              aria-pressed={viewKey === ORBIT}
-              onClick={() => onViewChange(ORBIT)}
-              className={button(viewKey === ORBIT)}
-            >
-              <Box className={large ? "size-5" : "size-4"} aria-hidden />
-              Vue 3D
-            </button>
-          ) : null}
           {side.map((v) => (
             <button
               key={v.id}

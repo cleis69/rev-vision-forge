@@ -175,3 +175,98 @@ export function paintLabels(
     out[i + 3] = alpha;
   }
 }
+
+export type LabelCenter = { x: number; y: number; pixels: number };
+
+/**
+ * Where to write the number of each lot on a view: for label k, the middle
+ * of its pixels (0…1 of the width and height), moved onto the nearest pixel
+ * of the lot when that middle falls outside it (an L-shaped lot). Null for
+ * the labels absent from the view or smaller than `minPixels`.
+ */
+export function labelCenters(
+  labels: Uint8Array,
+  width: number,
+  labelCount: number,
+  minPixels = 1,
+): (LabelCenter | null)[] {
+  const height = labels.length / width;
+  const sx = new Float64Array(labelCount + 1);
+  const sy = new Float64Array(labelCount + 1);
+  const n = new Uint32Array(labelCount + 1);
+  for (let p = 0; p < labels.length; p++) {
+    const k = labels[p] as number;
+    if (k === 0 || k > labelCount) continue;
+    const x = p % width;
+    sx[k] = (sx[k] as number) + x;
+    sy[k] = (sy[k] as number) + (p - x) / width;
+    n[k] = (n[k] as number) + 1;
+  }
+  const centers: (LabelCenter | null)[] = [null];
+  const astray: number[] = [];
+  for (let k = 1; k <= labelCount; k++) {
+    const count = n[k] as number;
+    if (count < minPixels) {
+      centers.push(null);
+      continue;
+    }
+    const cx = (sx[k] as number) / count;
+    const cy = (sy[k] as number) / count;
+    centers.push({ x: cx, y: cy, pixels: count });
+    if (labels[Math.round(cy) * width + Math.round(cx)] !== k) astray.push(k);
+  }
+  if (astray.length > 0) {
+    // Second pass, only for the lots whose middle is outside them.
+    const best = new Map(astray.map((k) => [k, { d: Infinity, x: 0, y: 0 }]));
+    for (let p = 0; p < labels.length; p++) {
+      const b = best.get(labels[p] as number);
+      if (!b) continue;
+      const c = centers[labels[p] as number] as LabelCenter;
+      const x = p % width;
+      const y = (p - x) / width;
+      const d = (x - c.x) ** 2 + (y - c.y) ** 2;
+      if (d < b.d) Object.assign(b, { d, x, y });
+    }
+    for (const [k, b] of best) {
+      const c = centers[k] as LabelCenter;
+      centers[k] = { x: b.x, y: b.y, pixels: c.pixels };
+    }
+  }
+  return centers.map((c) =>
+    c ? { x: (c.x + 0.5) / width, y: (c.y + 0.5) / height, pixels: c.pixels } : null,
+  );
+}
+
+/** A mask colour of a view and the lot it is linked to. */
+export type LinkedColor = { hex: string; lot_id: string | null };
+
+/**
+ * Lot of each colour of a new sequence: the one it had on this view, else the
+ * one it has on the other views (when they agree), each lot once per view.
+ */
+export function carryLinks(
+  colors: readonly { hex: string }[],
+  sameView: readonly LinkedColor[],
+  otherViews: readonly LinkedColor[],
+): { lots: (string | null)[]; carried: number } {
+  const own = new Map(sameView.filter((c) => c.lot_id).map((c) => [c.hex, c.lot_id as string]));
+  const elsewhere = new Map<string, string | null>();
+  for (const c of otherViews) {
+    if (!c.lot_id) continue;
+    const known = elsewhere.get(c.hex);
+    // Two views giving two lots to one colour: no guess.
+    elsewhere.set(c.hex, known === undefined || known === c.lot_id ? c.lot_id : null);
+  }
+  // The links of this view first, then those found elsewhere for the lots still free.
+  const lots = colors.map((c) => own.get(c.hex) ?? null);
+  const used = new Set(lots.filter((l): l is string => l !== null));
+  let carried = 0;
+  colors.forEach((c, i) => {
+    const lot = elsewhere.get(c.hex);
+    if (lots[i] || !lot || used.has(lot)) return;
+    lots[i] = lot;
+    used.add(lot);
+    carried += 1;
+  });
+  return { lots, carried };
+}

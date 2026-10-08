@@ -1,6 +1,7 @@
 /* Views of a programme (aerial view, roof, floors from R-1 to R+n,
-   pedestrian view…) and floors of the lots: labels, typed values, and which
-   view shows a lot. Shared by the promoter space and the public pages. */
+   pedestrian view…), each an orbital sequence, and floors of the lots:
+   labels, typed values, and which view shows a lot. Shared by the promoter
+   space and the public pages. */
 
 export type ViewKind = "aerienne" | "toiture" | "niveau" | "pieton" | "autre";
 export type ViewLike = {
@@ -81,13 +82,10 @@ export const floorsDown = <T extends ViewLike>(views: readonly T[]): T[] =>
 export const sideViews = <T extends ViewLike>(views: readonly T[]): T[] =>
   views.filter((v) => v.kind !== "niveau").sort((a, b) => a.sort_order - b.sort_order);
 
-export const ORBIT = "orbit";
-
-/** View shown first: the one marked main, else the orbital view, else the first view. */
-export function firstView(views: readonly ViewLike[], hasOrbit: boolean): string | null {
+/** View shown first: the one marked main, else the first of the other views, else the top floor. */
+export function firstView(views: readonly ViewLike[]): string | null {
   const main = views.find((v) => v.is_main);
   if (main) return main.id;
-  if (hasOrbit) return ORBIT;
   const ordered = [...sideViews(views), ...floorsDown(views)];
   return ordered[0]?.id ?? null;
 }
@@ -100,9 +98,7 @@ export function viewForLot(
   views: readonly (ViewLike & { lots: ReadonlySet<string> })[],
   lot: { id: string; niveau: number | null },
   current: string | null,
-  orbitLots: ReadonlySet<string>,
 ): string | null {
-  if (current === ORBIT && orbitLots.has(lot.id)) return current;
   const here = views.find((v) => v.id === current);
   if (here?.lots.has(lot.id)) return current;
   const floor = views.find(
@@ -110,7 +106,5 @@ export function viewForLot(
   );
   if (floor) return floor.id;
   const any = [...sideViews(views), ...floorsDown(views)].find((v) => v.lots.has(lot.id));
-  if (any) return any.id;
-  if (orbitLots.has(lot.id)) return ORBIT;
-  return current;
+  return any ? any.id : current;
 }

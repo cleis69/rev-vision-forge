@@ -70,8 +70,12 @@ begin
     (p_pub, pano_entree, pano_salon, 1.5, -0.2);
   insert into public.media (project_id, lot_id, kind, path) values
     (p_pub, lot_pub, 'image', 'fixture/pub.webp'), (p_draft, null, 'image', 'fixture/draft.webp');
-  insert into public.orbit_colors (project_id, hex, share, lot_id) values
-    (p_pub, '#ff0000', 0.1, lot_pub), (p_draft, '#00ff00', 0.1, lot_draft);
+  insert into public.orbit_colors (project_id, view_id, hex, share, lot_id) values
+    (p_pub, view_pub, '#ff0000', 0.1, lot_pub), (p_draft, view_draft, '#00ff00', 0.1, lot_draft);
+  insert into public.media (project_id, view_id, kind, path, sort_order) values
+    (p_pub, view_pub, 'orbit_frame', 'fixture/orbit/vue-001.webp', 0),
+    (p_pub, view_pub, 'orbit_mask', 'fixture/orbit/masque-001.png', 0),
+    (p_pub, view_rdc, 'orbit_frame', 'fixture/orbit-rdc/vue-001.webp', 0);
   -- Visits for the statistics: today, 10 days ago (previous week), 40 days ago.
   insert into public.lot_events (project_id, lot_id, type, session_id, created_at) values
     (p_pub, null, 'vue_page', 'stat-a', now()),
@@ -217,7 +221,7 @@ begin
   total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : trace une forme'::text; end if;
 
   set local role anon;
-  select count(*) into n from public.media where project_id in (p_pub, p_draft);
+  select count(*) into n from public.media where project_id in (p_pub, p_draft) and kind = 'image';
   reset role;
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'visiteur : photos d''un brouillon visibles (ou celles du publié absentes)'::text; end if;
 
@@ -258,7 +262,7 @@ begin
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'visiteur : couleurs orbitales d''un brouillon visibles (ou celles du publié absentes)'::text; end if;
 
   set local role anon;
-  begin insert into public.orbit_colors (project_id, hex) values (p_pub, '#0000ff'); ok := false;
+  begin insert into public.orbit_colors (project_id, view_id, hex) values (p_pub, view_pub, '#0000ff'); ok := false;
   exception when insufficient_privilege then ok := true; end;
   reset role;
   total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : ajoute une couleur orbitale'::text; end if;
@@ -564,7 +568,7 @@ begin
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas supprimer un passage'::text; end if;
 
   set local role authenticated;
-  update public.media set meta = '{"caption": "Vue mer"}' where project_id = p_pub; get diagnostics n = row_count;
+  update public.media set meta = '{"caption": "Vue mer"}' where project_id = p_pub and kind = 'image'; get diagnostics n = row_count;
   reset role;
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas légender une photo'::text; end if;
 
@@ -697,9 +701,32 @@ begin
   exception when check_violation then ok := true; end;
   total := total + 1; if not ok then failed := failed + 1; report := report || 'niveau hors limites accepté'::text; end if;
 
+  begin
+    -- The same colour means another lot on another view; the same lot on two views.
+    insert into public.orbit_colors (project_id, view_id, hex, share, lot_id) values
+      (p_pub, view_rdc, '#ff0000', 0.1, null), (p_pub, view_rdc, '#00ff00', 0.1, lot_pub);
+    ok := true;
+  exception when others then ok := false; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'couleurs par vue refusées (même couleur ou même lot sur deux vues)'::text; end if;
+
+  begin
+    update public.orbit_colors set lot_id = lot_pub where view_id = view_rdc and hex = '#ff0000';
+    ok := false;
+  exception when unique_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'un lot sous deux couleurs d''une même vue accepté'::text; end if;
+
+  begin
+    insert into public.media (project_id, view_id, kind, path) values (p_other, view_pub, 'orbit_frame', 'x.webp');
+    ok := false;
+  exception when foreign_key_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'séquence posée sur la vue d''un autre programme'::text; end if;
+
   delete from public.project_views where id = view_rdc;
-  select count(*) into n from public.lot_shapes where view_id = view_rdc;
-  total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'suppression d''une vue : formes restantes'::text; end if;
+  select (select count(*) from public.lot_shapes where view_id = view_rdc)
+       + (select count(*) from public.media where view_id = view_rdc)
+       + (select count(*) from public.orbit_colors where view_id = view_rdc)
+    into n;
+  total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'suppression d''une vue : formes, séquence ou couleurs restantes'::text; end if;
 
   begin
     insert into public.panoramas (project_id, lot_id, lot_type, name, image_path, image_width, image_height)

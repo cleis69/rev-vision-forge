@@ -3,7 +3,6 @@ import { describe, expect, test } from "bun:test";
 
 import { parseField } from "../src/lib/app/lot-fields";
 import {
-  ORBIT,
   VIEW_PRESETS,
   firstView,
   floorsDown,
@@ -85,12 +84,13 @@ describe("vues", () => {
   });
 
   test("vue montrée d'abord", () => {
-    expect(firstView(views, true)).toBe(ORBIT);
-    expect(firstView(views, false)).toBe("aerienne");
+    expect(firstView(views)).toBe("aerienne");
     expect(
-      firstView([...views.slice(0, 2), { ...view("rdc", "niveau", 0, 2), is_main: true }], true),
+      firstView([...views.slice(0, 2), { ...view("rdc", "niveau", 0, 2), is_main: true }]),
     ).toBe("rdc");
-    expect(firstView([], false)).toBeNull();
+    // Only floors: the top one.
+    expect(firstView([views[2]!, views[1]!, views[4]!])).toBe("r1");
+    expect(firstView([])).toBeNull();
   });
 
   test("vue d'un lot", () => {
@@ -101,15 +101,13 @@ describe("vues", () => {
       { ...views[3]!, lots: new Set<string>() },
       { ...views[4]!, lots: new Set<string>() },
     ];
-    const orbitLots = new Set(["a", "e"]);
     // Already on a view that shows it: nothing moves.
-    expect(viewForLot(withLots, { id: "a", niveau: 0 }, "aerienne", orbitLots)).toBe("aerienne");
-    expect(viewForLot(withLots, { id: "a", niveau: 0 }, ORBIT, orbitLots)).toBe(ORBIT);
+    expect(viewForLot(withLots, { id: "a", niveau: 0 }, "aerienne")).toBe("aerienne");
     // The floor of the lot first.
-    expect(viewForLot(withLots, { id: "a", niveau: 0 }, "pieton", orbitLots)).toBe("rdc");
-    expect(viewForLot(withLots, { id: "c", niveau: null }, ORBIT, orbitLots)).toBe("r1");
-    expect(viewForLot(withLots, { id: "e", niveau: null }, "aerienne", orbitLots)).toBe(ORBIT);
+    expect(viewForLot(withLots, { id: "a", niveau: 0 }, "pieton")).toBe("rdc");
+    expect(viewForLot(withLots, { id: "c", niveau: null }, "aerienne")).toBe("r1");
+    expect(viewForLot(withLots, { id: "d", niveau: null }, null)).toBe("rdc");
     // Shown nowhere: the view does not change.
-    expect(viewForLot(withLots, { id: "z", niveau: null }, "pieton", orbitLots)).toBe("pieton");
+    expect(viewForLot(withLots, { id: "z", niveau: null }, "pieton")).toBe("pieton");
   });
 });

@@ -265,6 +265,7 @@ export type Database = {
           path: string;
           project_id: string;
           sort_order: number;
+          view_id: string | null;
         };
         Insert: {
           created_at?: string;
@@ -275,6 +276,7 @@ export type Database = {
           path: string;
           project_id: string;
           sort_order?: number;
+          view_id?: string | null;
         };
         Update: {
           created_at?: string;
@@ -285,8 +287,16 @@ export type Database = {
           path?: string;
           project_id?: string;
           sort_order?: number;
+          view_id?: string | null;
         };
         Relationships: [
+          {
+            foreignKeyName: "media_view_id_project_id_fkey";
+            columns: ["view_id", "project_id"];
+            isOneToOne: false;
+            referencedRelation: "project_views";
+            referencedColumns: ["id", "project_id"];
+          },
           {
             foreignKeyName: "media_lot_id_project_id_fkey";
             columns: ["lot_id", "project_id"];
@@ -357,6 +367,7 @@ export type Database = {
           lot_id: string | null;
           project_id: string;
           share: number;
+          view_id: string;
         };
         Insert: {
           created_at?: string;
@@ -365,6 +376,7 @@ export type Database = {
           lot_id?: string | null;
           project_id: string;
           share?: number;
+          view_id: string;
         };
         Update: {
           created_at?: string;
@@ -373,6 +385,7 @@ export type Database = {
           lot_id?: string | null;
           project_id?: string;
           share?: number;
+          view_id?: string;
         };
         Relationships: [
           {
@@ -380,6 +393,13 @@ export type Database = {
             columns: ["lot_id", "project_id"];
             isOneToOne: false;
             referencedRelation: "lots";
+            referencedColumns: ["id", "project_id"];
+          },
+          {
+            foreignKeyName: "orbit_colors_view_id_project_id_fkey";
+            columns: ["view_id", "project_id"];
+            isOneToOne: false;
+            referencedRelation: "project_views";
             referencedColumns: ["id", "project_id"];
           },
           {

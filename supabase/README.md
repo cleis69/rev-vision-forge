@@ -54,19 +54,20 @@ Situation :
   `public_projects`. Carte : OpenFreeMap (sans clé ni cookie) ; recherche d'adresse dans
   l'espace promoteur : Nominatim (OpenStreetMap), à la demande seulement.
 
-Vues du plan :
+Vues :
 
 - Un programme a plusieurs vues dans `project_views` : vue aérienne, toiture, niveaux
   (`kind = 'niveau'` et `level` : -1 pour R-1, 0 pour le RDC, 1 pour R+1…), vue piéton
-  ou autre. Chacune a son image (en 4 096 et 1 600 px, fichiers dans
-  `<organisation>/<programme>/plan/`) et son ordre ; une seule peut être la vue
-  principale (`is_main`), montrée d'abord sur les pages publiques.
-- `lot_shapes` : une forme par lot et par vue (`unique (lot_id, view_id)`), la vue du même
-  programme que le lot. Supprimer une vue supprime ses formes.
+  ou autre, dans l'ordre choisi ; une seule peut être la vue principale (`is_main`),
+  montrée d'abord sur les pages publiques.
+- Chaque vue est une séquence orbitale : ses images et ses masques sont dans `media`
+  (`orbit_frame`, `orbit_mask`, avec `view_id`), et ses couleurs dans `orbit_colors`
+  (`view_id`) : une couleur une fois par vue, un lot sous une seule couleur par vue, mais
+  la même couleur peut désigner un autre lot sur une autre vue (deux étages réutilisent
+  souvent la même palette). Supprimer une vue supprime sa séquence et ses couleurs.
 - Les lots ont un niveau (`lots.niveau`), lu par le public dans `public_lots`.
-- Les colonnes `plan_*` de `projects` ont disparu : le plan unique de chaque programme
-  est devenu sa première vue (« Vue aérienne »), en deux migrations pour que le site en
-  ligne continue de marcher entre les deux.
+- Les images fixes et les tracés de l'étape 13 (`project_views.image_*`, `lot_shapes`)
+  ne servent plus depuis l'étape 15 : la migration suivante les retire.
 
 Visite 360° :
 
@@ -82,18 +83,17 @@ Visite 360° :
   supprime ses flèches ; supprimer un lot supprime sa propre visite (l'espace promoteur
   efface aussi ses fichiers et ses photos).
 
-Vue orbitale :
+Séquences orbitales :
 
-- La séquence est dans `media` : `orbit_frame` (vues WebP en 2 048 et 1 280 px) et
-  `orbit_mask` (masques PNG en 1 024 px, réduits sans lissage), rangées par `sort_order`,
-  fichiers dans `<organisation>/<programme>/orbit/<séquence>/`.
-- `orbit_colors` liste les couleurs trouvées dans les masques (part des pixels) et le lot
-  de chacune ; `lot_id` reste vide tant que le promoteur ne l'a pas associée, et le
-  redevient si le lot est supprimé. Une couleur par lot. Lecture publique pour les
+- Images WebP en 2 048 et 1 280 px, masques PNG en 1 024 px (réduits sans lissage),
+  rangés par `sort_order`, fichiers dans `<organisation>/<programme>/orbit/<séquence>/`.
+- `orbit_colors` liste les couleurs trouvées dans les masques d'une vue (part des pixels)
+  et le lot de chacune ; `lot_id` reste vide tant que le promoteur ne l'a pas associée, et
+  le redevient si le lot est supprimé. À l'envoi d'une séquence, une couleur déjà associée
+  sur une autre vue est associée d'office au même lot. Lecture publique pour les
   programmes publiés, écriture par les membres.
-- Les vues (orbitale, aérienne, piéton) de la démo « Villas de démonstration » sont des
-  rendus Three.js générés depuis le plan, avec les masques ou les formes des lots
-  calculés depuis un rendu des mêmes lots en couleurs pleines, sous le même angle.
+- Les vues de la démo « Villas de démonstration » sont des rendus Three.js générés depuis
+  le plan, avec leurs masques rendus sous le même angle en couleurs pleines.
 
 Statistiques :
 

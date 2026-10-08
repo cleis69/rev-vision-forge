@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, Copy, ExternalLink, Globe, Lock, X } from "lucide-react";
+import { Check, Code2, Copy, ExternalLink, Globe, Lock, MonitorSmartphone, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { SettingsSection, StatusBadge } from "@/components/app/Blocks";
@@ -10,6 +10,7 @@ import { useLots } from "@/lib/app/lots";
 import { useMedia } from "@/lib/app/media";
 import { planImages, useShapes } from "@/lib/app/plan";
 import { useUpdateProject } from "@/lib/app/projects";
+import { embedCode } from "@/lib/public/embed";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/_espace/projets/$id/partage")({
@@ -22,7 +23,10 @@ function SharePage() {
   const shapes = useShapes(project.id);
   const media = useMedia(project.id);
   const update = useUpdateProject(project.id);
-  const url = `${window.location.origin}/p/${project.slug}`;
+  const origin = window.location.origin;
+  const url = `${origin}/p/${project.slug}`;
+  const presentationUrl = `${url}?mode=presentation`;
+  const code = embedCode(origin, project.slug, project.name);
   const published = project.status === "published";
 
   const lotCount = lots.data?.length ?? 0;
@@ -41,12 +45,12 @@ function SharePage() {
   ];
   const ready = checks.every((c) => c.ok || c.optional);
 
-  const copy = async () => {
+  const copy = async (text: string, done: string) => {
     try {
-      await navigator.clipboard.writeText(url);
-      toast.success("Lien copié");
+      await navigator.clipboard.writeText(text);
+      toast.success(done);
     } catch {
-      toast.error("Copie impossible : sélectionnez le lien et copiez-le.");
+      toast.error("Copie impossible : sélectionnez le texte et copiez-le.");
     }
   };
 
@@ -89,7 +93,7 @@ function SharePage() {
             className="h-11 min-w-0 flex-1 rounded-md border border-input bg-transparent px-3 font-mono text-[13px] text-foreground"
           />
           <div className="flex gap-2">
-            <Button variant="outline" className="h-11" onClick={() => void copy()}>
+            <Button variant="outline" className="h-11" onClick={() => void copy(url, "Lien copié")}>
               <Copy aria-hidden />
               Copier
             </Button>
@@ -153,8 +157,79 @@ function SharePage() {
             </li>
           ))}
         </ul>
-        <p className="mt-4 text-xs text-muted-foreground">
-          Le code d'intégration (iframe) pour votre site arrive avec le mode présentation.
+      </SettingsSection>
+
+      <SettingsSection
+        title="Sur votre site"
+        description="Le plan de vente seul, à intégrer dans une page de votre site : les visiteurs ouvrent les lots et demandent une visite sans le quitter."
+      >
+        <textarea
+          readOnly
+          value={code}
+          rows={5}
+          onFocus={(e) => e.currentTarget.select()}
+          aria-label="Code d'intégration"
+          spellCheck={false}
+          className="w-full resize-none rounded-md border border-input bg-transparent p-3 font-mono text-[12px] leading-relaxed text-foreground"
+        />
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            className="h-11"
+            onClick={() => void copy(code, "Code d'intégration copié")}
+          >
+            <Code2 aria-hidden />
+            Copier le code
+          </Button>
+          <Button asChild variant="outline" className="h-11">
+            <a href={`${origin}/embed/${project.slug}`} target="_blank" rel="noopener">
+              <ExternalLink aria-hidden />
+              Voir le plan intégré
+            </a>
+          </Button>
+        </div>
+        <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
+          À coller dans un bloc « HTML » ou « code » de votre site (WordPress, Wix, Webflow…). Le
+          plan prend toute la largeur et sa hauteur s'ajuste toute seule. Si votre site refuse les
+          scripts, gardez seulement la ligne {"<iframe>"} : le plan aura une hauteur fixe de 720 px.
+          Il n'apparaît qu'une fois le programme publié.
+        </p>
+      </SettingsSection>
+
+      <SettingsSection
+        title="Mode présentation"
+        description="Pour la tablette du bureau de vente : le plan en plein écran, de gros boutons, la fiche du lot en grand et un formulaire pour prendre les coordonnées des visiteurs."
+      >
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <input
+            readOnly
+            value={presentationUrl}
+            onFocus={(e) => e.currentTarget.select()}
+            aria-label="Lien du mode présentation"
+            className="h-11 min-w-0 flex-1 rounded-md border border-input bg-transparent px-3 font-mono text-[13px] text-foreground"
+          />
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="h-11"
+              onClick={() => void copy(presentationUrl, "Lien copié")}
+            >
+              <Copy aria-hidden />
+              Copier
+            </Button>
+            <Button asChild variant="outline" className="h-11">
+              <a href={presentationUrl} target="_blank" rel="noopener">
+                <MonitorSmartphone aria-hidden />
+                Ouvrir
+              </a>
+            </Button>
+          </div>
+        </div>
+        <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
+          Ouvrez ce lien sur la tablette puis touchez le bouton plein écran. L'écran reste allumé
+          tant que la page est ouverte. Après 3 minutes sans contact, le plan revient à l'accueil et
+          le formulaire est vidé pour le visiteur suivant. Les demandes arrivent dans l'onglet
+          Demandes, avec la source « Bureau de vente ».
         </p>
       </SettingsSection>
     </div>

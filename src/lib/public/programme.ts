@@ -3,17 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 import { toMediaItem, type MediaItem } from "@/lib/app/media";
 import { planImages } from "@/lib/app/plan";
 import { publicUrl } from "@/lib/app/storage";
-import type { LotStatus } from "@/lib/app/lot-fields";
-import { compareNumeros } from "@/lib/app/lot-fields";
+import { LOT_STATUSES, compareNumeros, type LotStatus } from "@/lib/app/lot-fields";
 import { parsePoints, type Point } from "@/lib/geometry";
 import { getSupabase } from "@/lib/supabase/client";
+import { DEFAULT_BRAND } from "@/lib/brand";
 
 /* Public page of a programme (/p/$slug). Visitors read the public views
    (published programmes only, prices hidden when show_prices is off). A member
    of the organization who opens a draft gets a preview of the same page, from
    the tables their organization can read. */
-
-export const DEFAULT_BRAND = "#c9a35b";
 
 export type PublicLot = {
   id: string;
@@ -187,3 +185,9 @@ export function startingPrice(lots: PublicLot[]): number | null {
     .map((l) => l.prix as number);
   return prices.length ? Math.min(...prices) : null;
 }
+
+/** Number of lots of each status. */
+export const countByStatus = (lots: PublicLot[]) =>
+  Object.fromEntries(
+    LOT_STATUSES.map((s) => [s, lots.filter((l) => l.statut === s).length]),
+  ) as Record<LotStatus, number>;

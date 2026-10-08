@@ -21,7 +21,7 @@ const TABS = [
   { label: "Plan", to: "/app/projets/$id/plan" },
   { label: "Lots", to: "/app/projets/$id/lots" },
   { label: "Médias", to: "/app/projets/$id/medias" },
-  { label: "Marque" },
+  { label: "Marque", to: "/app/projets/$id/marque" },
   { label: "Demandes", to: "/app/projets/$id/demandes" },
   { label: "Statistiques" },
   { label: "Partage", to: "/app/projets/$id/partage" },

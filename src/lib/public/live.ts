@@ -1,7 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import type { LotStatus } from "@/lib/app/lot-fields";
 import { getSupabase } from "@/lib/supabase/client";
+import type { PublicData } from "./programme";
 
 /* Live changes of the lots of a programme, on the private Realtime channel
    "programme:<id>" fed by a database trigger (see the realtime migration).
@@ -81,4 +84,40 @@ export function liveMessages(signals: LotSignal[]): string[] {
   if (changed.length > 3)
     return [`Les statuts de ${changed.length} lots viennent d'être mis à jour.`];
   return changed.map((c) => MESSAGES[c.to](c.numero));
+}
+
+/**
+ * Live statuses on a public page (programme, embedded plan, presentation):
+ * the new status shows at once, the lots are read again for prices and new
+ * lots, and visitors see what changed. Returns the lots that just changed.
+ */
+export function useLiveLots(projectId: string, slug: string): ReadonlySet<string> {
+  const queryClient = useQueryClient();
+  const [highlight, setHighlight] = useState<ReadonlySet<string>>(new Set());
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  useLiveProgramme(
+    projectId,
+    (signals) => {
+      void queryClient.invalidateQueries({ queryKey: ["public-programme", slug] });
+      for (const message of liveMessages(signals)) toast(message);
+    },
+    (signal) => {
+      setHighlight((ids) => new Set(ids).add(signal.lot_id));
+      window.clearTimeout(timer.current);
+      timer.current = window.setTimeout(() => setHighlight(new Set()), 2600);
+      if (signal.op !== "UPDATE" || !signal.statut) return;
+      const statut = signal.statut;
+      queryClient.setQueryData<PublicData | null>(["public-programme", slug], (current) =>
+        current
+          ? {
+              ...current,
+              lots: current.lots.map((l) => (l.id === signal.lot_id ? { ...l, statut } : l)),
+            }
+          : current,
+      );
+    },
+  );
+  return highlight;
 }

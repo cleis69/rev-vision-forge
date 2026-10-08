@@ -25,6 +25,9 @@ export function VisitForm({
   lot,
   preview,
   source = "page",
+  session,
+  privacyInNewTab = false,
+  submitLabel = "Planifier une visite",
   onSent,
 }: {
   projectId: string;
@@ -36,6 +39,11 @@ export function VisitForm({
   lot?: PublicLot | null;
   preview: boolean;
   source?: VisitSource;
+  /** Visitor id of the sales office tablet (see sendVisit). */
+  session?: string;
+  /** Embedded plan: the notice opens on the programme page, in a new tab. */
+  privacyInNewTab?: boolean;
+  submitLabel?: string;
   onSent?: () => void;
 }) {
   const id = useId();
@@ -63,7 +71,7 @@ export function VisitForm({
     setState("sending");
     try {
       // A robot that filled the invisible field gets the same answer, and nothing is sent.
-      if (!trap) await sendVisit(projectId, lot?.id ?? (lotId || null), values, source);
+      if (!trap) await sendVisit(projectId, lot?.id ?? (lotId || null), values, source, session);
       setState("sent");
       onSent?.();
     } catch (error) {
@@ -83,7 +91,7 @@ export function VisitForm({
         role="status"
       >
         <CheckCircle2 className="size-7 text-[color:var(--brand)]" aria-hidden />
-        <p className="font-display text-xl font-medium tracking-tight">Demande envoyée.</p>
+        <p className="font-brand text-xl font-medium tracking-tight">Demande envoyée.</p>
         <p className="text-sm leading-relaxed text-white/65">
           {owner ? `${owner} vous recontactera` : "Vous serez recontacté"} rapidement, par téléphone
           ou sur WhatsApp.
@@ -192,9 +200,9 @@ export function VisitForm({
       <button
         type="submit"
         disabled={state === "sending" || preview}
-        className="inline-flex h-12 w-full items-center justify-center rounded-full bg-[color:var(--brand)] px-6 text-sm font-medium text-black transition-opacity hover:opacity-90 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+        className="inline-flex h-12 w-full items-center justify-center rounded-full bg-[color:var(--brand)] px-6 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
       >
-        {state === "sending" ? "Envoi…" : "Planifier une visite"}
+        {state === "sending" ? "Envoi…" : submitLabel}
       </button>
       {preview ? (
         <p className="text-xs text-amber-300">
@@ -204,14 +212,27 @@ export function VisitForm({
       <p className="text-xs leading-relaxed text-white/45">
         Vos coordonnées sont transmises à {owner || "l'équipe commerciale du programme"} pour vous
         recontacter au sujet de ce programme.{" "}
-        <Link
-          to="/p/$slug/donnees-personnelles"
-          params={{ slug }}
-          resetScroll={false}
-          className="text-white/70 underline underline-offset-4 hover:text-white"
-        >
-          Données personnelles
-        </Link>
+        {privacyInNewTab ? (
+          <a
+            href={`/p/${encodeURIComponent(slug)}/donnees-personnelles`}
+            target="_blank"
+            rel="noopener"
+            className="text-white/70 underline underline-offset-4 hover:text-white"
+          >
+            Données personnelles
+          </a>
+        ) : (
+          <Link
+            to="/p/$slug/donnees-personnelles"
+            params={{ slug }}
+            // Stays in presentation mode when opened from there.
+            search={true}
+            resetScroll={false}
+            className="text-white/70 underline underline-offset-4 hover:text-white"
+          >
+            Données personnelles
+          </Link>
+        )}
       </p>
     </form>
   );

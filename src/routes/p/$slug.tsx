@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   Link,
   Outlet,
@@ -7,104 +7,62 @@ import {
   useParams,
   useRouter,
 } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
-import { ArrowDown, BedDouble, Eye, GitCompareArrows, MapPin, Maximize2 } from "lucide-react";
+import { ArrowDown, Eye, MapPin } from "lucide-react";
 import { toast } from "sonner";
 
+import { PoweredBy, PublicLoading, PublicMessage, StatusFilters } from "@/components/public/Common";
 import { CompareBar, CompareDialog } from "@/components/public/Compare";
 import { Gallery } from "@/components/public/Gallery";
+import { LotCards } from "@/components/public/LotCards";
+import { LotSheet } from "@/components/public/LotSheet";
+import { Presentation } from "@/components/public/Presentation";
+import { PublicPlan } from "@/components/public/PublicPlan";
 import { VisitForm } from "@/components/public/VisitForm";
-import { LotSheet, StatusChip } from "@/components/public/LotSheet";
-import { PublicPlan, priceLabel } from "@/components/public/PublicPlan";
-import { Skeleton } from "@/components/ui/skeleton";
-import { LOT_STATUSES, STATUS_LABELS, type LotStatus } from "@/lib/app/lot-fields";
+import type { LotStatus } from "@/lib/app/lot-fields";
 import { formatPrice } from "@/lib/app/lot-format";
 import { mediaImage } from "@/lib/app/media";
 import { MAX_COMPARE, toggleCompared } from "@/lib/public/compare";
 import { track } from "@/lib/public/events";
-import { liveMessages, useLiveProgramme } from "@/lib/public/live";
+import { useLiveLots } from "@/lib/public/live";
 import {
+  countByStatus,
   startingPrice,
   usePublicProgramme,
   type PublicData,
   type PublicLot,
 } from "@/lib/public/programme";
+import { shareLot, whatsappShareUrl } from "@/lib/public/share";
+import { useBrandTheme } from "@/lib/public/theme";
 import { cn } from "@/lib/utils";
 
+type Search = { mode?: "presentation" };
+
 export const Route = createFileRoute("/p/$slug")({
+  // ?mode=presentation: full screen for the sales office tablet.
+  validateSearch: (search: Record<string, unknown>): Search =>
+    search["mode"] === "presentation" ? { mode: "presentation" } : {},
   component: ProgrammePage,
 });
 
-const area = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 });
-
 function ProgrammePage() {
   const { slug } = Route.useParams();
+  const { mode } = Route.useSearch();
   const query = usePublicProgramme(slug);
+  const organization = query.data?.programme.organization;
+  useBrandTheme(organization?.brandColor ?? null, organization?.brandFont ?? null);
 
-  if (query.isPending) {
-    return (
-      <div
-        className="min-h-svh bg-[#080808] px-5 py-10 sm:px-10"
-        aria-busy="true"
-        aria-label="Chargement du programme"
-      >
-        <div className="mx-auto max-w-6xl space-y-6">
-          <Skeleton className="h-6 w-40 bg-white/10" />
-          <Skeleton className="h-14 w-full max-w-xl bg-white/10" />
-          <Skeleton className="aspect-[16/9] w-full rounded-2xl bg-white/10" />
-        </div>
-      </div>
-    );
-  }
-  if (query.isError || !query.data) {
-    return (
-      <Message
-        title={
-          query.isError ? "Page momentanément indisponible" : "Ce programme n'est pas en ligne"
-        }
-        text={
-          query.isError
-            ? "Vérifiez votre connexion internet puis rechargez la page."
-            : "Il n'existe pas, ou il n'est pas encore (ou plus) publié."
-        }
-      />
-    );
-  }
+  if (query.isPending) return <PublicLoading />;
+  if (query.isError || !query.data) return <PublicMessage failed={query.isError} />;
   return (
     <>
-      <Programme data={query.data} slug={slug} />
+      {mode === "presentation" ? (
+        <Presentation data={query.data} slug={slug} />
+      ) : (
+        <Programme data={query.data} slug={slug} />
+      )}
       {/* /p/$slug/lot/$numero: the child route only names the open lot. */}
       <Outlet />
     </>
-  );
-}
-
-function Message({ title, text }: { title: string; text: string }) {
-  useEffect(() => {
-    document.title = title;
-  }, [title]);
-  return (
-    <main className="grid min-h-svh place-items-center bg-[#080808] px-6 text-center text-white">
-      <div>
-        <h1 className="font-display text-2xl font-medium tracking-tight">{title}</h1>
-        <p className="mt-3 text-sm text-white/60">{text}</p>
-        <PoweredBy className="mt-10" />
-      </div>
-    </main>
-  );
-}
-
-function PoweredBy({ className }: { className?: string }) {
-  return (
-    <p className={cn("text-xs text-white/40", className)}>
-      Propulsé par{" "}
-      <a
-        href="https://realestatevision360.com/"
-        className="text-white/60 underline-offset-4 hover:text-white hover:underline"
-      >
-        REV
-      </a>
-    </p>
   );
 }
 
@@ -125,7 +83,6 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
   const { programme, lots, shapes, media, preview } = data;
   const navigate = useNavigate();
   const router = useRouter();
-  const queryClient = useQueryClient();
   const [filter, setFilter] = useState<LotStatus | null>(null);
   const tracked = useRef(false);
 
@@ -173,67 +130,11 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
     setCompareIds(next);
   };
 
-  /* ----- live status: the lots are read again, visitors see what changed */
-  const [highlight, setHighlight] = useState<ReadonlySet<string>>(new Set());
-  const highlightTimer = useRef<number | undefined>(undefined);
-  useEffect(() => () => window.clearTimeout(highlightTimer.current), []);
-  useLiveProgramme(
-    programme.id,
-    (signals) => {
-      void queryClient.invalidateQueries({ queryKey: ["public-programme", slug] });
-      for (const message of liveMessages(signals)) toast(message);
-    },
-    // The new status shows at once; the read that follows brings prices and new lots.
-    (signal) => {
-      setHighlight((ids) => new Set(ids).add(signal.lot_id));
-      window.clearTimeout(highlightTimer.current);
-      highlightTimer.current = window.setTimeout(() => setHighlight(new Set()), 2600);
-      if (signal.op !== "UPDATE" || !signal.statut) return;
-      const statut = signal.statut;
-      queryClient.setQueryData<PublicData | null>(["public-programme", slug], (current) =>
-        current
-          ? {
-              ...current,
-              lots: current.lots.map((l) => (l.id === signal.lot_id ? { ...l, statut } : l)),
-            }
-          : current,
-      );
-    },
-  );
-
-  /* ----- sharing a lot */
-  const lotUrl = (l: PublicLot) =>
-    `${window.location.origin}/p/${programme.slug}/lot/${encodeURIComponent(l.numero)}`;
-  const lotTitle = (l: PublicLot) =>
-    `Lot ${l.numero}${l.type ? ` · ${l.type}` : ""} — ${programme.name}`;
-  const share = async (l: PublicLot) => {
-    const url = lotUrl(l);
-    if (!preview) track(programme.id, "partage", l.id);
-    if (typeof navigator.share === "function") {
-      try {
-        await navigator.share({ title: lotTitle(l), url });
-      } catch {
-        /* cancelled by the visitor */
-      }
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(url);
-      toast.success("Lien du lot copié");
-    } catch {
-      toast(url);
-    }
-  };
+  const highlight = useLiveLots(programme.id, slug);
 
   const gallery = useMemo(() => media.filter((m) => !m.lot_id), [media]);
   const hero = gallery[0] ? mediaImage(gallery[0]) : null;
-  const counts = useMemo(
-    () =>
-      Object.fromEntries(
-        LOT_STATUSES.map((s) => [s, lots.filter((l) => l.statut === s).length]),
-      ) as Record<LotStatus, number>,
-    [lots],
-  );
+  const counts = useMemo(() => countByStatus(lots), [lots]);
   const from = programme.showPrices ? startingPrice(lots) : null;
   const plan = programme.plan && lots.some((l) => shapes.has(l.id)) ? programme.plan : null;
   const shownLots = filter ? lots.filter((l) => l.statut === filter) : lots;
@@ -273,14 +174,8 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
     else void navigate({ to: "/p/$slug", params: { slug }, replace: true, resetScroll: false });
   };
 
-  const style = {
-    "--brand": programme.organization.brandColor,
-    ...(programme.organization.brandFont ? { fontFamily: programme.organization.brandFont } : {}),
-  } as CSSProperties;
-
   return (
     <div
-      style={style}
       // Room for the comparison bar at the bottom of the page.
       className={cn("min-h-svh bg-[#080808] text-white", compared.length > 0 && "pb-36 sm:pb-24")}
     >
@@ -304,7 +199,7 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
               className="h-8 w-auto"
             />
           ) : (
-            <span className="truncate font-display text-base font-medium tracking-tight">
+            <span className="truncate font-brand text-base font-medium tracking-tight">
               {programme.organization.name}
             </span>
           )}
@@ -362,7 +257,7 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
                 {programme.city}
               </p>
             ) : null}
-            <h1 className="mt-4 max-w-3xl font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-6xl">
+            <h1 className="mt-4 max-w-3xl font-brand text-4xl font-medium leading-[1.05] tracking-tight sm:text-6xl">
               {programme.name}
             </h1>
             {programme.description ? (
@@ -381,7 +276,7 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
               {plan ? (
                 <a
                   href="#plan"
-                  className="inline-flex h-12 items-center gap-2 rounded-full bg-[color:var(--brand)] px-6 text-sm font-medium text-black transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                  className="inline-flex h-12 items-center gap-2 rounded-full bg-[color:var(--brand)] px-6 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                 >
                   Voir le plan de vente
                   <ArrowDown className="size-4" aria-hidden />
@@ -401,7 +296,12 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
           <section id="plan" className="scroll-mt-20 border-t border-white/10">
             <div className="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
               <SectionTitle title="Plan de vente">
-                <Filters value={filter} onChange={setFilter} counts={counts} total={lots.length} />
+                <StatusFilters
+                  value={filter}
+                  onChange={setFilter}
+                  counts={counts}
+                  total={lots.length}
+                />
               </SectionTitle>
               <div className="mt-8">
                 <PublicPlan
@@ -421,7 +321,12 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
         <section id="lots" className="scroll-mt-20 border-t border-white/10">
           <div className="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
             <SectionTitle title="Les lots">
-              <Filters value={filter} onChange={setFilter} counts={counts} total={lots.length} />
+              <StatusFilters
+                value={filter}
+                onChange={setFilter}
+                counts={counts}
+                total={lots.length}
+              />
             </SectionTitle>
             {shownLots.length === 0 ? (
               <p className="mt-8 text-sm text-white/60">
@@ -430,68 +335,15 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
                   : "Aucun lot avec ce statut."}
               </p>
             ) : (
-              <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {shownLots.map((lot) => (
-                  <li key={lot.id} className="relative">
-                    <button
-                      type="button"
-                      onClick={() => open(lot, "list")}
-                      className={cn(
-                        "group flex h-full w-full flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 pb-16 text-left transition-colors duration-700 hover:border-white/25 hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
-                        highlight.has(lot.id) && "border-white/60 bg-white/[0.09] duration-150",
-                      )}
-                    >
-                      <span className="flex items-start justify-between gap-3">
-                        <span className="font-display text-lg font-medium tracking-tight">
-                          Lot {lot.numero}
-                          {lot.type ? <span className="text-white/55"> · {lot.type}</span> : null}
-                        </span>
-                        <StatusChip status={lot.statut} />
-                      </span>
-                      <span className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-white/60">
-                        {lot.surface_habitable !== null ? (
-                          <span className="inline-flex items-center gap-1.5">
-                            <Maximize2 className="size-3.5" aria-hidden />
-                            {area.format(lot.surface_habitable)} m²
-                          </span>
-                        ) : null}
-                        {lot.chambres !== null ? (
-                          <span className="inline-flex items-center gap-1.5">
-                            <BedDouble className="size-3.5" aria-hidden />
-                            {lot.chambres} ch.
-                          </span>
-                        ) : null}
-                        {lot.surface_terrain !== null ? (
-                          <span>Terrain {area.format(lot.surface_terrain)} m²</span>
-                        ) : null}
-                      </span>
-                      <span
-                        className={cn(
-                          "mt-auto pt-5 text-base font-medium",
-                          lot.statut === "vendue" && "text-white/45",
-                        )}
-                      >
-                        {priceLabel(lot, programme.currency)}
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => toggleCompare(lot)}
-                      aria-pressed={compareIds.includes(lot.id)}
-                      aria-label={`${compareIds.includes(lot.id) ? "Retirer du" : "Ajouter au"} comparateur : lot ${lot.numero}`}
-                      className={cn(
-                        "absolute bottom-4 right-4 inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
-                        compareIds.includes(lot.id)
-                          ? "border-[color:var(--brand)] bg-[color:var(--brand)]/15 text-[color:var(--brand)]"
-                          : "border-white/15 text-white/60 hover:border-white/35 hover:text-white",
-                      )}
-                    >
-                      <GitCompareArrows className="size-3.5" aria-hidden />
-                      Comparer
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              <div className="mt-8">
+                <LotCards
+                  lots={shownLots}
+                  currency={programme.currency}
+                  highlight={highlight}
+                  onOpen={(l) => open(l, "list")}
+                  compare={{ ids: compareIds, onToggle: toggleCompare }}
+                />
+              </div>
             )}
           </div>
         </section>
@@ -548,8 +400,8 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
             ? {
                 compared: compareIds.includes(lot.id),
                 onToggleCompare: () => toggleCompare(lot),
-                onShare: () => void share(lot),
-                whatsappUrl: `https://wa.me/?text=${encodeURIComponent(`${lotTitle(lot)} ${lotUrl(lot)}`)}`,
+                onShare: () => void shareLot(programme, lot, !preview),
+                whatsappUrl: whatsappShareUrl(programme, lot),
                 onWhatsApp: () => {
                   if (!preview) track(programme.id, "partage", lot.id);
                 },
@@ -593,7 +445,7 @@ function Stat({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div>
       <dt className="text-[11px] uppercase tracking-[0.2em] text-white/50">{label}</dt>
-      <dd className="mt-1.5 font-display text-2xl font-medium tracking-tight">{children}</dd>
+      <dd className="mt-1.5 font-brand text-2xl font-medium tracking-tight">{children}</dd>
     </div>
   );
 }
@@ -601,51 +453,8 @@ function Stat({ label, children }: { label: string; children: ReactNode }) {
 function SectionTitle({ title, children }: { title: string; children?: ReactNode }) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-4">
-      <h2 className="font-display text-3xl font-medium tracking-tight sm:text-4xl">{title}</h2>
+      <h2 className="font-brand text-3xl font-medium tracking-tight sm:text-4xl">{title}</h2>
       {children}
-    </div>
-  );
-}
-
-function Filters({
-  value,
-  onChange,
-  counts,
-  total,
-}: {
-  value: LotStatus | null;
-  onChange: (status: LotStatus | null) => void;
-  counts: Record<LotStatus, number>;
-  total: number;
-}) {
-  const options: { status: LotStatus | null; label: string; count: number }[] = [
-    { status: null, label: "Tous", count: total },
-    ...LOT_STATUSES.map((s) => ({ status: s, label: `${STATUS_LABELS[s]}s`, count: counts[s] })),
-  ];
-  return (
-    <div role="group" aria-label="Filtrer les lots par statut" className="flex flex-wrap gap-2">
-      {options.map((o) => {
-        const active = value === o.status;
-        return (
-          <button
-            key={o.label}
-            type="button"
-            aria-pressed={active}
-            onClick={() => onChange(o.status)}
-            className={cn(
-              "inline-flex h-9 items-center gap-2 rounded-full border px-4 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
-              active
-                ? "border-white bg-white text-black"
-                : "border-white/15 text-white/75 hover:border-white/35 hover:text-white",
-            )}
-          >
-            {o.label}
-            <span className={cn("tabular-nums", active ? "text-black/60" : "text-white/45")}>
-              {o.count}
-            </span>
-          </button>
-        );
-      })}
     </div>
   );
 }

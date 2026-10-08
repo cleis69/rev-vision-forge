@@ -12,7 +12,7 @@ import { mediaImage, type MediaItem } from "@/lib/app/media";
 import { MAX_COMPARE, bestPricePerSqm, featureRows, pricePerSqm } from "@/lib/public/compare";
 import type { PublicLot } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
-import { StatusChip } from "./LotSheet";
+import { StatusChip } from "./LotDetails";
 import { priceLabel } from "./PublicPlan";
 
 const area = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 });
@@ -67,7 +67,7 @@ export function CompareBar({
           onClick={onCompare}
           disabled={lots.length < 2}
           title={lots.length < 2 ? "Choisissez au moins 2 lots" : undefined}
-          className="h-9 rounded-full bg-[color:var(--brand)] px-4 text-sm font-medium text-black transition-opacity hover:opacity-90 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+          className="h-9 rounded-full bg-[color:var(--brand)] px-4 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
         >
           {lots.length < 2 ? "Ajoutez un 2e lot" : `Comparer ${lots.length} lots`}
         </button>
@@ -106,7 +106,7 @@ export function CompareDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[92svh] max-w-4xl overflow-y-auto border-white/10 bg-[#0d0d0d] p-5 text-white sm:p-7">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl font-medium tracking-tight">
+          <DialogTitle className="font-brand text-2xl font-medium tracking-tight">
             Comparer les lots
           </DialogTitle>
           <DialogDescription className="text-white/55">
@@ -139,7 +139,7 @@ export function CompareDialog({
                             />
                           ) : null}
                         </span>
-                        <span className="mt-3 block font-display text-lg font-medium tracking-tight">
+                        <span className="mt-3 block font-brand text-lg font-medium tracking-tight">
                           Lot {lot.numero}
                           {lot.type ? <span className="text-white/55"> · {lot.type}</span> : null}
                         </span>

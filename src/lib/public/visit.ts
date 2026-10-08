@@ -35,18 +35,23 @@ export type VisitSource = "page" | "embed" | "presentation";
 
 export class VisitError extends Error {}
 
-/** Sends the request; the error message is ready to show. */
+/**
+ * Sends the request; the error message is ready to show. `session` replaces
+ * the id of the tab: the sales office tablet gives one to each visitor, so the
+ * limit per visitor does not stop the next one.
+ */
 export async function sendVisit(
   projectId: string,
   lotId: string | null,
   values: VisitValues,
   source: VisitSource = "page",
+  session: string = sessionId(),
 ): Promise<void> {
   const { error } = await getSupabase().rpc("submit_lead", {
     p_project_id: projectId,
     p_nom: values.nom.trim(),
     p_telephone: values.telephone.trim(),
-    p_session_id: sessionId(),
+    p_session_id: session,
     ...(lotId ? { p_lot_id: lotId } : {}),
     ...(values.email.trim() ? { p_email: values.email.trim() } : {}),
     ...(values.message.trim() ? { p_message: values.message.trim() } : {}),

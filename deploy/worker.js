@@ -4,9 +4,10 @@
 // - private pages (PRIVATE_PAGES in src/lib/i18n.ts): a password prompt. The
 //   password is the Worker secret AGENT_PASSWORD; while it is not set, the
 //   pages stay closed to everyone.
-// - /app/…: the promoter space, and /p/…: the public pages of the programmes,
-//   both rendered in the browser from the SPA shell (_shell.html); for /p/…
-//   the Worker also writes the link preview (title, description, image).
+// - /app/…: the promoter space, /p/…: the public pages of the programmes, and
+//   /embed/…: their sales plan for an iframe on the promoters' sites, all
+//   rendered in the browser from the SPA shell (_shell.html); for /p/… the
+//   Worker also writes the link preview (title, description, image).
 // Everything else on the site is served straight from static assets.
 import SIZES from "./media-sizes.json";
 import { loadPreview, metaTags } from "./og.js";
@@ -16,6 +17,8 @@ const PRIVATE = /^\/(agent-ia|en\/ai-agent)(\.html|\/)?$/;
 // SPA shell of the build, never indexed (programmes are shared by link).
 const APP = /^\/app(\/|$)/;
 const PROGRAMME = /^\/p\/[^/]+/;
+// Sales plan alone, embedded in an iframe on the promoter's own website.
+const EMBED = /^\/embed\/[^/]+\/?$/;
 // Programme page or lot page, whose link preview is written by the Worker.
 const PREVIEWED = /^\/p\/([^/]+)(?:\/lot\/([^/]+))?\/?$/;
 
@@ -24,7 +27,7 @@ export default {
     const { pathname } = new URL(request.url);
     if (PRIVATE.test(pathname)) return privatePage(request, env);
     if (PROGRAMME.test(pathname)) return programmePage(request, env);
-    if (APP.test(pathname)) return appShell(request, env);
+    if (APP.test(pathname) || EMBED.test(pathname)) return appShell(request, env);
 
     const res = await env.ASSETS.fetch(request);
     const range = request.headers.get("range");

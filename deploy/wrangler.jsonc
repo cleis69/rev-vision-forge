@@ -2,7 +2,8 @@
 // Kept out of the repo root so Lovable's own build ignores it.
 // The Worker only runs for /media/* (byte ranges for Safari video playback)
 // for the private AI agent page (password, secret AGENT_PASSWORD), for the
-// promoter space /app and for the public programme pages /p/… (SPA shell).
+// promoter space /app, the public programme pages /p/… and their plan for
+// iframes /embed/… (SPA shell).
 {
   "name": "realestatevision360",
   "compatibility_date": "2026-10-01",
@@ -26,6 +27,7 @@
       "/app",
       "/app/*",
       "/p/*",
+      "/embed/*",
       "/agent-ia",
       "/agent-ia.html",
       "/agent-ia/*",

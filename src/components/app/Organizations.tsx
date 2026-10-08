@@ -7,7 +7,10 @@ import { useAuth } from "@/lib/supabase/auth";
 
 export type Membership = {
   role: Tables<"members">["role"];
-  organization: Pick<Tables<"organizations">, "id" | "name" | "slug" | "logo_path" | "brand_color">;
+  organization: Pick<
+    Tables<"organizations">,
+    "id" | "name" | "slug" | "logo_path" | "brand_color" | "brand_font"
+  >;
 };
 
 type OrganizationsState = {
@@ -38,7 +41,9 @@ export function OrganizationsProvider({ children }: { children: ReactNode }) {
     queryFn: async (): Promise<Membership[]> => {
       const { data, error } = await getSupabase()
         .from("members")
-        .select("role, organization:organizations(id, name, slug, logo_path, brand_color)")
+        .select(
+          "role, organization:organizations(id, name, slug, logo_path, brand_color, brand_font)",
+        )
         .eq("user_id", userId ?? "")
         .order("created_at");
       if (error) throw error;

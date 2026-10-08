@@ -129,6 +129,11 @@
   }
 }
 
+/* Titles of the public programme pages, in the promoter's font (Marque tab, src/lib/brand.ts). */
+@utility font-brand {
+  font-family: var(--brand-font, "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif);
+}
+
 @utility text-gradient {
   background: var(--gradient-text);
   -webkit-background-clip: text;

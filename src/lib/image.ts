@@ -1,7 +1,8 @@
 import { fitWithin } from "./geometry";
 
 /* Plans are resized and converted in the browser before upload: WebP when the
-   browser can encode it, JPEG otherwise (older Safari). */
+   browser can encode it, JPEG otherwise (older Safari), or PNG for a logo,
+   which keeps its transparent background. */
 
 export const PLAN_TYPES = ["image/jpeg", "image/png", "image/webp"];
 export const MAX_SOURCE_BYTES = 50 * 1024 * 1024;
@@ -10,7 +11,12 @@ const MAX_PIXELS = 16_000_000;
 
 export class ImageError extends Error {}
 
-export type EncodedImage = { blob: Blob; width: number; height: number; extension: "webp" | "jpg" };
+export type EncodedImage = {
+  blob: Blob;
+  width: number;
+  height: number;
+  extension: "webp" | "jpg" | "png";
+};
 
 export async function decodeImage(file: File): Promise<ImageBitmap> {
   if (!PLAN_TYPES.includes(file.type)) {
@@ -36,6 +42,7 @@ export async function encodeImage(
   source: ImageBitmap,
   maxSide: number,
   quality = 0.85,
+  fallback: "jpg" | "png" = "jpg",
 ): Promise<EncodedImage> {
   const { width, height } = fitWithin(source.width, source.height, maxSide, MAX_PIXELS);
   const canvas = document.createElement("canvas");
@@ -48,6 +55,11 @@ export async function encodeImage(
 
   const webp = await toBlob(canvas, "image/webp", quality);
   if (webp && webp.type === "image/webp") return { blob: webp, width, height, extension: "webp" };
+  if (fallback === "png") {
+    const png = await toBlob(canvas, "image/png", 1);
+    if (!png) throw new ImageError("Votre navigateur ne peut pas préparer l'image.");
+    return { blob: png, width, height, extension: "png" };
+  }
 
   // JPEG has no transparency: white background under the image.
   context.globalCompositeOperation = "destination-over";

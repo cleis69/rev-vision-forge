@@ -29,12 +29,18 @@ function PrivacyNotice() {
       open
       onOpenChange={(open) => {
         if (!open)
-          void navigate({ to: "/p/$slug", params: { slug }, replace: true, resetScroll: false });
+          void navigate({
+            to: "/p/$slug",
+            params: { slug },
+            search: true,
+            replace: true,
+            resetScroll: false,
+          });
       }}
     >
       <DialogContent className="max-h-[90svh] max-w-2xl overflow-y-auto border-white/10 bg-[#0d0d0d] p-6 text-white sm:p-8">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl font-medium tracking-tight">
+          <DialogTitle className="font-brand text-2xl font-medium tracking-tight">
             Données personnelles
           </DialogTitle>
           <DialogDescription className="text-white/55">

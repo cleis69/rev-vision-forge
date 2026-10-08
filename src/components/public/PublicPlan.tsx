@@ -18,7 +18,10 @@ import { clampView, fitView, pinchView, zoomView, type View } from "@/lib/viewpo
 /* Sales plan: lots coloured by status on the aerial view. Available lots use
    the promoter's colour, reserved ones are hatched, sold ones greyed out.
    Mouse: hover for details, click to open the lot. Finger: a tap opens the lot,
-   two fingers zoom. Keyboard: Tab goes from lot to lot, Enter opens it. */
+   two fingers zoom. Keyboard: Tab goes from lot to lot, Enter opens it.
+   Variants: "page" (programme page, at most 78 % of the screen height),
+   "embed" (iframe: the height follows the plan, the iframe follows the page)
+   and "presentation" (sales office tablet: fills its box, large labels). */
 
 export type PlanImage = { large: string; small: string; width: number; height: number };
 
@@ -56,6 +59,9 @@ export function PublicPlan({
   currency,
   filter,
   highlight,
+  selected = null,
+  variant = "page",
+  resetKey = 0,
   onOpen,
 }: {
   image: PlanImage;
@@ -65,8 +71,14 @@ export function PublicPlan({
   filter: LotStatus | null;
   /** Lots that just changed (live update): briefly outlined. */
   highlight?: ReadonlySet<string>;
+  /** Lot whose details are open next to the plan. */
+  selected?: string | null;
+  variant?: "page" | "embed" | "presentation";
+  /** A new value shows the whole plan again (presentation left idle). */
+  resetKey?: number;
   onOpen: (lot: PublicLot, from: "plan" | "keyboard") => void;
 }) {
+  const large = variant === "presentation";
   const { width: W, height: H } = image;
   const viewport = useRef<HTMLDivElement>(null);
   const drag = useRef<Drag | null>(null);
@@ -100,6 +112,10 @@ export function PublicPlan({
     observer.observe(el);
     return () => observer.disconnect();
   }, [fit]);
+
+  useEffect(() => {
+    if (resetKey) fit();
+  }, [resetKey, fit]);
 
   /** Never smaller than the whole plan, never panned out of it. */
   const settle = useCallback(
@@ -255,8 +271,14 @@ export function PublicPlan({
     }
   }
 
+  const button = cn(
+    "grid place-items-center rounded-full text-white/80 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60",
+    large ? "size-12" : "size-9",
+  );
+  const icon = large ? "size-5" : "size-4";
+
   return (
-    <div className="space-y-3">
+    <div className={large ? "flex h-full min-h-0 flex-col gap-3" : "space-y-3"}>
       <div
         ref={viewport}
         onPointerDown={onPointerDown}
@@ -269,10 +291,13 @@ export function PublicPlan({
         }}
         onPointerLeave={() => setHover(null)}
         className={cn(
-          "relative max-h-[78svh] w-full select-none overflow-hidden rounded-2xl border border-white/10 bg-black",
-          zoomed ? "cursor-grab touch-none" : "touch-pan-y",
+          "relative w-full select-none overflow-hidden rounded-2xl border border-white/10 bg-black",
+          variant === "page" && "max-h-[78svh]",
+          large && "min-h-0 flex-1",
+          // Nothing to scroll in presentation: every gesture belongs to the plan.
+          zoomed || large ? "cursor-grab touch-none" : "touch-pan-y",
         )}
-        style={{ aspectRatio: `${W} / ${H}` }}
+        style={large ? undefined : { aspectRatio: `${W} / ${H}` }}
       >
         <div
           className="absolute left-0 top-0 origin-top-left"
@@ -336,7 +361,8 @@ export function PublicPlan({
               const [cx, cy] = centroid(points);
               const dimmed = filter !== null && lot.statut !== filter;
               const live = highlight?.has(lot.id) ?? false;
-              const active = hover?.id === lot.id || focused === lot.id || live;
+              const active =
+                hover?.id === lot.id || focused === lot.id || selected === lot.id || live;
               const label = `Lot ${lot.numero}${lot.type ? `, ${lot.type}` : ""}, ${statusAndPrice(lot, currency).replace(" · ", ", ")}`;
               return (
                 <g
@@ -379,13 +405,13 @@ export function PublicPlan({
                   <text
                     x={cx * W}
                     y={cy * H}
-                    fontSize={13 / k}
+                    fontSize={(large ? 20 : 13) / k}
                     fontWeight={600}
                     textAnchor="middle"
                     dominantBaseline="central"
                     className="pointer-events-none select-none fill-white"
                     stroke="rgba(0,0,0,0.7)"
-                    strokeWidth={3 / k}
+                    strokeWidth={(large ? 4 : 3) / k}
                     paintOrder="stroke"
                   >
                     {lot.numero}
@@ -417,7 +443,10 @@ export function PublicPlan({
 
       <div className="flex items-start justify-between gap-4">
         <ul
-          className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-2 text-xs text-white/70"
+          className={cn(
+            "flex flex-wrap items-center gap-x-5 gap-y-2 pt-2 text-white/70",
+            large ? "text-sm" : "text-xs",
+          )}
           aria-label="Légende du plan"
         >
           <li className="flex items-center gap-2">
@@ -449,36 +478,41 @@ export function PublicPlan({
             />
             Vendu
           </li>
-          <li className="hidden text-white/45 sm:block">Survolez un lot, cliquez pour sa fiche</li>
-          <li className="text-white/45 sm:hidden">
-            Touchez un lot pour sa fiche · deux doigts pour zoomer
-          </li>
+          {large ? (
+            <li className="text-white/45">
+              Touchez un lot pour sa fiche · deux doigts pour zoomer
+            </li>
+          ) : (
+            <>
+              <li className="hidden text-white/45 sm:block">
+                Survolez un lot, cliquez pour sa fiche
+              </li>
+              <li className="text-white/45 sm:hidden">
+                Touchez un lot pour sa fiche · deux doigts pour zoomer
+              </li>
+            </>
+          )}
         </ul>
         <div className="flex shrink-0 items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1">
           <button
             type="button"
             onClick={() => zoomCenter(0.75)}
             aria-label="Dézoomer le plan"
-            className="grid size-9 place-items-center rounded-full text-white/80 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            className={button}
           >
-            <Minus className="size-4" aria-hidden />
+            <Minus className={icon} aria-hidden />
           </button>
           <button
             type="button"
             onClick={() => zoomCenter(1.35)}
             aria-label="Zoomer sur le plan"
-            className="grid size-9 place-items-center rounded-full text-white/80 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            className={button}
           >
-            <Plus className="size-4" aria-hidden />
+            <Plus className={icon} aria-hidden />
           </button>
           {zoomed ? (
-            <button
-              type="button"
-              onClick={fit}
-              aria-label="Voir tout le plan"
-              className="grid size-9 place-items-center rounded-full text-white/80 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-            >
-              <Maximize className="size-4" aria-hidden />
+            <button type="button" onClick={fit} aria-label="Voir tout le plan" className={button}>
+              <Maximize className={icon} aria-hidden />
             </button>
           ) : null}
         </div>

@@ -46,6 +46,14 @@ Demandes de visite :
 - La fonction ne traite qu'une demande de moins de 10 minutes pas encore notifiée : un
   appel venu d'ailleurs ne peut rien faire envoyer d'autre.
 
+Situation :
+
+- Le programme a une adresse, une position (latitude et longitude, renseignées ensemble)
+  et une liste de lieux proches `places` (12 au plus, `{ name, minutes, mode }`, mode
+  `voiture` ou `pied`), vérifiée par `is_valid_places`. Le public les lit dans
+  `public_projects`. Carte : OpenFreeMap (sans clé ni cookie) ; recherche d'adresse dans
+  l'espace promoteur : Nominatim (OpenStreetMap), à la demande seulement.
+
 Statistiques :
 
 - Les pages publiques enregistrent dans `lot_events` les affichages de la page, les

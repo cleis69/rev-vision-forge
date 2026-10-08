@@ -36,10 +36,11 @@ begin
     (org_a, 'Org A', 'rls-test-org-a'), (org_b, 'Org B', 'rls-test-org-b');
   insert into public.members (organization_id, user_id, role) values
     (org_a, owner_a, 'owner'), (org_a, commercial_a, 'commercial'), (org_b, owner_b, 'owner');
-  insert into public.projects (id, organization_id, name, slug, status, show_prices) values
-    (p_pub, org_a, 'Publié sans prix', 'rls-test-publie', 'published', false),
-    (p_draft, org_a, 'Brouillon', 'rls-test-brouillon', 'draft', true),
-    (p_other, org_b, 'Publié avec prix', 'rls-test-autre', 'published', true);
+  insert into public.projects (id, organization_id, name, slug, status, show_prices, address, latitude, longitude, places) values
+    (p_pub, org_a, 'Publié sans prix', 'rls-test-publie', 'published', false,
+     'Route de test', 31.6, -7.9, '[{"name": "Aéroport", "minutes": 15, "mode": "voiture"}]'),
+    (p_draft, org_a, 'Brouillon', 'rls-test-brouillon', 'draft', true, null, null, null, '[]'),
+    (p_other, org_b, 'Publié avec prix', 'rls-test-autre', 'published', true, null, null, null, '[]');
   insert into public.lots (id, project_id, numero, prix) values
     (lot_pub, p_pub, '1', 1000000), (lot_draft, p_draft, '1', 500000), (lot_other, p_other, '1', 900000);
   insert into public.lot_shapes (lot_id, project_id, points) values
@@ -221,6 +222,12 @@ begin
   exception when insufficient_privilege then ok := true; end;
   reset role;
   total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : envoie un faux signal sur le canal'::text; end if;
+
+  set local role anon;
+  select count(*) into n from public.public_projects
+    where id = p_pub and address = 'Route de test' and latitude = 31.6 and jsonb_array_length(places) = 1;
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'visiteur : situation absente de public_projects'::text; end if;
 
   set local role anon;
   begin perform public.project_stats(p_pub, 7, 'UTC'); ok := false;
@@ -489,6 +496,18 @@ begin
   total := total + 1; if n <> 1 or v is distinct from 1234 then failed := failed + 1; report := report || 'import : le lot existant n''est pas mis à jour'::text; end if;
 
   ------------------------------------------------------------- integrity
+  begin
+    update public.projects set places = '[{"name": "Golf", "minutes": "cinq", "mode": "voiture"}]' where id = p_pub;
+    ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'lieu proche invalide accepté'::text; end if;
+
+  begin
+    update public.projects set latitude = 31.6, longitude = null where id = p_pub;
+    ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'position incomplète acceptée'::text; end if;
+
   begin
     insert into public.lot_shapes (lot_id, project_id, points) values (lot_other, p_other, '[[1.5, 0], [0, 0], [0, 1]]');
     ok := false;

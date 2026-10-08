@@ -134,6 +134,28 @@
   font-family: var(--brand-font, "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif);
 }
 
+/* Maps (MapLibre, src/components/map): controls in the dark style of the pages.
+   Selectors one class stronger than MapLibre's own, whose CSS loads later. */
+.rev-map .maplibregl-ctrl.maplibregl-ctrl-group {
+  background: #151515;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  box-shadow: none;
+}
+.rev-map .maplibregl-ctrl.maplibregl-ctrl-group button + button {
+  border-top-color: rgb(255 255 255 / 0.12);
+}
+.rev-map .maplibregl-ctrl-group .maplibregl-ctrl-icon,
+.rev-map .maplibregl-ctrl-attrib .maplibregl-ctrl-attrib-button {
+  filter: invert(1);
+}
+.rev-map .maplibregl-ctrl.maplibregl-ctrl-attrib {
+  background: rgb(0 0 0 / 0.6);
+  color: rgb(255 255 255 / 0.7);
+}
+.rev-map .maplibregl-ctrl.maplibregl-ctrl-attrib a {
+  color: rgb(255 255 255 / 0.8);
+}
+
 @utility text-gradient {
   background: var(--gradient-text);
   -webkit-background-clip: text;

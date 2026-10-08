@@ -16,6 +16,7 @@ import { Gallery } from "@/components/public/Gallery";
 import { LotCards } from "@/components/public/LotCards";
 import { LotSheet } from "@/components/public/LotSheet";
 import { Presentation } from "@/components/public/Presentation";
+import { Situation } from "@/components/public/Situation";
 import { PublicPlan } from "@/components/public/PublicPlan";
 import { VisitForm } from "@/components/public/VisitForm";
 import type { LotStatus } from "@/lib/app/lot-fields";
@@ -26,6 +27,7 @@ import { track } from "@/lib/public/events";
 import { useLiveLots } from "@/lib/public/live";
 import {
   countByStatus,
+  hasSituation,
   startingPrice,
   usePublicProgramme,
   type PublicData,
@@ -220,6 +222,11 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
                 Galerie
               </a>
             ) : null}
+            {hasSituation(programme) ? (
+              <a href="#situation" className="hover:text-white">
+                Situation
+              </a>
+            ) : null}
             <a
               href="#visite"
               className="rounded-full border border-white/20 px-4 py-1.5 text-white hover:border-white/50"
@@ -355,6 +362,14 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
               <div className="mt-8">
                 <Gallery photos={gallery} name={programme.name} />
               </div>
+            </div>
+          </section>
+        ) : null}
+
+        {hasSituation(programme) ? (
+          <section id="situation" className="scroll-mt-20 border-t border-white/10">
+            <div className="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
+              <Situation programme={programme} />
             </div>
           </section>
         ) : null}

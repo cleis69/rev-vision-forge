@@ -7,6 +7,7 @@ import { LOT_STATUSES, compareNumeros, type LotStatus } from "@/lib/app/lot-fiel
 import { parsePoints, type Point } from "@/lib/geometry";
 import { getSupabase } from "@/lib/supabase/client";
 import { DEFAULT_BRAND } from "@/lib/brand";
+import { isPosition, parsePlaces, type Place, type Position } from "@/lib/location";
 
 /* Public page of a programme (/p/$slug). Visitors read the public views
    (published programmes only, prices hidden when show_prices is off). A member
@@ -36,6 +37,10 @@ export type PublicProgramme = {
   showPrices: boolean;
   plan: ReturnType<typeof planImages>;
   organization: { name: string; logo: string | null; brandColor: string; brandFont: string | null };
+  /** Situation section: shown when any of the three is set. */
+  address: string | null;
+  position: Position | null;
+  places: Place[];
 };
 
 export type PublicData = {
@@ -62,6 +67,10 @@ type Source = {
   organization_logo_path: string | null;
   brand_color: string | null;
   brand_font: string | null;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  places: unknown;
 };
 
 const features = (value: unknown) =>
@@ -110,6 +119,11 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
         brandColor: source.brand_color ?? DEFAULT_BRAND,
         brandFont: source.brand_font,
       },
+      address: source.address?.trim() || null,
+      position: isPosition(source.latitude, source.longitude)
+        ? { lat: source.latitude as number, lng: source.longitude as number }
+        : null,
+      places: parsePlaces(source.places),
     },
     lots: lots.data
       .flatMap((l) =>
@@ -191,3 +205,7 @@ export const countByStatus = (lots: PublicLot[]) =>
   Object.fromEntries(
     LOT_STATUSES.map((s) => [s, lots.filter((l) => l.statut === s).length]),
   ) as Record<LotStatus, number>;
+
+/** True when the programme has something to show in its Situation section. */
+export const hasSituation = (p: PublicProgramme) =>
+  Boolean(p.address || p.position || p.places.length > 0);

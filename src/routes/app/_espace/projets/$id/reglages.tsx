@@ -12,6 +12,7 @@ import { SettingsSection } from "@/components/app/Blocks";
 import { ConfirmDelete } from "@/components/app/ConfirmDelete";
 import { PROJECT_SLUG_MAX, PROJECT_SLUG_TAKEN, publicUrl } from "@/components/app/NewProjectDialog";
 import { useCurrentProject } from "@/components/app/ProjectContext";
+import { SituationSettings } from "@/components/app/SituationSettings";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -73,6 +74,7 @@ function ProjectSettingsPage() {
     <div className="max-w-3xl space-y-6">
       {/* Keyed by programme: switching programmes starts from its own values. */}
       <ProjectSettingsForm key={project.id} project={project} />
+      <SituationSettings key={`situation-${project.id}`} project={project} />
       {role === "owner" ? (
         <DeleteProjectSection project={project} />
       ) : (

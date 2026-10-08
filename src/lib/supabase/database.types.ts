@@ -375,14 +375,18 @@ export type Database = {
       };
       projects: {
         Row: {
+          address: string | null;
           city: string | null;
           created_at: string;
           currency: string;
           custom_domain: string | null;
           description: string | null;
           id: string;
+          latitude: number | null;
+          longitude: number | null;
           name: string;
           organization_id: string;
+          places: Json;
           plan_height: number | null;
           plan_image_path: string | null;
           plan_width: number | null;
@@ -392,14 +396,18 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          address?: string | null;
           city?: string | null;
           created_at?: string;
           currency?: string;
           custom_domain?: string | null;
           description?: string | null;
           id?: string;
+          latitude?: number | null;
+          longitude?: number | null;
           name: string;
           organization_id: string;
+          places?: Json;
           plan_height?: number | null;
           plan_image_path?: string | null;
           plan_width?: number | null;
@@ -409,14 +417,18 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          address?: string | null;
           city?: string | null;
           created_at?: string;
           currency?: string;
           custom_domain?: string | null;
           description?: string | null;
           id?: string;
+          latitude?: number | null;
+          longitude?: number | null;
           name?: string;
           organization_id?: string;
+          places?: Json;
           plan_height?: number | null;
           plan_image_path?: string | null;
           plan_width?: number | null;
@@ -472,12 +484,15 @@ export type Database = {
       };
       public_projects: {
         Row: {
+          address: string | null;
           brand_color: string | null;
           brand_font: string | null;
           city: string | null;
           currency: string | null;
           description: string | null;
           id: string | null;
+          latitude: number | null;
+          longitude: number | null;
           name: string | null;
           organization_logo_path: string | null;
           organization_name: string | null;
@@ -485,6 +500,7 @@ export type Database = {
           plan_height: number | null;
           plan_image_path: string | null;
           plan_width: number | null;
+          places: Json | null;
           show_prices: boolean | null;
           slug: string | null;
           updated_at: string | null;
@@ -512,6 +528,7 @@ export type Database = {
         };
       };
       is_normalized_polygon: { Args: { points: Json }; Returns: boolean };
+      is_valid_places: { Args: { places: Json }; Returns: boolean };
       project_stats: {
         Args: { p_days: number; p_project_id: string; p_tz?: string };
         Returns: Json;

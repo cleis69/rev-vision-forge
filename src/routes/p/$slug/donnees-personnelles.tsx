@@ -78,6 +78,15 @@ function PrivacyNotice() {
             </p>
           </section>
           <section>
+            <h3>Mesure d'audience et carte</h3>
+            <p>
+              La page compte les visites et les lots consultés sans cookie, avec un identifiant tiré
+              au hasard pour chaque onglet, que le navigateur oublie à sa fermeture. La carte de la
+              rubrique Situation est fournie par OpenFreeMap (données OpenStreetMap), sans cookie :
+              votre navigateur la télécharge directement depuis leurs serveurs.
+            </p>
+          </section>
+          <section>
             <h3>Vos droits</h3>
             <p>
               Vous pouvez demander à consulter, corriger ou effacer vos données, ou vous opposer à

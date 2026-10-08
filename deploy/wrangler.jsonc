@@ -1,7 +1,8 @@
 // Static deployment of the prerendered site (bun run build:static) on Cloudflare.
 // Kept out of the repo root so Lovable's own build ignores it.
 // The Worker only runs for /media/* (byte ranges for Safari video playback)
-// and for the private AI agent page (password, secret AGENT_PASSWORD).
+// for the private AI agent page (password, secret AGENT_PASSWORD) and for the
+// promoter space /app (served from the SPA shell).
 {
   "name": "realestatevision360",
   "compatibility_date": "2026-10-01",
@@ -16,6 +17,8 @@
     "not_found_handling": "404-page",
     "run_worker_first": [
       "/media/*",
+      "/app",
+      "/app/*",
       "/agent-ia",
       "/agent-ia.html",
       "/agent-ia/*",

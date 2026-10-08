@@ -9,199 +9,256 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as R404RouteImport } from './routes/404'
-import { Route as AboutRouteImport } from './routes/about'
-import { Route as AgentIaRouteImport } from './routes/agent-ia'
-import { Route as CaseStudiesRouteImport } from './routes/case-studies'
-import { Route as ContactRouteImport } from './routes/contact'
-import { Route as InsightsRouteImport } from './routes/insights'
-import { Route as PortfolioRouteImport } from './routes/portfolio'
-import { Route as ServicesRouteImport } from './routes/services'
-import { Route as TarifsRouteImport } from './routes/tarifs'
-import { Route as EnIndexRouteImport } from './routes/en/index'
-import { Route as En404RouteImport } from './routes/en/404'
-import { Route as EnAboutRouteImport } from './routes/en/about'
-import { Route as EnAiAgentRouteImport } from './routes/en/ai-agent'
-import { Route as EnCaseStudiesRouteImport } from './routes/en/case-studies'
-import { Route as EnContactRouteImport } from './routes/en/contact'
-import { Route as EnInsightsRouteImport } from './routes/en/insights'
-import { Route as EnPortfolioRouteImport } from './routes/en/portfolio'
-import { Route as EnPricingRouteImport } from './routes/en/pricing'
-import { Route as EnServicesRouteImport } from './routes/en/services'
+import { Route as SiteRouteRouteImport } from './routes/_site/route'
+import { Route as AppRouteRouteImport } from './routes/app/route'
+import { Route as SiteIndexRouteImport } from './routes/_site/index'
+import { Route as Site404RouteImport } from './routes/_site/404'
+import { Route as SiteAboutRouteImport } from './routes/_site/about'
+import { Route as SiteAgentIaRouteImport } from './routes/_site/agent-ia'
+import { Route as SiteCaseStudiesRouteImport } from './routes/_site/case-studies'
+import { Route as SiteContactRouteImport } from './routes/_site/contact'
+import { Route as SiteInsightsRouteImport } from './routes/_site/insights'
+import { Route as SitePortfolioRouteImport } from './routes/_site/portfolio'
+import { Route as SiteServicesRouteImport } from './routes/_site/services'
+import { Route as SiteTarifsRouteImport } from './routes/_site/tarifs'
+import { Route as AppEspaceRouteRouteImport } from './routes/app/_espace/route'
+import { Route as AppConfirmerRouteImport } from './routes/app/confirmer'
+import { Route as AppLoginRouteImport } from './routes/app/login'
+import { Route as AppReinitialiserRouteImport } from './routes/app/reinitialiser'
+import { Route as SiteEnIndexRouteImport } from './routes/_site/en/index'
+import { Route as SiteEn404RouteImport } from './routes/_site/en/404'
+import { Route as SiteEnAboutRouteImport } from './routes/_site/en/about'
+import { Route as SiteEnAiAgentRouteImport } from './routes/_site/en/ai-agent'
+import { Route as SiteEnCaseStudiesRouteImport } from './routes/_site/en/case-studies'
+import { Route as SiteEnContactRouteImport } from './routes/_site/en/contact'
+import { Route as SiteEnInsightsRouteImport } from './routes/_site/en/insights'
+import { Route as SiteEnPortfolioRouteImport } from './routes/_site/en/portfolio'
+import { Route as SiteEnPricingRouteImport } from './routes/_site/en/pricing'
+import { Route as SiteEnServicesRouteImport } from './routes/_site/en/services'
+import { Route as AppEspaceIndexRouteImport } from './routes/app/_espace/index'
 
-const IndexRoute = IndexRouteImport.update({
+const SiteRouteRoute = SiteRouteRouteImport.update({
+  id: '/_site',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRouteRoute = AppRouteRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SiteIndexRoute = SiteIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => SiteRouteRoute,
 } as any)
-const R404Route = R404RouteImport.update({
+const Site404Route = Site404RouteImport.update({
   id: '/404',
   path: '/404',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => SiteRouteRoute,
 } as any)
-const AboutRoute = AboutRouteImport.update({
+const SiteAboutRoute = SiteAboutRouteImport.update({
   id: '/about',
   path: '/about',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => SiteRouteRoute,
 } as any)
-const AgentIaRoute = AgentIaRouteImport.update({
+const SiteAgentIaRoute = SiteAgentIaRouteImport.update({
   id: '/agent-ia',
   path: '/agent-ia',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => SiteRouteRoute,
 } as any)
-const CaseStudiesRoute = CaseStudiesRouteImport.update({
+const SiteCaseStudiesRoute = SiteCaseStudiesRouteImport.update({
   id: '/case-studies',
   path: '/case-studies',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => SiteRouteRoute,
 } as any)
-const ContactRoute = ContactRouteImport.update({
+const SiteContactRoute = SiteContactRouteImport.update({
   id: '/contact',
   path: '/contact',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => SiteRouteRoute,
 } as any)
-const InsightsRoute = InsightsRouteImport.update({
+const SiteInsightsRoute = SiteInsightsRouteImport.update({
   id: '/insights',
   path: '/insights',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => SiteRouteRoute,
 } as any)
-const PortfolioRoute = PortfolioRouteImport.update({
+const SitePortfolioRoute = SitePortfolioRouteImport.update({
   id: '/portfolio',
   path: '/portfolio',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => SiteRouteRoute,
 } as any)
-const ServicesRoute = ServicesRouteImport.update({
+const SiteServicesRoute = SiteServicesRouteImport.update({
   id: '/services',
   path: '/services',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => SiteRouteRoute,
 } as any)
-const TarifsRoute = TarifsRouteImport.update({
+const SiteTarifsRoute = SiteTarifsRouteImport.update({
   id: '/tarifs',
   path: '/tarifs',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => SiteRouteRoute,
 } as any)
-const EnIndexRoute = EnIndexRouteImport.update({
+const AppEspaceRouteRoute = AppEspaceRouteRouteImport.update({
+  id: '/_espace',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppConfirmerRoute = AppConfirmerRouteImport.update({
+  id: '/confirmer',
+  path: '/confirmer',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppLoginRoute = AppLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppReinitialiserRoute = AppReinitialiserRouteImport.update({
+  id: '/reinitialiser',
+  path: '/reinitialiser',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const SiteEnIndexRoute = SiteEnIndexRouteImport.update({
   id: '/en/',
   path: '/en/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => SiteRouteRoute,
 } as any)
-const En404Route = En404RouteImport.update({
+const SiteEn404Route = SiteEn404RouteImport.update({
   id: '/en/404',
   path: '/en/404',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => SiteRouteRoute,
 } as any)
-const EnAboutRoute = EnAboutRouteImport.update({
+const SiteEnAboutRoute = SiteEnAboutRouteImport.update({
   id: '/en/about',
   path: '/en/about',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => SiteRouteRoute,
 } as any)
-const EnAiAgentRoute = EnAiAgentRouteImport.update({
+const SiteEnAiAgentRoute = SiteEnAiAgentRouteImport.update({
   id: '/en/ai-agent',
   path: '/en/ai-agent',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => SiteRouteRoute,
 } as any)
-const EnCaseStudiesRoute = EnCaseStudiesRouteImport.update({
+const SiteEnCaseStudiesRoute = SiteEnCaseStudiesRouteImport.update({
   id: '/en/case-studies',
   path: '/en/case-studies',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => SiteRouteRoute,
 } as any)
-const EnContactRoute = EnContactRouteImport.update({
+const SiteEnContactRoute = SiteEnContactRouteImport.update({
   id: '/en/contact',
   path: '/en/contact',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => SiteRouteRoute,
 } as any)
-const EnInsightsRoute = EnInsightsRouteImport.update({
+const SiteEnInsightsRoute = SiteEnInsightsRouteImport.update({
   id: '/en/insights',
   path: '/en/insights',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => SiteRouteRoute,
 } as any)
-const EnPortfolioRoute = EnPortfolioRouteImport.update({
+const SiteEnPortfolioRoute = SiteEnPortfolioRouteImport.update({
   id: '/en/portfolio',
   path: '/en/portfolio',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => SiteRouteRoute,
 } as any)
-const EnPricingRoute = EnPricingRouteImport.update({
+const SiteEnPricingRoute = SiteEnPricingRouteImport.update({
   id: '/en/pricing',
   path: '/en/pricing',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => SiteRouteRoute,
 } as any)
-const EnServicesRoute = EnServicesRouteImport.update({
+const SiteEnServicesRoute = SiteEnServicesRouteImport.update({
   id: '/en/services',
   path: '/en/services',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => SiteRouteRoute,
+} as any)
+const AppEspaceIndexRoute = AppEspaceIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppEspaceRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/404': typeof R404Route
-  '/about': typeof AboutRoute
-  '/agent-ia': typeof AgentIaRoute
-  '/case-studies': typeof CaseStudiesRoute
-  '/contact': typeof ContactRoute
-  '/insights': typeof InsightsRoute
-  '/portfolio': typeof PortfolioRoute
-  '/services': typeof ServicesRoute
-  '/tarifs': typeof TarifsRoute
-  '/en/404': typeof En404Route
-  '/en/about': typeof EnAboutRoute
-  '/en/ai-agent': typeof EnAiAgentRoute
-  '/en/case-studies': typeof EnCaseStudiesRoute
-  '/en/contact': typeof EnContactRoute
-  '/en/insights': typeof EnInsightsRoute
-  '/en/portfolio': typeof EnPortfolioRoute
-  '/en/pricing': typeof EnPricingRoute
-  '/en/services': typeof EnServicesRoute
-  '/en/': typeof EnIndexRoute
+  '/': typeof SiteIndexRoute
+  '/app': typeof AppRouteRouteWithChildren
+  '/404': typeof Site404Route
+  '/about': typeof SiteAboutRoute
+  '/agent-ia': typeof SiteAgentIaRoute
+  '/case-studies': typeof SiteCaseStudiesRoute
+  '/contact': typeof SiteContactRoute
+  '/insights': typeof SiteInsightsRoute
+  '/portfolio': typeof SitePortfolioRoute
+  '/services': typeof SiteServicesRoute
+  '/tarifs': typeof SiteTarifsRoute
+  '/app/confirmer': typeof AppConfirmerRoute
+  '/app/login': typeof AppLoginRoute
+  '/app/reinitialiser': typeof AppReinitialiserRoute
+  '/en/404': typeof SiteEn404Route
+  '/en/about': typeof SiteEnAboutRoute
+  '/en/ai-agent': typeof SiteEnAiAgentRoute
+  '/en/case-studies': typeof SiteEnCaseStudiesRoute
+  '/en/contact': typeof SiteEnContactRoute
+  '/en/insights': typeof SiteEnInsightsRoute
+  '/en/portfolio': typeof SiteEnPortfolioRoute
+  '/en/pricing': typeof SiteEnPricingRoute
+  '/en/services': typeof SiteEnServicesRoute
+  '/en/': typeof SiteEnIndexRoute
+  '/app/': typeof AppEspaceIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/404': typeof R404Route
-  '/about': typeof AboutRoute
-  '/agent-ia': typeof AgentIaRoute
-  '/case-studies': typeof CaseStudiesRoute
-  '/contact': typeof ContactRoute
-  '/insights': typeof InsightsRoute
-  '/portfolio': typeof PortfolioRoute
-  '/services': typeof ServicesRoute
-  '/tarifs': typeof TarifsRoute
-  '/en/404': typeof En404Route
-  '/en/about': typeof EnAboutRoute
-  '/en/ai-agent': typeof EnAiAgentRoute
-  '/en/case-studies': typeof EnCaseStudiesRoute
-  '/en/contact': typeof EnContactRoute
-  '/en/insights': typeof EnInsightsRoute
-  '/en/portfolio': typeof EnPortfolioRoute
-  '/en/pricing': typeof EnPricingRoute
-  '/en/services': typeof EnServicesRoute
-  '/en': typeof EnIndexRoute
+  '/app': typeof AppEspaceIndexRoute
+  '/404': typeof Site404Route
+  '/about': typeof SiteAboutRoute
+  '/agent-ia': typeof SiteAgentIaRoute
+  '/case-studies': typeof SiteCaseStudiesRoute
+  '/contact': typeof SiteContactRoute
+  '/insights': typeof SiteInsightsRoute
+  '/portfolio': typeof SitePortfolioRoute
+  '/services': typeof SiteServicesRoute
+  '/tarifs': typeof SiteTarifsRoute
+  '/app/confirmer': typeof AppConfirmerRoute
+  '/app/login': typeof AppLoginRoute
+  '/app/reinitialiser': typeof AppReinitialiserRoute
+  '/': typeof SiteIndexRoute
+  '/en/404': typeof SiteEn404Route
+  '/en/about': typeof SiteEnAboutRoute
+  '/en/ai-agent': typeof SiteEnAiAgentRoute
+  '/en/case-studies': typeof SiteEnCaseStudiesRoute
+  '/en/contact': typeof SiteEnContactRoute
+  '/en/insights': typeof SiteEnInsightsRoute
+  '/en/portfolio': typeof SiteEnPortfolioRoute
+  '/en/pricing': typeof SiteEnPricingRoute
+  '/en/services': typeof SiteEnServicesRoute
+  '/en': typeof SiteEnIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/404': typeof R404Route
-  '/about': typeof AboutRoute
-  '/agent-ia': typeof AgentIaRoute
-  '/case-studies': typeof CaseStudiesRoute
-  '/contact': typeof ContactRoute
-  '/insights': typeof InsightsRoute
-  '/portfolio': typeof PortfolioRoute
-  '/services': typeof ServicesRoute
-  '/tarifs': typeof TarifsRoute
-  '/en/404': typeof En404Route
-  '/en/about': typeof EnAboutRoute
-  '/en/ai-agent': typeof EnAiAgentRoute
-  '/en/case-studies': typeof EnCaseStudiesRoute
-  '/en/contact': typeof EnContactRoute
-  '/en/insights': typeof EnInsightsRoute
-  '/en/portfolio': typeof EnPortfolioRoute
-  '/en/pricing': typeof EnPricingRoute
-  '/en/services': typeof EnServicesRoute
-  '/en/': typeof EnIndexRoute
+  '/_site': typeof SiteRouteRouteWithChildren
+  '/app': typeof AppRouteRouteWithChildren
+  '/app/_espace': typeof AppEspaceRouteRouteWithChildren
+  '/_site/404': typeof Site404Route
+  '/_site/about': typeof SiteAboutRoute
+  '/_site/agent-ia': typeof SiteAgentIaRoute
+  '/_site/case-studies': typeof SiteCaseStudiesRoute
+  '/_site/contact': typeof SiteContactRoute
+  '/_site/insights': typeof SiteInsightsRoute
+  '/_site/portfolio': typeof SitePortfolioRoute
+  '/_site/services': typeof SiteServicesRoute
+  '/_site/tarifs': typeof SiteTarifsRoute
+  '/app/confirmer': typeof AppConfirmerRoute
+  '/app/login': typeof AppLoginRoute
+  '/app/reinitialiser': typeof AppReinitialiserRoute
+  '/_site/': typeof SiteIndexRoute
+  '/_site/en/404': typeof SiteEn404Route
+  '/_site/en/about': typeof SiteEnAboutRoute
+  '/_site/en/ai-agent': typeof SiteEnAiAgentRoute
+  '/_site/en/case-studies': typeof SiteEnCaseStudiesRoute
+  '/_site/en/contact': typeof SiteEnContactRoute
+  '/_site/en/insights': typeof SiteEnInsightsRoute
+  '/_site/en/portfolio': typeof SiteEnPortfolioRoute
+  '/_site/en/pricing': typeof SiteEnPricingRoute
+  '/_site/en/services': typeof SiteEnServicesRoute
+  '/_site/en/': typeof SiteEnIndexRoute
+  '/app/_espace/': typeof AppEspaceIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/app'
     | '/404'
     | '/about'
     | '/agent-ia'
@@ -211,6 +268,9 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/services'
     | '/tarifs'
+    | '/app/confirmer'
+    | '/app/login'
+    | '/app/reinitialiser'
     | '/en/404'
     | '/en/about'
     | '/en/ai-agent'
@@ -221,9 +281,10 @@ export interface FileRouteTypes {
     | '/en/pricing'
     | '/en/services'
     | '/en/'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
+    | '/app'
     | '/404'
     | '/about'
     | '/agent-ia'
@@ -233,6 +294,10 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/services'
     | '/tarifs'
+    | '/app/confirmer'
+    | '/app/login'
+    | '/app/reinitialiser'
+    | '/'
     | '/en/404'
     | '/en/about'
     | '/en/ai-agent'
@@ -245,217 +310,317 @@ export interface FileRouteTypes {
     | '/en'
   id:
     | '__root__'
-    | '/'
-    | '/404'
-    | '/about'
-    | '/agent-ia'
-    | '/case-studies'
-    | '/contact'
-    | '/insights'
-    | '/portfolio'
-    | '/services'
-    | '/tarifs'
-    | '/en/404'
-    | '/en/about'
-    | '/en/ai-agent'
-    | '/en/case-studies'
-    | '/en/contact'
-    | '/en/insights'
-    | '/en/portfolio'
-    | '/en/pricing'
-    | '/en/services'
-    | '/en/'
+    | '/_site'
+    | '/app'
+    | '/app/_espace'
+    | '/_site/404'
+    | '/_site/about'
+    | '/_site/agent-ia'
+    | '/_site/case-studies'
+    | '/_site/contact'
+    | '/_site/insights'
+    | '/_site/portfolio'
+    | '/_site/services'
+    | '/_site/tarifs'
+    | '/app/confirmer'
+    | '/app/login'
+    | '/app/reinitialiser'
+    | '/_site/'
+    | '/_site/en/404'
+    | '/_site/en/about'
+    | '/_site/en/ai-agent'
+    | '/_site/en/case-studies'
+    | '/_site/en/contact'
+    | '/_site/en/insights'
+    | '/_site/en/portfolio'
+    | '/_site/en/pricing'
+    | '/_site/en/services'
+    | '/_site/en/'
+    | '/app/_espace/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  R404Route: typeof R404Route
-  AboutRoute: typeof AboutRoute
-  AgentIaRoute: typeof AgentIaRoute
-  CaseStudiesRoute: typeof CaseStudiesRoute
-  ContactRoute: typeof ContactRoute
-  InsightsRoute: typeof InsightsRoute
-  PortfolioRoute: typeof PortfolioRoute
-  ServicesRoute: typeof ServicesRoute
-  TarifsRoute: typeof TarifsRoute
-  En404Route: typeof En404Route
-  EnAboutRoute: typeof EnAboutRoute
-  EnAiAgentRoute: typeof EnAiAgentRoute
-  EnCaseStudiesRoute: typeof EnCaseStudiesRoute
-  EnContactRoute: typeof EnContactRoute
-  EnInsightsRoute: typeof EnInsightsRoute
-  EnPortfolioRoute: typeof EnPortfolioRoute
-  EnPricingRoute: typeof EnPricingRoute
-  EnServicesRoute: typeof EnServicesRoute
-  EnIndexRoute: typeof EnIndexRoute
+  SiteRouteRoute: typeof SiteRouteRouteWithChildren
+  AppRouteRoute: typeof AppRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_site': {
+      id: '/_site'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof SiteRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_site/': {
+      id: '/_site/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof SiteIndexRouteImport
+      parentRoute: typeof SiteRouteRoute
     }
-    '/404': {
-      id: '/404'
+    '/_site/404': {
+      id: '/_site/404'
       path: '/404'
       fullPath: '/404'
-      preLoaderRoute: typeof R404RouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof Site404RouteImport
+      parentRoute: typeof SiteRouteRoute
     }
-    '/about': {
-      id: '/about'
+    '/_site/about': {
+      id: '/_site/about'
       path: '/about'
       fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof SiteAboutRouteImport
+      parentRoute: typeof SiteRouteRoute
     }
-    '/agent-ia': {
-      id: '/agent-ia'
+    '/_site/agent-ia': {
+      id: '/_site/agent-ia'
       path: '/agent-ia'
       fullPath: '/agent-ia'
-      preLoaderRoute: typeof AgentIaRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof SiteAgentIaRouteImport
+      parentRoute: typeof SiteRouteRoute
     }
-    '/case-studies': {
-      id: '/case-studies'
+    '/_site/case-studies': {
+      id: '/_site/case-studies'
       path: '/case-studies'
       fullPath: '/case-studies'
-      preLoaderRoute: typeof CaseStudiesRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof SiteCaseStudiesRouteImport
+      parentRoute: typeof SiteRouteRoute
     }
-    '/contact': {
-      id: '/contact'
+    '/_site/contact': {
+      id: '/_site/contact'
       path: '/contact'
       fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof SiteContactRouteImport
+      parentRoute: typeof SiteRouteRoute
     }
-    '/insights': {
-      id: '/insights'
+    '/_site/insights': {
+      id: '/_site/insights'
       path: '/insights'
       fullPath: '/insights'
-      preLoaderRoute: typeof InsightsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof SiteInsightsRouteImport
+      parentRoute: typeof SiteRouteRoute
     }
-    '/portfolio': {
-      id: '/portfolio'
+    '/_site/portfolio': {
+      id: '/_site/portfolio'
       path: '/portfolio'
       fullPath: '/portfolio'
-      preLoaderRoute: typeof PortfolioRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof SitePortfolioRouteImport
+      parentRoute: typeof SiteRouteRoute
     }
-    '/services': {
-      id: '/services'
+    '/_site/services': {
+      id: '/_site/services'
       path: '/services'
       fullPath: '/services'
-      preLoaderRoute: typeof ServicesRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof SiteServicesRouteImport
+      parentRoute: typeof SiteRouteRoute
     }
-    '/tarifs': {
-      id: '/tarifs'
+    '/_site/tarifs': {
+      id: '/_site/tarifs'
       path: '/tarifs'
       fullPath: '/tarifs'
-      preLoaderRoute: typeof TarifsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof SiteTarifsRouteImport
+      parentRoute: typeof SiteRouteRoute
     }
-    '/en/': {
-      id: '/en/'
+    '/app/_espace': {
+      id: '/app/_espace'
+      path: ''
+      fullPath: '/app'
+      preLoaderRoute: typeof AppEspaceRouteRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/confirmer': {
+      id: '/app/confirmer'
+      path: '/confirmer'
+      fullPath: '/app/confirmer'
+      preLoaderRoute: typeof AppConfirmerRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/login': {
+      id: '/app/login'
+      path: '/login'
+      fullPath: '/app/login'
+      preLoaderRoute: typeof AppLoginRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/reinitialiser': {
+      id: '/app/reinitialiser'
+      path: '/reinitialiser'
+      fullPath: '/app/reinitialiser'
+      preLoaderRoute: typeof AppReinitialiserRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_site/en/': {
+      id: '/_site/en/'
       path: '/en'
       fullPath: '/en/'
-      preLoaderRoute: typeof EnIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof SiteEnIndexRouteImport
+      parentRoute: typeof SiteRouteRoute
     }
-    '/en/404': {
-      id: '/en/404'
+    '/_site/en/404': {
+      id: '/_site/en/404'
       path: '/en/404'
       fullPath: '/en/404'
-      preLoaderRoute: typeof En404RouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof SiteEn404RouteImport
+      parentRoute: typeof SiteRouteRoute
     }
-    '/en/about': {
-      id: '/en/about'
+    '/_site/en/about': {
+      id: '/_site/en/about'
       path: '/en/about'
       fullPath: '/en/about'
-      preLoaderRoute: typeof EnAboutRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof SiteEnAboutRouteImport
+      parentRoute: typeof SiteRouteRoute
     }
-    '/en/ai-agent': {
-      id: '/en/ai-agent'
+    '/_site/en/ai-agent': {
+      id: '/_site/en/ai-agent'
       path: '/en/ai-agent'
       fullPath: '/en/ai-agent'
-      preLoaderRoute: typeof EnAiAgentRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof SiteEnAiAgentRouteImport
+      parentRoute: typeof SiteRouteRoute
     }
-    '/en/case-studies': {
-      id: '/en/case-studies'
+    '/_site/en/case-studies': {
+      id: '/_site/en/case-studies'
       path: '/en/case-studies'
       fullPath: '/en/case-studies'
-      preLoaderRoute: typeof EnCaseStudiesRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof SiteEnCaseStudiesRouteImport
+      parentRoute: typeof SiteRouteRoute
     }
-    '/en/contact': {
-      id: '/en/contact'
+    '/_site/en/contact': {
+      id: '/_site/en/contact'
       path: '/en/contact'
       fullPath: '/en/contact'
-      preLoaderRoute: typeof EnContactRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof SiteEnContactRouteImport
+      parentRoute: typeof SiteRouteRoute
     }
-    '/en/insights': {
-      id: '/en/insights'
+    '/_site/en/insights': {
+      id: '/_site/en/insights'
       path: '/en/insights'
       fullPath: '/en/insights'
-      preLoaderRoute: typeof EnInsightsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof SiteEnInsightsRouteImport
+      parentRoute: typeof SiteRouteRoute
     }
-    '/en/portfolio': {
-      id: '/en/portfolio'
+    '/_site/en/portfolio': {
+      id: '/_site/en/portfolio'
       path: '/en/portfolio'
       fullPath: '/en/portfolio'
-      preLoaderRoute: typeof EnPortfolioRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof SiteEnPortfolioRouteImport
+      parentRoute: typeof SiteRouteRoute
     }
-    '/en/pricing': {
-      id: '/en/pricing'
+    '/_site/en/pricing': {
+      id: '/_site/en/pricing'
       path: '/en/pricing'
       fullPath: '/en/pricing'
-      preLoaderRoute: typeof EnPricingRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof SiteEnPricingRouteImport
+      parentRoute: typeof SiteRouteRoute
     }
-    '/en/services': {
-      id: '/en/services'
+    '/_site/en/services': {
+      id: '/_site/en/services'
       path: '/en/services'
       fullPath: '/en/services'
-      preLoaderRoute: typeof EnServicesRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof SiteEnServicesRouteImport
+      parentRoute: typeof SiteRouteRoute
+    }
+    '/app/_espace/': {
+      id: '/app/_espace/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppEspaceIndexRouteImport
+      parentRoute: typeof AppEspaceRouteRoute
     }
   }
 }
 
+interface SiteRouteRouteChildren {
+  Site404Route: typeof Site404Route
+  SiteAboutRoute: typeof SiteAboutRoute
+  SiteAgentIaRoute: typeof SiteAgentIaRoute
+  SiteCaseStudiesRoute: typeof SiteCaseStudiesRoute
+  SiteContactRoute: typeof SiteContactRoute
+  SiteInsightsRoute: typeof SiteInsightsRoute
+  SitePortfolioRoute: typeof SitePortfolioRoute
+  SiteServicesRoute: typeof SiteServicesRoute
+  SiteTarifsRoute: typeof SiteTarifsRoute
+  SiteIndexRoute: typeof SiteIndexRoute
+  SiteEn404Route: typeof SiteEn404Route
+  SiteEnAboutRoute: typeof SiteEnAboutRoute
+  SiteEnAiAgentRoute: typeof SiteEnAiAgentRoute
+  SiteEnCaseStudiesRoute: typeof SiteEnCaseStudiesRoute
+  SiteEnContactRoute: typeof SiteEnContactRoute
+  SiteEnInsightsRoute: typeof SiteEnInsightsRoute
+  SiteEnPortfolioRoute: typeof SiteEnPortfolioRoute
+  SiteEnPricingRoute: typeof SiteEnPricingRoute
+  SiteEnServicesRoute: typeof SiteEnServicesRoute
+  SiteEnIndexRoute: typeof SiteEnIndexRoute
+}
+
+const SiteRouteRouteChildren: SiteRouteRouteChildren = {
+  Site404Route: Site404Route,
+  SiteAboutRoute: SiteAboutRoute,
+  SiteAgentIaRoute: SiteAgentIaRoute,
+  SiteCaseStudiesRoute: SiteCaseStudiesRoute,
+  SiteContactRoute: SiteContactRoute,
+  SiteInsightsRoute: SiteInsightsRoute,
+  SitePortfolioRoute: SitePortfolioRoute,
+  SiteServicesRoute: SiteServicesRoute,
+  SiteTarifsRoute: SiteTarifsRoute,
+  SiteIndexRoute: SiteIndexRoute,
+  SiteEn404Route: SiteEn404Route,
+  SiteEnAboutRoute: SiteEnAboutRoute,
+  SiteEnAiAgentRoute: SiteEnAiAgentRoute,
+  SiteEnCaseStudiesRoute: SiteEnCaseStudiesRoute,
+  SiteEnContactRoute: SiteEnContactRoute,
+  SiteEnInsightsRoute: SiteEnInsightsRoute,
+  SiteEnPortfolioRoute: SiteEnPortfolioRoute,
+  SiteEnPricingRoute: SiteEnPricingRoute,
+  SiteEnServicesRoute: SiteEnServicesRoute,
+  SiteEnIndexRoute: SiteEnIndexRoute,
+}
+
+const SiteRouteRouteWithChildren = SiteRouteRoute._addFileChildren(
+  SiteRouteRouteChildren,
+)
+
+interface AppEspaceRouteRouteChildren {
+  AppEspaceIndexRoute: typeof AppEspaceIndexRoute
+}
+
+const AppEspaceRouteRouteChildren: AppEspaceRouteRouteChildren = {
+  AppEspaceIndexRoute: AppEspaceIndexRoute,
+}
+
+const AppEspaceRouteRouteWithChildren = AppEspaceRouteRoute._addFileChildren(
+  AppEspaceRouteRouteChildren,
+)
+
+interface AppRouteRouteChildren {
+  AppEspaceRouteRoute: typeof AppEspaceRouteRouteWithChildren
+  AppConfirmerRoute: typeof AppConfirmerRoute
+  AppLoginRoute: typeof AppLoginRoute
+  AppReinitialiserRoute: typeof AppReinitialiserRoute
+}
+
+const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppEspaceRouteRoute: AppEspaceRouteRouteWithChildren,
+  AppConfirmerRoute: AppConfirmerRoute,
+  AppLoginRoute: AppLoginRoute,
+  AppReinitialiserRoute: AppReinitialiserRoute,
+}
+
+const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
+  AppRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  R404Route: R404Route,
-  AboutRoute: AboutRoute,
-  AgentIaRoute: AgentIaRoute,
-  CaseStudiesRoute: CaseStudiesRoute,
-  ContactRoute: ContactRoute,
-  InsightsRoute: InsightsRoute,
-  PortfolioRoute: PortfolioRoute,
-  ServicesRoute: ServicesRoute,
-  TarifsRoute: TarifsRoute,
-  En404Route: En404Route,
-  EnAboutRoute: EnAboutRoute,
-  EnAiAgentRoute: EnAiAgentRoute,
-  EnCaseStudiesRoute: EnCaseStudiesRoute,
-  EnContactRoute: EnContactRoute,
-  EnInsightsRoute: EnInsightsRoute,
-  EnPortfolioRoute: EnPortfolioRoute,
-  EnPricingRoute: EnPricingRoute,
-  EnServicesRoute: EnServicesRoute,
-  EnIndexRoute: EnIndexRoute,
+  SiteRouteRoute: SiteRouteRouteWithChildren,
+  AppRouteRoute: AppRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

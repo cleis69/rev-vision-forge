@@ -1,17 +1,22 @@
-// Runs before static assets for two things only:
+// Runs before static assets for three things only:
 // - /media/*: byte-range responses — Safari (iPhone, iPad, Mac) only plays
 //   video that is served in 206 partial responses.
 // - private pages (PRIVATE_PAGES in src/lib/i18n.ts): a password prompt. The
 //   password is the Worker secret AGENT_PASSWORD; while it is not set, the
 //   pages stay closed to everyone.
+// - /app/…: the promoter space, served from the SPA shell (_shell.html).
 // Everything else on the site is served straight from static assets.
 import SIZES from "./media-sizes.json";
 
 const PRIVATE = /^\/(agent-ia|en\/ai-agent)(\.html|\/)?$/;
+// Promoter space: rendered in the browser from the SPA shell of the build.
+const APP = /^\/app(\/|$)/;
 
 export default {
   async fetch(request, env) {
-    if (PRIVATE.test(new URL(request.url).pathname)) return privatePage(request, env);
+    const { pathname } = new URL(request.url);
+    if (PRIVATE.test(pathname)) return privatePage(request, env);
+    if (APP.test(pathname)) return appShell(request, env);
 
     const res = await env.ASSETS.fetch(request);
     const range = request.headers.get("range");
@@ -73,6 +78,14 @@ function slice(start, end) {
       if (chunkEnd > end) controller.terminate();
     },
   });
+}
+
+async function appShell(request, env) {
+  const res = await env.ASSETS.fetch(new Request(new URL("/_shell", request.url), request));
+  const headers = new Headers(res.headers);
+  headers.set("cache-control", "no-cache");
+  headers.set("x-robots-tag", "noindex, nofollow");
+  return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
 }
 
 async function privatePage(request, env) {

@@ -34,7 +34,7 @@ const collect = (dir) => {
     }
     if (!name.endsWith(".html")) continue;
     const rel = relative(root, file).split("\\").join("/");
-    if (rel === "404.html" || rel.endsWith("/404.html")) continue;
+    if (rel === "404.html" || rel.endsWith("/404.html") || rel === "_shell.html") continue;
     // Private pages (noindex) stay out of the sitemap.
     if (/<meta name="robots" content="noindex/.test(readFileSync(file, "utf8"))) continue;
     pages.push(rel === "index.html" ? "/" : `/${rel.replace(/\.html$/, "")}`);
@@ -74,7 +74,11 @@ ${pages
 </urlset>
 `,
 );
-writeFileSync(join(root, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
+writeFileSync(
+  join(root, "robots.txt"),
+  `User-agent: *\nAllow: /\nDisallow: /app\n\nSitemap: ${SITE}/sitemap.xml\n`,
+);
+if (!existsSync(join(root, "_shell.html"))) throw new Error("missing _shell.html (SPA shell of /app)");
 
 // Media sizes for the range-serving Worker (deploy/worker.js).
 const sizes = {};

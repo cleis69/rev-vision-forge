@@ -14,8 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SITE_URL } from "@/lib/contact";
 import { href, useLocale } from "@/lib/i18n";
 import { NotFoundPage } from "@/components/pages/NotFoundPage";
-import { Header } from "@/components/rev/Header";
-import { Footer } from "@/components/rev/FinalCta";
+import { SiteChrome } from "@/components/rev/SiteChrome";
 
 const ERROR_COPY = {
   fr: {
@@ -104,7 +103,7 @@ export const Route = createRootRoute({
   }),
   shellComponent: RootShell,
   component: RootComponent,
-  notFoundComponent: NotFoundPage,
+  notFoundComponent: NotFound,
   errorComponent: ErrorComponent,
 });
 
@@ -127,15 +126,17 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+// The showcase site (routes/_site) and the promoter space (routes/app) each
+// bring their own layout.
 function RootComponent() {
+  /* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */
+  return <Outlet />;
+}
+
+function NotFound() {
   return (
-    <>
-      <Header />
-      <main>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-      </main>
-      <Footer />
-    </>
+    <SiteChrome>
+      <NotFoundPage />
+    </SiteChrome>
   );
 }

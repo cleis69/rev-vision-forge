@@ -17,10 +17,20 @@ export default defineConfig({
     server: { entry: "server" },
     ...(isStatic
       ? {
-          prerender: { enabled: true, crawlLinks: true, failOnError: true },
+          prerender: {
+            enabled: true,
+            crawlLinks: true,
+            failOnError: true,
+            // /app pages are rendered in the browser from the shell below.
+            filter: ({ path }: { path: string }) => !path.startsWith("/app/"),
+          },
           // Not linked from anywhere, so not found by the crawler. The AI agent
           // page is private for now (PRIVATE_PAGES in src/lib/i18n.ts).
           pages: [{ path: "/404" }, { path: "/en/404" }, { path: "/agent-ia" }, { path: "/en/ai-agent" }],
+          // Empty page for the browser-only promoter space: the Worker serves
+          // it for every /app/… address and the router takes over.
+          // (rendered at /app, so it does not take the place of the home page).
+          spa: { enabled: true, maskPath: "/app" },
         }
       : {}),
   },

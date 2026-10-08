@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PricingPage } from "@/components/pages/PricingPage";
 import { pricingHead } from "@/lib/seo";
 
-export const Route = createFileRoute("/en/pricing")({
+export const Route = createFileRoute("/_site/en/pricing")({
   head: () => pricingHead("en"),
   component: PricingPage,
 });

@@ -105,7 +105,7 @@ export function ToursSection({
   const typeCount = (type: string) =>
     lots.filter((l) => l.type && normalizeType(l.type) === normalizeType(type)).length;
   return (
-    <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <ul className={tours.length === 1 ? "grid" : "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"}>
       {tours.map((tour) => {
         const lot = tour.lotId ? lots.find((l) => l.id === tour.lotId) : undefined;
         const count = tour.lotType ? typeCount(tour.lotType) : 0;

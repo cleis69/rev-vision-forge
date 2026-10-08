@@ -18,6 +18,12 @@ const LABELS: Record<Filter, string> = {
   video: "Vidéos",
 };
 const FIRST_SHOWN = 12;
+const FEW_COLUMNS: Record<number, string> = {
+  0: "",
+  1: "sm:max-w-3xl",
+  2: "sm:grid-cols-2",
+  3: "sm:grid-cols-3",
+};
 
 const matches = (item: MediaItem, filter: Filter) =>
   filter === "tout" || (filter === "video" ? item.kind === "video" : item.meta.category === filter);
@@ -38,6 +44,7 @@ export function Gallery({ items, name }: { items: MediaItem[]; name: string }) {
 
   const shown = items.filter((m) => matches(m, filter));
   const visible = all ? shown : shown.slice(0, FIRST_SHOWN);
+  const few = visible.length <= 3;
 
   return (
     <>
@@ -75,18 +82,33 @@ export function Gallery({ items, name }: { items: MediaItem[]; name: string }) {
         </div>
       ) : null}
 
-      <ul className="grid auto-rows-[8.5rem] grid-cols-2 gap-2 [grid-auto-flow:dense] sm:auto-rows-[11rem] lg:grid-cols-4">
+      <ul
+        className={cn(
+          "grid gap-2 sm:gap-3",
+          // A few items side by side; more in a mosaic.
+          few
+            ? FEW_COLUMNS[visible.length]
+            : "auto-rows-[8.5rem] grid-cols-2 [grid-auto-flow:dense] sm:auto-rows-[11rem] lg:grid-cols-4",
+        )}
+      >
         {visible.map((item, i) => (
           <li
             key={item.id}
             className={cn(
+              few && "aspect-[4/3]",
               // A rhythm of large and small tiles, the first one larger.
-              i === 0 && "col-span-2 row-span-2",
-              i > 0 && i % 7 === 3 && "row-span-2",
-              i > 0 && i % 7 === 6 && "col-span-2",
+              !few && i === 0 && "col-span-2 row-span-2",
+              !few && i > 0 && i % 7 === 3 && "row-span-2",
+              !few && i > 0 && i % 7 === 6 && "col-span-2",
             )}
           >
-            <Tile item={item} index={i} name={name} onOpen={() => setOpen(i)} large={i === 0} />
+            <Tile
+              item={item}
+              index={i}
+              name={name}
+              onOpen={() => setOpen(i)}
+              large={few || i === 0}
+            />
           </li>
         ))}
       </ul>

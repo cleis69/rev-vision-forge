@@ -43,6 +43,7 @@ export function Typologies({
             showPrices={showPrices}
             onShowLots={() => onShowLots(t.name)}
             tour={tourFor(t.name)}
+            wide={types.length === 1}
           />
         </li>
       ))}
@@ -56,12 +57,15 @@ function TypeCard({
   showPrices,
   onShowLots,
   tour,
+  wide,
 }: {
   type: Typology;
   currency: string;
   showPrices: boolean;
   onShowLots: () => void;
   tour: ReactNode;
+  /** The only type: photo beside the text on a wide screen. */
+  wide: boolean;
 }) {
   const [viewing, setViewing] = useState<{ items: MediaItem[]; index: number } | null>(null);
   const cover = type.photos[0] ? mediaImage(type.photos[0]) : null;
@@ -76,12 +80,20 @@ function TypeCard({
         : null;
 
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
+    <article
+      className={cn(
+        "flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]",
+        wide && "md:flex-row",
+      )}
+    >
       <button
         type="button"
         disabled={gallery.length === 0}
         onClick={() => setViewing({ items: gallery, index: 0 })}
-        className="group relative block aspect-[16/10] w-full overflow-hidden bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70 disabled:cursor-default"
+        className={cn(
+          "group relative block aspect-[16/10] w-full shrink-0 overflow-hidden bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70 disabled:cursor-default",
+          wide && "md:aspect-auto md:min-h-80 md:w-1/2",
+        )}
         aria-label={gallery.length ? `Photos : ${type.name}` : type.name}
       >
         {cover ? (

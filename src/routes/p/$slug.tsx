@@ -617,13 +617,21 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
 
         {tours.length > 0 ? (
           <section id="visite-360" className="scroll-mt-20 border-t border-white/10">
-            <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8 sm:py-14">
-              <SectionTitle title="Visite 360°" />
-              <p className="mt-3 max-w-2xl text-base leading-relaxed text-white/65">
-                Entrez dans les logements : tournez la tête du bout du doigt, et suivez les flèches
-                d'une pièce à l'autre.
-              </p>
-              <div className="mt-6">
+            <div
+              className={cn(
+                "mx-auto max-w-6xl px-5 py-10 sm:px-8 sm:py-14",
+                // A single tour beside its text rather than alone in a wide row.
+                tours.length === 1 && "lg:grid lg:grid-cols-[1fr_1.25fr] lg:items-center lg:gap-12",
+              )}
+            >
+              <div>
+                <SectionTitle title="Visite 360°" />
+                <p className="mt-3 max-w-2xl text-base leading-relaxed text-white/65">
+                  Entrez dans les logements : tournez la tête du bout du doigt, et suivez les
+                  flèches d'une pièce à l'autre.
+                </p>
+              </div>
+              <div className={tours.length === 1 ? "mt-6 lg:mt-0" : "mt-6"}>
                 <ToursSection tours={tours} lots={lots} onOpen={(t) => openTour(t, null)} />
               </div>
             </div>

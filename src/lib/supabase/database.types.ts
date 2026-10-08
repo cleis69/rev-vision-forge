@@ -343,6 +343,48 @@ export type Database = {
           },
         ];
       };
+      orbit_colors: {
+        Row: {
+          created_at: string;
+          hex: string;
+          id: string;
+          lot_id: string | null;
+          project_id: string;
+          share: number;
+        };
+        Insert: {
+          created_at?: string;
+          hex: string;
+          id?: string;
+          lot_id?: string | null;
+          project_id: string;
+          share?: number;
+        };
+        Update: {
+          created_at?: string;
+          hex?: string;
+          id?: string;
+          lot_id?: string | null;
+          project_id?: string;
+          share?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "orbit_colors_lot_id_project_id_fkey";
+            columns: ["lot_id", "project_id"];
+            isOneToOne: false;
+            referencedRelation: "lots";
+            referencedColumns: ["id", "project_id"];
+          },
+          {
+            foreignKeyName: "orbit_colors_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       organizations: {
         Row: {
           brand_color: string | null;

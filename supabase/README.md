@@ -54,6 +54,16 @@ Situation :
   `public_projects`. Carte : OpenFreeMap (sans clé ni cookie) ; recherche d'adresse dans
   l'espace promoteur : Nominatim (OpenStreetMap), à la demande seulement.
 
+Vue orbitale :
+
+- La séquence est dans `media` : `orbit_frame` (vues WebP en 2 048 et 1 280 px) et
+  `orbit_mask` (masques PNG en 1 024 px, réduits sans lissage), rangées par `sort_order`,
+  fichiers dans `<organisation>/<programme>/orbit/<séquence>/`.
+- `orbit_colors` liste les couleurs trouvées dans les masques (part des pixels) et le lot
+  de chacune ; `lot_id` reste vide tant que le promoteur ne l'a pas associée, et le
+  redevient si le lot est supprimé. Une couleur par lot. Lecture publique pour les
+  programmes publiés, écriture par les membres.
+
 Statistiques :
 
 - Les pages publiques enregistrent dans `lot_events` les affichages de la page, les

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { EmptyState } from "@/components/app/Blocks";
 import { ConfirmDialog } from "@/components/app/ConfirmDialog";
+import { OrbitSection } from "@/components/app/orbit/OrbitSection";
 import { useCurrentProject } from "@/components/app/ProjectContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -181,6 +182,8 @@ function MediaPage() {
           ))}
         </ul>
       )}
+
+      <OrbitSection project={project} lots={lots.data ?? []} />
 
       <ConfirmDialog
         open={toDelete.open}

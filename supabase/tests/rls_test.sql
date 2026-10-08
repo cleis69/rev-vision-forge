@@ -49,6 +49,8 @@ begin
     (p_pub, lot_pub, 'Fixture', '+212600000000', 'fixture');
   insert into public.media (project_id, lot_id, kind, path) values
     (p_pub, lot_pub, 'image', 'fixture/pub.webp'), (p_draft, null, 'image', 'fixture/draft.webp');
+  insert into public.orbit_colors (project_id, hex, share, lot_id) values
+    (p_pub, '#ff0000', 0.1, lot_pub), (p_draft, '#00ff00', 0.1, lot_draft);
   -- Visits for the statistics: today, 10 days ago (previous week), 40 days ago.
   insert into public.lot_events (project_id, lot_id, type, session_id, created_at) values
     (p_pub, null, 'vue_page', 'stat-a', now()),
@@ -230,6 +232,17 @@ begin
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'visiteur : situation absente de public_projects'::text; end if;
 
   set local role anon;
+  select count(*) into n from public.orbit_colors where project_id in (p_pub, p_draft);
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'visiteur : couleurs orbitales d''un brouillon visibles (ou celles du publié absentes)'::text; end if;
+
+  set local role anon;
+  begin insert into public.orbit_colors (project_id, hex) values (p_pub, '#0000ff'); ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : ajoute une couleur orbitale'::text; end if;
+
+  set local role anon;
   begin perform public.project_stats(p_pub, 7, 'UTC'); ok := false;
   exception when insufficient_privilege then ok := true; end;
   reset role;
@@ -305,6 +318,11 @@ begin
   reset role;
   total := total + 1; if not ok then failed := failed + 1; report := report || 'autre organisation : lit les statistiques'::text; end if;
 
+  set local role authenticated;
+  update public.orbit_colors set lot_id = null where project_id = p_pub; get diagnostics n = row_count;
+  reset role;
+  total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'autre organisation : modifie une couleur orbitale'::text; end if;
+
   ------------------------------------------------------ commercial of A
   perform set_config('request.jwt.claims', json_build_object('sub', commercial_a, 'role', 'authenticated')::text, true);
   perform set_config('request.jwt.claim.sub', commercial_a::text, true);
@@ -350,6 +368,11 @@ begin
   update public.lots set statut = 'reservee' where id = lot_pub; get diagnostics n = row_count;
   reset role;
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas changer un statut'::text; end if;
+
+  set local role authenticated;
+  update public.orbit_colors set share = 0.2 where project_id = p_pub; get diagnostics n = row_count;
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas régler les couleurs orbitales'::text; end if;
 
   set local role authenticated;
   update public.leads set status = 'traite' where project_id = p_pub; get diagnostics n = row_count;
@@ -533,6 +556,8 @@ begin
   delete from public.lots where id = lot_pub;
   select count(*) into n from public.leads where project_id = p_pub and lot_id is null and nom = 'Fixture';
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'suppression d''un lot : demande perdue'::text; end if;
+  select count(*) into n from public.orbit_colors where project_id = p_pub and hex = '#ff0000' and lot_id is null;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'suppression d''un lot : couleur orbitale perdue'::text; end if;
 
   begin delete from public.organizations where id = org_b; ok := true;
   exception when others then ok := false; end;

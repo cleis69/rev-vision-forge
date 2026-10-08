@@ -18,11 +18,11 @@ export const Route = createFileRoute("/app/_espace/projets/$id")({
 const TABS = [
   { label: "Plan", to: "/app/projets/$id/plan" },
   { label: "Lots", to: "/app/projets/$id/lots" },
-  { label: "Médias" },
+  { label: "Médias", to: "/app/projets/$id/medias" },
   { label: "Marque" },
   { label: "Demandes" },
   { label: "Statistiques" },
-  { label: "Partage" },
+  { label: "Partage", to: "/app/projets/$id/partage" },
   { label: "Réglages", to: "/app/projets/$id/reglages" },
 ] as const;
 

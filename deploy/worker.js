@@ -4,19 +4,22 @@
 // - private pages (PRIVATE_PAGES in src/lib/i18n.ts): a password prompt. The
 //   password is the Worker secret AGENT_PASSWORD; while it is not set, the
 //   pages stay closed to everyone.
-// - /app/…: the promoter space, served from the SPA shell (_shell.html).
+// - /app/…: the promoter space, and /p/…: the public pages of the programmes,
+//   both rendered in the browser from the SPA shell (_shell.html).
 // Everything else on the site is served straight from static assets.
 import SIZES from "./media-sizes.json";
 
 const PRIVATE = /^\/(agent-ia|en\/ai-agent)(\.html|\/)?$/;
-// Promoter space: rendered in the browser from the SPA shell of the build.
+// Promoter space and public programme pages: rendered in the browser from the
+// SPA shell of the build, never indexed (programmes are shared by link).
 const APP = /^\/app(\/|$)/;
+const PROGRAMME = /^\/p\/[^/]+/;
 
 export default {
   async fetch(request, env) {
     const { pathname } = new URL(request.url);
     if (PRIVATE.test(pathname)) return privatePage(request, env);
-    if (APP.test(pathname)) return appShell(request, env);
+    if (APP.test(pathname) || PROGRAMME.test(pathname)) return appShell(request, env);
 
     const res = await env.ASSETS.fetch(request);
     const range = request.headers.get("range");

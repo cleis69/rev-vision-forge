@@ -19,12 +19,12 @@ import { STATUS_LABELS, type Lot, type LotStatus } from "@/lib/app/lot-fields";
 import { useDeleteShape, useSaveShape } from "@/lib/app/plan";
 import { centroid, clamp01, isValidShape, midpoints, type Point } from "@/lib/geometry";
 import { cn } from "@/lib/utils";
+import { fitView, pinchView, zoomBounds, zoomView, type View } from "@/lib/viewport";
 
 /* Shapes of the lots on the plan. The image keeps its own pixel size inside a
    zoomed and panned layer; an SVG of the same size draws the shapes, whose
    points are stored from 0 to 1. A click adds a point, a drag moves the plan. */
 
-type View = { k: number; x: number; y: number };
 type Drag =
   | {
       kind: "pending" | "pan";
@@ -105,10 +105,10 @@ export function PlanEditor({
   const fit = useCallback(() => {
     const el = viewport.current;
     if (!el) return;
-    const k = Math.min(el.clientWidth / W, el.clientHeight / H) * 0.96;
-    fitK.current = k;
+    const next = fitView(el.clientWidth, el.clientHeight, W, H);
+    fitK.current = next.k;
     fitted.current = true;
-    setView({ k, x: (el.clientWidth - W * k) / 2, y: (el.clientHeight - H * k) / 2 });
+    setView(next);
   }, [W, H]);
 
   useEffect(() => {
@@ -129,13 +129,8 @@ export function PlanEditor({
     const px = clientX - rect.left;
     const py = clientY - rect.top;
     fitted.current = false;
-    setView((v) => {
-      const k = Math.min(
-        Math.max(v.k * factor, fitK.current * 0.5),
-        Math.max(fitK.current * 24, 2),
-      );
-      return { k, x: px - ((px - v.x) * k) / v.k, y: py - ((py - v.y) * k) / v.k };
-    });
+    const { min, max } = zoomBounds(fitK.current);
+    setView((v) => zoomView(v, px, py, factor, min, max));
   }, []);
 
   const zoomCenter = (factor: number) => {
@@ -307,16 +302,19 @@ export function PlanEditor({
         { x: number; y: number },
       ];
       if (!rect) return;
-      const k = Math.min(
-        Math.max((d.view.k * Math.hypot(a.x - b.x, a.y - b.y)) / d.distance, fitK.current * 0.5),
-        Math.max(fitK.current * 24, 2),
-      );
-      const cx = (a.x + b.x) / 2 - rect.left;
-      const cy = (a.y + b.y) / 2 - rect.top;
-      const ox = (d.center.x - rect.left - d.view.x) / d.view.k;
-      const oy = (d.center.y - rect.top - d.view.y) / d.view.k;
+      const { min, max } = zoomBounds(fitK.current);
       fitted.current = false;
-      setView({ k, x: cx - ox * k, y: cy - oy * k });
+      setView(
+        pinchView(
+          d.view,
+          { x: d.center.x - rect.left, y: d.center.y - rect.top },
+          d.distance,
+          { x: (a.x + b.x) / 2 - rect.left, y: (a.y + b.y) / 2 - rect.top },
+          Math.hypot(a.x - b.x, a.y - b.y),
+          min,
+          max,
+        ),
+      );
       return;
     }
     if (d?.kind === "pending" && Math.hypot(e.clientX - d.x, e.clientY - d.y) > 4) {

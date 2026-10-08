@@ -22,7 +22,8 @@ export default defineConfig({
             crawlLinks: true,
             failOnError: true,
             // /app pages are rendered in the browser from the shell below.
-            filter: ({ path }: { path: string }) => !path.startsWith("/app/"),
+            filter: ({ path }: { path: string }) =>
+              !path.startsWith("/app/") && path !== "/p" && !path.startsWith("/p/"),
           },
           // Not linked from anywhere, so not found by the crawler. The AI agent
           // page is private for now (PRIVATE_PAGES in src/lib/i18n.ts).

@@ -43,6 +43,8 @@ begin
     (lot_pub, p_pub, '[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]]');
   insert into public.leads (project_id, lot_id, nom, telephone, session_id) values
     (p_pub, lot_pub, 'Fixture', '+212600000000', 'fixture');
+  insert into public.media (project_id, lot_id, kind, path) values
+    (p_pub, lot_pub, 'image', 'fixture/pub.webp'), (p_draft, null, 'image', 'fixture/draft.webp');
 
   ---------------------------------------------------------------- visitor
   perform set_config('request.jwt.claims', '{"role":"anon"}', true);
@@ -180,6 +182,22 @@ begin
   reset role;
   total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : trace une forme'::text; end if;
 
+  set local role anon;
+  select count(*) into n from public.media where project_id in (p_pub, p_draft);
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'visiteur : photos d''un brouillon visibles (ou celles du publié absentes)'::text; end if;
+
+  set local role anon;
+  select count(*) into n from public.public_projects where id = p_draft;
+  reset role;
+  total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'visiteur : brouillon présent dans public_projects'::text; end if;
+
+  set local role anon;
+  begin insert into public.media (project_id, kind, path) values (p_pub, 'image', 'pirate.webp'); ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : ajoute une photo'::text; end if;
+
   ------------------------------------------- signed in, other organization
   perform set_config('request.jwt.claims', json_build_object('sub', owner_b, 'role', 'authenticated')::text, true);
   perform set_config('request.jwt.claim.sub', owner_b::text, true);
@@ -312,6 +330,16 @@ begin
   select private.can_write_media(org_a || '/' || p_pub || '/plan/plan.webp') into ok;
   reset role;
   total := total + 1; if not ok then failed := failed + 1; report := report || 'commercial : ne peut pas gérer le plan de son programme'::text; end if;
+
+  set local role authenticated;
+  update public.media set meta = '{"caption": "Vue mer"}' where project_id = p_pub; get diagnostics n = row_count;
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas légender une photo'::text; end if;
+
+  set local role authenticated;
+  select count(*) into n from public.media where project_id = p_draft;
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne voit pas les photos de son brouillon'::text; end if;
 
   ---------------------------------------------------------- owner of A
   perform set_config('request.jwt.claims', json_build_object('sub', owner_a, 'role', 'authenticated')::text, true);

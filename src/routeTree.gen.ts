@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SiteRouteRouteImport } from './routes/_site/route'
 import { Route as AppRouteRouteImport } from './routes/app/route'
+import { Route as PRouteRouteImport } from './routes/p/route'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
 import { Route as Site404RouteImport } from './routes/_site/404'
 import { Route as SiteAboutRouteImport } from './routes/_site/about'
@@ -25,6 +26,7 @@ import { Route as AppEspaceRouteRouteImport } from './routes/app/_espace/route'
 import { Route as AppConfirmerRouteImport } from './routes/app/confirmer'
 import { Route as AppLoginRouteImport } from './routes/app/login'
 import { Route as AppReinitialiserRouteImport } from './routes/app/reinitialiser'
+import { Route as PSlugRouteImport } from './routes/p/$slug'
 import { Route as SiteEnIndexRouteImport } from './routes/_site/en/index'
 import { Route as SiteEn404RouteImport } from './routes/_site/en/404'
 import { Route as SiteEnAboutRouteImport } from './routes/_site/en/about'
@@ -40,6 +42,8 @@ import { Route as AppEspaceOrganisationRouteImport } from './routes/app/_espace/
 import { Route as AppEspaceProjetsIdRouteRouteImport } from './routes/app/_espace/projets/$id/route'
 import { Route as AppEspaceProjetsIdIndexRouteImport } from './routes/app/_espace/projets/$id/index'
 import { Route as AppEspaceProjetsIdLotsRouteImport } from './routes/app/_espace/projets/$id/lots'
+import { Route as AppEspaceProjetsIdMediasRouteImport } from './routes/app/_espace/projets/$id/medias'
+import { Route as AppEspaceProjetsIdPartageRouteImport } from './routes/app/_espace/projets/$id/partage'
 import { Route as AppEspaceProjetsIdPlanRouteImport } from './routes/app/_espace/projets/$id/plan'
 import { Route as AppEspaceProjetsIdReglagesRouteImport } from './routes/app/_espace/projets/$id/reglages'
 
@@ -50,6 +54,11 @@ const SiteRouteRoute = SiteRouteRouteImport.update({
 const AppRouteRoute = AppRouteRouteImport.update({
   id: '/app',
   path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PRouteRoute = PRouteRouteImport.update({
+  id: '/p',
+  path: '/p',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SiteIndexRoute = SiteIndexRouteImport.update({
@@ -120,6 +129,11 @@ const AppReinitialiserRoute = AppReinitialiserRouteImport.update({
   id: '/reinitialiser',
   path: '/reinitialiser',
   getParentRoute: () => AppRouteRoute,
+} as any)
+const PSlugRoute = PSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => PRouteRoute,
 } as any)
 const SiteEnIndexRoute = SiteEnIndexRouteImport.update({
   id: '/en/',
@@ -196,6 +210,18 @@ const AppEspaceProjetsIdLotsRoute = AppEspaceProjetsIdLotsRouteImport.update({
   path: '/lots',
   getParentRoute: () => AppEspaceProjetsIdRouteRoute,
 } as any)
+const AppEspaceProjetsIdMediasRoute =
+  AppEspaceProjetsIdMediasRouteImport.update({
+    id: '/medias',
+    path: '/medias',
+    getParentRoute: () => AppEspaceProjetsIdRouteRoute,
+  } as any)
+const AppEspaceProjetsIdPartageRoute =
+  AppEspaceProjetsIdPartageRouteImport.update({
+    id: '/partage',
+    path: '/partage',
+    getParentRoute: () => AppEspaceProjetsIdRouteRoute,
+  } as any)
 const AppEspaceProjetsIdPlanRoute = AppEspaceProjetsIdPlanRouteImport.update({
   id: '/plan',
   path: '/plan',
@@ -211,6 +237,7 @@ const AppEspaceProjetsIdReglagesRoute =
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
   '/app': typeof AppRouteRouteWithChildren
+  '/p': typeof PRouteRouteWithChildren
   '/404': typeof Site404Route
   '/about': typeof SiteAboutRoute
   '/agent-ia': typeof SiteAgentIaRoute
@@ -223,6 +250,7 @@ export interface FileRoutesByFullPath {
   '/app/confirmer': typeof AppConfirmerRoute
   '/app/login': typeof AppLoginRoute
   '/app/reinitialiser': typeof AppReinitialiserRoute
+  '/p/$slug': typeof PSlugRoute
   '/en/404': typeof SiteEn404Route
   '/en/about': typeof SiteEnAboutRoute
   '/en/ai-agent': typeof SiteEnAiAgentRoute
@@ -237,12 +265,15 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppEspaceIndexRoute
   '/app/projets/$id': typeof AppEspaceProjetsIdRouteRouteWithChildren
   '/app/projets/$id/lots': typeof AppEspaceProjetsIdLotsRoute
+  '/app/projets/$id/medias': typeof AppEspaceProjetsIdMediasRoute
+  '/app/projets/$id/partage': typeof AppEspaceProjetsIdPartageRoute
   '/app/projets/$id/plan': typeof AppEspaceProjetsIdPlanRoute
   '/app/projets/$id/reglages': typeof AppEspaceProjetsIdReglagesRoute
   '/app/projets/$id/': typeof AppEspaceProjetsIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/app': typeof AppEspaceIndexRoute
+  '/p': typeof PRouteRouteWithChildren
   '/404': typeof Site404Route
   '/about': typeof SiteAboutRoute
   '/agent-ia': typeof SiteAgentIaRoute
@@ -255,6 +286,7 @@ export interface FileRoutesByTo {
   '/app/confirmer': typeof AppConfirmerRoute
   '/app/login': typeof AppLoginRoute
   '/app/reinitialiser': typeof AppReinitialiserRoute
+  '/p/$slug': typeof PSlugRoute
   '/': typeof SiteIndexRoute
   '/en/404': typeof SiteEn404Route
   '/en/about': typeof SiteEnAboutRoute
@@ -268,6 +300,8 @@ export interface FileRoutesByTo {
   '/app/organisation': typeof AppEspaceOrganisationRoute
   '/en': typeof SiteEnIndexRoute
   '/app/projets/$id/lots': typeof AppEspaceProjetsIdLotsRoute
+  '/app/projets/$id/medias': typeof AppEspaceProjetsIdMediasRoute
+  '/app/projets/$id/partage': typeof AppEspaceProjetsIdPartageRoute
   '/app/projets/$id/plan': typeof AppEspaceProjetsIdPlanRoute
   '/app/projets/$id/reglages': typeof AppEspaceProjetsIdReglagesRoute
   '/app/projets/$id': typeof AppEspaceProjetsIdIndexRoute
@@ -276,6 +310,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_site': typeof SiteRouteRouteWithChildren
   '/app': typeof AppRouteRouteWithChildren
+  '/p': typeof PRouteRouteWithChildren
   '/app/_espace': typeof AppEspaceRouteRouteWithChildren
   '/_site/404': typeof Site404Route
   '/_site/about': typeof SiteAboutRoute
@@ -289,6 +324,7 @@ export interface FileRoutesById {
   '/app/confirmer': typeof AppConfirmerRoute
   '/app/login': typeof AppLoginRoute
   '/app/reinitialiser': typeof AppReinitialiserRoute
+  '/p/$slug': typeof PSlugRoute
   '/_site/': typeof SiteIndexRoute
   '/_site/en/404': typeof SiteEn404Route
   '/_site/en/about': typeof SiteEnAboutRoute
@@ -304,6 +340,8 @@ export interface FileRoutesById {
   '/app/_espace/': typeof AppEspaceIndexRoute
   '/app/_espace/projets/$id': typeof AppEspaceProjetsIdRouteRouteWithChildren
   '/app/_espace/projets/$id/lots': typeof AppEspaceProjetsIdLotsRoute
+  '/app/_espace/projets/$id/medias': typeof AppEspaceProjetsIdMediasRoute
+  '/app/_espace/projets/$id/partage': typeof AppEspaceProjetsIdPartageRoute
   '/app/_espace/projets/$id/plan': typeof AppEspaceProjetsIdPlanRoute
   '/app/_espace/projets/$id/reglages': typeof AppEspaceProjetsIdReglagesRoute
   '/app/_espace/projets/$id/': typeof AppEspaceProjetsIdIndexRoute
@@ -313,6 +351,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/app'
+    | '/p'
     | '/404'
     | '/about'
     | '/agent-ia'
@@ -325,6 +364,7 @@ export interface FileRouteTypes {
     | '/app/confirmer'
     | '/app/login'
     | '/app/reinitialiser'
+    | '/p/$slug'
     | '/en/404'
     | '/en/about'
     | '/en/ai-agent'
@@ -339,12 +379,15 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/projets/$id'
     | '/app/projets/$id/lots'
+    | '/app/projets/$id/medias'
+    | '/app/projets/$id/partage'
     | '/app/projets/$id/plan'
     | '/app/projets/$id/reglages'
     | '/app/projets/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/app'
+    | '/p'
     | '/404'
     | '/about'
     | '/agent-ia'
@@ -357,6 +400,7 @@ export interface FileRouteTypes {
     | '/app/confirmer'
     | '/app/login'
     | '/app/reinitialiser'
+    | '/p/$slug'
     | '/'
     | '/en/404'
     | '/en/about'
@@ -370,6 +414,8 @@ export interface FileRouteTypes {
     | '/app/organisation'
     | '/en'
     | '/app/projets/$id/lots'
+    | '/app/projets/$id/medias'
+    | '/app/projets/$id/partage'
     | '/app/projets/$id/plan'
     | '/app/projets/$id/reglages'
     | '/app/projets/$id'
@@ -377,6 +423,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_site'
     | '/app'
+    | '/p'
     | '/app/_espace'
     | '/_site/404'
     | '/_site/about'
@@ -390,6 +437,7 @@ export interface FileRouteTypes {
     | '/app/confirmer'
     | '/app/login'
     | '/app/reinitialiser'
+    | '/p/$slug'
     | '/_site/'
     | '/_site/en/404'
     | '/_site/en/about'
@@ -405,6 +453,8 @@ export interface FileRouteTypes {
     | '/app/_espace/'
     | '/app/_espace/projets/$id'
     | '/app/_espace/projets/$id/lots'
+    | '/app/_espace/projets/$id/medias'
+    | '/app/_espace/projets/$id/partage'
     | '/app/_espace/projets/$id/plan'
     | '/app/_espace/projets/$id/reglages'
     | '/app/_espace/projets/$id/'
@@ -413,6 +463,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   SiteRouteRoute: typeof SiteRouteRouteWithChildren
   AppRouteRoute: typeof AppRouteRouteWithChildren
+  PRouteRoute: typeof PRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -429,6 +480,13 @@ declare module '@tanstack/react-router' {
       path: '/app'
       fullPath: '/app'
       preLoaderRoute: typeof AppRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/p': {
+      id: '/p'
+      path: '/p'
+      fullPath: '/p'
+      preLoaderRoute: typeof PRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_site/': {
@@ -528,6 +586,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/reinitialiser'
       preLoaderRoute: typeof AppReinitialiserRouteImport
       parentRoute: typeof AppRouteRoute
+    }
+    '/p/$slug': {
+      id: '/p/$slug'
+      path: '/$slug'
+      fullPath: '/p/$slug'
+      preLoaderRoute: typeof PSlugRouteImport
+      parentRoute: typeof PRouteRoute
     }
     '/_site/en/': {
       id: '/_site/en/'
@@ -634,6 +699,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEspaceProjetsIdLotsRouteImport
       parentRoute: typeof AppEspaceProjetsIdRouteRoute
     }
+    '/app/_espace/projets/$id/medias': {
+      id: '/app/_espace/projets/$id/medias'
+      path: '/medias'
+      fullPath: '/app/projets/$id/medias'
+      preLoaderRoute: typeof AppEspaceProjetsIdMediasRouteImport
+      parentRoute: typeof AppEspaceProjetsIdRouteRoute
+    }
+    '/app/_espace/projets/$id/partage': {
+      id: '/app/_espace/projets/$id/partage'
+      path: '/partage'
+      fullPath: '/app/projets/$id/partage'
+      preLoaderRoute: typeof AppEspaceProjetsIdPartageRouteImport
+      parentRoute: typeof AppEspaceProjetsIdRouteRoute
+    }
     '/app/_espace/projets/$id/plan': {
       id: '/app/_espace/projets/$id/plan'
       path: '/plan'
@@ -703,6 +782,8 @@ const SiteRouteRouteWithChildren = SiteRouteRoute._addFileChildren(
 
 interface AppEspaceProjetsIdRouteRouteChildren {
   AppEspaceProjetsIdLotsRoute: typeof AppEspaceProjetsIdLotsRoute
+  AppEspaceProjetsIdMediasRoute: typeof AppEspaceProjetsIdMediasRoute
+  AppEspaceProjetsIdPartageRoute: typeof AppEspaceProjetsIdPartageRoute
   AppEspaceProjetsIdPlanRoute: typeof AppEspaceProjetsIdPlanRoute
   AppEspaceProjetsIdReglagesRoute: typeof AppEspaceProjetsIdReglagesRoute
   AppEspaceProjetsIdIndexRoute: typeof AppEspaceProjetsIdIndexRoute
@@ -711,6 +792,8 @@ interface AppEspaceProjetsIdRouteRouteChildren {
 const AppEspaceProjetsIdRouteRouteChildren: AppEspaceProjetsIdRouteRouteChildren =
   {
     AppEspaceProjetsIdLotsRoute: AppEspaceProjetsIdLotsRoute,
+    AppEspaceProjetsIdMediasRoute: AppEspaceProjetsIdMediasRoute,
+    AppEspaceProjetsIdPartageRoute: AppEspaceProjetsIdPartageRoute,
     AppEspaceProjetsIdPlanRoute: AppEspaceProjetsIdPlanRoute,
     AppEspaceProjetsIdReglagesRoute: AppEspaceProjetsIdReglagesRoute,
     AppEspaceProjetsIdIndexRoute: AppEspaceProjetsIdIndexRoute,
@@ -755,9 +838,21 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
   AppRouteRouteChildren,
 )
 
+interface PRouteRouteChildren {
+  PSlugRoute: typeof PSlugRoute
+}
+
+const PRouteRouteChildren: PRouteRouteChildren = {
+  PSlugRoute: PSlugRoute,
+}
+
+const PRouteRouteWithChildren =
+  PRouteRoute._addFileChildren(PRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   SiteRouteRoute: SiteRouteRouteWithChildren,
   AppRouteRoute: AppRouteRouteWithChildren,
+  PRouteRoute: PRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -17,7 +17,7 @@ export const Route = createFileRoute("/app/_espace/projets/$id")({
 // Tabs of the spec; each development step enables the next one.
 const TABS = [
   { label: "Plan" },
-  { label: "Lots" },
+  { label: "Lots", to: "/app/projets/$id/lots" },
   { label: "Médias" },
   { label: "Marque" },
   { label: "Demandes" },

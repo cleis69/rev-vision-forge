@@ -10,7 +10,7 @@ export function slugify(value: string, max = 80): string {
     .replace(/[æÆ]/g, "ae")
     .replace(/ß/g, "ss")
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")

@@ -39,6 +39,7 @@ import { Route as AppEspaceIndexRouteImport } from './routes/app/_espace/index'
 import { Route as AppEspaceOrganisationRouteImport } from './routes/app/_espace/organisation'
 import { Route as AppEspaceProjetsIdRouteRouteImport } from './routes/app/_espace/projets/$id/route'
 import { Route as AppEspaceProjetsIdIndexRouteImport } from './routes/app/_espace/projets/$id/index'
+import { Route as AppEspaceProjetsIdLotsRouteImport } from './routes/app/_espace/projets/$id/lots'
 import { Route as AppEspaceProjetsIdReglagesRouteImport } from './routes/app/_espace/projets/$id/reglages'
 
 const SiteRouteRoute = SiteRouteRouteImport.update({
@@ -189,6 +190,11 @@ const AppEspaceProjetsIdIndexRoute = AppEspaceProjetsIdIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppEspaceProjetsIdRouteRoute,
 } as any)
+const AppEspaceProjetsIdLotsRoute = AppEspaceProjetsIdLotsRouteImport.update({
+  id: '/lots',
+  path: '/lots',
+  getParentRoute: () => AppEspaceProjetsIdRouteRoute,
+} as any)
 const AppEspaceProjetsIdReglagesRoute =
   AppEspaceProjetsIdReglagesRouteImport.update({
     id: '/reglages',
@@ -224,6 +230,7 @@ export interface FileRoutesByFullPath {
   '/en/': typeof SiteEnIndexRoute
   '/app/': typeof AppEspaceIndexRoute
   '/app/projets/$id': typeof AppEspaceProjetsIdRouteRouteWithChildren
+  '/app/projets/$id/lots': typeof AppEspaceProjetsIdLotsRoute
   '/app/projets/$id/reglages': typeof AppEspaceProjetsIdReglagesRoute
   '/app/projets/$id/': typeof AppEspaceProjetsIdIndexRoute
 }
@@ -253,6 +260,7 @@ export interface FileRoutesByTo {
   '/en/services': typeof SiteEnServicesRoute
   '/app/organisation': typeof AppEspaceOrganisationRoute
   '/en': typeof SiteEnIndexRoute
+  '/app/projets/$id/lots': typeof AppEspaceProjetsIdLotsRoute
   '/app/projets/$id/reglages': typeof AppEspaceProjetsIdReglagesRoute
   '/app/projets/$id': typeof AppEspaceProjetsIdIndexRoute
 }
@@ -287,6 +295,7 @@ export interface FileRoutesById {
   '/_site/en/': typeof SiteEnIndexRoute
   '/app/_espace/': typeof AppEspaceIndexRoute
   '/app/_espace/projets/$id': typeof AppEspaceProjetsIdRouteRouteWithChildren
+  '/app/_espace/projets/$id/lots': typeof AppEspaceProjetsIdLotsRoute
   '/app/_espace/projets/$id/reglages': typeof AppEspaceProjetsIdReglagesRoute
   '/app/_espace/projets/$id/': typeof AppEspaceProjetsIdIndexRoute
 }
@@ -320,6 +329,7 @@ export interface FileRouteTypes {
     | '/en/'
     | '/app/'
     | '/app/projets/$id'
+    | '/app/projets/$id/lots'
     | '/app/projets/$id/reglages'
     | '/app/projets/$id/'
   fileRoutesByTo: FileRoutesByTo
@@ -349,6 +359,7 @@ export interface FileRouteTypes {
     | '/en/services'
     | '/app/organisation'
     | '/en'
+    | '/app/projets/$id/lots'
     | '/app/projets/$id/reglages'
     | '/app/projets/$id'
   id:
@@ -382,6 +393,7 @@ export interface FileRouteTypes {
     | '/_site/en/'
     | '/app/_espace/'
     | '/app/_espace/projets/$id'
+    | '/app/_espace/projets/$id/lots'
     | '/app/_espace/projets/$id/reglages'
     | '/app/_espace/projets/$id/'
   fileRoutesById: FileRoutesById
@@ -603,6 +615,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEspaceProjetsIdIndexRouteImport
       parentRoute: typeof AppEspaceProjetsIdRouteRoute
     }
+    '/app/_espace/projets/$id/lots': {
+      id: '/app/_espace/projets/$id/lots'
+      path: '/lots'
+      fullPath: '/app/projets/$id/lots'
+      preLoaderRoute: typeof AppEspaceProjetsIdLotsRouteImport
+      parentRoute: typeof AppEspaceProjetsIdRouteRoute
+    }
     '/app/_espace/projets/$id/reglages': {
       id: '/app/_espace/projets/$id/reglages'
       path: '/reglages'
@@ -664,12 +683,14 @@ const SiteRouteRouteWithChildren = SiteRouteRoute._addFileChildren(
 )
 
 interface AppEspaceProjetsIdRouteRouteChildren {
+  AppEspaceProjetsIdLotsRoute: typeof AppEspaceProjetsIdLotsRoute
   AppEspaceProjetsIdReglagesRoute: typeof AppEspaceProjetsIdReglagesRoute
   AppEspaceProjetsIdIndexRoute: typeof AppEspaceProjetsIdIndexRoute
 }
 
 const AppEspaceProjetsIdRouteRouteChildren: AppEspaceProjetsIdRouteRouteChildren =
   {
+    AppEspaceProjetsIdLotsRoute: AppEspaceProjetsIdLotsRoute,
     AppEspaceProjetsIdReglagesRoute: AppEspaceProjetsIdReglagesRoute,
     AppEspaceProjetsIdIndexRoute: AppEspaceProjetsIdIndexRoute,
   }

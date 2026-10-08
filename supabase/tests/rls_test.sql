@@ -205,6 +205,12 @@ begin
   total := total + 1; if not ok then failed := failed + 1; report := report || 'autre organisation : téléverse chez A'::text; end if;
 
   set local role authenticated;
+  begin insert into public.lots (project_id, numero) values (p_pub, '99'); ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'autre organisation : ajoute un lot chez A'::text; end if;
+
+  set local role authenticated;
   begin
     insert into storage.objects (bucket_id, name) values ('project-media', org_b || '/' || p_other || '/plan.webp');
     ok := true;
@@ -264,6 +270,16 @@ begin
   reset role;
   total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'commercial : supprime l''organisation'::text; end if;
 
+  set local role authenticated;
+  insert into public.lots (project_id, numero) values (p_pub, '2'); get diagnostics n = row_count;
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas ajouter de lot'::text; end if;
+
+  set local role authenticated;
+  delete from public.lots where project_id = p_pub and numero = '2'; get diagnostics n = row_count;
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas supprimer un lot'::text; end if;
+
   ---------------------------------------------------------- owner of A
   perform set_config('request.jwt.claims', json_build_object('sub', owner_a, 'role', 'authenticated')::text, true);
   perform set_config('request.jwt.claim.sub', owner_a::text, true);
@@ -313,6 +329,14 @@ begin
   delete from public.projects where id = p_draft; get diagnostics n = row_count;
   reset role;
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'propriétaire : ne peut pas supprimer un programme'::text; end if;
+
+  set local role authenticated;
+  insert into public.lots (project_id, numero, prix) values (p_pub, '1', 1234)
+    on conflict (project_id, numero) do update set prix = excluded.prix;
+  select count(*) into n from public.lots where project_id = p_pub and numero = '1';
+  select prix into v from public.lots where project_id = p_pub and numero = '1';
+  reset role;
+  total := total + 1; if n <> 1 or v is distinct from 1234 then failed := failed + 1; report := report || 'import : le lot existant n''est pas mis à jour'::text; end if;
 
   ------------------------------------------------------------- integrity
   begin

@@ -310,6 +310,59 @@ begin
   reset role;
   total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : lit les statistiques'::text; end if;
 
+  -- Contents (step 17): starting price, phone, videos and documents, bathrooms.
+  update public.projects set price_from = 900000, contact_phone = '+212 600 00 00 00' where id = p_pub;
+  update public.projects set price_from = 800000 where id = p_other;
+  update public.lots set salles_de_bain = 3 where id = lot_pub;
+  insert into public.media (project_id, kind, path, lot_type) values
+    (p_pub, 'video', 'fixture/film.mp4', null), (p_pub, 'document', 'fixture/villa.pdf', 'Villa'),
+    (p_draft, 'video', 'fixture/brouillon.mp4', null);
+
+  set local role anon;
+  select count(*) into n from public.public_projects
+  where (id = p_pub and price_from is null and contact_phone = '+212 600 00 00 00')
+     or (id = p_other and price_from = 800000);
+  reset role;
+  total := total + 1; if n <> 2 then failed := failed + 1; report := report || 'visiteur : prix de départ montré avec les prix masqués, ou téléphone absent'::text; end if;
+
+  set local role anon;
+  select count(*) into n from public.media where kind in ('video', 'document') and project_id in (p_pub, p_draft);
+  reset role;
+  total := total + 1; if n <> 2 then failed := failed + 1; report := report || 'visiteur : vidéos et documents (publiés seulement)'::text; end if;
+
+  set local role anon;
+  select count(*) into n from public.public_lots where id = lot_pub and salles_de_bain = 3;
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'visiteur : salles de bains absentes de public_lots'::text; end if;
+
+  begin insert into public.media (project_id, lot_id, lot_type, kind, path) values (p_pub, lot_pub, 'Villa', 'image', 'deux.webp'); ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'média rattaché à un lot et à un type'::text; end if;
+
+  begin insert into public.media (project_id, view_id, lot_type, kind, path) values (p_pub, view_pub, 'Villa', 'orbit_frame', 'vue.webp'); ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'image orbitale rattachée à un type'::text; end if;
+
+  begin update public.projects set amenities = '[{"icon": "Piscine!", "label": "Piscine"}]' where id = p_pub; ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'prestation invalide acceptée'::text; end if;
+
+  begin update public.projects set amenities = '[{"icon": "piscine", "label": "Piscine chauffée"}]' where id = p_pub; ok := true;
+  exception when others then ok := false; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'prestation valide refusée'::text; end if;
+
+  begin update public.projects set lot_types = '[{"description": "sans nom"}]' where id = p_pub; ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'typologie sans nom acceptée'::text; end if;
+
+  begin update public.projects set contact_phone = 'appelez-moi' where id = p_pub; ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'téléphone invalide accepté'::text; end if;
+
+  begin update public.lots set salles_de_bain = 60 where id = lot_pub; ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'nombre de salles de bains invalide accepté'::text; end if;
+
   ------------------------------------------- signed in, other organization
   perform set_config('request.jwt.claims', json_build_object('sub', owner_b, 'role', 'authenticated')::text, true);
   perform set_config('request.jwt.claim.sub', owner_b::text, true);

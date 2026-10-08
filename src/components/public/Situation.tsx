@@ -34,11 +34,11 @@ export function Situation({ programme }: { programme: PublicProgramme }) {
     "inline-flex h-12 items-center gap-2 rounded-full px-6 text-sm font-medium transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[1fr_1.35fr]">
+    <div className="grid gap-8 lg:grid-cols-[1fr_1.35fr]">
       <div>
-        <h2 className="font-brand text-3xl font-medium tracking-tight sm:text-4xl">Situation</h2>
+        <h2 className="font-brand text-2xl font-medium tracking-tight sm:text-3xl">Situation</h2>
         {where ? (
-          <p className="mt-5 flex gap-2.5 text-base leading-relaxed text-white/75">
+          <p className="mt-4 flex gap-2.5 text-base leading-relaxed text-white/75">
             <MapPin className="mt-1 size-4 shrink-0 text-[color:var(--brand)]" aria-hidden />
             <span>
               {where}
@@ -51,11 +51,11 @@ export function Situation({ programme }: { programme: PublicProgramme }) {
 
         {places.length > 0 ? (
           <ul
-            className="mt-8 divide-y divide-white/10 border-y border-white/10"
+            className="mt-6 divide-y divide-white/10 border-y border-white/10"
             aria-label="À proximité"
           >
             {places.map((place, i) => (
-              <li key={i} className="flex items-center justify-between gap-4 py-4">
+              <li key={i} className="flex items-center justify-between gap-4 py-3">
                 <span className="flex min-w-0 items-center gap-3">
                   {place.mode === "pied" ? (
                     <Footprints className="size-4 shrink-0 text-[color:var(--brand)]" aria-hidden />
@@ -71,7 +71,7 @@ export function Situation({ programme }: { programme: PublicProgramme }) {
         ) : null}
 
         {route ? (
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-wrap gap-3">
             <a
               href={route.google}
               target="_blank"

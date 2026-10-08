@@ -30,7 +30,7 @@ function EspaceLayout() {
     <OrganizationsProvider>
       <div className="min-h-svh">
         <AppTopBar />
-        <main className="pb-16">
+        <main className="pb-10">
           <Outlet />
         </main>
       </div>

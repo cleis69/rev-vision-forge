@@ -53,6 +53,7 @@ import { Route as AppEspaceProjetsIdPartageRouteImport } from './routes/app/_esp
 import { Route as AppEspaceProjetsIdPlanRouteImport } from './routes/app/_espace/projets/$id/plan'
 import { Route as AppEspaceProjetsIdReglagesRouteImport } from './routes/app/_espace/projets/$id/reglages'
 import { Route as AppEspaceProjetsIdStatistiquesRouteImport } from './routes/app/_espace/projets/$id/statistiques'
+import { Route as AppEspaceProjetsIdTypologiesRouteImport } from './routes/app/_espace/projets/$id/typologies'
 import { Route as AppEspaceProjetsIdVisiteRouteImport } from './routes/app/_espace/projets/$id/visite'
 
 const SiteRouteRoute = SiteRouteRouteImport.update({
@@ -280,6 +281,12 @@ const AppEspaceProjetsIdStatistiquesRoute =
     path: '/statistiques',
     getParentRoute: () => AppEspaceProjetsIdRouteRoute,
   } as any)
+const AppEspaceProjetsIdTypologiesRoute =
+  AppEspaceProjetsIdTypologiesRouteImport.update({
+    id: '/typologies',
+    path: '/typologies',
+    getParentRoute: () => AppEspaceProjetsIdRouteRoute,
+  } as any)
 const AppEspaceProjetsIdVisiteRoute =
   AppEspaceProjetsIdVisiteRouteImport.update({
     id: '/visite',
@@ -329,6 +336,7 @@ export interface FileRoutesByFullPath {
   '/app/projets/$id/plan': typeof AppEspaceProjetsIdPlanRoute
   '/app/projets/$id/reglages': typeof AppEspaceProjetsIdReglagesRoute
   '/app/projets/$id/statistiques': typeof AppEspaceProjetsIdStatistiquesRoute
+  '/app/projets/$id/typologies': typeof AppEspaceProjetsIdTypologiesRoute
   '/app/projets/$id/visite': typeof AppEspaceProjetsIdVisiteRoute
   '/app/projets/$id/': typeof AppEspaceProjetsIdIndexRoute
 }
@@ -372,6 +380,7 @@ export interface FileRoutesByTo {
   '/app/projets/$id/plan': typeof AppEspaceProjetsIdPlanRoute
   '/app/projets/$id/reglages': typeof AppEspaceProjetsIdReglagesRoute
   '/app/projets/$id/statistiques': typeof AppEspaceProjetsIdStatistiquesRoute
+  '/app/projets/$id/typologies': typeof AppEspaceProjetsIdTypologiesRoute
   '/app/projets/$id/visite': typeof AppEspaceProjetsIdVisiteRoute
   '/app/projets/$id': typeof AppEspaceProjetsIdIndexRoute
 }
@@ -420,6 +429,7 @@ export interface FileRoutesById {
   '/app/_espace/projets/$id/plan': typeof AppEspaceProjetsIdPlanRoute
   '/app/_espace/projets/$id/reglages': typeof AppEspaceProjetsIdReglagesRoute
   '/app/_espace/projets/$id/statistiques': typeof AppEspaceProjetsIdStatistiquesRoute
+  '/app/_espace/projets/$id/typologies': typeof AppEspaceProjetsIdTypologiesRoute
   '/app/_espace/projets/$id/visite': typeof AppEspaceProjetsIdVisiteRoute
   '/app/_espace/projets/$id/': typeof AppEspaceProjetsIdIndexRoute
 }
@@ -467,6 +477,7 @@ export interface FileRouteTypes {
     | '/app/projets/$id/plan'
     | '/app/projets/$id/reglages'
     | '/app/projets/$id/statistiques'
+    | '/app/projets/$id/typologies'
     | '/app/projets/$id/visite'
     | '/app/projets/$id/'
   fileRoutesByTo: FileRoutesByTo
@@ -510,6 +521,7 @@ export interface FileRouteTypes {
     | '/app/projets/$id/plan'
     | '/app/projets/$id/reglages'
     | '/app/projets/$id/statistiques'
+    | '/app/projets/$id/typologies'
     | '/app/projets/$id/visite'
     | '/app/projets/$id'
   id:
@@ -557,6 +569,7 @@ export interface FileRouteTypes {
     | '/app/_espace/projets/$id/plan'
     | '/app/_espace/projets/$id/reglages'
     | '/app/_espace/projets/$id/statistiques'
+    | '/app/_espace/projets/$id/typologies'
     | '/app/_espace/projets/$id/visite'
     | '/app/_espace/projets/$id/'
   fileRoutesById: FileRoutesById
@@ -878,6 +891,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEspaceProjetsIdStatistiquesRouteImport
       parentRoute: typeof AppEspaceProjetsIdRouteRoute
     }
+    '/app/_espace/projets/$id/typologies': {
+      id: '/app/_espace/projets/$id/typologies'
+      path: '/typologies'
+      fullPath: '/app/projets/$id/typologies'
+      preLoaderRoute: typeof AppEspaceProjetsIdTypologiesRouteImport
+      parentRoute: typeof AppEspaceProjetsIdRouteRoute
+    }
     '/app/_espace/projets/$id/visite': {
       id: '/app/_espace/projets/$id/visite'
       path: '/visite'
@@ -947,6 +967,7 @@ interface AppEspaceProjetsIdRouteRouteChildren {
   AppEspaceProjetsIdPlanRoute: typeof AppEspaceProjetsIdPlanRoute
   AppEspaceProjetsIdReglagesRoute: typeof AppEspaceProjetsIdReglagesRoute
   AppEspaceProjetsIdStatistiquesRoute: typeof AppEspaceProjetsIdStatistiquesRoute
+  AppEspaceProjetsIdTypologiesRoute: typeof AppEspaceProjetsIdTypologiesRoute
   AppEspaceProjetsIdVisiteRoute: typeof AppEspaceProjetsIdVisiteRoute
   AppEspaceProjetsIdIndexRoute: typeof AppEspaceProjetsIdIndexRoute
 }
@@ -961,6 +982,7 @@ const AppEspaceProjetsIdRouteRouteChildren: AppEspaceProjetsIdRouteRouteChildren
     AppEspaceProjetsIdPlanRoute: AppEspaceProjetsIdPlanRoute,
     AppEspaceProjetsIdReglagesRoute: AppEspaceProjetsIdReglagesRoute,
     AppEspaceProjetsIdStatistiquesRoute: AppEspaceProjetsIdStatistiquesRoute,
+    AppEspaceProjetsIdTypologiesRoute: AppEspaceProjetsIdTypologiesRoute,
     AppEspaceProjetsIdVisiteRoute: AppEspaceProjetsIdVisiteRoute,
     AppEspaceProjetsIdIndexRoute: AppEspaceProjetsIdIndexRoute,
   }

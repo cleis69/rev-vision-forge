@@ -35,6 +35,7 @@ export const LOT_FIELDS = [
   "surface_habitable",
   "surface_terrain",
   "chambres",
+  "salles_de_bain",
   "prix",
   "statut",
   "description",
@@ -49,6 +50,7 @@ export const FIELD_LABELS: Record<LotField, string> = {
   surface_habitable: "Surface habitable",
   surface_terrain: "Terrain",
   chambres: "Chambres",
+  salles_de_bain: "Salles de bains",
   prix: "Prix",
   statut: "Statut",
   description: "Description",
@@ -107,6 +109,17 @@ const HEADER_ALIASES: Record<LotField, string[]> = {
     "parcelle",
   ],
   chambres: ["chambres", "chambre", "nb chambres", "nombre de chambres", "ch"],
+  salles_de_bain: [
+    "salles de bains",
+    "salles de bain",
+    "salle de bains",
+    "salle de bain",
+    "sdb",
+    "nb sdb",
+    "nb salles de bain",
+    "nombre de salles de bain",
+    "nombre de salles de bains",
+  ],
   prix: ["prix", "prix eur", "prix ttc", "prix de vente", "tarif"],
   statut: ["statut", "status", "etat", "disponibilite"],
   description: ["description", "descriptif", "commentaire", "remarques"],
@@ -183,6 +196,8 @@ export function parseField<F extends LotField>(field: F, input: string): FieldRe
       return num(parseDecimal(s, { max: 1e12 }));
     case "chambres":
       return num(parseInteger(s, { max: 100 }));
+    case "salles_de_bain":
+      return num(parseInteger(s, { max: 50 }));
     case "niveau": {
       const level = parseLevel(s);
       if (level === undefined) return fail("Niveau inconnu : R-1, RDC, R+1, R+2…");
@@ -203,6 +218,8 @@ export function fieldInput(field: LotField, value: LotValues[LotField]): string 
   if (value === null || value === undefined) return "";
   if (field === "niveau" && typeof value === "number") return levelLabel(value);
   if (typeof value === "number")
-    return field === "chambres" ? String(value) : String(value).replace(".", ",");
+    return field === "chambres" || field === "salles_de_bain"
+      ? String(value)
+      : String(value).replace(".", ",");
   return String(value);
 }

@@ -22,7 +22,7 @@ import {
   type TourTarget,
 } from "@/lib/tours";
 import { AppError, NO_RIGHTS } from "./errors";
-import { thumbPath } from "./media";
+import { mediaFiles, toMediaItem } from "./media";
 import type { Project } from "./projects";
 import { publicUrl, removeFiles, uploadFile } from "./storage";
 
@@ -319,15 +319,15 @@ export function useDeleteLink(projectId: string) {
   });
 }
 
-/** Files of the lots about to be deleted: their photos and the rooms of their own tour. */
+/** Files of the lots about to be deleted: their media and the rooms of their own tour. */
 export async function lotFiles(ids: string[]): Promise<string[]> {
   const supabase = getSupabase();
   const [rooms, photos] = await Promise.all([
     supabase.from("panoramas").select("image_path").in("lot_id", ids),
-    supabase.from("media").select("path").in("lot_id", ids),
+    supabase.from("media").select("*").in("lot_id", ids),
   ]);
   return [
     ...(rooms.data ?? []).flatMap((r) => panoramaFiles(r.image_path)),
-    ...(photos.data ?? []).flatMap((m) => [m.path, thumbPath(m.path)]),
+    ...(photos.data ?? []).flatMap((m) => mediaFiles(toMediaItem(m))),
   ];
 }

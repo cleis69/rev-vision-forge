@@ -148,7 +148,7 @@ export function SituationSettings({ project }: { project: Project }) {
       title="Situation"
       description="Adresse, emplacement sur la carte et lieux proches, affichés dans la rubrique Situation de la page publique. Elle n'apparaît que si quelque chose est renseigné."
     >
-      <div className="space-y-6">
+      <div className="space-y-5">
         <div className="space-y-2">
           <label htmlFor="situation-address" className="text-sm font-medium">
             Adresse

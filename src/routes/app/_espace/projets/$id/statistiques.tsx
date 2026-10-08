@@ -78,7 +78,7 @@ function StatsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <div role="group" aria-label="Période" className="flex gap-2">
@@ -253,7 +253,7 @@ function StatsView({
             </ul>
           </Card>
 
-          <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
             <LotTable rows={rows} sort={sort} onSort={onSort} />
             <Sources sources={data.sources} total={totals.demandes} />
           </div>
@@ -320,7 +320,7 @@ function Kpi({
 
 function Card({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+    <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
       <h2 className="font-display text-lg font-medium tracking-tight">{title}</h2>
       <div className="mt-4">{children}</div>
     </section>

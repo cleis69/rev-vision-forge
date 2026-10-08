@@ -49,12 +49,19 @@ export const CELL_FIELDS = [
   "surface_habitable",
   "surface_terrain",
   "chambres",
+  "salles_de_bain",
   "prix",
 ] as const;
 export type CellField = (typeof CELL_FIELDS)[number];
 export type Editing = { id: string; field: CellField } | null;
 
-const NUMERIC = new Set<CellField>(["surface_habitable", "surface_terrain", "chambres", "prix"]);
+const NUMERIC = new Set<CellField>([
+  "surface_habitable",
+  "surface_terrain",
+  "chambres",
+  "salles_de_bain",
+  "prix",
+]);
 const COLUMN_LABELS: Record<CellField, string> = {
   numero: "N°",
   type: "Type",
@@ -62,6 +69,7 @@ const COLUMN_LABELS: Record<CellField, string> = {
   surface_habitable: "Surface habitable",
   surface_terrain: "Terrain",
   chambres: "Chambres",
+  salles_de_bain: "SdB",
   prix: "Prix",
 };
 

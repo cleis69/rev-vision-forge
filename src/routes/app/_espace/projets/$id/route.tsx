@@ -20,6 +20,7 @@ export const Route = createFileRoute("/app/_espace/projets/$id")({
 const TABS = [
   { label: "Vues", to: "/app/projets/$id/plan" },
   { label: "Lots", to: "/app/projets/$id/lots" },
+  { label: "Typologies", to: "/app/projets/$id/typologies" },
   { label: "Médias", to: "/app/projets/$id/medias" },
   { label: "Visite 360°", to: "/app/projets/$id/visite" },
   { label: "Marque", to: "/app/projets/$id/marque" },
@@ -67,7 +68,7 @@ function ProjectLayout() {
 
   if (loading || query.isPending) {
     return (
-      <Container className="pt-8">
+      <Container className="pt-5">
         <div aria-busy="true" aria-label="Chargement du programme">
           <Skeleton className="h-5 w-40" />
           <Skeleton className="mt-5 h-9 w-72 max-w-full" />
@@ -80,7 +81,7 @@ function ProjectLayout() {
 
   if (query.isError || !project || !membership) {
     return (
-      <Container className="pt-10">
+      <Container className="pt-6">
         <EmptyState
           title={query.isError ? "Impossible de charger ce programme" : "Programme introuvable"}
           text={
@@ -100,7 +101,7 @@ function ProjectLayout() {
   return (
     <ProjectProvider value={{ project, role: membership.role }}>
       <div className="border-b border-border/70">
-        <Container className="pt-6 sm:pt-8">
+        <Container className="pt-4 sm:pt-5">
           <Link
             to="/app"
             className="inline-flex items-center gap-1.5 rounded text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -108,20 +109,20 @@ function ProjectLayout() {
             <ArrowLeft className="size-4" aria-hidden />
             Vos programmes
           </Link>
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <h1 className="min-w-0 break-words font-display text-2xl font-medium tracking-tight sm:text-3xl">
+          <div className="mt-2.5 flex flex-wrap items-center gap-3">
+            <h1 className="min-w-0 break-words font-display text-xl font-medium tracking-tight sm:text-2xl">
               {project.name}
             </h1>
             <StatusBadge status={project.status} />
           </div>
           {project.city ? (
-            <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
+            <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
               <MapPin className="size-3.5" aria-hidden />
               {project.city}
             </p>
           ) : null}
 
-          <nav aria-label="Sections du programme" className="-mb-px mt-6 overflow-x-auto">
+          <nav aria-label="Sections du programme" className="-mb-px mt-3 overflow-x-auto">
             <ul className="flex min-w-max gap-1">
               {TABS.map((tab) => (
                 <li key={tab.label}>
@@ -151,7 +152,7 @@ function ProjectLayout() {
           </nav>
         </Container>
       </div>
-      <Container className="pt-8">
+      <Container className="pt-5">
         <Outlet />
       </Container>
     </ProjectProvider>

@@ -31,6 +31,7 @@ const TEXT_FIELDS = [
   "surface_habitable",
   "surface_terrain",
   "chambres",
+  "salles_de_bain",
   "prix",
 ] as const;
 type TextField = (typeof TEXT_FIELDS)[number];

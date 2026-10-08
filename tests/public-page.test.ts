@@ -18,6 +18,7 @@ const lot = (numero: string, extra: Partial<PublicLot> = {}): PublicLot => ({
   surface_habitable: 250,
   surface_terrain: 600,
   chambres: 4,
+  salles_de_bain: 3,
   prix: 1000000,
   statut: "disponible",
   description: null,

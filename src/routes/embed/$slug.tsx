@@ -22,6 +22,7 @@ import {
 } from "@/lib/public/programme";
 import { lotUrl, shareLot } from "@/lib/public/share";
 import { useBrandTheme } from "@/lib/public/theme";
+import { lotMedia } from "@/lib/public/typologies";
 
 // Sales plan alone, for an iframe on the promoter's site: no header, no
 // footer, the lot opens under the plan, and the height is sent to the parent
@@ -197,7 +198,7 @@ function EmbeddedPlan({ data, slug }: { data: PublicData; slug: string }) {
           </button>
           <LotDetails
             lot={lot}
-            photos={media.filter((m) => m.lot_id === lot.id)}
+            photos={lotMedia(data, lot).photos}
             currency={programme.currency}
             split
             Title="h2"

@@ -1,40 +1,45 @@
-import { useEffect, useRef, useState, type DragEvent } from "react";
+import { useMemo, useRef, useState, type DragEvent } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, ImagePlus, Trash2 } from "lucide-react";
+import { Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { EmptyState } from "@/components/app/Blocks";
 import { ConfirmDialog } from "@/components/app/ConfirmDialog";
+import { MediaCard, OwnerOptions, ownerKey, ownerOfKey } from "@/components/app/media/MediaCard";
 import { useCurrentProject } from "@/components/app/ProjectContext";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { dbErrorMessage } from "@/lib/app/errors";
-import type { Lot } from "@/lib/app/lot-fields";
 import { useLots } from "@/lib/app/lots";
 import {
-  mediaImage,
+  ACCEPTED_TYPES,
+  ownerValues,
   useDeleteMedia,
   useMedia,
   useUpdateMedia,
   useUploadMedia,
   type MediaItem,
+  type MediaKind,
+  type MediaOwner,
 } from "@/lib/app/media";
-import { PLAN_TYPES } from "@/lib/image";
+import { lotTypeNames, parseLotTypes } from "@/lib/lot-types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/_espace/projets/$id/medias")({
   component: MediaPage,
 });
 
-const PROGRAMME = "programme";
+type Filter = "tout" | MediaKind;
+const FILTERS: { value: Filter; label: string }[] = [
+  { value: "tout", label: "Tout" },
+  { value: "image", label: "Photos" },
+  { value: "plan", label: "Plans" },
+  { value: "video", label: "Vidéos" },
+  { value: "document", label: "Documents" },
+];
+
+const added = (n: number) => (n === 1 ? "Fichier ajouté" : `${n} fichiers ajoutés`);
 
 function MediaPage() {
   const { project } = useCurrentProject();
@@ -46,19 +51,25 @@ function MediaPage() {
   const remove = useDeleteMedia(project.id);
   const input = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
+  const [target, setTarget] = useState<MediaOwner>(null);
+  const [filter, setFilter] = useState<Filter>("tout");
   const [toDelete, setToDelete] = useState<{ item: MediaItem | null; open: boolean }>({
     item: null,
     open: false,
   });
 
   const items = media.data ?? [];
+  const shown = filter === "tout" ? items : items.filter((m) => m.kind === filter);
+  const types = useMemo(
+    () => lotTypeNames(lots.data ?? [], parseLotTypes(project.lot_types)),
+    [lots.data, project.lot_types],
+  );
 
   const send = async (files: File[]) => {
     if (files.length === 0 || upload.isPending) return;
     try {
-      const report = await upload.mutateAsync(files);
-      if (report.added)
-        toast.success(report.added === 1 ? "Photo ajoutée" : `${report.added} photos ajoutées`);
+      const report = await upload.mutateAsync({ files, owner: target });
+      if (report.added) toast.success(added(report.added));
       for (const f of report.failed) toast.error(`${f.name} : ${f.reason}`);
     } finally {
       setProgress(null);
@@ -78,9 +89,10 @@ function MediaPage() {
       onError: (error) => toast.error(dbErrorMessage(error)),
     });
 
+  // Moves among the media shown: the order of the others does not change.
   const move = (index: number, step: -1 | 1) => {
-    const a = items[index];
-    const b = items[index + step];
+    const a = shown[index];
+    const b = shown[index + step];
     if (!a || !b) return;
     save([
       { id: a.id, values: { sort_order: b.sort_order } },
@@ -92,11 +104,11 @@ function MediaPage() {
     return (
       <div
         aria-busy="true"
-        aria-label="Chargement des photos"
+        aria-label="Chargement des médias"
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
       >
         {[0, 1, 2].map((i) => (
-          <Skeleton key={i} className="aspect-[4/3] rounded-2xl" />
+          <Skeleton key={i} className="aspect-[16/10] rounded-xl" />
         ))}
       </div>
     );
@@ -104,14 +116,14 @@ function MediaPage() {
   if (media.isError || lots.isError) {
     return (
       <EmptyState
-        title="Impossible de charger les photos"
+        title="Impossible de charger les médias"
         text="Vérifiez votre connexion internet puis rechargez la page."
       />
     );
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <div
         onDragOver={(e) => {
           e.preventDefault();
@@ -124,24 +136,39 @@ function MediaPage() {
           dragging ? "border-primary bg-primary/5" : "border-border",
         )}
       >
-        <div className="min-w-0">
-          <p className="text-sm font-medium">Photos du programme et des lots</p>
+        <div className="min-w-0 flex-1 basis-72">
+          <p className="text-sm font-medium">Photos, plans, vidéos et brochures</p>
           <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-            JPEG, PNG ou WebP, optimisées avant l'envoi. Déposez-les ici ou choisissez-les ; la
-            première photo du programme sert d'image principale de la page publique.
+            Photos JPEG, PNG ou WebP (optimisées avant l'envoi), vidéos MP4 ou WebM et documents PDF
+            jusqu'à 50 Mo. La première photo du programme sert d'image principale ; sa vidéo la plus
+            courte passe en fond sur ordinateur, la plus longue devient « Voir le film ».
           </p>
         </div>
-        <Button className="h-10" onClick={() => input.current?.click()} disabled={upload.isPending}>
-          <ImagePlus aria-hidden />
-          {progress
-            ? `Envoi ${Math.min(progress.done + 1, progress.total)} / ${progress.total}…`
-            : "Ajouter des photos"}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Select value={ownerKey(target)} onValueChange={(v) => setTarget(ownerOfKey(v))}>
+            <SelectTrigger className="h-10 w-56" aria-label="Rattacher les nouveaux fichiers à">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <OwnerOptions lots={lots.data} types={types} />
+            </SelectContent>
+          </Select>
+          <Button
+            className="h-10"
+            onClick={() => input.current?.click()}
+            disabled={upload.isPending}
+          >
+            <Upload aria-hidden />
+            {progress
+              ? `Envoi ${Math.min(progress.done + 1, progress.total)} / ${progress.total}…`
+              : "Ajouter des fichiers"}
+          </Button>
+        </div>
         <input
           ref={input}
           type="file"
           multiple
-          accept={PLAN_TYPES.join(",")}
+          accept={ACCEPTED_TYPES.join(",")}
           className="sr-only"
           tabIndex={-1}
           aria-hidden
@@ -149,31 +176,74 @@ function MediaPage() {
         />
       </div>
 
+      {items.length > 0 ? (
+        <div role="group" aria-label="Filtrer les médias" className="flex flex-wrap gap-2">
+          {FILTERS.map((f) => {
+            const count =
+              f.value === "tout" ? items.length : items.filter((m) => m.kind === f.value).length;
+            if (f.value !== "tout" && count === 0) return null;
+            const active = filter === f.value;
+            return (
+              <button
+                key={f.value}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setFilter(f.value)}
+                className={cn(
+                  "inline-flex h-9 items-center gap-2 rounded-full border px-4 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  active
+                    ? "border-primary bg-primary/10 text-foreground"
+                    : "border-border text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {f.label}
+                <span className="tabular-nums text-muted-foreground">{count}</span>
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+
       {items.length === 0 ? (
         <EmptyState
-          title="Aucune photo pour l'instant"
-          text="Ajoutez les perspectives, les photos du chantier ou de l'existant. Rattachez-les au programme pour la galerie, ou à un lot pour sa fiche."
+          title="Aucun média pour l'instant"
+          text="Ajoutez les perspectives, le film du programme, les plans de chaque type et les brochures. Rattachez-les au programme pour la galerie, à un type pour la rubrique Typologies, ou à un lot pour sa fiche."
         />
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((item, index) => (
+        <ul className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+          {shown.map((item, index) => (
             <MediaCard
               key={item.id}
               item={item}
               lots={lots.data}
+              types={types}
               first={index === 0}
-              last={index === items.length - 1}
+              last={index === shown.length - 1}
               onMove={(step) => move(index, step)}
-              onLot={(lotId) =>
+              onOwner={(owner) =>
                 save(
-                  [{ id: item.id, values: { lot_id: lotId } }],
-                  lotId ? "Photo rattachée au lot" : "Photo rattachée au programme",
+                  [{ id: item.id, values: ownerValues(owner) }],
+                  !owner
+                    ? "Rattaché au programme"
+                    : "lot_id" in owner
+                      ? "Rattaché au lot"
+                      : `Rattaché au type ${owner.lot_type}`,
                 )
               }
               onCaption={(caption) =>
                 save(
                   [{ id: item.id, values: { meta: { ...item.meta, caption } } }],
                   "Légende enregistrée",
+                )
+              }
+              onCategory={(category) => {
+                const { category: _old, ...meta } = item.meta;
+                save([{ id: item.id, values: { meta: category ? { ...meta, category } : meta } }]);
+              }}
+              onPlan={(plan) =>
+                save(
+                  [{ id: item.id, values: { kind: plan ? "plan" : "image" } }],
+                  plan ? "Marqué comme plan" : "Marqué comme photo",
                 )
               }
               onDelete={() => setToDelete({ item, open: true })}
@@ -183,7 +253,15 @@ function MediaPage() {
       )}
 
       <p className="text-sm text-muted-foreground">
-        Les séquences orbitales (vue aérienne, toiture, étages, vue piéton) se règlent dans l'onglet{" "}
+        Les textes de chaque type se rédigent dans l'onglet{" "}
+        <Link
+          to="/app/projets/$id/typologies"
+          params={{ id: project.id }}
+          className="text-foreground underline underline-offset-4"
+        >
+          Typologies
+        </Link>
+        , les séquences orbitales dans l'onglet{" "}
         <Link
           to="/app/projets/$id/plan"
           params={{ id: project.id }}
@@ -197,133 +275,15 @@ function MediaPage() {
       <ConfirmDialog
         open={toDelete.open}
         onOpenChange={(open) => setToDelete((d) => ({ ...d, open }))}
-        title="Supprimer cette photo ?"
-        description="Elle disparaît de la page publique et de l'espace promoteur."
-        actionLabel="Supprimer la photo"
+        title="Supprimer ce média ?"
+        description="Il disparaît de la page publique et de l'espace promoteur."
+        actionLabel="Supprimer"
         onConfirm={async () => {
           if (!toDelete.item) return;
           await remove.mutateAsync(toDelete.item);
-          toast.success("Photo supprimée");
+          toast.success("Média supprimé");
         }}
       />
     </div>
-  );
-}
-
-function MediaCard({
-  item,
-  lots,
-  first,
-  last,
-  onMove,
-  onLot,
-  onCaption,
-  onDelete,
-}: {
-  item: MediaItem;
-  lots: Lot[];
-  first: boolean;
-  last: boolean;
-  onMove: (step: -1 | 1) => void;
-  onLot: (lotId: string | null) => void;
-  onCaption: (caption: string) => void;
-  onDelete: () => void;
-}) {
-  const image = mediaImage(item);
-  const [caption, setCaption] = useState(image.caption);
-  // Saved a second after the last key, or when the field loses focus.
-  const saved = useRef(image.caption);
-  const commit = (value: string) => {
-    const text = value.trim();
-    if (text === saved.current) return;
-    saved.current = text;
-    onCaption(text);
-  };
-  const commitRef = useRef(commit);
-  commitRef.current = commit;
-  useEffect(() => {
-    const timer = window.setTimeout(() => commitRef.current(caption), 1000);
-    return () => window.clearTimeout(timer);
-  }, [caption]);
-  const latest = useRef(caption);
-  latest.current = caption;
-  // Leaving the page before the delay: the caption typed so far is kept.
-  useEffect(() => () => commitRef.current(latest.current), []);
-  const lot = lots.find((l) => l.id === item.lot_id);
-  const label = image.caption || (lot ? `Photo du lot ${lot.numero}` : "Photo du programme");
-
-  return (
-    <li className="overflow-hidden rounded-2xl border border-border bg-card">
-      <div className="relative aspect-[4/3] bg-muted">
-        <img
-          src={image.thumb}
-          alt={label}
-          loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <span className="absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur">
-          {lot ? `Lot ${lot.numero}` : "Programme"}
-        </span>
-      </div>
-      <div className="space-y-3 p-3">
-        <Input
-          value={caption}
-          onChange={(e) => setCaption(e.target.value.slice(0, 200))}
-          onBlur={() => commit(caption)}
-          onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
-          placeholder="Légende (facultatif)"
-          aria-label={`Légende, ${label}`}
-          className="h-10"
-        />
-        <div className="flex items-center gap-2">
-          <Select
-            value={item.lot_id ?? PROGRAMME}
-            onValueChange={(v) => onLot(v === PROGRAMME ? null : v)}
-          >
-            <SelectTrigger className="h-10 flex-1" aria-label={`Rattachement, ${label}`}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={PROGRAMME}>Programme (galerie)</SelectItem>
-              {lots.map((l) => (
-                <SelectItem key={l.id} value={l.id}>
-                  Lot {l.numero}
-                  {l.type ? ` · ${l.type}` : ""}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-10"
-            disabled={first}
-            onClick={() => onMove(-1)}
-            aria-label={`Avancer, ${label}`}
-          >
-            <ArrowLeft aria-hidden />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-10"
-            disabled={last}
-            onClick={() => onMove(1)}
-            aria-label={`Reculer, ${label}`}
-          >
-            <ArrowRight aria-hidden />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-10 text-red-300 hover:bg-destructive/10 hover:text-red-200"
-            onClick={onDelete}
-            aria-label={`Supprimer, ${label}`}
-          >
-            <Trash2 aria-hidden />
-          </Button>
-        </div>
-      </div>
-    </li>
   );
 }

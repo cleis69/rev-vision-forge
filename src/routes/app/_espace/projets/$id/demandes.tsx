@@ -80,7 +80,7 @@ function LeadsPage() {
   ];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div role="group" aria-label="Filtrer les demandes" className="flex flex-wrap gap-2">
           {options.map((o) => (

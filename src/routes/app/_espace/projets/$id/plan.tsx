@@ -132,7 +132,7 @@ function ViewsPage() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <ViewsBar
         views={list}
         selectedId={selected?.id ?? null}

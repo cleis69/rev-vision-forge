@@ -139,7 +139,12 @@ export function StatusFilters({
     ...LOT_STATUSES.map((s) => ({ status: s, label: `${STATUS_LABELS[s]}s`, count: counts[s] })),
   ];
   return (
-    <div role="group" aria-label="Filtrer les lots par statut" className="flex flex-wrap gap-2">
+    <div
+      role="group"
+      aria-label="Filtrer les lots par statut"
+      // One row that scrolls on a phone rather than two lines of buttons.
+      className="-mx-5 flex max-w-[100vw] gap-2 overflow-x-auto px-5 [scrollbar-width:none] sm:mx-0 sm:max-w-full sm:flex-wrap sm:px-0"
+    >
       {options.map((o) => {
         const active = value === o.status;
         return (
@@ -149,7 +154,7 @@ export function StatusFilters({
             aria-pressed={active}
             onClick={() => onChange(o.status)}
             className={cn(
-              "inline-flex items-center gap-2 rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+              "inline-flex shrink-0 items-center gap-2 rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
               large ? "h-12 px-5 text-base" : "h-9 px-4 text-sm",
               active
                 ? "border-white bg-white text-black"

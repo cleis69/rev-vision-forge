@@ -163,7 +163,7 @@ function ToursPage() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
         <ul aria-label="Visites du programme" className="flex flex-wrap gap-2">
           {tours.map((tour) => {

@@ -90,8 +90,8 @@ function BrandEditor({
     );
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
-      <div className="min-w-0 space-y-6">
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="min-w-0 space-y-4">
         <p className="text-sm leading-relaxed text-muted-foreground">
           La marque de l'organisation « {organization.name} » s'applique à toutes ses pages
           publiques : page des programmes, plan intégré à votre site et mode présentation.

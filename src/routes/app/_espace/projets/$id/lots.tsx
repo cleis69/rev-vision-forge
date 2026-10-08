@@ -138,7 +138,7 @@ function LotsPage() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <LotTypesDatalist />
 
       <div className="flex flex-wrap items-center justify-between gap-4">

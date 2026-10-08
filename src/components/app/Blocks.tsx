@@ -29,7 +29,7 @@ export function EmptyState({
   children?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center rounded-2xl border border-dashed border-border px-6 py-14 text-center">
+    <div className="flex flex-col items-center rounded-2xl border border-dashed border-border px-6 py-10 text-center">
       <span className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
         <Building2 className="size-5" aria-hidden />
       </span>
@@ -57,7 +57,7 @@ export function SettingsSection({
     <section
       aria-labelledby={id}
       className={cn(
-        "rounded-2xl border bg-card p-5 sm:p-6",
+        "rounded-2xl border bg-card p-4 sm:p-5",
         danger ? "border-destructive/40" : "border-border",
       )}
     >
@@ -67,7 +67,7 @@ export function SettingsSection({
       {description ? (
         <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{description}</p>
       ) : null}
-      <div className="mt-5">{children}</div>
+      <div className="mt-4">{children}</div>
     </section>
   );
 }
@@ -87,7 +87,9 @@ export function PageHeading({
         <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-primary">
           {eyebrow}
         </p>
-        <h1 className="mt-2 font-display text-3xl font-medium tracking-tight">{title}</h1>
+        <h1 className="mt-1.5 font-display text-2xl font-medium tracking-tight sm:text-3xl">
+          {title}
+        </h1>
       </div>
       {children}
     </div>

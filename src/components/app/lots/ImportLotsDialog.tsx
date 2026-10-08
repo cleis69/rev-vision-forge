@@ -137,8 +137,8 @@ export default function ImportLotsDialog({
           <DialogTitle>Importer des lots</DialogTitle>
           <DialogDescription>
             Fichier CSV avec une ligne d'en-têtes : numero, type, surface_habitable,
-            surface_terrain, chambres, prix, statut, description. Les lots existants sont mis à jour
-            d'après leur numéro ; une case vide garde la valeur actuelle.
+            surface_terrain, chambres, salles_de_bain, prix, statut, description. Les lots existants
+            sont mis à jour d'après leur numéro ; une case vide garde la valeur actuelle.
           </DialogDescription>
         </DialogHeader>
 

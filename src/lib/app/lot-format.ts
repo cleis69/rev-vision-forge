@@ -37,6 +37,7 @@ export function formatField(
     case "prix":
       return formatPrice(Number(value), currency);
     case "chambres":
+    case "salles_de_bain":
       return String(value);
     case "niveau":
       return levelLabel(Number(value));
@@ -54,12 +55,14 @@ export function summarize(values: Partial<LotValues>, currency: string): string 
   const surface = formatField("surface_habitable", values, currency);
   const terrain = formatField("surface_terrain", values, currency);
   const rooms = formatField("chambres", values, currency);
+  const baths = formatField("salles_de_bain", values, currency);
   const price = formatField("prix", values, currency);
   const status = formatField("statut", values, currency);
   if (type) parts.push(type);
   if (surface) parts.push(surface);
   if (terrain) parts.push(`terrain ${terrain}`);
   if (rooms) parts.push(`${rooms} ch.`);
+  if (baths) parts.push(`${baths} sdb`);
   if (price) parts.push(price);
   if (status) parts.push(status);
   return parts.join(" · ");

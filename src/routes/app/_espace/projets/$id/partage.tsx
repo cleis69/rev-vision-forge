@@ -76,7 +76,7 @@ function SharePage() {
     );
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="max-w-3xl space-y-4">
       <SettingsSection
         title="Page publique"
         description="La page du programme, à partager par WhatsApp, e-mail ou sur votre site. Elle n'est pas référencée par Google."

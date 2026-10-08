@@ -230,6 +230,18 @@ export function CompareDialog({
                   </td>
                 ))}
               </tr>
+              {lots.some((lot) => lot.salles_de_bain !== null) ? (
+                <tr>
+                  <th scope="row" className={head}>
+                    Salles de bains
+                  </th>
+                  {lots.map((lot) => (
+                    <td key={lot.id} className={cell}>
+                      {lot.salles_de_bain ?? <span className="text-white/35">—</span>}
+                    </td>
+                  ))}
+                </tr>
+              ) : null}
               {lots.some((lot) => lot.niveau !== null) ? (
                 <tr>
                   <th scope="row" className={head}>

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import type { LotStatus } from "@/lib/app/lot-fields";
 import { useLiveLots } from "@/lib/public/live";
 import { countByStatus, tourOfLot, type PublicData, type PublicLot } from "@/lib/public/programme";
+import { lotMedia } from "@/lib/public/typologies";
 import { cn } from "@/lib/utils";
 import { firstView } from "@/lib/views";
 import { PoweredBy, RevBadge, StatusFilters } from "./Common";
@@ -210,7 +211,7 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
             {lot ? (
               <LotDetails
                 lot={lot}
-                photos={media.filter((m) => m.lot_id === lot.id)}
+                photos={lotMedia(data, lot).photos}
                 currency={programme.currency}
                 large
                 extra={(() => {

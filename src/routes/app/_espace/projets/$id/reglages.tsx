@@ -7,6 +7,7 @@ import { z } from "zod";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { AmenitiesSettings } from "@/components/app/AmenitiesSettings";
 import { FormMessage as Notice } from "@/components/app/AuthCard";
 import { SettingsSection } from "@/components/app/Blocks";
 import { ConfirmDelete } from "@/components/app/ConfirmDelete";
@@ -58,8 +59,38 @@ const settingsSchema = () =>
     description: z.string().trim().max(4000, "4 000 caractères au maximum."),
     currency: z.enum(["EUR", "MAD", "USD"]),
     show_prices: z.boolean(),
+    price_from: z
+      .string()
+      .trim()
+      .refine(
+        (v) => v === "" || parseAmount(v) !== null,
+        "Indiquez un montant, par ex. 8 000 000.",
+      ),
+    contact_phone: z
+      .string()
+      .trim()
+      .refine(
+        (v) => v === "" || PHONE.test(v),
+        "Numéro invalide : chiffres, espaces et « + » (par ex. +212 661 82 53 59).",
+      ),
   });
 type Values = z.infer<ReturnType<typeof settingsSchema>>;
+
+// Same rule as the database.
+const PHONE = /^\+?[0-9][0-9 ().-]{5,29}$/;
+
+/** "8 000 000", "8.000.000", "1 250 000,50" → a number, or null. */
+function parseAmount(input: string): number | null {
+  const text = input
+    .replace(/[\s\u00a0\u202f]/g, "")
+    .replace(/[.,](?=\d{3}(\D|$))/g, "")
+    .replace(",", ".");
+  if (!/^\d+(\.\d{1,2})?$/.test(text)) return null;
+  const n = Number(text);
+  return Number.isFinite(n) && n < 1e12 ? n : null;
+}
+
+const amount = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
 
 const toValues = (p: Project): Values => ({
   name: p.name,
@@ -70,15 +101,18 @@ const toValues = (p: Project): Values => ({
     ? (p.currency as Values["currency"])
     : "EUR",
   show_prices: p.show_prices,
+  price_from: p.price_from === null ? "" : amount.format(p.price_from),
+  contact_phone: p.contact_phone ?? "",
 });
 
 function ProjectSettingsPage() {
   const { project, role } = useCurrentProject();
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="max-w-3xl space-y-4">
       {/* Keyed by programme: switching programmes starts from its own values. */}
       <ProjectSettingsForm key={project.id} project={project} />
       <SituationSettings key={`situation-${project.id}`} project={project} />
+      <AmenitiesSettings key={`prestations-${project.id}`} project={project} />
       {role === "owner" ? (
         <DeleteProjectSection project={project} />
       ) : (
@@ -100,22 +134,26 @@ function ProjectSettingsForm({ project }: { project: Project }) {
   const { isSubmitting, isDirty } = form.formState;
   const slug = form.watch("slug");
 
-  const submit = form.handleSubmit(async ({ city, description, ...rest }) => {
-    setNotice(null);
-    try {
-      const saved = await update.mutateAsync({
-        ...rest,
-        city: city || null,
-        description: description || null,
-      });
-      form.reset(toValues(saved));
-      toast.success("Modifications enregistrées");
-    } catch (error) {
-      if (isTaken(error))
-        form.setError("slug", { message: PROJECT_SLUG_TAKEN }, { shouldFocus: true });
-      else setNotice(dbErrorMessage(error));
-    }
-  });
+  const submit = form.handleSubmit(
+    async ({ city, description, price_from, contact_phone, ...rest }) => {
+      setNotice(null);
+      try {
+        const saved = await update.mutateAsync({
+          ...rest,
+          city: city || null,
+          description: description || null,
+          price_from: price_from ? parseAmount(price_from) : null,
+          contact_phone: contact_phone || null,
+        });
+        form.reset(toValues(saved));
+        toast.success("Modifications enregistrées");
+      } catch (error) {
+        if (isTaken(error))
+          form.setError("slug", { message: PROJECT_SLUG_TAKEN }, { shouldFocus: true });
+        else setNotice(dbErrorMessage(error));
+      }
+    },
+  );
 
   return (
     <SettingsSection
@@ -124,7 +162,7 @@ function ProjectSettingsForm({ project }: { project: Project }) {
     >
       <Form {...form}>
         <form onSubmit={submit} noValidate>
-          <fieldset disabled={isSubmitting} className="space-y-5">
+          <fieldset disabled={isSubmitting} className="space-y-4">
             <div className="grid gap-5 sm:grid-cols-2">
               <FormField
                 control={form.control}
@@ -249,6 +287,53 @@ function ProjectSettingsForm({ project }: { project: Project }) {
                         disabled={isSubmitting}
                       />
                     </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid gap-5 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="price_from"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Prix « à partir de »{" "}
+                      <span className="font-normal text-muted-foreground">(facultatif)</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input {...field} inputMode="decimal" autoComplete="off" className="h-11" />
+                    </FormControl>
+                    <FormDescription>
+                      En haut de la page publique, à la place du prix le plus bas des lots.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="contact_phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Téléphone commercial{" "}
+                      <span className="font-normal text-muted-foreground">(facultatif)</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="tel"
+                        autoComplete="tel"
+                        placeholder="+212 661 82 53 59"
+                        className="h-11"
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Boutons « Appeler » et « WhatsApp » de la page publique.
+                    </FormDescription>
+                    <FormMessage />
                   </FormItem>
                 )}
               />

@@ -25,12 +25,12 @@ function ProgrammesPage() {
   const projects = useProjects(orgId);
 
   return (
-    <Container className="pt-8 sm:pt-10">
+    <Container className="pt-5 sm:pt-7">
       <PageHeading eyebrow={active?.organization.name ?? "Espace promoteur"} title="Vos programmes">
         {orgId ? <NewProjectDialog organizationId={orgId} /> : null}
       </PageHeading>
 
-      <div className="mt-8">
+      <div className="mt-5">
         {loading || (orgId && projects.isPending) ? (
           <div
             className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
@@ -60,7 +60,7 @@ function ProgrammesPage() {
                 <Link
                   to="/app/projets/$id"
                   params={{ id: p.id }}
-                  className="group block h-full rounded-2xl border border-border bg-card p-5 transition-colors hover:border-foreground/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="group block h-full rounded-2xl border border-border bg-card p-4 transition-colors hover:border-foreground/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <h2 className="min-w-0 break-words font-display text-lg font-medium tracking-tight">
@@ -74,7 +74,7 @@ function ProgrammesPage() {
                       {p.city}
                     </p>
                   ) : null}
-                  <p className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
+                  <p className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
                     Modifié le {dateFormat.format(new Date(p.updated_at))}
                     <ArrowUpRight
                       className="size-4 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"

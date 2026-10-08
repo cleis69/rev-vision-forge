@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { toMediaItem, type MediaItem } from "@/lib/app/media";
+import { parseAmenities, type Amenity } from "@/lib/amenities";
+import { parseLotTypes, type LotTypeNote } from "@/lib/lot-types";
 import { toView, type OrbitView } from "@/lib/app/orbit";
 import { panoramaImage, type PanoramaImage } from "@/lib/app/tours";
 import { publicUrl } from "@/lib/app/storage";
@@ -24,6 +26,7 @@ export type PublicLot = {
   surface_habitable: number | null;
   surface_terrain: number | null;
   chambres: number | null;
+  salles_de_bain: number | null;
   prix: number | null;
   statut: LotStatus;
   description: string | null;
@@ -86,6 +89,13 @@ export type PublicProgramme = {
   address: string | null;
   position: Position | null;
   places: Place[];
+  /** Written by the promoter, shown instead of the lowest price of the lots (null when prices are hidden). */
+  priceFrom: number | null;
+  /** Phone of the sales team: call and WhatsApp buttons. */
+  phone: string | null;
+  amenities: Amenity[];
+  /** Text of each type of lot, in the order of the Typologies section. */
+  lotTypes: LotTypeNote[];
 };
 
 export type PublicData = {
@@ -93,7 +103,12 @@ export type PublicData = {
   lots: PublicLot[];
   /** Views with a sequence and a linked colour, in the promoter's order (floors are sorted by the pages). */
   views: PublicView[];
+  /** Photos (of the programme, of a type, of a lot), in the promoter's order. */
   media: MediaItem[];
+  /** Plans of the types, videos, documents (PDF brochures). */
+  plans: MediaItem[];
+  videos: MediaItem[];
+  documents: MediaItem[];
   /** 360° tours with at least one room, types first. */
   tours: PublicTour[];
   /** Draft seen by a member of its organization. */
@@ -117,6 +132,10 @@ type Source = {
   latitude: number | null;
   longitude: number | null;
   places: unknown;
+  price_from: number | null;
+  contact_phone: string | null;
+  amenities: unknown;
+  lot_types: unknown;
 };
 
 const features = (value: unknown) =>
@@ -139,7 +158,7 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
       .from("media")
       .select("*")
       .eq("project_id", source.id)
-      .eq("kind", "image")
+      .in("kind", ["image", "plan", "video", "document"])
       .order("sort_order"),
     supabase
       .from("media")
@@ -241,6 +260,10 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
         ? { lat: source.latitude as number, lng: source.longitude as number }
         : null,
       places: parsePlaces(source.places),
+      priceFrom: showPrices ? source.price_from : null,
+      phone: source.contact_phone?.trim() || null,
+      amenities: parseAmenities(source.amenities),
+      lotTypes: parseLotTypes(source.lot_types),
     },
     lots: lots.data
       .flatMap((l) =>
@@ -253,6 +276,7 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
                 surface_habitable: l.surface_habitable,
                 surface_terrain: l.surface_terrain,
                 chambres: l.chambres,
+                salles_de_bain: l.salles_de_bain ?? null,
                 // The preview shows what visitors will see.
                 prix: showPrices ? l.prix : null,
                 statut: l.statut,
@@ -265,7 +289,16 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
       )
       .sort((a, b) => compareNumeros(a.numero, b.numero)),
     views: publicViews,
-    media: media.data.map(toMediaItem),
+    ...byKind(media.data.map(toMediaItem)),
+  };
+}
+
+function byKind(items: MediaItem[]) {
+  return {
+    media: items.filter((m) => m.kind === "image"),
+    plans: items.filter((m) => m.kind === "plan"),
+    videos: items.filter((m) => m.kind === "video"),
+    documents: items.filter((m) => m.kind === "document"),
   };
 }
 
@@ -322,6 +355,10 @@ export function usePublicProgramme(slug: string) {
     },
   });
 }
+
+/** "From" price of the programme: the promoter's, else the lowest price of the available lots. */
+export const programmePrice = (programme: PublicProgramme, lots: PublicLot[]) =>
+  programme.showPrices ? (programme.priceFrom ?? startingPrice(lots)) : null;
 
 /** Lowest price of the available lots, when prices are shown. */
 export function startingPrice(lots: PublicLot[]): number | null {

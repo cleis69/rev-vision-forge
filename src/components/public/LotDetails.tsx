@@ -1,5 +1,5 @@
 import type { ElementType, ReactNode } from "react";
-import { BedDouble, Layers, Maximize2, Trees } from "lucide-react";
+import { Bath, BedDouble, Layers, Maximize2, Trees } from "lucide-react";
 
 import { STATUS_LABELS, type LotStatus } from "@/lib/app/lot-fields";
 import { mediaImage, type MediaItem } from "@/lib/app/media";
@@ -152,6 +152,15 @@ export function LotDetails({
               label="Chambres"
             >
               {lot.chambres}
+            </Fact>
+          ) : null}
+          {lot.salles_de_bain !== null ? (
+            <Fact
+              large={large}
+              icon={<Bath className="size-4" aria-hidden />}
+              label="Salles de bains"
+            >
+              {lot.salles_de_bain}
             </Fact>
           ) : null}
           {lot.niveau !== null ? (

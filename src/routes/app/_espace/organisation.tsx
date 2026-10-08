@@ -22,7 +22,7 @@ function OrganizationPage() {
 
   if (loading) {
     return (
-      <Container className="pt-8 sm:pt-10">
+      <Container className="pt-5 sm:pt-7">
         <div aria-busy="true" aria-label="Chargement">
           <Skeleton className="h-9 w-72 max-w-full" />
           <Skeleton className="mt-8 h-64 max-w-3xl rounded-2xl" />
@@ -33,7 +33,7 @@ function OrganizationPage() {
 
   if (!active) {
     return (
-      <Container className="pt-10">
+      <Container className="pt-6">
         <EmptyState
           title="Aucune organisation"
           text="Créez d'abord votre organisation depuis la liste de vos programmes."
@@ -48,9 +48,9 @@ function OrganizationPage() {
 
   const isOwner = active.role === "owner";
   return (
-    <Container className="pt-8 sm:pt-10">
+    <Container className="pt-5 sm:pt-7">
       <PageHeading eyebrow="Organisation" title={active.organization.name} />
-      <div className="mt-8 max-w-3xl space-y-6">
+      <div className="mt-5 max-w-3xl space-y-4">
         <SettingsSection
           title="Informations"
           description={

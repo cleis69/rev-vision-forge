@@ -158,6 +158,7 @@ export type Database = {
           numero: string;
           prix: number | null;
           project_id: string;
+          salles_de_bain: number | null;
           sort_order: number;
           statut: Database["public"]["Enums"]["lot_status"];
           surface_habitable: number | null;
@@ -175,6 +176,7 @@ export type Database = {
           numero: string;
           prix?: number | null;
           project_id: string;
+          salles_de_bain?: number | null;
           sort_order?: number;
           statut?: Database["public"]["Enums"]["lot_status"];
           surface_habitable?: number | null;
@@ -192,6 +194,7 @@ export type Database = {
           numero?: string;
           prix?: number | null;
           project_id?: string;
+          salles_de_bain?: number | null;
           sort_order?: number;
           statut?: Database["public"]["Enums"]["lot_status"];
           surface_habitable?: number | null;
@@ -222,6 +225,7 @@ export type Database = {
           id: string;
           kind: Database["public"]["Enums"]["media_kind"];
           lot_id: string | null;
+          lot_type: string | null;
           meta: Json;
           path: string;
           project_id: string;
@@ -233,6 +237,7 @@ export type Database = {
           id?: string;
           kind: Database["public"]["Enums"]["media_kind"];
           lot_id?: string | null;
+          lot_type?: string | null;
           meta?: Json;
           path: string;
           project_id: string;
@@ -244,6 +249,7 @@ export type Database = {
           id?: string;
           kind?: Database["public"]["Enums"]["media_kind"];
           lot_id?: string | null;
+          lot_type?: string | null;
           meta?: Json;
           path?: string;
           project_id?: string;
@@ -551,7 +557,9 @@ export type Database = {
       projects: {
         Row: {
           address: string | null;
+          amenities: Json;
           city: string | null;
+          contact_phone: string | null;
           created_at: string;
           currency: string;
           custom_domain: string | null;
@@ -559,9 +567,11 @@ export type Database = {
           id: string;
           latitude: number | null;
           longitude: number | null;
+          lot_types: Json;
           name: string;
           organization_id: string;
           places: Json;
+          price_from: number | null;
           show_prices: boolean;
           slug: string;
           status: Database["public"]["Enums"]["project_status"];
@@ -569,7 +579,9 @@ export type Database = {
         };
         Insert: {
           address?: string | null;
+          amenities?: Json;
           city?: string | null;
+          contact_phone?: string | null;
           created_at?: string;
           currency?: string;
           custom_domain?: string | null;
@@ -577,9 +589,11 @@ export type Database = {
           id?: string;
           latitude?: number | null;
           longitude?: number | null;
+          lot_types?: Json;
           name: string;
           organization_id: string;
           places?: Json;
+          price_from?: number | null;
           show_prices?: boolean;
           slug: string;
           status?: Database["public"]["Enums"]["project_status"];
@@ -587,7 +601,9 @@ export type Database = {
         };
         Update: {
           address?: string | null;
+          amenities?: Json;
           city?: string | null;
+          contact_phone?: string | null;
           created_at?: string;
           currency?: string;
           custom_domain?: string | null;
@@ -595,9 +611,11 @@ export type Database = {
           id?: string;
           latitude?: number | null;
           longitude?: number | null;
+          lot_types?: Json;
           name?: string;
           organization_id?: string;
           places?: Json;
+          price_from?: number | null;
           show_prices?: boolean;
           slug?: string;
           status?: Database["public"]["Enums"]["project_status"];
@@ -625,6 +643,7 @@ export type Database = {
           numero: string | null;
           prix: number | null;
           project_id: string | null;
+          salles_de_bain: number | null;
           sort_order: number | null;
           statut: Database["public"]["Enums"]["lot_status"] | null;
           surface_habitable: number | null;
@@ -652,19 +671,23 @@ export type Database = {
       public_projects: {
         Row: {
           address: string | null;
+          amenities: Json | null;
           brand_color: string | null;
           brand_font: string | null;
           city: string | null;
+          contact_phone: string | null;
           currency: string | null;
           description: string | null;
           id: string | null;
           latitude: number | null;
           longitude: number | null;
+          lot_types: Json | null;
           name: string | null;
           organization_logo_path: string | null;
           organization_name: string | null;
           organization_slug: string | null;
           places: Json | null;
+          price_from: number | null;
           show_prices: boolean | null;
           slug: string | null;
           updated_at: string | null;
@@ -691,6 +714,8 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      is_valid_amenities: { Args: { amenities: Json }; Returns: boolean };
+      is_valid_lot_types: { Args: { lot_types: Json }; Returns: boolean };
       is_valid_places: { Args: { places: Json }; Returns: boolean };
       project_stats: {
         Args: { p_days: number; p_project_id: string; p_tz?: string };
@@ -714,7 +739,8 @@ export type Database = {
       lead_status: "nouveau" | "traite";
       lot_event_type: "vue_page" | "vue_lot" | "clic_lot" | "partage" | "visite_360";
       lot_status: "disponible" | "reservee" | "vendue";
-      media_kind: "image" | "panorama" | "orbit_frame" | "orbit_mask" | "plan";
+      media_kind:
+        "image" | "panorama" | "orbit_frame" | "orbit_mask" | "plan" | "video" | "document";
       member_role: "owner" | "commercial";
       project_status: "draft" | "published";
       view_kind: "aerienne" | "toiture" | "niveau" | "pieton" | "autre";
@@ -842,7 +868,7 @@ export const Constants = {
       lead_status: ["nouveau", "traite"],
       lot_event_type: ["vue_page", "vue_lot", "clic_lot", "partage", "visite_360"],
       lot_status: ["disponible", "reservee", "vendue"],
-      media_kind: ["image", "panorama", "orbit_frame", "orbit_mask", "plan"],
+      media_kind: ["image", "panorama", "orbit_frame", "orbit_mask", "plan", "video", "document"],
       member_role: ["owner", "commercial"],
       project_status: ["draft", "published"],
       view_kind: ["aerienne", "toiture", "niveau", "pieton", "autre"],

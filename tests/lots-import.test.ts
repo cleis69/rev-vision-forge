@@ -22,6 +22,7 @@ const lot = (numero: string, extra: Partial<Lot> = {}): Lot => ({
   surface_habitable: 200,
   surface_terrain: 500,
   chambres: 4,
+  salles_de_bain: 3,
   prix: 1000000,
   statut: "disponible",
   description: null,

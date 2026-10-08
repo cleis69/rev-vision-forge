@@ -18,7 +18,7 @@ export const Route = createFileRoute("/app/_espace/projets/$id")({
 
 // Tabs of the programme, in the order of the spec.
 const TABS = [
-  { label: "Plan", to: "/app/projets/$id/plan" },
+  { label: "Vues", to: "/app/projets/$id/plan" },
   { label: "Lots", to: "/app/projets/$id/lots" },
   { label: "Médias", to: "/app/projets/$id/medias" },
   { label: "Marque", to: "/app/projets/$id/marque" },

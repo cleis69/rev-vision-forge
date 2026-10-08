@@ -2,17 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { CalendarCheck, ExternalLink, Eye, Share2, X } from "lucide-react";
 
-import {
-  PoweredBy,
-  PublicMessage,
-  StatusFilters,
-  ViewSwitch,
-  type ViewMode,
-} from "@/components/public/Common";
+import { PoweredBy, PublicMessage, RevBadge, StatusFilters } from "@/components/public/Common";
 import { LotCards } from "@/components/public/LotCards";
 import { LotDetails } from "@/components/public/LotDetails";
-import { OrbitViewer } from "@/components/public/OrbitViewer";
-import { PublicPlan } from "@/components/public/PublicPlan";
+import { ProgrammeViews } from "@/components/public/ProgrammeViews";
+import { useFollowLot, useViewKey } from "@/lib/public/use-views";
 import { VisitForm } from "@/components/public/VisitForm";
 import type { LotStatus } from "@/lib/app/lot-fields";
 import { HEIGHT_MESSAGE, type HeightMessage } from "@/lib/public/embed";
@@ -80,7 +74,7 @@ function useParentHeight(slug: string) {
 }
 
 function EmbeddedPlan({ data, slug }: { data: PublicData; slug: string }) {
-  const { programme, lots, shapes, media, preview } = data;
+  const { programme, lots, media, preview } = data;
   const [filter, setFilter] = useState<LotStatus | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [visitFor, setVisitFor] = useState<string | null>(null);
@@ -91,10 +85,9 @@ function EmbeddedPlan({ data, slug }: { data: PublicData; slug: string }) {
 
   const lot = selectedId ? (lots.find((l) => l.id === selectedId) ?? null) : null;
   const counts = countByStatus(lots);
-  const plan = programme.plan && lots.some((l) => shapes.has(l.id)) ? programme.plan : null;
-  const orbit = data.orbit;
-  const [view, setView] = useState<ViewMode>(orbit ? "3d" : "plan");
-  const showOrbit = Boolean(orbit) && (view === "3d" || !plan);
+  const hasViews = data.views.length > 0 || Boolean(data.orbit);
+  const [viewKey, setViewKey] = useViewKey(data);
+  useFollowLot(data, lot, setViewKey);
 
   useEffect(() => {
     document.title = `Plan de vente — ${programme.name}`;
@@ -153,32 +146,17 @@ function EmbeddedPlan({ data, slug }: { data: PublicData; slug: string }) {
         </p>
       ) : null}
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3">
         <h1 className="font-brand text-xl font-medium tracking-tight">{programme.name}</h1>
-        <div className="flex flex-wrap items-center gap-3">
-          {plan && orbit ? <ViewSwitch value={view} onChange={setView} /> : null}
-          <StatusFilters value={filter} onChange={setFilter} counts={counts} total={lots.length} />
-        </div>
+        <RevBadge size="sm" />
       </div>
+      <StatusFilters value={filter} onChange={setFilter} counts={counts} total={lots.length} />
 
-      {showOrbit && orbit ? (
-        <OrbitViewer
-          orbit={orbit}
-          lots={lots}
-          currency={programme.currency}
-          brandColor={programme.organization.brandColor}
-          filter={filter}
-          highlight={highlight}
-          selected={selectedId}
-          variant="embed"
-          onOpen={open}
-        />
-      ) : plan ? (
-        <PublicPlan
-          image={plan}
-          lots={lots}
-          shapes={shapes}
-          currency={programme.currency}
+      {hasViews ? (
+        <ProgrammeViews
+          data={data}
+          viewKey={viewKey}
+          onViewChange={setViewKey}
           filter={filter}
           highlight={highlight}
           selected={selectedId}

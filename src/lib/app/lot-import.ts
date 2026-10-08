@@ -11,6 +11,7 @@ import {
   type LotField,
   type LotValues,
 } from "./lot-fields";
+import { levelLabel } from "@/lib/views";
 
 /* CSV import of lots: preview first (new, updated, unchanged or invalid
    rows), then one upsert by (project_id, numero). An empty cell keeps the
@@ -122,6 +123,7 @@ export function importRows(
         : {
             numero: row.numero,
             type: null,
+            niveau: null,
             surface_habitable: null,
             surface_terrain: null,
             chambres: null,
@@ -152,6 +154,7 @@ export function lotsToCsv(lots: readonly Lot[]): string[][] {
     ...sorted.map((lot) => [
       lot.numero,
       lot.type ?? "",
+      lot.niveau == null ? "" : levelLabel(lot.niveau),
       csvNumber(lot.surface_habitable),
       csvNumber(lot.surface_terrain),
       lot.chambres === null ? "" : String(lot.chambres),
@@ -167,6 +170,7 @@ export const CSV_TEMPLATE: string[][] = [
   [
     "1",
     "Villa",
+    "RDC",
     "250",
     "600",
     "4",
@@ -174,5 +178,5 @@ export const CSV_TEMPLATE: string[][] = [
     "disponible",
     "Villa R+1 avec ascenseur et piscine privée",
   ],
-  ["2", "Villa", "230,5", "550", "4", "1180000", "reservee", ""],
+  ["2", "Appartement", "R+2", "230,5", "", "4", "1180000", "reservee", ""],
 ];

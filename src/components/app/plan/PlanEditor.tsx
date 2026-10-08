@@ -51,12 +51,15 @@ export type PlanImage = { large: string; small: string; width: number; height: n
 
 export function PlanEditor({
   projectId,
+  viewId,
   image,
   lots,
   shapes,
   onReplace,
 }: {
   projectId: string;
+  /** View whose shapes are edited. */
+  viewId: string;
   image: PlanImage;
   lots: Lot[];
   shapes: Map<string, Point[]>;
@@ -168,7 +171,7 @@ export function PlanEditor({
 
   const store = (lotId: string, points: Point[]) =>
     save.mutate(
-      { lotId, points },
+      { viewId, lotId, points },
       {
         onSuccess: () => {
           setSaved(true);
@@ -225,7 +228,10 @@ export function PlanEditor({
 
   const clearShape = () => {
     if (!selected) return;
-    remove.mutate(selected.id, { onError: (error) => toast.error(dbErrorMessage(error)) });
+    remove.mutate(
+      { viewId, lotId: selected.id },
+      { onError: (error) => toast.error(dbErrorMessage(error)) },
+    );
     select(selected.id);
   };
 
@@ -539,7 +545,7 @@ export function PlanEditor({
           </span>
           <Button variant="ghost" className="ml-auto h-9" onClick={onReplace}>
             <ImageUp aria-hidden />
-            Remplacer le plan
+            Remplacer l'image
           </Button>
         </div>
 

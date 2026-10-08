@@ -12,6 +12,7 @@ import { mediaImage, type MediaItem } from "@/lib/app/media";
 import { MAX_COMPARE, bestPricePerSqm, featureRows, pricePerSqm } from "@/lib/public/compare";
 import type { PublicLot } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
+import { levelLabel } from "@/lib/views";
 import { StatusChip } from "./LotDetails";
 import { priceLabel } from "./PublicPlan";
 
@@ -229,6 +230,22 @@ export function CompareDialog({
                   </td>
                 ))}
               </tr>
+              {lots.some((lot) => lot.niveau !== null) ? (
+                <tr>
+                  <th scope="row" className={head}>
+                    Niveau
+                  </th>
+                  {lots.map((lot) => (
+                    <td key={lot.id} className={cell}>
+                      {lot.niveau !== null ? (
+                        levelLabel(lot.niveau)
+                      ) : (
+                        <span className="text-white/35">—</span>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ) : null}
               {features.map((row) => (
                 <tr key={row.feature}>
                   <th

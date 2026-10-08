@@ -45,6 +45,7 @@ import { StatusSelect } from "./LotStatus";
 export const CELL_FIELDS = [
   "numero",
   "type",
+  "niveau",
   "surface_habitable",
   "surface_terrain",
   "chambres",
@@ -57,6 +58,7 @@ const NUMERIC = new Set<CellField>(["surface_habitable", "surface_terrain", "cha
 const COLUMN_LABELS: Record<CellField, string> = {
   numero: "N°",
   type: "Type",
+  niveau: "Niveau",
   surface_habitable: "Surface habitable",
   surface_terrain: "Terrain",
   chambres: "Chambres",

@@ -1,3 +1,4 @@
+import { levelLabel } from "@/lib/views";
 import { STATUS_LABELS, type LotField, type LotValues } from "./lot-fields";
 
 const decimal = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
@@ -37,6 +38,8 @@ export function formatField(
       return formatPrice(Number(value), currency);
     case "chambres":
       return String(value);
+    case "niveau":
+      return levelLabel(Number(value));
     case "statut":
       return STATUS_LABELS[value as LotValues["statut"]];
     default:

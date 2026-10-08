@@ -1,10 +1,11 @@
 import type { ElementType, ReactNode } from "react";
-import { BedDouble, Maximize2, Trees } from "lucide-react";
+import { BedDouble, Layers, Maximize2, Trees } from "lucide-react";
 
 import { STATUS_LABELS, type LotStatus } from "@/lib/app/lot-fields";
 import { mediaImage, type MediaItem } from "@/lib/app/media";
 import type { PublicLot } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
+import { levelLabel } from "@/lib/views";
 import { priceLabel } from "./PublicPlan";
 
 const area = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
@@ -146,6 +147,11 @@ export function LotDetails({
               label="Chambres"
             >
               {lot.chambres}
+            </Fact>
+          ) : null}
+          {lot.niveau !== null ? (
+            <Fact large={large} icon={<Layers className="size-4" aria-hidden />} label="Niveau">
+              {levelLabel(lot.niveau)}
             </Fact>
           ) : null}
         </dl>

@@ -14,9 +14,8 @@ import {
   PoweredBy,
   PublicLoading,
   PublicMessage,
+  RevBadge,
   StatusFilters,
-  ViewSwitch,
-  type ViewMode,
 } from "@/components/public/Common";
 import { CompareBar, CompareDialog } from "@/components/public/Compare";
 import { Gallery } from "@/components/public/Gallery";
@@ -24,8 +23,8 @@ import { LotCards } from "@/components/public/LotCards";
 import { LotSheet } from "@/components/public/LotSheet";
 import { Presentation } from "@/components/public/Presentation";
 import { Situation } from "@/components/public/Situation";
-import { OrbitViewer } from "@/components/public/OrbitViewer";
-import { PublicPlan } from "@/components/public/PublicPlan";
+import { ProgrammeViews } from "@/components/public/ProgrammeViews";
+import { useFollowLot, useViewKey } from "@/lib/public/use-views";
 import { VisitForm } from "@/components/public/VisitForm";
 import type { LotStatus } from "@/lib/app/lot-fields";
 import { formatPrice } from "@/lib/app/lot-format";
@@ -44,6 +43,7 @@ import {
 import { shareLot, whatsappShareUrl } from "@/lib/public/share";
 import { useBrandTheme } from "@/lib/public/theme";
 import { cn } from "@/lib/utils";
+import { levelLabel } from "@/lib/views";
 
 type Search = { mode?: "presentation" };
 
@@ -90,7 +90,7 @@ function readCompared(projectId: string): string[] {
 }
 
 function Programme({ data, slug }: { data: PublicData; slug: string }) {
-  const { programme, lots, shapes, media, preview } = data;
+  const { programme, lots, media, preview } = data;
   const navigate = useNavigate();
   const router = useRouter();
   const [filter, setFilter] = useState<LotStatus | null>(null);
@@ -146,12 +146,22 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
   const hero = gallery[0] ? mediaImage(gallery[0]) : null;
   const counts = useMemo(() => countByStatus(lots), [lots]);
   const from = programme.showPrices ? startingPrice(lots) : null;
-  const plan = programme.plan && lots.some((l) => shapes.has(l.id)) ? programme.plan : null;
-  const orbit = data.orbit;
-  // The orbital view first when there is one (choice of REV), the plan a click away.
-  const [view, setView] = useState<ViewMode>(orbit ? "3d" : "plan");
-  const showOrbit = Boolean(orbit) && (view === "3d" || !plan);
-  const shownLots = filter ? lots.filter((l) => l.statut === filter) : lots;
+  // Views of the programme: the main one first; an opened lot brings its view.
+  const hasViews = data.views.length > 0 || Boolean(data.orbit);
+  const [viewKey, setViewKey] = useViewKey(data);
+  useFollowLot(data, lot, setViewKey);
+  // Floors of the lots, top floor first: a filter of the list when there are several.
+  const levels = useMemo(
+    () =>
+      [...new Set(lots.flatMap((l) => (l.niveau === null ? [] : [l.niveau])))].sort(
+        (a, b) => b - a,
+      ),
+    [lots],
+  );
+  const [levelFilter, setLevelFilter] = useState<number | null>(null);
+  const shownLots = lots.filter(
+    (l) => (!filter || l.statut === filter) && (levelFilter === null || l.niveau === levelFilter),
+  );
 
   useEffect(() => {
     if (!preview && !tracked.current) {
@@ -210,7 +220,7 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
             <img
               src={programme.organization.logo}
               alt={programme.organization.name}
-              className="h-8 w-auto"
+              className="h-8 w-auto shrink-0"
             />
           ) : (
             <span className="truncate font-brand text-base font-medium tracking-tight">
@@ -219,9 +229,9 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
           )}
           <nav
             aria-label="Sections"
-            className="ml-auto hidden items-center gap-6 text-sm text-white/70 sm:flex"
+            className="ml-auto hidden items-center gap-6 text-sm text-white/70 md:flex"
           >
-            {plan || orbit ? (
+            {hasViews ? (
               <a href="#plan" className="hover:text-white">
                 Plan de vente
               </a>
@@ -246,6 +256,7 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
               Planifier une visite
             </a>
           </nav>
+          {programme.organization.slug !== "rev" ? <RevBadge className="ml-auto md:ml-0" /> : null}
         </div>
       </header>
 
@@ -292,7 +303,7 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
               ) : null}
             </dl>
             <div className="mt-10 flex flex-wrap gap-3">
-              {plan || orbit ? (
+              {hasViews ? (
                 <a
                   href="#plan"
                   className="inline-flex h-12 items-center gap-2 rounded-full bg-[color:var(--brand)] px-6 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
@@ -311,42 +322,26 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
           </div>
         </section>
 
-        {plan || orbit ? (
+        {hasViews ? (
           <section id="plan" className="scroll-mt-20 border-t border-white/10">
             <div className="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
               <SectionTitle title="Plan de vente">
-                <div className="flex flex-wrap items-center gap-3">
-                  {plan && orbit ? <ViewSwitch value={view} onChange={setView} /> : null}
-                  <StatusFilters
-                    value={filter}
-                    onChange={setFilter}
-                    counts={counts}
-                    total={lots.length}
-                  />
-                </div>
+                <StatusFilters
+                  value={filter}
+                  onChange={setFilter}
+                  counts={counts}
+                  total={lots.length}
+                />
               </SectionTitle>
               <div className="mt-8">
-                {showOrbit && orbit ? (
-                  <OrbitViewer
-                    orbit={orbit}
-                    lots={lots}
-                    currency={programme.currency}
-                    brandColor={programme.organization.brandColor}
-                    filter={filter}
-                    highlight={highlight}
-                    onOpen={open}
-                  />
-                ) : plan ? (
-                  <PublicPlan
-                    image={plan}
-                    lots={lots}
-                    shapes={shapes}
-                    currency={programme.currency}
-                    filter={filter}
-                    highlight={highlight}
-                    onOpen={open}
-                  />
-                ) : null}
+                <ProgrammeViews
+                  data={data}
+                  viewKey={viewKey}
+                  onViewChange={setViewKey}
+                  filter={filter}
+                  highlight={highlight}
+                  onOpen={open}
+                />
               </div>
             </div>
           </section>
@@ -362,6 +357,33 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
                 total={lots.length}
               />
             </SectionTitle>
+            {levels.length > 1 ? (
+              <div
+                role="group"
+                aria-label="Filtrer les lots par niveau"
+                className="mt-4 flex flex-wrap gap-2"
+              >
+                {[null, ...levels].map((level) => {
+                  const active = levelFilter === level;
+                  return (
+                    <button
+                      key={level ?? "tous"}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => setLevelFilter(level)}
+                      className={cn(
+                        "inline-flex h-8 items-center rounded-full border px-3.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                        active
+                          ? "border-[color:var(--brand)] text-[color:var(--brand)]"
+                          : "border-white/15 text-white/65 hover:text-white",
+                      )}
+                    >
+                      {level === null ? "Tous les niveaux" : levelLabel(level)}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : null}
             {shownLots.length === 0 ? (
               <p className="mt-8 text-sm text-white/60">
                 {lots.length === 0

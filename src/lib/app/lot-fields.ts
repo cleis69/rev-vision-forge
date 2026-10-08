@@ -1,4 +1,5 @@
 import { parseDecimal, parseInteger, type Parsed } from "@/lib/numbers";
+import { levelLabel, parseLevel } from "@/lib/views";
 import type { Enums, Tables } from "@/lib/supabase/database.types";
 
 /* Fields of a lot: labels, limits (same as the database) and how a typed or
@@ -30,6 +31,7 @@ export const LOT_TYPES = [
 export const LOT_FIELDS = [
   "numero",
   "type",
+  "niveau",
   "surface_habitable",
   "surface_terrain",
   "chambres",
@@ -43,6 +45,7 @@ export type LotValues = Pick<Lot, LotField>;
 export const FIELD_LABELS: Record<LotField, string> = {
   numero: "N°",
   type: "Type",
+  niveau: "Niveau",
   surface_habitable: "Surface habitable",
   surface_terrain: "Terrain",
   chambres: "Chambres",
@@ -84,6 +87,7 @@ const HEADER_ALIASES: Record<LotField, string[]> = {
     "ref",
   ],
   type: ["type", "typologie", "type de lot"],
+  niveau: ["niveau", "etage", "level", "floor", "niv"],
   surface_habitable: [
     "surface habitable",
     "surface",
@@ -179,6 +183,11 @@ export function parseField<F extends LotField>(field: F, input: string): FieldRe
       return num(parseDecimal(s, { max: 1e12 }));
     case "chambres":
       return num(parseInteger(s, { max: 100 }));
+    case "niveau": {
+      const level = parseLevel(s);
+      if (level === undefined) return fail("Niveau inconnu : R-1, RDC, R+1, R+2…");
+      return ok(level);
+    }
     case "statut": {
       const status = parseStatus(s);
       if (status === undefined) return fail("Valeur inconnue (disponible, réservé ou vendu).");
@@ -192,6 +201,7 @@ export function parseField<F extends LotField>(field: F, input: string): FieldRe
 /** Value shown in an input to edit a field. */
 export function fieldInput(field: LotField, value: LotValues[LotField]): string {
   if (value === null || value === undefined) return "";
+  if (field === "niveau" && typeof value === "number") return levelLabel(value);
   if (typeof value === "number")
     return field === "chambres" ? String(value) : String(value).replace(".", ",");
   return String(value);

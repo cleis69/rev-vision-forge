@@ -26,20 +26,47 @@ export function PublicProviders({ children }: { children: ReactNode }) {
   );
 }
 
-/** REV's signature, always shown on the public pages, whatever the promoter's branding. */
+/** REV's signature at the foot of every public page, whatever the promoter's branding. */
 export function PoweredBy({ className }: { className?: string }) {
   return (
-    <p className={cn("text-xs text-white/45", className)}>
+    <p className={cn("text-sm text-white/60", className)}>
       <a
         href="https://realestatevision360.com/"
         target="_blank"
         rel="noopener"
-        className="inline-flex items-center gap-2 rounded transition-colors hover:text-white/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+        className="inline-flex items-center gap-2.5 rounded transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
       >
         Propulsé par
-        <RevLogo variant="compact" lazy className="h-6 w-auto" />
+        <RevLogo variant="compact" lazy className="h-8 w-auto" />
       </a>
     </p>
+  );
+}
+
+/** REV's logo at the top of every public page (page, embedded plan, presentation). */
+export function RevBadge({
+  size = "md",
+  className,
+}: {
+  size?: "sm" | "md" | "lg";
+  className?: string;
+}) {
+  return (
+    <a
+      href="https://realestatevision360.com/"
+      target="_blank"
+      rel="noopener"
+      title="REV — Real Estate Vision"
+      className={cn(
+        "inline-flex shrink-0 items-center rounded transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60",
+        className,
+      )}
+    >
+      <RevLogo
+        variant="compact"
+        className={cn("w-auto", size === "sm" ? "h-6" : size === "lg" ? "h-10" : "h-8")}
+      />
+    </a>
   );
 }
 
@@ -136,49 +163,6 @@ export function StatusFilters({
           </button>
         );
       })}
-    </div>
-  );
-}
-
-export type ViewMode = "3d" | "plan";
-
-/** "Vue 3D / Plan", when a programme has both. */
-export function ViewSwitch({
-  value,
-  onChange,
-  large = false,
-}: {
-  value: ViewMode;
-  onChange: (mode: ViewMode) => void;
-  large?: boolean;
-}) {
-  const options: { mode: ViewMode; label: string }[] = [
-    { mode: "3d", label: "Vue 3D" },
-    { mode: "plan", label: "Plan" },
-  ];
-  return (
-    <div
-      role="group"
-      aria-label="Affichage"
-      className="inline-flex rounded-full border border-white/15 bg-white/[0.04] p-1"
-    >
-      {options.map((o) => (
-        <button
-          key={o.mode}
-          type="button"
-          aria-pressed={value === o.mode}
-          onClick={() => onChange(o.mode)}
-          className={cn(
-            "rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
-            large ? "h-10 px-5 text-base" : "h-7 px-3.5 text-sm",
-            value === o.mode
-              ? "bg-[color:var(--brand)] text-[color:var(--brand-contrast)]"
-              : "text-white/70 hover:text-white",
-          )}
-        >
-          {o.label}
-        </button>
-      ))}
     </div>
   );
 }

@@ -5,28 +5,30 @@ import { toast } from "sonner";
 import { FormMessage as Notice } from "@/components/app/AuthCard";
 import { Button } from "@/components/ui/button";
 import { dbErrorMessage } from "@/lib/app/errors";
-import { PLAN_LARGE, useUploadPlan, type UploadPhase } from "@/lib/app/plan";
+import { PLAN_LARGE, useUploadViewImage, type ProjectView, type UploadPhase } from "@/lib/app/plan";
 import type { Project } from "@/lib/app/projects";
 import { ImageError, PLAN_TYPES } from "@/lib/image";
 import { cn } from "@/lib/utils";
 
 const PHASES: Record<UploadPhase, string> = {
   preparing: "Préparation de l'image…",
-  uploading: "Envoi du plan…",
+  uploading: "Envoi de l'image…",
 };
 
-/** Drop zone for the aerial view or site plan of a programme. */
+/** Drop zone for the image of a view (aerial view, floor plan, pedestrian view…). */
 export function PlanUploader({
   project,
+  view,
   replacing = false,
   onDone,
 }: {
   project: Project;
+  view: ProjectView;
   replacing?: boolean;
   onDone?: () => void;
 }) {
   const [phase, setPhase] = useState<UploadPhase | null>(null);
-  const upload = useUploadPlan(project, setPhase);
+  const upload = useUploadViewImage(project, view, setPhase);
   const input = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +39,7 @@ export function PlanUploader({
     setError(null);
     try {
       await upload.mutateAsync(file);
-      toast.success(replacing ? "Plan remplacé" : "Plan téléversé");
+      toast.success(replacing ? "Image remplacée" : "Image téléversée");
       onDone?.();
     } catch (e) {
       setError(e instanceof ImageError ? e.message : dbErrorMessage(e));
@@ -78,8 +80,15 @@ export function PlanUploader({
         ) : (
           <>
             <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-              Vue aérienne ou plan de masse, en JPEG, PNG ou WebP. L'image est optimisée avant
-              l'envoi (WebP, {PLAN_LARGE.toLocaleString("fr-FR")} px au plus).
+              {view.kind === "niveau"
+                ? `Plan du niveau ${view.name}`
+                : view.kind === "pieton"
+                  ? "Perspective depuis la rue"
+                  : view.kind === "toiture"
+                    ? "Vue de la toiture"
+                    : "Vue aérienne ou plan de masse"}
+              , en JPEG, PNG ou WebP. L'image est optimisée avant l'envoi (WebP,{" "}
+              {PLAN_LARGE.toLocaleString("fr-FR")} px au plus).
             </p>
             <Button type="button" className="h-11" onClick={() => input.current?.click()}>
               {replacing ? "Choisir la nouvelle image" : "Choisir une image"}

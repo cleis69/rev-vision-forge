@@ -2,10 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 
 import { toMediaItem, type MediaItem } from "@/lib/app/media";
 import { toView, type OrbitView } from "@/lib/app/orbit";
-import { planImages } from "@/lib/app/plan";
+import { viewImage, type PlanImage } from "@/lib/app/plan";
 import { publicUrl } from "@/lib/app/storage";
 import { LOT_STATUSES, compareNumeros, type LotStatus } from "@/lib/app/lot-fields";
 import { parsePoints, type Point } from "@/lib/geometry";
+import type { ViewLike } from "@/lib/views";
 import { getSupabase } from "@/lib/supabase/client";
 import { DEFAULT_BRAND } from "@/lib/brand";
 import { isPosition, parsePlaces, type Place, type Position } from "@/lib/location";
@@ -26,6 +27,16 @@ export type PublicLot = {
   statut: LotStatus;
   description: string | null;
   features: string[];
+  /** Floor: -1 for R-1, 0 for the ground floor… */
+  niveau: number | null;
+};
+
+/** A view of the programme with its image and the shapes of the lots drawn on it. */
+export type PublicView = ViewLike & {
+  image: PlanImage;
+  shapes: Map<string, Point[]>;
+  /** Lots traced on this view. */
+  lots: ReadonlySet<string>;
 };
 
 export type PublicProgramme = {
@@ -36,8 +47,14 @@ export type PublicProgramme = {
   description: string | null;
   currency: string;
   showPrices: boolean;
-  plan: ReturnType<typeof planImages>;
-  organization: { name: string; logo: string | null; brandColor: string; brandFont: string | null };
+  organization: {
+    name: string;
+    /** "rev" for REV's own programmes (the demo), whose logo is already REV's. */
+    slug: string;
+    logo: string | null;
+    brandColor: string;
+    brandFont: string | null;
+  };
   /** Situation section: shown when any of the three is set. */
   address: string | null;
   position: Position | null;
@@ -54,7 +71,8 @@ export type PublicOrbit = {
 export type PublicData = {
   programme: PublicProgramme;
   lots: PublicLot[];
-  shapes: Map<string, Point[]>;
+  /** Views with an image, in the promoter's order (floors are sorted by the pages). */
+  views: PublicView[];
   media: MediaItem[];
   /** Null when the programme has no orbital view, or none of its colours is linked to a lot. */
   orbit: PublicOrbit | null;
@@ -70,10 +88,8 @@ type Source = {
   description: string | null;
   currency: string | null;
   show_prices: boolean | null;
-  plan_image_path: string | null;
-  plan_width: number | null;
-  plan_height: number | null;
   organization_name: string | null;
+  organization_slug: string | null;
   organization_logo_path: string | null;
   brand_color: string | null;
   brand_font: string | null;
@@ -92,9 +108,15 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
   const lotsQuery = preview
     ? supabase.from("lots").select("*").eq("project_id", source.id)
     : supabase.from("public_lots").select("*").eq("project_id", source.id);
-  const [lots, shapes, media, orbitMedia, orbitColors] = await Promise.all([
+  const [lots, views, shapes, media, orbitMedia, orbitColors] = await Promise.all([
     lotsQuery,
-    supabase.from("lot_shapes").select("lot_id, points").eq("project_id", source.id),
+    supabase
+      .from("project_views")
+      .select("*")
+      .eq("project_id", source.id)
+      .not("image_path", "is", null)
+      .order("sort_order"),
+    supabase.from("lot_shapes").select("view_id, lot_id, points").eq("project_id", source.id),
     supabase
       .from("media")
       .select("*")
@@ -116,14 +138,36 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
   if (lots.error) throw lots.error;
   if (orbitMedia.error) throw orbitMedia.error;
   if (orbitColors.error) throw orbitColors.error;
+  if (views.error) throw views.error;
   if (shapes.error) throw shapes.error;
   if (media.error) throw media.error;
 
-  const shapeMap = new Map<string, Point[]>();
+  const byView = new Map<string, Map<string, Point[]>>();
   for (const row of shapes.data) {
     const points = parsePoints(row.points);
-    if (points) shapeMap.set(row.lot_id, points);
+    if (!points) continue;
+    const map = byView.get(row.view_id) ?? new Map<string, Point[]>();
+    map.set(row.lot_id, points);
+    byView.set(row.view_id, map);
   }
+  const publicViews = views.data.flatMap((v): PublicView[] => {
+    const image = viewImage(v);
+    if (!image) return [];
+    const shapesOfView = byView.get(v.id) ?? new Map<string, Point[]>();
+    return [
+      {
+        id: v.id,
+        name: v.name,
+        kind: v.kind,
+        level: v.level,
+        sort_order: v.sort_order,
+        is_main: v.is_main,
+        image,
+        shapes: shapesOfView,
+        lots: new Set(shapesOfView.keys()),
+      },
+    ];
+  });
 
   return {
     preview,
@@ -135,9 +179,9 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
       description: source.description,
       currency: source.currency ?? "EUR",
       showPrices,
-      plan: planImages(source),
       organization: {
         name: source.organization_name ?? "",
+        slug: source.organization_slug ?? "",
         logo: source.organization_logo_path ? publicUrl(source.organization_logo_path) : null,
         brandColor: source.brand_color ?? DEFAULT_BRAND,
         brandFont: source.brand_font,
@@ -164,12 +208,13 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
                 statut: l.statut,
                 description: l.description,
                 features: features(l.features),
+                niveau: l.niveau ?? null,
               },
             ]
           : [],
       )
       .sort((a, b) => compareNumeros(a.numero, b.numero)),
-    shapes: shapeMap,
+    views: publicViews,
     media: media.data.map(toMediaItem),
     orbit: orbitOf(orbitMedia.data, orbitColors.data),
   };
@@ -208,7 +253,7 @@ export function usePublicProgramme(slug: string) {
       if (!auth.session) return null;
       const { data: own, error: ownError } = await supabase
         .from("projects")
-        .select("*, organization:organizations(name, logo_path, brand_color, brand_font)")
+        .select("*, organization:organizations(name, slug, logo_path, brand_color, brand_font)")
         .eq("slug", slug)
         .maybeSingle();
       if (ownError) throw ownError;
@@ -217,6 +262,7 @@ export function usePublicProgramme(slug: string) {
         {
           ...own,
           organization_name: own.organization.name,
+          organization_slug: own.organization.slug,
           organization_logo_path: own.organization.logo_path,
           brand_color: own.organization.brand_color,
           brand_font: own.organization.brand_font,

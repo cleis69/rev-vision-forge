@@ -2,6 +2,7 @@ import { BedDouble, GitCompareArrows, Maximize2 } from "lucide-react";
 
 import type { PublicLot } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
+import { levelLabel } from "@/lib/views";
 import { StatusChip } from "./LotDetails";
 import { priceLabel } from "./PublicPlan";
 
@@ -45,6 +46,7 @@ export function LotCards({
                 <StatusChip status={lot.statut} />
               </span>
               <span className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-white/60">
+                {lot.niveau !== null ? <span>{levelLabel(lot.niveau)}</span> : null}
                 {lot.surface_habitable !== null ? (
                   <span className="inline-flex items-center gap-1.5">
                     <Maximize2 className="size-3.5" aria-hidden />

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { dbErrorMessage } from "@/lib/app/errors";
 import { useLots } from "@/lib/app/lots";
 import { useMedia } from "@/lib/app/media";
-import { planImages, useShapes } from "@/lib/app/plan";
+import { tracedLots, useShapes, useViews } from "@/lib/app/plan";
 import { useUpdateProject } from "@/lib/app/projects";
 import { embedCode } from "@/lib/public/embed";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,7 @@ function SharePage() {
   const { project } = useCurrentProject();
   const lots = useLots(project.id);
   const shapes = useShapes(project.id);
+  const views = useViews(project.id);
   const media = useMedia(project.id);
   const update = useUpdateProject(project.id);
   const origin = window.location.origin;
@@ -30,16 +31,26 @@ function SharePage() {
   const published = project.status === "published";
 
   const lotCount = lots.data?.length ?? 0;
-  const traced = lots.data?.filter((l) => shapes.data?.has(l.id)).length ?? 0;
+  const placed = tracedLots(shapes.data);
+  const traced = lots.data?.filter((l) => placed.has(l.id)).length ?? 0;
+  const withImage = views.data?.filter((v) => v.image_path).length ?? 0;
   const checks = [
-    { ok: Boolean(planImages(project)), label: "Plan téléversé" },
+    {
+      ok: withImage > 0,
+      label:
+        withImage > 1
+          ? `${withImage} vues avec leur image`
+          : withImage === 1
+            ? "Une vue avec son image"
+            : "Une vue avec son image (onglet Vues)",
+    },
     { ok: lotCount > 0, label: lotCount > 0 ? `${lotCount} lots créés` : "Lots créés" },
     {
       ok: lotCount > 0 && traced === lotCount,
       label:
         lotCount > 0
-          ? `${traced} / ${lotCount} lots tracés sur le plan`
-          : "Lots tracés sur le plan",
+          ? `${traced} / ${lotCount} lots tracés sur au moins une vue`
+          : "Lots tracés sur une vue",
     },
     { ok: (media.data?.length ?? 0) > 0, label: "Photos ajoutées (facultatif)", optional: true },
   ];

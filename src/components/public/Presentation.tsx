@@ -7,11 +7,12 @@ import type { LotStatus } from "@/lib/app/lot-fields";
 import { useLiveLots } from "@/lib/public/live";
 import { countByStatus, type PublicData, type PublicLot } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
-import { PoweredBy, StatusFilters, ViewSwitch, type ViewMode } from "./Common";
+import { firstView } from "@/lib/views";
+import { PoweredBy, RevBadge, StatusFilters } from "./Common";
 import { LotCards } from "./LotCards";
 import { LotDetails } from "./LotDetails";
-import { OrbitViewer } from "./OrbitViewer";
-import { PublicPlan } from "./PublicPlan";
+import { useFollowLot, useViewKey } from "@/lib/public/use-views";
+import { ProgrammeViews } from "./ProgrammeViews";
 import { VisitForm } from "./VisitForm";
 
 /* Presentation mode (/p/$slug?mode=presentation): the sales plan full screen
@@ -25,7 +26,7 @@ const IDLE_MS = 3 * 60 * 1000;
 type Panel = { kind: "lot"; id: string; contact: boolean } | { kind: "contact" } | null;
 
 export function Presentation({ data, slug }: { data: PublicData; slug: string }) {
-  const { programme, lots, shapes, media, preview } = data;
+  const { programme, lots, media, preview } = data;
   const navigate = useNavigate();
   const { numero } = useParams({ strict: false }) as { numero?: string };
   const [panel, setPanel] = useState<Panel>(() => {
@@ -40,10 +41,12 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
   const fullscreen = useFullscreen();
   useWakeLock();
 
+  const [viewKey, setViewKey] = useViewKey(data);
+
   useIdle(IDLE_MS, () => {
     setPanel(null);
     setFilter(null);
-    setView(orbit ? "3d" : "plan");
+    setViewKey(firstView(data.views, Boolean(data.orbit)));
     setResetKey((k) => k + 1);
     setVisitor(crypto.randomUUID());
     // Also closes the personal data notice, or a lot opened from a link.
@@ -60,11 +63,9 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
   }, [programme.name]);
 
   const counts = countByStatus(lots);
-  const plan = programme.plan && lots.some((l) => shapes.has(l.id)) ? programme.plan : null;
-  const orbit = data.orbit;
-  const [view, setView] = useState<ViewMode>(orbit ? "3d" : "plan");
-  const showOrbit = Boolean(orbit) && (view === "3d" || !plan);
+  const hasViews = data.views.length > 0 || Boolean(data.orbit);
   const lot = panel?.kind === "lot" ? (lots.find((l) => l.id === panel.id) ?? null) : null;
+  useFollowLot(data, lot, setViewKey);
   const shown = filter ? lots.filter((l) => l.statut === filter) : lots;
   const open = (target: PublicLot) => setPanel({ kind: "lot", id: target.id, contact: false });
 
@@ -103,7 +104,6 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
         </div>
         {/* Under the name on a tablet, beside it on a wide screen. */}
         <div className="order-last flex w-full flex-wrap items-center gap-3 min-[1400px]:order-none min-[1400px]:w-auto">
-          {plan && orbit ? <ViewSwitch value={view} onChange={setView} large /> : null}
           <StatusFilters
             value={filter}
             onChange={setFilter}
@@ -113,6 +113,7 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
           />
         </div>
         <div className="ml-auto flex items-center gap-2">
+          {programme.organization.slug !== "rev" ? <RevBadge size="lg" className="mr-2" /> : null}
           <button
             type="button"
             onClick={() => setPanel({ kind: "contact" })}
@@ -151,25 +152,11 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
 
       <main className="relative flex min-h-0 flex-1">
         <div className="flex min-w-0 flex-1 flex-col p-4 lg:p-6">
-          {showOrbit && orbit ? (
-            <OrbitViewer
-              orbit={orbit}
-              lots={lots}
-              currency={programme.currency}
-              brandColor={programme.organization.brandColor}
-              filter={filter}
-              highlight={highlight}
-              selected={lot?.id ?? null}
-              variant="presentation"
-              resetKey={resetKey}
-              onOpen={open}
-            />
-          ) : plan ? (
-            <PublicPlan
-              image={plan}
-              lots={lots}
-              shapes={shapes}
-              currency={programme.currency}
+          {hasViews ? (
+            <ProgrammeViews
+              data={data}
+              viewKey={viewKey}
+              onViewChange={setViewKey}
               filter={filter}
               highlight={highlight}
               selected={lot?.id ?? null}

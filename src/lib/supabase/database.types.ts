@@ -151,6 +151,7 @@ export type Database = {
           lot_id: string;
           points: Json;
           project_id: string;
+          view_id: string;
         };
         Insert: {
           created_at?: string;
@@ -158,6 +159,7 @@ export type Database = {
           lot_id: string;
           points: Json;
           project_id: string;
+          view_id: string;
         };
         Update: {
           created_at?: string;
@@ -165,6 +167,7 @@ export type Database = {
           lot_id?: string;
           points?: Json;
           project_id?: string;
+          view_id?: string;
         };
         Relationships: [
           {
@@ -190,6 +193,7 @@ export type Database = {
           description: string | null;
           features: Json;
           id: string;
+          niveau: number | null;
           numero: string;
           prix: number | null;
           project_id: string;
@@ -206,6 +210,7 @@ export type Database = {
           description?: string | null;
           features?: Json;
           id?: string;
+          niveau?: number | null;
           numero: string;
           prix?: number | null;
           project_id: string;
@@ -222,6 +227,7 @@ export type Database = {
           description?: string | null;
           features?: Json;
           id?: string;
+          niveau?: number | null;
           numero?: string;
           prix?: number | null;
           project_id?: string;
@@ -415,6 +421,56 @@ export type Database = {
         };
         Relationships: [];
       };
+      project_views: {
+        Row: {
+          created_at: string;
+          id: string;
+          image_height: number | null;
+          image_path: string | null;
+          image_width: number | null;
+          is_main: boolean;
+          kind: Database["public"]["Enums"]["view_kind"];
+          level: number | null;
+          name: string;
+          project_id: string;
+          sort_order: number;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          image_height?: number | null;
+          image_path?: string | null;
+          image_width?: number | null;
+          is_main?: boolean;
+          kind?: Database["public"]["Enums"]["view_kind"];
+          level?: number | null;
+          name: string;
+          project_id: string;
+          sort_order?: number;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          image_height?: number | null;
+          image_path?: string | null;
+          image_width?: number | null;
+          is_main?: boolean;
+          kind?: Database["public"]["Enums"]["view_kind"];
+          level?: number | null;
+          name?: string;
+          project_id?: string;
+          sort_order?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "project_views_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       projects: {
         Row: {
           address: string | null;
@@ -497,6 +553,7 @@ export type Database = {
           description: string | null;
           features: Json | null;
           id: string | null;
+          niveau: number | null;
           numero: string | null;
           prix: number | null;
           project_id: string | null;
@@ -596,6 +653,7 @@ export type Database = {
       media_kind: "image" | "panorama" | "orbit_frame" | "orbit_mask" | "plan";
       member_role: "owner" | "commercial";
       project_status: "draft" | "published";
+      view_kind: "aerienne" | "toiture" | "niveau" | "pieton" | "autre";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -723,6 +781,7 @@ export const Constants = {
       media_kind: ["image", "panorama", "orbit_frame", "orbit_mask", "plan"],
       member_role: ["owner", "commercial"],
       project_status: ["draft", "published"],
+      view_kind: ["aerienne", "toiture", "niveau", "pieton", "autre"],
     },
   },
 } as const;

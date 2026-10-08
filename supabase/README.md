@@ -45,6 +45,11 @@ Demandes de visite :
   Secrets, ajouter `RESEND_API_KEY` (et `NOTIFY_FROM` si l'expéditeur change).
 - La fonction ne traite qu'une demande de moins de 10 minutes pas encore notifiée : un
   appel venu d'ailleurs ne peut rien faire envoyer d'autre.
+- Conservation : une demande est supprimée trois ans après le dernier échange (sa date, ou
+  le dernier changement de statut par l'équipe, `updated_at`), sauf si la même personne
+  (même téléphone ou e-mail, même organisation) a redemandé depuis. La fonction
+  `private.purge_old_leads()` tourne chaque nuit à 3 h 17 (pg_cron, tâche
+  `rev-purge-demandes`).
 
 Situation :
 
@@ -114,6 +119,5 @@ Statistiques :
 Audit de sécurité Supabase : il signale `public_lots` et `public_projects`
 (« security definer view »), ainsi que `submit_lead` et `create_organization`
 appelables par l'API. C'est voulu : ce sont les seules portes d'entrée publiques,
-et elles ne laissent passer que ce qui est permis. Il signale aussi l'extension
-`pg_net` installée dans le schéma `public` : à déplacer dans `extensions` (la
-supprimer puis la recréer, l'extension ne se déplace pas).
+et elles ne laissent passer que ce qui est permis. L'extension `pg_net` est dans le schéma
+`extensions` (ses fonctions restent dans `net`).

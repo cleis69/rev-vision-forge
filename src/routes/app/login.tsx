@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getSupabase } from "@/lib/supabase/client";
-import { authErrorMessage, currentSession, safeRedirect } from "@/lib/supabase/auth";
+import { authErrorMessage } from "@/lib/supabase/auth";
+import { currentSession, safeRedirect } from "@/lib/supabase/session";
 
 export const Route = createFileRoute("/app/login")({
   validateSearch: (search: Record<string, unknown>): { redirect?: string | undefined } => ({

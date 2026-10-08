@@ -26,6 +26,7 @@ export type Database = {
           source: string;
           status: Database["public"]["Enums"]["lead_status"];
           telephone: string;
+          updated_at: string;
         };
         Insert: {
           created_at?: string;
@@ -41,6 +42,7 @@ export type Database = {
           source?: string;
           status?: Database["public"]["Enums"]["lead_status"];
           telephone: string;
+          updated_at?: string;
         };
         Update: {
           created_at?: string;
@@ -56,6 +58,7 @@ export type Database = {
           source?: string;
           status?: Database["public"]["Enums"]["lead_status"];
           telephone?: string;
+          updated_at?: string;
         };
         Relationships: [
           {

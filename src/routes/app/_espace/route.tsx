@@ -3,7 +3,8 @@ import { Outlet, createFileRoute, redirect, useNavigate } from "@tanstack/react-
 
 import { AppTopBar } from "@/components/app/AppTopBar";
 import { OrganizationsProvider } from "@/components/app/Organizations";
-import { currentSession, useAuth } from "@/lib/supabase/auth";
+import { useAuth } from "@/lib/supabase/auth";
+import { currentSession } from "@/lib/supabase/session";
 
 // Every page of the promoter space requires a session; without one the
 // visitor goes to the sign-in page and comes back here afterwards.

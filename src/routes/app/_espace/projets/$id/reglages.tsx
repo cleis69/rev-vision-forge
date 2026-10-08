@@ -47,15 +47,19 @@ export const Route = createFileRoute("/app/_espace/projets/$id/reglages")({
   component: ProjectSettingsPage,
 });
 
-const schema = z.object({
-  name: z.string().trim().min(1, "Indiquez un nom.").max(160, "160 caractères au maximum."),
-  slug: slugSchema(PROJECT_SLUG_MAX),
-  city: z.string().trim().max(120, "120 caractères au maximum."),
-  description: z.string().trim().max(4000, "4 000 caractères au maximum."),
-  currency: z.enum(["EUR", "MAD", "USD"]),
-  show_prices: z.boolean(),
-});
-type Values = z.infer<typeof schema>;
+// Built when the form is used, not when the route is declared: a top-level
+// call would keep zod and the forms in the main bundle, loaded by every page
+// of the site.
+const settingsSchema = () =>
+  z.object({
+    name: z.string().trim().min(1, "Indiquez un nom.").max(160, "160 caractères au maximum."),
+    slug: slugSchema(PROJECT_SLUG_MAX),
+    city: z.string().trim().max(120, "120 caractères au maximum."),
+    description: z.string().trim().max(4000, "4 000 caractères au maximum."),
+    currency: z.enum(["EUR", "MAD", "USD"]),
+    show_prices: z.boolean(),
+  });
+type Values = z.infer<ReturnType<typeof settingsSchema>>;
 
 const toValues = (p: Project): Values => ({
   name: p.name,
@@ -90,6 +94,7 @@ function ProjectSettingsPage() {
 
 function ProjectSettingsForm({ project }: { project: Project }) {
   const update = useUpdateProject(project.id);
+  const [schema] = useState(settingsSchema);
   const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: toValues(project) });
   const [notice, setNotice] = useState<string | null>(null);
   const { isSubmitting, isDirty } = form.formState;

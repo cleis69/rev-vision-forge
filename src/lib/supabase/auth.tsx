@@ -33,19 +33,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export const useAuth = () => useContext(AuthContext);
 
-/** Current session, for route guards (runs in the browser only). */
-export async function currentSession() {
-  const { data } = await getSupabase().auth.getSession();
-  return data.session;
-}
-
-/** Only internal /app paths are accepted as a destination after signing in. */
-export function safeRedirect(value: unknown): string | undefined {
-  return typeof value === "string" && /^\/app(\/|$|\?)/.test(value) && !value.startsWith("//")
-    ? value
-    : undefined;
-}
-
 /** Supabase Auth errors, in French. */
 export function authErrorMessage(error: AuthError | Error | null | undefined): string {
   if (!error) return "";

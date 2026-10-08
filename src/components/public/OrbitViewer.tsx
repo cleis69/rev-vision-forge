@@ -1,3 +1,4 @@
+import { Minus, Plus } from "lucide-react";
 import {
   useCallback,
   useEffect,
@@ -20,16 +21,46 @@ import { StatusLegend, statusAndPrice } from "./status";
 
 /* Orbital view of the public pages (one per view of the programme: aerial
    view, roof, floor, pedestrian view…): the sequence turned by dragging (with
-   a little inertia), the arrow keys, or a slow half turn on opening; the lots
-   painted in the colour of their status on every image, from the label maps
-   of the masks, with their number written on them; the lot under the
-   pointer lit up, a click opens its sheet. The 1 280 px images turn; on
-   large screens the 2 048 px one replaces the image shown once it stops. */
+   a little inertia), the arrow keys, or a slow half turn on opening; zoomed
+   with the − and + buttons, a pinch, Ctrl + the wheel (the wheel alone in
+   presentation) or a double tap outside the lots, then moved by dragging;
+   the lots painted in the colour of their status on every image, from the
+   label maps of the masks, with their number written on them; the lot under
+   the pointer lit up, a click opens its sheet. The 1 280 px images turn; on
+   large screens, or zoomed in, the 2 048 px one replaces the image shown
+   once it stops. */
 
 const AMBER = [251, 191, 36] as const;
 const SOLD = [70, 70, 78] as const;
 
-type Drag = { x: number; t: number; moved: boolean; pointerId: number };
+type Drag = { x: number; y: number; t: number; moved: boolean; pointerId: number; pan: boolean };
+type Point = { x: number; y: number };
+
+/** Zoom of the view: its scale, and where the image starts in it, in fractions of the view (0 or less). */
+type Zoom = { z: number; x: number; y: number };
+const WHOLE: Zoom = { z: 1, x: 0, y: 0 };
+const MAX_ZOOM = 3;
+const ZOOM_STEP = 1.6;
+const isZoomed = (v: Zoom) => v.z > 1.001;
+
+/** `factor` times closer, the point `from` of the view (in fractions of it) brought to `to`, the image still filling the view. */
+function zoomAt(v: Zoom, factor: number, from: Point, to: Point = from): Zoom {
+  const z = Math.min(MAX_ZOOM, Math.max(1, v.z * factor));
+  // Nearly back to the whole view: the whole view.
+  if (factor < 1 && z < 1.02) return WHOLE;
+  const k = z / v.z;
+  return {
+    z,
+    x: Math.min(0, Math.max(1 - z, to.x - (from.x - v.x) * k)),
+    y: Math.min(0, Math.max(1 - z, to.y - (from.y - v.y) * k)),
+  };
+}
+
+/** Distance between two fingers, and the point between them. */
+function pinchOf(pointers: Map<number, Point>) {
+  const [a, b] = [...pointers.values()] as [Point, Point];
+  return { dist: Math.hypot(a.x - b.x, a.y - b.y), x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+}
 
 function hexRgb(hex: string): [number, number, number] {
   const n = rgbOf(hex);
@@ -75,15 +106,15 @@ function useOrbitLabels(urls: readonly string[], colors: readonly number[]) {
   return { maps, ready };
 }
 
-/** The 2 048 px image of the one shown, fetched once the rotation stops (large screens). */
-function useSharpFrame(urls: readonly string[] | null, index: number, moving: boolean) {
+/** The 2 048 px image of the one shown, fetched once it is no longer to `wait` (turning, or not needed). */
+function useSharpFrame(urls: readonly string[], index: number, wait: boolean) {
   const sharp = useRef(new Map<number, HTMLImageElement>());
   const [loaded, setLoaded] = useState(0);
   useEffect(() => {
     sharp.current = new Map();
   }, [urls]);
   useEffect(() => {
-    if (!urls || moving || sharp.current.has(index)) return;
+    if (wait || sharp.current.has(index)) return;
     let live = true;
     const timer = window.setTimeout(() => {
       const img = new Image();
@@ -100,7 +131,7 @@ function useSharpFrame(urls: readonly string[] | null, index: number, moving: bo
       live = false;
       window.clearTimeout(timer);
     };
-  }, [urls, index, moving]);
+  }, [urls, index, wait]);
   return { sharp, loaded };
 }
 
@@ -131,10 +162,12 @@ export function OrbitViewer({
   onOpen: (lot: PublicLot, from: "plan" | "keyboard") => void;
 }) {
   const large = variant === "presentation";
+  // On a page or in an iframe the wheel keeps scrolling: Ctrl (or a trackpad pinch) zooms.
+  const wheelZooms = variant === "presentation";
   const count = orbit.frames.length;
   const first = orbit.frames[0];
 
-  // Large screens: the 2 048 px image of the one shown once it stops; phones never download them.
+  // Large screens: the 2 048 px image of the one shown once it stops; phones only when zoomed in.
   const [big] = useState(
     () =>
       typeof window !== "undefined" && window.innerWidth * (window.devicePixelRatio || 1) > 1700,
@@ -147,10 +180,7 @@ export function OrbitViewer({
     () => frameKey.split("|").map((path) => publicUrl(smallFramePath(path))),
     [frameKey],
   );
-  const largeList = useMemo(
-    () => (big ? frameKey.split("|").map((path) => publicUrl(path)) : null),
-    [frameKey, big],
-  );
+  const largeList = useMemo(() => frameKey.split("|").map((path) => publicUrl(path)), [frameKey]);
   const maskList = useMemo(() => maskKey.split("|").map((path) => publicUrl(path)), [maskKey]);
   const colorList = useMemo(() => colorKey.split("|").map((hex) => rgbOf(hex)), [colorKey]);
   const lotByLabel = useMemo(() => {
@@ -164,16 +194,22 @@ export function OrbitViewer({
   const [index, setIndex] = useState(0);
   const [hover, setHover] = useState<{ label: number; x: number; y: number } | null>(null);
   const [moving, setMoving] = useState(false);
+  const [panning, setPanning] = useState(false);
+  const [wheelHint, setWheelHint] = useState(false);
   const pos = useRef(0);
   const velocity = useRef(0);
   const frame = useRef(0);
   const drag = useRef<Drag | null>(null);
+  const pointers = useRef(new Map<number, Point>());
+  const pinch = useRef<{ dist: number; x: number; y: number } | null>(null);
+  const lastTap = useRef<{ t: number; x: number; y: number } | null>(null);
   const touched = useRef(false);
   const turned = useRef(false);
   const frameCanvas = useRef<HTMLCanvasElement>(null);
   const overlay = useRef<HTMLCanvasElement>(null);
   const pixels = useRef<ImageData | null>(null);
   const box = useRef<HTMLDivElement>(null);
+  const group = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
   const still = useMemo(
     () =>
@@ -196,12 +232,68 @@ export function OrbitViewer({
   }, []);
   useEffect(() => () => cancelAnimationFrame(frame.current), []);
 
-  // Presentation left idle: back to the first view.
+  const [zoom, setZoomState] = useState<Zoom>(WHOLE);
+  const zoomRef = useRef(zoom);
+  const zoomGoal = useRef<Zoom | null>(null);
+  const zoomFrame = useRef(0);
+  const zoomed = isZoomed(zoom);
+  const setZoom = useCallback((next: Zoom) => {
+    zoomRef.current = next;
+    setZoomState(next);
+  }, []);
+  const stopZoom = useCallback(() => {
+    cancelAnimationFrame(zoomFrame.current);
+    zoomGoal.current = null;
+  }, []);
+  useEffect(() => () => cancelAnimationFrame(zoomFrame.current), []);
+
+  /** To that zoom smoothly (buttons, double tap, keyboard). */
+  const animateZoom = useCallback(
+    (goal: Zoom) => {
+      stopZoom();
+      const from = zoomRef.current;
+      if (still) {
+        setZoom(goal);
+        return;
+      }
+      zoomGoal.current = goal;
+      const start = performance.now();
+      const step = (now: number) => {
+        const t = Math.min(1, (now - start) / 240);
+        const e = 1 - Math.pow(1 - t, 3);
+        setZoom(
+          t < 1
+            ? {
+                z: from.z + (goal.z - from.z) * e,
+                x: from.x + (goal.x - from.x) * e,
+                y: from.y + (goal.y - from.y) * e,
+              }
+            : goal,
+        );
+        if (t < 1) zoomFrame.current = requestAnimationFrame(step);
+        else zoomGoal.current = null;
+      };
+      zoomFrame.current = requestAnimationFrame(step);
+    },
+    [setZoom, stopZoom, still],
+  );
+
+  /** The buttons and the keyboard: `factor` times closer around the middle, or the whole view (0). */
+  const zoomBy = (factor: number) => {
+    touched.current = true;
+    stopMotion();
+    const middle = { x: 0.5, y: 0.5 };
+    animateZoom(factor === 0 ? WHOLE : zoomAt(zoomGoal.current ?? zoomRef.current, factor, middle));
+  };
+
+  // Presentation left idle: back to the first view, whole.
   useEffect(() => {
     if (!resetKey) return;
     stopMotion();
+    stopZoom();
+    setZoom(WHOLE);
     goTo(0);
-  }, [resetKey, goTo, stopMotion]);
+  }, [resetKey, goTo, stopMotion, stopZoom, setZoom]);
 
   // A slow half turn once the views are there, to show that the programme turns.
   useEffect(() => {
@@ -239,7 +331,54 @@ export function OrbitViewer({
     return () => observer.disconnect();
   }, [first]);
 
-  const { sharp, loaded: sharpLoaded } = useSharpFrame(largeList, index, moving);
+  // The wheel and the fingers, with listeners of our own: React's are passive, and the
+  // page must neither scroll nor zoom instead of the view.
+  useEffect(() => {
+    const el = group.current;
+    if (!el) return;
+    let hintTimer = 0;
+    const onWheel = (e: WheelEvent) => {
+      if (!wheelZooms && !e.ctrlKey && !e.metaKey) {
+        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+          setWheelHint(true);
+          window.clearTimeout(hintTimer);
+          hintTimer = window.setTimeout(() => setWheelHint(false), 1400);
+        }
+        return;
+      }
+      e.preventDefault();
+      touched.current = true;
+      stopMotion();
+      stopZoom();
+      setWheelHint(false);
+      const rect = el.getBoundingClientRect();
+      const dy =
+        e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * rect.height : e.deltaY;
+      const at = {
+        x: (e.clientX - rect.left) / rect.width,
+        y: (e.clientY - rect.top) / rect.height,
+      };
+      // A notch of the wheel and the many small steps of a trackpad pinch alike.
+      setZoom(zoomAt(zoomRef.current, Math.exp(-Math.max(-40, Math.min(40, dy)) * 0.008), at));
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      // Two fingers zoom the view, not the page; zoomed in, one finger moves in the image.
+      if (e.cancelable && (e.touches.length > 1 || isZoomed(zoomRef.current))) e.preventDefault();
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    return () => {
+      window.clearTimeout(hintTimer);
+      el.removeEventListener("wheel", onWheel);
+      el.removeEventListener("touchmove", onTouchMove);
+    };
+  }, [wheelZooms, setZoom, stopMotion, stopZoom]);
+
+  const { sharp, loaded: sharpLoaded } = useSharpFrame(
+    largeList,
+    index,
+    moving || !(big || zoomed),
+  );
 
   // The view: drawn from the image decoded in advance, the sharp one when it has come.
   useEffect(() => {
@@ -295,6 +434,7 @@ export function OrbitViewer({
     context.putImageData(pixels.current, 0, 0);
   }, [index, labelsReady, paints, maps]);
 
+  // The overlay is zoomed with the view: its rectangle on screen still finds the lot.
   const labelAt = (clientX: number, clientY: number): number => {
     const canvas = overlay.current;
     const map = maps.current[index];
@@ -313,17 +453,71 @@ export function OrbitViewer({
     if (e.button !== 0) return;
     touched.current = true;
     stopMotion();
+    stopZoom();
+    // A new gesture: no finger left over from the last one.
+    if (e.isPrimary) {
+      pointers.current.clear();
+      pinch.current = null;
+    }
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.current.size >= 2) {
+      // Two fingers: a pinch, neither a turn nor a tap.
+      drag.current = null;
+      setPanning(false);
+      setHover(null);
+      pinch.current = pinchOf(pointers.current);
+      for (const id of pointers.current.keys()) {
+        try {
+          e.currentTarget.setPointerCapture(id);
+        } catch {
+          /* pointer already gone */
+        }
+      }
+      return;
+    }
     velocity.current = 0;
-    drag.current = { x: e.clientX, t: performance.now(), moved: false, pointerId: e.pointerId };
+    drag.current = {
+      x: e.clientX,
+      y: e.clientY,
+      t: performance.now(),
+      moved: false,
+      pointerId: e.pointerId,
+      // Zoomed in, dragging moves in the image instead of turning.
+      pan: isZoomed(zoomRef.current),
+    };
   };
 
   const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
+    const p = pointers.current.get(e.pointerId);
+    if (p) {
+      p.x = e.clientX;
+      p.y = e.clientY;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const before = pinch.current;
+    if (before) {
+      if (pointers.current.size < 2) return;
+      const now = pinchOf(pointers.current);
+      pinch.current = now;
+      // Closer as the fingers part, the point between them following them.
+      setZoom(
+        zoomAt(
+          zoomRef.current,
+          now.dist / Math.max(1, before.dist),
+          { x: (before.x - rect.left) / rect.width, y: (before.y - rect.top) / rect.height },
+          { x: (now.x - rect.left) / rect.width, y: (now.y - rect.top) / rect.height },
+        ),
+      );
+      return;
+    }
     const d = drag.current;
     if (d && d.pointerId === e.pointerId) {
       const dx = e.clientX - d.x;
-      if (!d.moved && Math.abs(dx) > 5) {
+      const dy = e.clientY - d.y;
+      if (!d.moved && (d.pan ? Math.hypot(dx, dy) : Math.abs(dx)) > 5) {
         d.moved = true;
-        setMoving(true);
+        if (d.pan) setPanning(true);
+        else setMoving(true);
         setHover(null);
         try {
           e.currentTarget.setPointerCapture(e.pointerId);
@@ -333,18 +527,24 @@ export function OrbitViewer({
       }
       if (d.moved) {
         const now = performance.now();
-        const views = -dx / stepPx();
-        goTo(pos.current + views);
-        const dt = Math.max(1, now - d.t);
-        velocity.current = 0.7 * velocity.current + 0.3 * (views / dt);
+        if (d.pan) {
+          setZoom(
+            zoomAt(zoomRef.current, 1, { x: 0, y: 0 }, { x: dx / rect.width, y: dy / rect.height }),
+          );
+        } else {
+          const views = -dx / stepPx();
+          goTo(pos.current + views);
+          const dt = Math.max(1, now - d.t);
+          velocity.current = 0.7 * velocity.current + 0.3 * (views / dt);
+        }
         d.x = e.clientX;
+        d.y = e.clientY;
         d.t = now;
       }
       return;
     }
     if (e.pointerType !== "mouse" || moving) return;
     const label = labelAt(e.clientX, e.clientY);
-    const rect = e.currentTarget.getBoundingClientRect();
     setHover(
       label && lotByLabel[label]
         ? { label, x: e.clientX - rect.left, y: e.clientY - rect.top }
@@ -353,15 +553,41 @@ export function OrbitViewer({
   };
 
   const onPointerUp = (e: PointerEvent<HTMLDivElement>) => {
+    pointers.current.delete(e.pointerId);
+    if (pinch.current) {
+      // The pinch ends with the last finger: the one left neither turns nor taps.
+      if (pointers.current.size === 0) pinch.current = null;
+      return;
+    }
     const d = drag.current;
+    if (!d || d.pointerId !== e.pointerId) return;
     drag.current = null;
-    if (!d) return;
+    if (d.pan) setPanning(false);
     if (!d.moved) {
       setMoving(false);
       const lot = lotByLabel[labelAt(e.clientX, e.clientY)];
-      if (lot) onOpen(lot, "plan");
+      if (lot) {
+        lastTap.current = null;
+        onOpen(lot, "plan");
+        return;
+      }
+      // Two taps (or a double click) outside the lots: closer there, or the whole view again.
+      const now = performance.now();
+      const last = lastTap.current;
+      if (last && now - last.t < 350 && Math.hypot(e.clientX - last.x, e.clientY - last.y) < 30) {
+        lastTap.current = null;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const at = {
+          x: (e.clientX - rect.left) / rect.width,
+          y: (e.clientY - rect.top) / rect.height,
+        };
+        animateZoom(isZoomed(zoomRef.current) ? WHOLE : zoomAt(WHOLE, 2.5, at));
+      } else {
+        lastTap.current = { t: now, x: e.clientX, y: e.clientY };
+      }
       return;
     }
+    if (d.pan) return;
     // A little inertia after a quick swipe.
     let v = velocity.current;
     if (still || Math.abs(v) < 0.004) {
@@ -383,7 +609,20 @@ export function OrbitViewer({
     frame.current = requestAnimationFrame(glide);
   };
 
+  const onPointerCancel = (e: PointerEvent<HTMLDivElement>) => {
+    pointers.current.delete(e.pointerId);
+    if (pointers.current.size === 0) pinch.current = null;
+    drag.current = null;
+    setMoving(false);
+    setPanning(false);
+  };
+
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "+" || e.key === "=" || e.key === "-" || e.key === "_" || e.key === "0") {
+      e.preventDefault();
+      zoomBy(e.key === "0" ? 0 : e.key === "+" || e.key === "=" ? ZOOM_STEP : 1 / ZOOM_STEP);
+      return;
+    }
     if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
     e.preventDefault();
     touched.current = true;
@@ -394,15 +633,23 @@ export function OrbitViewer({
   const tipLot = hover ? lotByLabel[hover.label] : null;
   const loading = ready < Math.min(6, count);
 
-  // Numbers of the lots, where they are on the image shown.
+  // Numbers of the lots, where they are on the image shown (zoomed in: those in sight).
   const shownMap = nearestLoaded(maps.current, index);
   const centers = shownMap >= 0 ? (maps.current[shownMap]?.centers ?? []) : [];
   const tags = size
     ? centers.flatMap((c, label) => {
         const lot = c ? lotByLabel[label] : null;
-        return c && lot ? [{ lot, x: c.x * size.w, y: c.y * size.h }] : [];
+        if (!c || !lot) return [];
+        const x = (zoom.x + c.x * zoom.z) * size.w;
+        const y = (zoom.y + c.y * zoom.z) * size.h;
+        return x < -24 || y < -12 || x > size.w + 24 || y > size.h + 12 ? [] : [{ lot, x, y }];
       })
     : [];
+
+  const control = cn(
+    "grid place-items-center rounded-full transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:pointer-events-none disabled:opacity-35",
+    large ? "h-11 min-w-11" : "h-9 min-w-9",
+  );
 
   return (
     <div className={large ? "flex h-full min-h-0 flex-col gap-3" : "space-y-3"}>
@@ -416,60 +663,70 @@ export function OrbitViewer({
         style={large || !first ? undefined : { aspectRatio: `${first.width} / ${first.height}` }}
       >
         <div
+          ref={group}
           role="group"
           tabIndex={0}
           aria-roledescription="vue 3D"
-          aria-label={`${viewName}, image ${index + 1} sur ${count}. Flèches gauche et droite pour tourner.`}
+          aria-label={`${viewName}, image ${index + 1} sur ${count}. Flèches gauche et droite pour tourner, plus et moins pour zoomer.`}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
-          onPointerCancel={() => {
-            drag.current = null;
-            setMoving(false);
-          }}
+          onPointerCancel={onPointerCancel}
           onPointerLeave={() => setHover(null)}
           onKeyDown={onKeyDown}
           className={cn(
             "relative select-none outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/60",
-            moving ? "cursor-grabbing" : tipLot ? "cursor-pointer" : "cursor-grab",
-            // Vertical swipes keep scrolling the page; nothing to scroll in presentation.
-            large ? "touch-none" : "touch-pan-y",
+            moving || panning ? "cursor-grabbing" : tipLot ? "cursor-pointer" : "cursor-grab",
+            // Vertical swipes keep scrolling the page, unless zoomed in; nothing to scroll in presentation.
+            large || zoomed ? "touch-none" : "touch-pan-y",
           )}
           style={size ? { width: size.w, height: size.h } : { width: "100%", height: "100%" }}
         >
-          <canvas
-            ref={frameCanvas}
-            aria-hidden
-            className="pointer-events-none absolute inset-0 h-full w-full"
-          />
-          <canvas
-            ref={overlay}
-            aria-hidden
-            className="pointer-events-none absolute inset-0 h-full w-full"
-          />
-          {tags.map(({ lot, x, y }) => (
-            <span
-              key={lot.id}
+          <div className="absolute inset-0 overflow-hidden">
+            <div
               aria-hidden
-              className={cn(
-                "pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-md font-semibold tabular-nums leading-none shadow-[0_2px_8px_rgba(0,0,0,0.45)]",
-                large
-                  ? "px-2 py-1 text-xs"
-                  : size && size.w < 480
-                    ? "px-1 py-0.5 text-[9px]"
-                    : "px-1.5 py-0.5 text-[10px]",
-                lot.statut === "disponible"
-                  ? "bg-[color:var(--brand)] text-[color:var(--brand-contrast)]"
-                  : lot.statut === "reservee"
-                    ? "bg-amber-400 text-black"
-                    : "bg-zinc-700 text-white/75",
-                filter !== null && lot.statut !== filter && "opacity-30",
-              )}
-              style={{ left: x, top: y }}
+              className="absolute inset-0 origin-top-left"
+              style={
+                zoomed
+                  ? {
+                      transform: `translate(${zoom.x * 100}%, ${zoom.y * 100}%) scale(${zoom.z})`,
+                    }
+                  : undefined
+              }
             >
-              {lot.numero}
-            </span>
-          ))}
+              <canvas
+                ref={frameCanvas}
+                className="pointer-events-none absolute inset-0 h-full w-full"
+              />
+              <canvas
+                ref={overlay}
+                className="pointer-events-none absolute inset-0 h-full w-full"
+              />
+            </div>
+            {tags.map(({ lot, x, y }) => (
+              <span
+                key={lot.id}
+                aria-hidden
+                className={cn(
+                  "pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-md font-semibold tabular-nums leading-none shadow-[0_2px_8px_rgba(0,0,0,0.45)]",
+                  large
+                    ? "px-2 py-1 text-xs"
+                    : size && size.w < 480
+                      ? "px-1 py-0.5 text-[9px]"
+                      : "px-1.5 py-0.5 text-[10px]",
+                  lot.statut === "disponible"
+                    ? "bg-[color:var(--brand)] text-[color:var(--brand-contrast)]"
+                    : lot.statut === "reservee"
+                      ? "bg-amber-400 text-black"
+                      : "bg-zinc-700 text-white/75",
+                  filter !== null && lot.statut !== filter && "opacity-30",
+                )}
+                style={{ left: x, top: y }}
+              >
+                {lot.numero}
+              </span>
+            ))}
+          </div>
           {tipLot && hover ? (
             <div
               aria-hidden
@@ -488,6 +745,18 @@ export function OrbitViewer({
           ) : null}
         </div>
 
+        <div
+          aria-hidden
+          className={cn(
+            "pointer-events-none absolute inset-0 grid place-items-center bg-black/40 transition-opacity duration-300",
+            wheelHint ? "opacity-100" : "opacity-0",
+          )}
+        >
+          <p className="rounded-full bg-black/75 px-4 py-2 text-sm font-medium text-white">
+            Ctrl + molette pour zoomer
+          </p>
+        </div>
+
         {loading ? (
           <div className="absolute inset-0 grid place-items-center bg-black/60">
             <div className="w-48 space-y-2 text-center">
@@ -500,13 +769,58 @@ export function OrbitViewer({
               <p className="text-xs text-white/70">Chargement de la vue…</p>
             </div>
           </div>
-        ) : null}
+        ) : (
+          <div
+            role="group"
+            aria-label="Zoom"
+            className={cn(
+              "absolute flex items-center gap-0.5 rounded-full border border-white/15 bg-black/65 p-1 text-white shadow-lg backdrop-blur",
+              large ? "bottom-4 right-4" : "bottom-2.5 right-2.5",
+            )}
+          >
+            {zoomed ? (
+              <button
+                type="button"
+                onClick={() => zoomBy(0)}
+                className={cn(control, "px-3 font-medium", large ? "text-sm" : "text-xs")}
+              >
+                Vue entière
+              </button>
+            ) : null}
+            <button
+              type="button"
+              aria-label="Dézoomer"
+              disabled={!zoomed}
+              onClick={() => zoomBy(1 / ZOOM_STEP)}
+              className={control}
+            >
+              <Minus aria-hidden className={large ? "size-5" : "size-4"} />
+            </button>
+            <button
+              type="button"
+              aria-label="Zoomer"
+              disabled={zoom.z >= MAX_ZOOM - 0.01}
+              onClick={() => zoomBy(ZOOM_STEP)}
+              className={control}
+            >
+              <Plus aria-hidden className={large ? "size-5" : "size-4"} />
+            </button>
+          </div>
+        )}
       </div>
 
       <StatusLegend
         large={large}
-        hint="Glissez pour tourner, cliquez un lot pour sa fiche"
-        touchHint="Glissez pour tourner · touchez un lot pour sa fiche"
+        hint={
+          zoomed
+            ? "Glissez pour vous déplacer dans l'image, dézoomez pour tourner"
+            : "Glissez pour tourner, Ctrl + molette pour zoomer, cliquez un lot pour sa fiche"
+        }
+        touchHint={
+          zoomed
+            ? "Glissez pour vous déplacer · dézoomez pour tourner"
+            : "Glissez pour tourner · pincez pour zoomer · touchez un lot pour sa fiche"
+        }
       />
     </div>
   );

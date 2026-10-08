@@ -6,6 +6,7 @@ import { PoweredBy, PublicMessage, RevBadge, StatusFilters } from "@/components/
 import { LotCards } from "@/components/public/LotCards";
 import { LotDetails } from "@/components/public/LotDetails";
 import { ProgrammeViews } from "@/components/public/ProgrammeViews";
+import { TourButton, TourOverlay, type OpenTour } from "@/components/public/Tours";
 import { useFollowLot, useViewKey } from "@/lib/public/use-views";
 import { VisitForm } from "@/components/public/VisitForm";
 import type { LotStatus } from "@/lib/app/lot-fields";
@@ -14,6 +15,7 @@ import { track } from "@/lib/public/events";
 import { useLiveLots } from "@/lib/public/live";
 import {
   countByStatus,
+  tourOfLot,
   usePublicProgramme,
   type PublicData,
   type PublicLot,
@@ -78,6 +80,7 @@ function EmbeddedPlan({ data, slug }: { data: PublicData; slug: string }) {
   const [filter, setFilter] = useState<LotStatus | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [visitFor, setVisitFor] = useState<string | null>(null);
+  const [touring, setTouring] = useState<OpenTour | null>(null);
   const highlight = useLiveLots(programme.id, slug);
   const panel = useRef<HTMLElement>(null);
   const focusPanel = useRef(false);
@@ -198,6 +201,18 @@ function EmbeddedPlan({ data, slug }: { data: PublicData; slug: string }) {
             currency={programme.currency}
             split
             Title="h2"
+            extra={(() => {
+              const tour = tourOfLot(data.tours, lot);
+              return tour ? (
+                <TourButton
+                  tour={tour}
+                  onOpen={() => {
+                    setTouring({ tour, lotId: lot.id });
+                    if (!preview) track(programme.id, "visite_360", lot.id);
+                  }}
+                />
+              ) : null;
+            })()}
           />
           {visitFor === lot.id && lot.statut !== "vendue" ? (
             <div className="border-t border-white/10 p-6">
@@ -256,6 +271,17 @@ function EmbeddedPlan({ data, slug }: { data: PublicData; slug: string }) {
         </a>
         <PoweredBy />
       </div>
+
+      <TourOverlay
+        open={touring}
+        onClose={() => setTouring(null)}
+        onPlan={({ lotId }) => {
+          setTouring(null);
+          const target = lots.find((l) => l.id === lotId);
+          if (target && target.statut !== "vendue") setVisitFor(target.id);
+        }}
+        variant="embed"
+      />
     </div>
   );
 }

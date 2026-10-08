@@ -13,7 +13,9 @@
         "@fontsource-variable/playfair-display": "^5.3.0",
         "@fontsource-variable/space-grotesk": "^5.3.0",
         "@hookform/resolvers": "^5.2.2",
+        "@photo-sphere-viewer/autorotate-plugin": "5.15.1",
         "@photo-sphere-viewer/core": "5.15.1",
+        "@photo-sphere-viewer/gyroscope-plugin": "5.15.1",
         "@photo-sphere-viewer/markers-plugin": "5.15.1",
         "@radix-ui/react-accordion": "^1.2.12",
         "@radix-ui/react-alert-dialog": "^1.1.15",
@@ -276,7 +278,11 @@
 
     "@oxc-project/types": ["@oxc-project/types@0.140.0", "", {}, "sha512-h5LUOzGArYemnW1NMz/DuuQhBi96J6JL2Bk8zE4kvqxB5Sg3jxmCiH4uyOWHDkiKSt5vWlG4FIwCR/DbstcNRQ=="],
 
+    "@photo-sphere-viewer/autorotate-plugin": ["@photo-sphere-viewer/autorotate-plugin@5.15.1", "", { "peerDependencies": { "@photo-sphere-viewer/core": "5.15.1" } }, "sha512-qmiDUqsj9Kok2CQwh7Jvt78z/+o79nIgNUQMWV5Itg9iNV40qhGxzNjHfTCwRaVel+0heHNWMpd4VWmn0rv3Og=="],
+
     "@photo-sphere-viewer/core": ["@photo-sphere-viewer/core@5.15.1", "", { "dependencies": { "three": "^0.185.1" } }, "sha512-nhJviczUB1xiAT/I7mGba9iDIw7DvsiK34hbR9t7kIrg9MySG33uA+a4QUk2dEOP5PjcKMj58wod8I/dQ7ePiw=="],
+
+    "@photo-sphere-viewer/gyroscope-plugin": ["@photo-sphere-viewer/gyroscope-plugin@5.15.1", "", { "peerDependencies": { "@photo-sphere-viewer/core": "5.15.1" } }, "sha512-iE+pXa+18cFO8pT4puI+fAH06FF7woEh50+56PiOKJ0pKLvnAOHD27fPpiIBlZ1CNq9otCOd/T2GhATE2QdMkA=="],
 
     "@photo-sphere-viewer/markers-plugin": ["@photo-sphere-viewer/markers-plugin@5.15.1", "", { "peerDependencies": { "@photo-sphere-viewer/core": "5.15.1" } }, "sha512-57WiHy8fcQfwid9x07ADiQJGxzcFxclbR2yIqeggzfPDguwJlCKwX5tj8brTRqwouUiHpkb80QWxHByxt45LcA=="],
 

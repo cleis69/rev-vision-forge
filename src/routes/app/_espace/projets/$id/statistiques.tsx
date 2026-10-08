@@ -189,8 +189,10 @@ function StatsView({
       </div>
       <p className="text-xs text-muted-foreground">
         {count.format(totals.vues_page)} affichage{totals.vues_page > 1 ? "s" : ""} de la page ·{" "}
-        {count.format(totals.partages)} partage{totals.partages > 1 ? "s" : ""} de lots. Vos propres
-        visites, quand vous êtes connecté à l'espace promoteur, ne sont pas comptées.
+        {count.format(totals.partages)} partage{totals.partages > 1 ? "s" : ""} de lots ·{" "}
+        {count.format(totals.visites_360 ?? 0)} visite{(totals.visites_360 ?? 0) > 1 ? "s" : ""}{" "}
+        360° ouverte{(totals.visites_360 ?? 0) > 1 ? "s" : ""}. Vos propres visites, quand vous êtes
+        connecté à l'espace promoteur, ne sont pas comptées.
       </p>
 
       {empty ? (
@@ -329,6 +331,7 @@ const COLUMNS: { key: LotSort; label: string }[] = [
   { key: "vues", label: "Vues de la fiche" },
   { key: "clics", label: "Clics sur le plan" },
   { key: "partages", label: "Partages" },
+  { key: "visites_360", label: "Visites 360°" },
   { key: "demandes", label: "Demandes" },
 ];
 
@@ -351,7 +354,7 @@ function LotTable({
       ) : (
         <>
           <div className="-mx-5 overflow-x-auto sm:-mx-6">
-            <table className="w-full min-w-[620px] text-sm">
+            <table className="w-full min-w-[700px] text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-xs text-muted-foreground">
                   <th
@@ -417,6 +420,9 @@ function LotTable({
                       <td className="px-3 py-3 text-right tabular-nums">{count.format(r.clics)}</td>
                       <td className="px-3 py-3 text-right tabular-nums">
                         {count.format(r.partages)}
+                      </td>
+                      <td className="px-3 py-3 text-right tabular-nums">
+                        {count.format(r.visites_360)}
                       </td>
                       <td
                         className={cn(

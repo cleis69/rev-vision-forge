@@ -48,6 +48,7 @@ export function LotDetails({
   split = false,
   Title = "h2",
   Description = "p",
+  extra,
 }: {
   lot: PublicLot;
   photos: MediaItem[];
@@ -58,6 +59,8 @@ export function LotDetails({
   split?: boolean;
   Title?: ElementType;
   Description?: ElementType;
+  /** Under the price: the 360° tour of the lot. */
+  extra?: ReactNode;
 }) {
   return (
     <article className={cn(split && photos.length > 0 && "md:grid md:grid-cols-2")}>
@@ -124,6 +127,8 @@ export function LotDetails({
             {priceLabel(lot, currency)}
           </Description>
         </div>
+
+        {extra}
 
         <dl className="grid grid-cols-3 gap-3">
           {lot.surface_habitable !== null ? (

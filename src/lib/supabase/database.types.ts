@@ -709,7 +709,7 @@ export type Database = {
     };
     Enums: {
       lead_status: "nouveau" | "traite";
-      lot_event_type: "vue_page" | "vue_lot" | "clic_lot" | "partage";
+      lot_event_type: "vue_page" | "vue_lot" | "clic_lot" | "partage" | "visite_360";
       lot_status: "disponible" | "reservee" | "vendue";
       media_kind: "image" | "panorama" | "orbit_frame" | "orbit_mask" | "plan";
       member_role: "owner" | "commercial";
@@ -837,7 +837,7 @@ export const Constants = {
   public: {
     Enums: {
       lead_status: ["nouveau", "traite"],
-      lot_event_type: ["vue_page", "vue_lot", "clic_lot", "partage"],
+      lot_event_type: ["vue_page", "vue_lot", "clic_lot", "partage", "visite_360"],
       lot_status: ["disponible", "reservee", "vendue"],
       media_kind: ["image", "panorama", "orbit_frame", "orbit_mask", "plan"],
       member_role: ["owner", "commercial"],

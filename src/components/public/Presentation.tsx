@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 import type { LotStatus } from "@/lib/app/lot-fields";
 import { useLiveLots } from "@/lib/public/live";
-import { countByStatus, type PublicData, type PublicLot } from "@/lib/public/programme";
+import { countByStatus, tourOfLot, type PublicData, type PublicLot } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
 import { firstView } from "@/lib/views";
 import { PoweredBy, RevBadge, StatusFilters } from "./Common";
@@ -13,6 +13,7 @@ import { LotCards } from "./LotCards";
 import { LotDetails } from "./LotDetails";
 import { useFollowLot, useViewKey } from "@/lib/public/use-views";
 import { ProgrammeViews } from "./ProgrammeViews";
+import { TourButton, TourOverlay, type OpenTour } from "./Tours";
 import { VisitForm } from "./VisitForm";
 
 /* Presentation mode (/p/$slug?mode=presentation): the sales plan full screen
@@ -35,6 +36,7 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
   });
   const [filter, setFilter] = useState<LotStatus | null>(null);
   const [resetKey, setResetKey] = useState(0);
+  const [touring, setTouring] = useState<OpenTour | null>(null);
   // One id per visitor, for the limit of visit requests (see sendVisit).
   const [visitor, setVisitor] = useState(() => crypto.randomUUID());
   const highlight = useLiveLots(programme.id, slug);
@@ -44,6 +46,7 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
   const [viewKey, setViewKey] = useViewKey(data);
 
   useIdle(IDLE_MS, () => {
+    setTouring(null);
     setPanel(null);
     setFilter(null);
     setViewKey(firstView(data.views));
@@ -210,6 +213,16 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
                 photos={media.filter((m) => m.lot_id === lot.id)}
                 currency={programme.currency}
                 large
+                extra={(() => {
+                  const tour = tourOfLot(data.tours, lot);
+                  return tour ? (
+                    <TourButton
+                      tour={tour}
+                      large
+                      onOpen={() => setTouring({ tour, lotId: lot.id })}
+                    />
+                  ) : null;
+                })()}
               />
             ) : null}
             {panel.kind === "contact" || (panel.kind === "lot" && panel.contact && lot) ? (
@@ -245,6 +258,13 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
           </SidePanel>
         ) : null}
       </main>
+
+      <TourOverlay
+        open={touring}
+        onClose={() => setTouring(null)}
+        onPlan={null}
+        variant="presentation"
+      />
     </div>
   );
 }

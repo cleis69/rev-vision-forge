@@ -16,6 +16,8 @@ export type LotActions = {
   onWhatsApp: () => void;
   /** Visit request form of this lot; null when the lot is sold. */
   visit: ReactNode | null;
+  /** Button of the 360° tour of the lot, if it has one. */
+  tour: ReactNode | null;
 };
 
 export function LotSheet({
@@ -25,6 +27,7 @@ export function LotSheet({
   open,
   onOpenChange,
   actions,
+  askVisit = null,
 }: {
   lot: PublicLot | null;
   photos: MediaItem[];
@@ -32,9 +35,14 @@ export function LotSheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   actions: LotActions | null;
+  /** Shows the form of this lot (a new object each time it is asked, from the 360° tour). */
+  askVisit?: { lotId: string } | null;
 }) {
   // The form shows under the details of the lot it was opened for.
   const [visitFor, setVisitFor] = useState<string | null>(null);
+  useEffect(() => {
+    if (askVisit) setVisitFor(askVisit.lotId);
+  }, [askVisit]);
   const showVisit = Boolean(lot && visitFor === lot.id && actions?.visit);
   const visitRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -54,6 +62,7 @@ export function LotSheet({
               currency={currency}
               Title={SheetTitle}
               Description={SheetDescription}
+              extra={actions?.tour}
             />
 
             {showVisit && actions?.visit ? (

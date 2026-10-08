@@ -2,9 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 
 import { toMediaItem, type MediaItem } from "@/lib/app/media";
 import { toView, type OrbitView } from "@/lib/app/orbit";
+import { panoramaImage, type PanoramaImage } from "@/lib/app/tours";
 import { publicUrl } from "@/lib/app/storage";
 import { LOT_STATUSES, compareNumeros, type LotStatus } from "@/lib/app/lot-fields";
 import type { Tables } from "@/lib/supabase/database.types";
+import { groupTours, roomTarget, tourKeyForLot } from "@/lib/tours";
 import type { ViewLike } from "@/lib/views";
 import { getSupabase } from "@/lib/supabase/client";
 import { DEFAULT_BRAND } from "@/lib/brand";
@@ -44,6 +46,26 @@ export type PublicView = ViewLike & {
   lots: ReadonlySet<string>;
 };
 
+/** A room of a 360° tour: its panorama, the direction on arrival, the arrows to the other rooms. */
+export type PublicRoom = {
+  id: string;
+  name: string;
+  startYaw: number;
+  startPitch: number;
+  image: PanoramaImage;
+  links: { toId: string; yaw: number; pitch: number }[];
+};
+
+/** A 360° tour, for one lot or for every lot of a type; its first room is the entrance. */
+export type PublicTour = {
+  key: string;
+  /** "Villa" for a type, "Lot 7" for a lot. */
+  label: string;
+  lotId: string | null;
+  lotType: string | null;
+  rooms: PublicRoom[];
+};
+
 export type PublicProgramme = {
   id: string;
   slug: string;
@@ -72,6 +94,8 @@ export type PublicData = {
   /** Views with a sequence and a linked colour, in the promoter's order (floors are sorted by the pages). */
   views: PublicView[];
   media: MediaItem[];
+  /** 360° tours with at least one room, types first. */
+  tours: PublicTour[];
   /** Draft seen by a member of its organization. */
   preview: boolean;
 };
@@ -104,7 +128,7 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
   const lotsQuery = preview
     ? supabase.from("lots").select("*").eq("project_id", source.id)
     : supabase.from("public_lots").select("*").eq("project_id", source.id);
-  const [lots, views, media, orbitMedia, orbitColors] = await Promise.all([
+  const [lots, views, media, orbitMedia, orbitColors, rooms, links] = await Promise.all([
     lotsQuery,
     supabase
       .from("project_views")
@@ -129,12 +153,19 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
       .eq("project_id", source.id)
       .not("lot_id", "is", null)
       .order("share", { ascending: false }),
+    supabase.from("panoramas").select("*").eq("project_id", source.id).order("sort_order"),
+    supabase
+      .from("panorama_links")
+      .select("from_id, to_id, yaw, pitch")
+      .eq("project_id", source.id),
   ]);
   if (lots.error) throw lots.error;
   if (orbitMedia.error) throw orbitMedia.error;
   if (orbitColors.error) throw orbitColors.error;
   if (views.error) throw views.error;
   if (media.error) throw media.error;
+  if (rooms.error) throw rooms.error;
+  if (links.error) throw links.error;
 
   const publicViews = views.data.flatMap((v): PublicView[] => {
     const orbit = orbitOf(
@@ -156,8 +187,40 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
     ];
   });
 
+  const lotNumbers = new Map(
+    lots.data.flatMap((l) => (l.id && l.numero ? [[l.id, l.numero]] : [])),
+  );
+  const tours: PublicTour[] = [...groupTours(rooms.data)].flatMap(([key, list]) => {
+    const ids = new Set(list.map((r) => r.id));
+    const target = roomTarget(list[0]!);
+    if ("lotId" in target && !lotNumbers.has(target.lotId)) return [];
+    return [
+      {
+        key,
+        label: "lotId" in target ? `Lot ${lotNumbers.get(target.lotId)}` : target.lotType,
+        lotId: "lotId" in target ? target.lotId : null,
+        lotType: "lotType" in target ? target.lotType : null,
+        rooms: list.map((r) => ({
+          id: r.id,
+          name: r.name,
+          startYaw: r.start_yaw,
+          startPitch: r.start_pitch,
+          image: panoramaImage(r),
+          links: links.data
+            .filter((l) => l.from_id === r.id && ids.has(l.to_id))
+            .map((l) => ({ toId: l.to_id, yaw: l.yaw, pitch: l.pitch })),
+        })),
+      },
+    ];
+  });
+  tours.sort(
+    (a, b) =>
+      Number(a.lotId !== null) - Number(b.lotId !== null) || a.label.localeCompare(b.label, "fr"),
+  );
+
   return {
     preview,
+    tours,
     programme: {
       id: source.id,
       slug: source.slug,
@@ -277,3 +340,9 @@ export const countByStatus = (lots: PublicLot[]) =>
 /** True when the programme has something to show in its Situation section. */
 export const hasSituation = (p: PublicProgramme) =>
   Boolean(p.address || p.position || p.places.length > 0);
+
+/** The 360° tour shown for a lot: its own, else the one of its type. */
+export function tourOfLot(tours: PublicTour[], lot: Pick<PublicLot, "id" | "type">) {
+  const key = tourKeyForLot(lot, new Set(tours.map((t) => t.key)));
+  return key ? (tours.find((t) => t.key === key) ?? null) : null;
+}

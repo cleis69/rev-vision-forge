@@ -16,6 +16,8 @@ export type Totals = {
   vues_lot: number;
   clics_lot: number;
   partages: number;
+  /** Openings of a 360° tour (absent before step 16). */
+  visites_360?: number;
   demandes: number;
 };
 export type DayStats = { day: string; visites: number; vues_lot: number; demandes: number };
@@ -24,6 +26,7 @@ export type LotCounts = {
   vues: number;
   clics: number;
   partages: number;
+  visites_360?: number;
   demandes: number;
 };
 export type ProjectStats = {
@@ -79,8 +82,9 @@ export function conversion(requests: number, visits: number): number | null {
   return Math.round((requests / visits) * 1000) / 10;
 }
 
-export type LotRow = Pick<Lot, "id" | "numero" | "type" | "statut"> & Omit<LotCounts, "lot_id">;
-export type LotSort = "vues" | "clics" | "partages" | "demandes" | "numero";
+export type LotRow = Pick<Lot, "id" | "numero" | "type" | "statut"> &
+  Required<Omit<LotCounts, "lot_id">>;
+export type LotSort = "vues" | "clics" | "partages" | "visites_360" | "demandes" | "numero";
 
 /** Every lot of the programme with its figures (0 when nobody looked at it), most viewed first. */
 export function lotRows(lots: Lot[], counts: LotCounts[], sort: LotSort = "vues"): LotRow[] {
@@ -95,6 +99,7 @@ export function lotRows(lots: Lot[], counts: LotCounts[], sort: LotSort = "vues"
       vues: c?.vues ?? 0,
       clics: c?.clics ?? 0,
       partages: c?.partages ?? 0,
+      visites_360: c?.visites_360 ?? 0,
       demandes: c?.demandes ?? 0,
     };
   });
@@ -111,7 +116,7 @@ export function lotRows(lots: Lot[], counts: LotCounts[], sort: LotSort = "vues"
 /** Rows of the CSV export (French Excel: ";" separator, see downloadCsv). */
 export function lotStatsCsv(rows: LotRow[]): string[][] {
   return [
-    ["lot", "type", "statut", "vues_fiche", "clics_plan", "partages", "demandes"],
+    ["lot", "type", "statut", "vues_fiche", "clics_plan", "partages", "visites_360", "demandes"],
     ...rows.map((r) => [
       r.numero,
       r.type ?? "",
@@ -119,6 +124,7 @@ export function lotStatsCsv(rows: LotRow[]): string[][] {
       String(r.vues),
       String(r.clics),
       String(r.partages),
+      String(r.visites_360),
       String(r.demandes),
     ]),
   ];

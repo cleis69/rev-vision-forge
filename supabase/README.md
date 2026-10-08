@@ -83,6 +83,10 @@ Visite 360° :
   (`yaw`, `pitch`), une par couple de pièces du même programme. Supprimer une pièce
   supprime ses flèches ; supprimer un lot supprime sa propre visite (l'espace promoteur
   efface aussi ses fichiers et ses photos).
+- Pages publiques : rubrique « Visite 360° » de la page, bouton dans la fiche d'un lot qui
+  a une visite (la sienne, sinon celle de son type), dans l'iframe et en mode
+  présentation. Chaque ouverture est un événement `visite_360` de `lot_events` (avec le
+  lot quand elle vient de sa fiche), compté par `project_stats` (totaux et par lot).
 
 Séquences orbitales :
 

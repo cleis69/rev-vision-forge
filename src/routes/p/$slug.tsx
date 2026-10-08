@@ -23,6 +23,7 @@ import { LotCards } from "@/components/public/LotCards";
 import { LotSheet } from "@/components/public/LotSheet";
 import { Presentation } from "@/components/public/Presentation";
 import { Situation } from "@/components/public/Situation";
+import { TourButton, TourOverlay, ToursSection, type OpenTour } from "@/components/public/Tours";
 import { ProgrammeViews } from "@/components/public/ProgrammeViews";
 import { useFollowLot, useViewKey } from "@/lib/public/use-views";
 import { VisitForm } from "@/components/public/VisitForm";
@@ -36,9 +37,11 @@ import {
   countByStatus,
   hasSituation,
   startingPrice,
+  tourOfLot,
   usePublicProgramme,
   type PublicData,
   type PublicLot,
+  type PublicTour,
 } from "@/lib/public/programme";
 import { shareLot, whatsappShareUrl } from "@/lib/public/share";
 import { useBrandTheme } from "@/lib/public/theme";
@@ -90,7 +93,7 @@ function readCompared(projectId: string): string[] {
 }
 
 function Programme({ data, slug }: { data: PublicData; slug: string }) {
-  const { programme, lots, media, preview } = data;
+  const { programme, lots, media, preview, tours } = data;
   const navigate = useNavigate();
   const router = useRouter();
   const [filter, setFilter] = useState<LotStatus | null>(null);
@@ -198,6 +201,26 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
     else void navigate({ to: "/p/$slug", params: { slug }, replace: true, resetScroll: false });
   };
 
+  /* ----- 360° tours: full screen, from the section or from the sheet of a lot */
+  const [touring, setTouring] = useState<OpenTour | null>(null);
+  const [askVisit, setAskVisit] = useState<{ lotId: string } | null>(null);
+  const openTour = (tour: PublicTour, lotId: string | null) => {
+    setTouring({ tour, lotId });
+    if (!preview) track(programme.id, "visite_360", lotId ?? tour.lotId ?? undefined);
+  };
+  // The visit request: the form of the lot (its sheet), else the one of the page.
+  const planFromTour = ({ tour, lotId }: OpenTour) => {
+    setTouring(null);
+    const target = lots.find((l) => l.id === (lotId ?? tour.lotId));
+    if (target && target.statut !== "vendue") {
+      if (target.id !== lot?.id) open(target, "list");
+      setAskVisit({ lotId: target.id });
+    } else {
+      document.getElementById("visite")?.scrollIntoView({ block: "start" });
+    }
+  };
+  const lotTour = lot ? tourOfLot(tours, lot) : null;
+
   return (
     <div
       // Room for the comparison bar at the bottom of the page.
@@ -242,6 +265,11 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
             {gallery.length > 0 ? (
               <a href="#galerie" className="hover:text-white">
                 Galerie
+              </a>
+            ) : null}
+            {tours.length > 0 ? (
+              <a href="#visite-360" className="hover:text-white">
+                Visite 360°
               </a>
             ) : null}
             {hasSituation(programme) ? (
@@ -415,6 +443,21 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
           </section>
         ) : null}
 
+        {tours.length > 0 ? (
+          <section id="visite-360" className="scroll-mt-20 border-t border-white/10">
+            <div className="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
+              <SectionTitle title="Visite 360°" />
+              <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/65">
+                Entrez dans les logements : tournez la tête du bout du doigt, et suivez les flèches
+                d'une pièce à l'autre.
+              </p>
+              <div className="mt-8">
+                <ToursSection tours={tours} lots={lots} onOpen={(t) => openTour(t, null)} />
+              </div>
+            </div>
+          </section>
+        ) : null}
+
         {hasSituation(programme) ? (
           <section id="situation" className="scroll-mt-20 border-t border-white/10">
             <div className="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
@@ -459,6 +502,7 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
         currency={programme.currency}
         open={Boolean(lot)}
         onOpenChange={(o) => !o && close()}
+        askVisit={askVisit}
         actions={
           lot
             ? {
@@ -469,6 +513,9 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
                 onWhatsApp: () => {
                   if (!preview) track(programme.id, "partage", lot.id);
                 },
+                tour: lotTour ? (
+                  <TourButton tour={lotTour} onOpen={() => openTour(lotTour, lot.id)} />
+                ) : null,
                 visit:
                   lot.statut === "vendue" ? null : (
                     <VisitForm
@@ -483,6 +530,8 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
             : null
         }
       />
+
+      <TourOverlay open={touring} onClose={() => setTouring(null)} onPlan={planFromTour} />
 
       <CompareBar
         lots={compared}

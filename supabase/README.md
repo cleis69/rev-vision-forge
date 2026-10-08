@@ -67,7 +67,8 @@ Vues :
   souvent la même palette). Supprimer une vue supprime sa séquence et ses couleurs.
 - Les lots ont un niveau (`lots.niveau`), lu par le public dans `public_lots`.
 - Les images fixes et les tracés de l'étape 13 (`project_views.image_*`, `lot_shapes`)
-  ne servent plus depuis l'étape 15 : la migration suivante les retire.
+  ont été retirés à l'étape 15 : toutes les vues sont orbitales. Une image de séquence
+  appartient toujours à une vue (`media_orbit_view`).
 
 Visite 360° :
 

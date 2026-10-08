@@ -55,8 +55,6 @@ begin
   insert into public.project_views (id, project_id, name, kind, level, sort_order) values
     (view_pub, p_pub, 'Vue aérienne', 'aerienne', null, 0), (view_rdc, p_pub, 'RDC', 'niveau', 0, 1),
     (view_draft, p_draft, 'Vue aérienne', 'aerienne', null, 0), (view_other, p_other, 'Vue aérienne', 'aerienne', null, 0);
-  insert into public.lot_shapes (lot_id, project_id, view_id, points) values
-    (lot_pub, p_pub, view_pub, '[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]]');
   insert into public.leads (project_id, lot_id, nom, telephone, session_id) values
     (p_pub, lot_pub, 'Fixture', '+212600000000', 'fixture');
   -- A tour for the type "Villa" (two rooms, one arrow), one for lot_pub, one in the draft.
@@ -75,7 +73,8 @@ begin
   insert into public.media (project_id, view_id, kind, path, sort_order) values
     (p_pub, view_pub, 'orbit_frame', 'fixture/orbit/vue-001.webp', 0),
     (p_pub, view_pub, 'orbit_mask', 'fixture/orbit/masque-001.png', 0),
-    (p_pub, view_rdc, 'orbit_frame', 'fixture/orbit-rdc/vue-001.webp', 0);
+    (p_pub, view_rdc, 'orbit_frame', 'fixture/orbit-rdc/vue-001.webp', 0),
+    (p_draft, view_draft, 'orbit_frame', 'fixture/orbit-brouillon/vue-001.webp', 0);
   -- Visits for the statistics: today, 10 days ago (previous week), 40 days ago.
   insert into public.lot_events (project_id, lot_id, type, session_id, created_at) values
     (p_pub, null, 'vue_page', 'stat-a', now()),
@@ -141,9 +140,9 @@ begin
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'visiteur : voit un programme en brouillon'::text; end if;
 
   set local role anon;
-  select count(*) into n from public.lot_shapes where project_id = p_pub;
+  select count(*) into n from public.media where project_id in (p_pub, p_draft) and kind in ('orbit_frame', 'orbit_mask');
   reset role;
-  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'visiteur : ne voit pas les formes publiées'::text; end if;
+  total := total + 1; if n <> 3 then failed := failed + 1; report := report || 'visiteur : séquences d''un brouillon visibles (ou celles du publié absentes)'::text; end if;
 
   set local role anon;
   begin perform 1 from public.organizations; ok := not found;
@@ -214,11 +213,11 @@ begin
 
   set local role anon;
   begin
-    insert into public.lot_shapes (lot_id, project_id, view_id, points) values (lot_draft, p_draft, view_draft, '[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]]');
+    insert into public.media (project_id, view_id, kind, path) values (p_pub, view_pub, 'orbit_frame', 'pirate.webp');
     ok := false;
   exception when insufficient_privilege then ok := true; end;
   reset role;
-  total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : trace une forme'::text; end if;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : ajoute une image de séquence'::text; end if;
 
   set local role anon;
   select count(*) into n from public.media where project_id in (p_pub, p_draft) and kind = 'image';
@@ -351,11 +350,11 @@ begin
 
   set local role authenticated;
   begin
-    insert into public.lot_shapes (lot_id, project_id, view_id, points) values (lot_draft, p_draft, view_draft, '[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]]');
+    insert into public.orbit_colors (project_id, view_id, hex) values (p_pub, view_pub, '#123456');
     ok := false;
   exception when insufficient_privilege then ok := true; end;
   reset role;
-  total := total + 1; if not ok then failed := failed + 1; report := report || 'autre organisation : trace une forme chez A'::text; end if;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'autre organisation : ajoute une couleur sur une vue de A'::text; end if;
 
   set local role authenticated;
   select private.can_write_media(org_a || '/' || p_pub || '/plan/plan.webp') into ok;
@@ -525,11 +524,10 @@ begin
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas supprimer un lot'::text; end if;
 
   set local role authenticated;
-  insert into public.lot_shapes (lot_id, project_id, view_id, points) values (lot_pub, p_pub, view_pub, '[[0.5, 0.5], [0.6, 0.5], [0.6, 0.6]]')
-    on conflict (lot_id, view_id) do update set points = excluded.points;
+  insert into public.media (project_id, view_id, kind, path, sort_order) values (p_pub, view_rdc, 'orbit_mask', 'fixture/orbit-rdc/masque-001.png', 0);
   get diagnostics n = row_count;
   reset role;
-  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas modifier une forme'::text; end if;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas compléter une séquence'::text; end if;
 
   set local role authenticated;
   select private.can_write_media(org_a || '/' || p_pub || '/plan/plan.webp') into ok;
@@ -537,10 +535,10 @@ begin
   total := total + 1; if not ok then failed := failed + 1; report := report || 'commercial : ne peut pas gérer le plan de son programme'::text; end if;
 
   set local role authenticated;
-  insert into public.lot_shapes (lot_id, project_id, view_id, points) values (lot_pub, p_pub, view_rdc, '[[0.3, 0.3], [0.4, 0.3], [0.4, 0.4]]');
-  select count(*) into n from public.lot_shapes where lot_id = lot_pub;
+  insert into public.orbit_colors (project_id, view_id, hex, share, lot_id) values (p_pub, view_rdc, '#00ff00', 0.1, lot_pub);
+  select count(*) into n from public.orbit_colors where lot_id = lot_pub;
   reset role;
-  total := total + 1; if n <> 2 then failed := failed + 1; report := report || 'commercial : ne peut pas tracer un lot sur une deuxième vue'::text; end if;
+  total := total + 1; if n <> 2 then failed := failed + 1; report := report || 'commercial : ne peut pas associer un lot sur une deuxième vue'::text; end if;
 
   set local role authenticated;
   insert into public.project_views (project_id, name, kind, level, sort_order) values (p_pub, 'R+1', 'niveau', 1, 2);
@@ -573,7 +571,7 @@ begin
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas légender une photo'::text; end if;
 
   set local role authenticated;
-  select count(*) into n from public.media where project_id = p_draft;
+  select count(*) into n from public.media where project_id = p_draft and kind = 'image';
   reset role;
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne voit pas les photos de son brouillon'::text; end if;
 
@@ -660,28 +658,16 @@ begin
   total := total + 1; if not ok then failed := failed + 1; report := report || 'position incomplète acceptée'::text; end if;
 
   begin
-    insert into public.lot_shapes (lot_id, project_id, view_id, points) values (lot_other, p_other, view_other, '[[1.5, 0], [0, 0], [0, 1]]');
+    insert into public.media (project_id, kind, path) values (p_pub, 'orbit_frame', 'sans-vue.webp');
     ok := false;
   exception when check_violation then ok := true; end;
-  total := total + 1; if not ok then failed := failed + 1; report := report || 'forme hors du plan acceptée'::text; end if;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'image de séquence sans vue acceptée'::text; end if;
 
   begin
-    insert into public.lot_shapes (lot_id, project_id, view_id, points) values (lot_other, p_pub, view_pub, '[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]]');
+    insert into public.media (project_id, view_id, kind, path) values (p_pub, view_pub, 'image', 'photo.webp');
     ok := false;
-  exception when foreign_key_violation then ok := true; end;
-  total := total + 1; if not ok then failed := failed + 1; report := report || 'forme rattachée au mauvais programme'::text; end if;
-
-  begin
-    insert into public.lot_shapes (lot_id, project_id, view_id, points) values (lot_other, p_other, view_pub, '[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]]');
-    ok := false;
-  exception when foreign_key_violation then ok := true; end;
-  total := total + 1; if not ok then failed := failed + 1; report := report || 'forme posée sur la vue d''un autre programme'::text; end if;
-
-  begin
-    insert into public.lot_shapes (lot_id, project_id, view_id, points) values (lot_pub, p_pub, view_pub, '[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]]');
-    ok := false;
-  exception when unique_violation then ok := true; end;
-  total := total + 1; if not ok then failed := failed + 1; report := report || 'deux formes du même lot sur une vue'::text; end if;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'photo rattachée à une vue acceptée'::text; end if;
 
   begin
     update public.project_views set is_main = true where id = view_pub;
@@ -702,12 +688,11 @@ begin
   total := total + 1; if not ok then failed := failed + 1; report := report || 'niveau hors limites accepté'::text; end if;
 
   begin
-    -- The same colour means another lot on another view; the same lot on two views.
-    insert into public.orbit_colors (project_id, view_id, hex, share, lot_id) values
-      (p_pub, view_rdc, '#ff0000', 0.1, null), (p_pub, view_rdc, '#00ff00', 0.1, lot_pub);
+    -- The same colour means another lot on another view.
+    insert into public.orbit_colors (project_id, view_id, hex, share, lot_id) values (p_pub, view_rdc, '#ff0000', 0.1, null);
     ok := true;
   exception when others then ok := false; end;
-  total := total + 1; if not ok then failed := failed + 1; report := report || 'couleurs par vue refusées (même couleur ou même lot sur deux vues)'::text; end if;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'même couleur sur deux vues refusée'::text; end if;
 
   begin
     update public.orbit_colors set lot_id = lot_pub where view_id = view_rdc and hex = '#ff0000';
@@ -722,11 +707,10 @@ begin
   total := total + 1; if not ok then failed := failed + 1; report := report || 'séquence posée sur la vue d''un autre programme'::text; end if;
 
   delete from public.project_views where id = view_rdc;
-  select (select count(*) from public.lot_shapes where view_id = view_rdc)
-       + (select count(*) from public.media where view_id = view_rdc)
+  select (select count(*) from public.media where view_id = view_rdc)
        + (select count(*) from public.orbit_colors where view_id = view_rdc)
     into n;
-  total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'suppression d''une vue : formes, séquence ou couleurs restantes'::text; end if;
+  total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'suppression d''une vue : séquence ou couleurs restantes'::text; end if;
 
   begin
     insert into public.panoramas (project_id, lot_id, lot_type, name, image_path, image_width, image_height)

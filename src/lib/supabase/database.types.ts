@@ -144,48 +144,6 @@ export type Database = {
           },
         ];
       };
-      lot_shapes: {
-        Row: {
-          created_at: string;
-          id: string;
-          lot_id: string;
-          points: Json;
-          project_id: string;
-          view_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          id?: string;
-          lot_id: string;
-          points: Json;
-          project_id: string;
-          view_id: string;
-        };
-        Update: {
-          created_at?: string;
-          id?: string;
-          lot_id?: string;
-          points?: Json;
-          project_id?: string;
-          view_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "lot_shapes_lot_id_project_id_fkey";
-            columns: ["lot_id", "project_id"];
-            isOneToOne: false;
-            referencedRelation: "lots";
-            referencedColumns: ["id", "project_id"];
-          },
-          {
-            foreignKeyName: "lot_shapes_lot_id_project_id_fkey";
-            columns: ["lot_id", "project_id"];
-            isOneToOne: false;
-            referencedRelation: "public_lots";
-            referencedColumns: ["id", "project_id"];
-          },
-        ];
-      };
       lots: {
         Row: {
           chambres: number | null;
@@ -550,9 +508,6 @@ export type Database = {
         Row: {
           created_at: string;
           id: string;
-          image_height: number | null;
-          image_path: string | null;
-          image_width: number | null;
           is_main: boolean;
           kind: Database["public"]["Enums"]["view_kind"];
           level: number | null;
@@ -563,9 +518,6 @@ export type Database = {
         Insert: {
           created_at?: string;
           id?: string;
-          image_height?: number | null;
-          image_path?: string | null;
-          image_width?: number | null;
           is_main?: boolean;
           kind?: Database["public"]["Enums"]["view_kind"];
           level?: number | null;
@@ -576,9 +528,6 @@ export type Database = {
         Update: {
           created_at?: string;
           id?: string;
-          image_height?: number | null;
-          image_path?: string | null;
-          image_width?: number | null;
           is_main?: boolean;
           kind?: Database["public"]["Enums"]["view_kind"];
           level?: number | null;
@@ -739,7 +688,6 @@ export type Database = {
           isSetofReturn: false;
         };
       };
-      is_normalized_polygon: { Args: { points: Json }; Returns: boolean };
       is_valid_places: { Args: { places: Json }; Returns: boolean };
       project_stats: {
         Args: { p_days: number; p_project_id: string; p_tz?: string };

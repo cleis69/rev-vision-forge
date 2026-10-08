@@ -58,7 +58,7 @@ function useOrbitLabels(urls: readonly string[], colors: readonly number[]) {
             data.labels,
             data.width,
             colors.length,
-            data.labels.length * 0.0008,
+            data.labels.length * 0.0003,
           );
           maps.current[i] = { ...data, centers };
           setReady(++count);

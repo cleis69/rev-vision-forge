@@ -6,8 +6,10 @@ import {
   colorAt,
   countColors,
   hexOf,
+  labelMap,
   lotColors,
   packRgb,
+  paintLabels,
   rgbOf,
   sortByName,
   tintOf,
@@ -114,5 +116,28 @@ describe("préchargement des vues", () => {
     expect(nearestLoaded(loaded, 2)).toBe(0);
     expect(nearestLoaded(loaded, 6)).toBe(7);
     expect(nearestLoaded([false, false], 1)).toBe(-1);
+  });
+});
+
+describe("visionneuse publique", () => {
+  test("carte des lots : 1 octet par pixel", () => {
+    const m = mask(3, 1, [
+      [255, 0, 0],
+      [0, 0, 0],
+      [0, 0, 255],
+    ]);
+    expect([...labelMap(m, [packRgb(0, 0, 255), packRgb(255, 0, 0)])]).toEqual([2, 0, 1]);
+  });
+
+  test("couleur unie, hachures, lot non peint", () => {
+    // 4 × 2 pixels: label 1 everywhere on row 0, label 2 on row 1.
+    const labels = Uint8Array.from([1, 1, 1, 1, 2, 2, 2, 2]);
+    const out = new Uint8ClampedArray(labels.length * 4);
+    paintLabels(labels, 4, [null, { rgba: [10, 20, 30, 200] }, null], out);
+    expect([...out.slice(0, 4)]).toEqual([10, 20, 30, 200]);
+    expect([...out.slice(16, 20)]).toEqual([0, 0, 0, 0]);
+    paintLabels(labels, 4, [null, { rgba: [1, 2, 3, 200], stripes: 1 }, null], out);
+    // Stripes one pixel wide: full opacity, then a quarter, and so on.
+    expect([0, 1, 2, 3].map((x) => out[x * 4 + 3])).toEqual([200, 50, 200, 50]);
   });
 });

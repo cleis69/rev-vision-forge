@@ -9,7 +9,7 @@ import { dbErrorMessage } from "@/lib/app/errors";
 import type { Lot } from "@/lib/app/lot-fields";
 import { compareNumeros } from "@/lib/app/lot-fields";
 import {
-  frameUrls,
+  smallFramePath,
   useDeleteOrbit,
   useLinkColor,
   useOrbit,
@@ -426,7 +426,12 @@ function OrbitPreview({
   labelOf: (hex: string) => string;
 }) {
   const count = orbit.frames.length;
-  const urls = useMemo(() => orbit.frames.map((f) => frameUrls(f).small), [orbit.frames]);
+  // Keyed by content: reading the sequence again must not reload its views.
+  const frameKey = orbit.frames.map((f) => f.path).join("|");
+  const urls = useMemo(
+    () => frameKey.split("|").map((path) => publicUrl(smallFramePath(path))),
+    [frameKey],
+  );
   const { images, ready } = useOrbitFrames(urls);
   const [index, setIndex] = useState(0);
   const [dragging, setDragging] = useState(false);

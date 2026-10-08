@@ -139,3 +139,46 @@ export function StatusFilters({
     </div>
   );
 }
+
+export type ViewMode = "3d" | "plan";
+
+/** "Vue 3D / Plan", when a programme has both. */
+export function ViewSwitch({
+  value,
+  onChange,
+  large = false,
+}: {
+  value: ViewMode;
+  onChange: (mode: ViewMode) => void;
+  large?: boolean;
+}) {
+  const options: { mode: ViewMode; label: string }[] = [
+    { mode: "3d", label: "Vue 3D" },
+    { mode: "plan", label: "Plan" },
+  ];
+  return (
+    <div
+      role="group"
+      aria-label="Affichage"
+      className="inline-flex rounded-full border border-white/15 bg-white/[0.04] p-1"
+    >
+      {options.map((o) => (
+        <button
+          key={o.mode}
+          type="button"
+          aria-pressed={value === o.mode}
+          onClick={() => onChange(o.mode)}
+          className={cn(
+            "rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+            large ? "h-10 px-5 text-base" : "h-7 px-3.5 text-sm",
+            value === o.mode
+              ? "bg-[color:var(--brand)] text-[color:var(--brand-contrast)]"
+              : "text-white/70 hover:text-white",
+          )}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}

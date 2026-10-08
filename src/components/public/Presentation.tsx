@@ -7,9 +7,10 @@ import type { LotStatus } from "@/lib/app/lot-fields";
 import { useLiveLots } from "@/lib/public/live";
 import { countByStatus, type PublicData, type PublicLot } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
-import { PoweredBy, StatusFilters } from "./Common";
+import { PoweredBy, StatusFilters, ViewSwitch, type ViewMode } from "./Common";
 import { LotCards } from "./LotCards";
 import { LotDetails } from "./LotDetails";
+import { OrbitViewer } from "./OrbitViewer";
 import { PublicPlan } from "./PublicPlan";
 import { VisitForm } from "./VisitForm";
 
@@ -42,6 +43,7 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
   useIdle(IDLE_MS, () => {
     setPanel(null);
     setFilter(null);
+    setView(orbit ? "3d" : "plan");
     setResetKey((k) => k + 1);
     setVisitor(crypto.randomUUID());
     // Also closes the personal data notice, or a lot opened from a link.
@@ -59,6 +61,9 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
 
   const counts = countByStatus(lots);
   const plan = programme.plan && lots.some((l) => shapes.has(l.id)) ? programme.plan : null;
+  const orbit = data.orbit;
+  const [view, setView] = useState<ViewMode>(orbit ? "3d" : "plan");
+  const showOrbit = Boolean(orbit) && (view === "3d" || !plan);
   const lot = panel?.kind === "lot" ? (lots.find((l) => l.id === panel.id) ?? null) : null;
   const shown = filter ? lots.filter((l) => l.statut === filter) : lots;
   const open = (target: PublicLot) => setPanel({ kind: "lot", id: target.id, contact: false });
@@ -97,7 +102,8 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
           </h1>
         </div>
         {/* Under the name on a tablet, beside it on a wide screen. */}
-        <div className="order-last w-full min-[1400px]:order-none min-[1400px]:w-auto">
+        <div className="order-last flex w-full flex-wrap items-center gap-3 min-[1400px]:order-none min-[1400px]:w-auto">
+          {plan && orbit ? <ViewSwitch value={view} onChange={setView} large /> : null}
           <StatusFilters
             value={filter}
             onChange={setFilter}
@@ -145,7 +151,20 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
 
       <main className="relative flex min-h-0 flex-1">
         <div className="flex min-w-0 flex-1 flex-col p-4 lg:p-6">
-          {plan ? (
+          {showOrbit && orbit ? (
+            <OrbitViewer
+              orbit={orbit}
+              lots={lots}
+              currency={programme.currency}
+              brandColor={programme.organization.brandColor}
+              filter={filter}
+              highlight={highlight}
+              selected={lot?.id ?? null}
+              variant="presentation"
+              resetKey={resetKey}
+              onOpen={open}
+            />
+          ) : plan ? (
             <PublicPlan
               image={plan}
               lots={lots}

@@ -2,9 +2,16 @@ import { useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { CalendarCheck, ExternalLink, Eye, Share2, X } from "lucide-react";
 
-import { PoweredBy, PublicMessage, StatusFilters } from "@/components/public/Common";
+import {
+  PoweredBy,
+  PublicMessage,
+  StatusFilters,
+  ViewSwitch,
+  type ViewMode,
+} from "@/components/public/Common";
 import { LotCards } from "@/components/public/LotCards";
 import { LotDetails } from "@/components/public/LotDetails";
+import { OrbitViewer } from "@/components/public/OrbitViewer";
 import { PublicPlan } from "@/components/public/PublicPlan";
 import { VisitForm } from "@/components/public/VisitForm";
 import type { LotStatus } from "@/lib/app/lot-fields";
@@ -85,6 +92,9 @@ function EmbeddedPlan({ data, slug }: { data: PublicData; slug: string }) {
   const lot = selectedId ? (lots.find((l) => l.id === selectedId) ?? null) : null;
   const counts = countByStatus(lots);
   const plan = programme.plan && lots.some((l) => shapes.has(l.id)) ? programme.plan : null;
+  const orbit = data.orbit;
+  const [view, setView] = useState<ViewMode>(orbit ? "3d" : "plan");
+  const showOrbit = Boolean(orbit) && (view === "3d" || !plan);
 
   useEffect(() => {
     document.title = `Plan de vente — ${programme.name}`;
@@ -145,10 +155,25 @@ function EmbeddedPlan({ data, slug }: { data: PublicData; slug: string }) {
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-brand text-xl font-medium tracking-tight">{programme.name}</h1>
-        <StatusFilters value={filter} onChange={setFilter} counts={counts} total={lots.length} />
+        <div className="flex flex-wrap items-center gap-3">
+          {plan && orbit ? <ViewSwitch value={view} onChange={setView} /> : null}
+          <StatusFilters value={filter} onChange={setFilter} counts={counts} total={lots.length} />
+        </div>
       </div>
 
-      {plan ? (
+      {showOrbit && orbit ? (
+        <OrbitViewer
+          orbit={orbit}
+          lots={lots}
+          currency={programme.currency}
+          brandColor={programme.organization.brandColor}
+          filter={filter}
+          highlight={highlight}
+          selected={selectedId}
+          variant="embed"
+          onOpen={open}
+        />
+      ) : plan ? (
         <PublicPlan
           image={plan}
           lots={lots}

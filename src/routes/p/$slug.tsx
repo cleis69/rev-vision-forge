@@ -10,13 +10,21 @@ import {
 import { ArrowDown, Eye, MapPin } from "lucide-react";
 import { toast } from "sonner";
 
-import { PoweredBy, PublicLoading, PublicMessage, StatusFilters } from "@/components/public/Common";
+import {
+  PoweredBy,
+  PublicLoading,
+  PublicMessage,
+  StatusFilters,
+  ViewSwitch,
+  type ViewMode,
+} from "@/components/public/Common";
 import { CompareBar, CompareDialog } from "@/components/public/Compare";
 import { Gallery } from "@/components/public/Gallery";
 import { LotCards } from "@/components/public/LotCards";
 import { LotSheet } from "@/components/public/LotSheet";
 import { Presentation } from "@/components/public/Presentation";
 import { Situation } from "@/components/public/Situation";
+import { OrbitViewer } from "@/components/public/OrbitViewer";
 import { PublicPlan } from "@/components/public/PublicPlan";
 import { VisitForm } from "@/components/public/VisitForm";
 import type { LotStatus } from "@/lib/app/lot-fields";
@@ -139,6 +147,10 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
   const counts = useMemo(() => countByStatus(lots), [lots]);
   const from = programme.showPrices ? startingPrice(lots) : null;
   const plan = programme.plan && lots.some((l) => shapes.has(l.id)) ? programme.plan : null;
+  const orbit = data.orbit;
+  // The orbital view first when there is one (choice of REV), the plan a click away.
+  const [view, setView] = useState<ViewMode>(orbit ? "3d" : "plan");
+  const showOrbit = Boolean(orbit) && (view === "3d" || !plan);
   const shownLots = filter ? lots.filter((l) => l.statut === filter) : lots;
 
   useEffect(() => {
@@ -209,7 +221,7 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
             aria-label="Sections"
             className="ml-auto hidden items-center gap-6 text-sm text-white/70 sm:flex"
           >
-            {plan ? (
+            {plan || orbit ? (
               <a href="#plan" className="hover:text-white">
                 Plan de vente
               </a>
@@ -280,7 +292,7 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
               ) : null}
             </dl>
             <div className="mt-10 flex flex-wrap gap-3">
-              {plan ? (
+              {plan || orbit ? (
                 <a
                   href="#plan"
                   className="inline-flex h-12 items-center gap-2 rounded-full bg-[color:var(--brand)] px-6 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
@@ -299,27 +311,42 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
           </div>
         </section>
 
-        {plan ? (
+        {plan || orbit ? (
           <section id="plan" className="scroll-mt-20 border-t border-white/10">
             <div className="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
               <SectionTitle title="Plan de vente">
-                <StatusFilters
-                  value={filter}
-                  onChange={setFilter}
-                  counts={counts}
-                  total={lots.length}
-                />
+                <div className="flex flex-wrap items-center gap-3">
+                  {plan && orbit ? <ViewSwitch value={view} onChange={setView} /> : null}
+                  <StatusFilters
+                    value={filter}
+                    onChange={setFilter}
+                    counts={counts}
+                    total={lots.length}
+                  />
+                </div>
               </SectionTitle>
               <div className="mt-8">
-                <PublicPlan
-                  image={plan}
-                  lots={lots}
-                  shapes={shapes}
-                  currency={programme.currency}
-                  filter={filter}
-                  highlight={highlight}
-                  onOpen={open}
-                />
+                {showOrbit && orbit ? (
+                  <OrbitViewer
+                    orbit={orbit}
+                    lots={lots}
+                    currency={programme.currency}
+                    brandColor={programme.organization.brandColor}
+                    filter={filter}
+                    highlight={highlight}
+                    onOpen={open}
+                  />
+                ) : plan ? (
+                  <PublicPlan
+                    image={plan}
+                    lots={lots}
+                    shapes={shapes}
+                    currency={programme.currency}
+                    filter={filter}
+                    highlight={highlight}
+                    onOpen={open}
+                  />
+                ) : null}
               </div>
             </div>
           </section>

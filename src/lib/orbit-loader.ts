@@ -1,6 +1,9 @@
+import { labelMap } from "./orbit-mask";
+
 /* Masks of the orbital view, read pixel by pixel in the browser. Fetched as
    files (the bucket allows any origin), decoded without colour management so
-   the colours stay exact, and kept for the time of the visit. */
+   the colours stay exact. The promoter space keeps their pixels (loadMask);
+   the public viewer keeps only their label maps (loadLabels), 4 times lighter. */
 
 export type MaskData = { data: Uint8ClampedArray; width: number; height: number };
 
@@ -36,4 +39,12 @@ export function loadMask(url: string): Promise<MaskData> {
     mask.catch(() => cache.delete(url));
   }
   return mask;
+}
+
+export type LabelData = { labels: Uint8Array; width: number; height: number };
+
+/** Label map of a mask for the given lot colours (see labelMap); its pixels are not kept. */
+export async function loadLabels(url: string, colors: readonly number[]): Promise<LabelData> {
+  const mask = await read(url);
+  return { labels: labelMap(mask, colors), width: mask.width, height: mask.height };
 }

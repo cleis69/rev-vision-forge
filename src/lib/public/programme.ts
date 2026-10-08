@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { toMediaItem, type MediaItem } from "@/lib/app/media";
+import { toView, type OrbitView } from "@/lib/app/orbit";
 import { planImages } from "@/lib/app/plan";
 import { publicUrl } from "@/lib/app/storage";
 import { LOT_STATUSES, compareNumeros, type LotStatus } from "@/lib/app/lot-fields";
@@ -43,11 +44,20 @@ export type PublicProgramme = {
   places: Place[];
 };
 
+/** Orbital view: the sequence, and the lot of each mask colour (linked colours only). */
+export type PublicOrbit = {
+  frames: OrbitView[];
+  masks: OrbitView[];
+  colors: { hex: string; lotId: string }[];
+};
+
 export type PublicData = {
   programme: PublicProgramme;
   lots: PublicLot[];
   shapes: Map<string, Point[]>;
   media: MediaItem[];
+  /** Null when the programme has no orbital view, or none of its colours is linked to a lot. */
+  orbit: PublicOrbit | null;
   /** Draft seen by a member of its organization. */
   preview: boolean;
 };
@@ -82,7 +92,7 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
   const lotsQuery = preview
     ? supabase.from("lots").select("*").eq("project_id", source.id)
     : supabase.from("public_lots").select("*").eq("project_id", source.id);
-  const [lots, shapes, media] = await Promise.all([
+  const [lots, shapes, media, orbitMedia, orbitColors] = await Promise.all([
     lotsQuery,
     supabase.from("lot_shapes").select("lot_id, points").eq("project_id", source.id),
     supabase
@@ -91,8 +101,21 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
       .eq("project_id", source.id)
       .eq("kind", "image")
       .order("sort_order"),
+    supabase
+      .from("media")
+      .select("*")
+      .eq("project_id", source.id)
+      .in("kind", ["orbit_frame", "orbit_mask"])
+      .order("sort_order"),
+    supabase
+      .from("orbit_colors")
+      .select("hex, lot_id")
+      .eq("project_id", source.id)
+      .not("lot_id", "is", null),
   ]);
   if (lots.error) throw lots.error;
+  if (orbitMedia.error) throw orbitMedia.error;
+  if (orbitColors.error) throw orbitColors.error;
   if (shapes.error) throw shapes.error;
   if (media.error) throw media.error;
 
@@ -148,7 +171,19 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
       .sort((a, b) => compareNumeros(a.numero, b.numero)),
     shapes: shapeMap,
     media: media.data.map(toMediaItem),
+    orbit: orbitOf(orbitMedia.data, orbitColors.data),
   };
+}
+
+function orbitOf(
+  rows: Parameters<typeof toView>[0][],
+  colors: { hex: string; lot_id: string | null }[],
+): PublicOrbit | null {
+  const frames = rows.filter((r) => r.kind === "orbit_frame").map(toView);
+  const masks = rows.filter((r) => r.kind === "orbit_mask").map(toView);
+  const linked = colors.flatMap((c) => (c.lot_id ? [{ hex: c.hex, lotId: c.lot_id }] : []));
+  if (frames.length === 0 || frames.length !== masks.length || linked.length === 0) return null;
+  return { frames, masks, colors: linked };
 }
 
 export function usePublicProgramme(slug: string) {

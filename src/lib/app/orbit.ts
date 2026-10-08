@@ -38,7 +38,7 @@ export const frameUrls = (frame: OrbitView) => ({
 
 const orbitKey = (projectId: string) => ["orbit", projectId] as const;
 
-const toView = (row: Tables<"media">): OrbitView => {
+export const toView = (row: Tables<"media">): OrbitView => {
   const meta = (row.meta ?? {}) as Record<string, unknown>;
   return {
     id: row.id,

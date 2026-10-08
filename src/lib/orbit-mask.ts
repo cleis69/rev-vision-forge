@@ -122,3 +122,56 @@ export function tintOf(hex: string, alpha: number): readonly [number, number, nu
   const rgb = rgbOf(hex);
   return [(rgb >> 16) & 255, (rgb >> 8) & 255, rgb & 255, Math.round(alpha * 255)];
 }
+
+/* Public viewer: each mask becomes a label map (one byte per pixel: 0 for
+   nothing, k for the k-th lot colour), four times lighter than its pixels,
+   then the lots are painted from it in the colour of their status. */
+
+/** Labels of a mask: 1…n for the listed colours (in that order), 0 elsewhere. */
+export function labelMap(
+  mask: { data: Uint8ClampedArray; width: number; height: number },
+  colors: readonly number[],
+): Uint8Array {
+  const index = new Map(colors.map((rgb, i) => [rgb, i + 1]));
+  const out = new Uint8Array(mask.width * mask.height);
+  const { data } = mask;
+  for (let p = 0, i = 0; p < out.length; p++, i += 4) {
+    out[p] =
+      index.get(packRgb(data[i] as number, data[i + 1] as number, data[i + 2] as number)) ?? 0;
+  }
+  return out;
+}
+
+/** How a label is painted: a flat tint, or stripes (reserved lots). */
+export type Paint = { rgba: readonly [number, number, number, number]; stripes?: number };
+
+/**
+ * Overlay pixels from a label map: label k painted with paints[k] (index 0
+ * is never painted). Stripes: diagonal bands, `stripes` pixels wide, at full
+ * opacity on one band out of two and a quarter of it on the other.
+ */
+export function paintLabels(
+  labels: Uint8Array,
+  width: number,
+  paints: readonly (Paint | null)[],
+  out: Uint8ClampedArray,
+): void {
+  out.fill(0);
+  for (let p = 0; p < labels.length; p++) {
+    const k = labels[p] as number;
+    if (k === 0) continue;
+    const paint = paints[k];
+    if (!paint) continue;
+    const i = p * 4;
+    let alpha = paint.rgba[3];
+    if (paint.stripes) {
+      const x = p % width;
+      const y = (p - x) / width;
+      if (Math.floor((x + y) / paint.stripes) % 2 === 1) alpha = Math.round(alpha / 4);
+    }
+    out[i] = paint.rgba[0];
+    out[i + 1] = paint.rgba[1];
+    out[i + 2] = paint.rgba[2];
+    out[i + 3] = alpha;
+  }
+}

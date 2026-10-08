@@ -442,57 +442,11 @@ export function PublicPlan({
       </div>
 
       <div className="flex items-start justify-between gap-4">
-        <ul
-          className={cn(
-            "flex flex-wrap items-center gap-x-5 gap-y-2 pt-2 text-white/70",
-            large ? "text-sm" : "text-xs",
-          )}
-          aria-label="Légende du plan"
-        >
-          <li className="flex items-center gap-2">
-            <span
-              className="size-3 rounded-sm border"
-              style={{
-                background: "color-mix(in srgb, var(--brand) 45%, transparent)",
-                borderColor: "var(--brand)",
-              }}
-              aria-hidden
-            />
-            Disponible
-          </li>
-          <li className="flex items-center gap-2">
-            <span
-              className="size-3 rounded-sm border border-amber-400/90"
-              style={{
-                background:
-                  "repeating-linear-gradient(45deg, rgba(251,191,36,0.85) 0 2px, rgba(251,191,36,0.15) 2px 5px)",
-              }}
-              aria-hidden
-            />
-            Réservé
-          </li>
-          <li className="flex items-center gap-2">
-            <span
-              className="size-3 rounded-sm border border-zinc-400/70 bg-zinc-600/70"
-              aria-hidden
-            />
-            Vendu
-          </li>
-          {large ? (
-            <li className="text-white/45">
-              Touchez un lot pour sa fiche · deux doigts pour zoomer
-            </li>
-          ) : (
-            <>
-              <li className="hidden text-white/45 sm:block">
-                Survolez un lot, cliquez pour sa fiche
-              </li>
-              <li className="text-white/45 sm:hidden">
-                Touchez un lot pour sa fiche · deux doigts pour zoomer
-              </li>
-            </>
-          )}
-        </ul>
+        <StatusLegend
+          large={large}
+          hint="Survolez un lot, cliquez pour sa fiche"
+          touchHint="Touchez un lot pour sa fiche · deux doigts pour zoomer"
+        />
         <div className="flex shrink-0 items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1">
           <button
             type="button"
@@ -518,5 +472,63 @@ export function PublicPlan({
         </div>
       </div>
     </div>
+  );
+}
+
+/** Colours of the statuses, as drawn on the plan and on the orbital view, and how to use the view. */
+export function StatusLegend({
+  large = false,
+  hint,
+  touchHint,
+}: {
+  large?: boolean;
+  /** With a mouse. */
+  hint: string;
+  /** With a finger (phones, and the sales office tablet). */
+  touchHint: string;
+}) {
+  return (
+    <ul
+      className={cn(
+        "flex flex-wrap items-center gap-x-5 gap-y-2 pt-2 text-white/70",
+        large ? "text-sm" : "text-xs",
+      )}
+      aria-label="Légende"
+    >
+      <li className="flex items-center gap-2">
+        <span
+          className="size-3 rounded-sm border"
+          style={{
+            background: "color-mix(in srgb, var(--brand) 45%, transparent)",
+            borderColor: "var(--brand)",
+          }}
+          aria-hidden
+        />
+        Disponible
+      </li>
+      <li className="flex items-center gap-2">
+        <span
+          className="size-3 rounded-sm border border-amber-400/90"
+          style={{
+            background:
+              "repeating-linear-gradient(45deg, rgba(251,191,36,0.85) 0 2px, rgba(251,191,36,0.15) 2px 5px)",
+          }}
+          aria-hidden
+        />
+        Réservé
+      </li>
+      <li className="flex items-center gap-2">
+        <span className="size-3 rounded-sm border border-zinc-400/70 bg-zinc-600/70" aria-hidden />
+        Vendu
+      </li>
+      {large ? (
+        <li className="text-white/45">{touchHint}</li>
+      ) : (
+        <>
+          <li className="hidden text-white/45 sm:block">{hint}</li>
+          <li className="text-white/45 sm:hidden">{touchHint}</li>
+        </>
+      )}
+    </ul>
   );
 }

@@ -23,6 +23,8 @@ Règles retenues :
   5 demandes par heure et par session, 20 par heure et par adresse IP.
 - Une organisation se crée avec `create_organization`, qui inscrit son créateur comme
   propriétaire ; une organisation garde toujours au moins un propriétaire.
+- Les membres (propriétaires et commerciaux) créent et modifient les programmes ; seuls
+  les propriétaires les suppriment, car cela efface aussi leurs lots et leurs demandes.
 - Fichiers : bucket `project-media`, lecture publique, chemins
   `<organization_id>/<project_id>/…` ou `<organization_id>/brand/…`, écriture réservée
   aux membres de l'organisation.

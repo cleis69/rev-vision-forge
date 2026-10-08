@@ -16,7 +16,9 @@ export function getSupabase(): SupabaseClient<Database> {
     const url = import.meta.env.VITE_SUPABASE_URL;
     const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
     if (!url || !key) {
-      throw new Error("VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY doivent être définis (voir .env.example).");
+      throw new Error(
+        "VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY doivent être définis (voir .env.example).",
+      );
     }
     // The client reads the session from the URL fragment, then clears it.
     if (typeof window !== "undefined") {

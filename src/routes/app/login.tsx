@@ -36,7 +36,10 @@ function LoginPage() {
     e.preventDefault();
     setPending("password");
     setNotice(null);
-    const { error } = await getSupabase().auth.signInWithPassword({ email: email.trim(), password });
+    const { error } = await getSupabase().auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
     setPending(null);
     if (error) {
       setNotice({ tone: "error", text: authErrorMessage(error) });
@@ -65,7 +68,10 @@ function LoginPage() {
     setNotice(
       limited
         ? { tone: "error", text: authErrorMessage(error) }
-        : { tone: "info", text: `Si un compte existe pour ${email.trim()}, un lien de connexion vient d'être envoyé.` },
+        : {
+            tone: "info",
+            text: `Si un compte existe pour ${email.trim()}, un lien de connexion vient d'être envoyé.`,
+          },
     );
   };
 
@@ -73,7 +79,9 @@ function LoginPage() {
     if (needEmail()) return;
     setPending("reset");
     setNotice(null);
-    const { error } = await getSupabase().auth.resetPasswordForEmail(email.trim(), { redirectTo: confirmUrl() });
+    const { error } = await getSupabase().auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: confirmUrl(),
+    });
     setPending(null);
     const limited = error && "code" in error && String(error.code).startsWith("over_");
     setNotice(
@@ -87,7 +95,10 @@ function LoginPage() {
   };
 
   return (
-    <AuthCard title="Connexion" description="Gérez vos programmes, vos lots et vos demandes de visite.">
+    <AuthCard
+      title="Connexion"
+      description="Gérez vos programmes, vos lots et vos demandes de visite."
+    >
       <form className="space-y-4" onSubmit={signIn} noValidate>
         <div className="space-y-2">
           <Label htmlFor="email">E-mail</Label>
@@ -127,7 +138,11 @@ function LoginPage() {
 
         {notice ? <FormMessage tone={notice.tone}>{notice.text}</FormMessage> : null}
 
-        <Button type="submit" className="h-11 w-full" disabled={pending !== null || !email || !password}>
+        <Button
+          type="submit"
+          className="h-11 w-full"
+          disabled={pending !== null || !email || !password}
+        >
           {pending === "password" ? "Connexion…" : "Se connecter"}
         </Button>
       </form>
@@ -138,7 +153,13 @@ function LoginPage() {
         <span className="h-px flex-1 bg-border" />
       </div>
 
-      <Button type="button" variant="outline" className="h-11 w-full" onClick={sendLink} disabled={pending !== null}>
+      <Button
+        type="button"
+        variant="outline"
+        className="h-11 w-full"
+        onClick={sendLink}
+        disabled={pending !== null}
+      >
         {pending === "link" ? "Envoi…" : "Recevoir un lien de connexion"}
       </Button>
       <p className="mt-3 text-center text-xs leading-relaxed text-muted-foreground">

@@ -7,12 +7,21 @@ import { Button } from "@/components/ui/button";
 import { getSupabase, urlLinkType } from "@/lib/supabase/client";
 import { authErrorMessage } from "@/lib/supabase/auth";
 
-const TYPES: EmailOtpType[] = ["email", "magiclink", "recovery", "invite", "signup", "email_change"];
+const TYPES: EmailOtpType[] = [
+  "email",
+  "magiclink",
+  "recovery",
+  "invite",
+  "signup",
+  "email_change",
+];
 
 // Landing page of the links sent by e-mail (sign-in link, new password,
 // invitation): it opens the session, then sends the user on.
 export const Route = createFileRoute("/app/confirmer")({
-  validateSearch: (search: Record<string, unknown>): { token_hash?: string | undefined; type?: EmailOtpType | undefined } => ({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { token_hash?: string | undefined; type?: EmailOtpType | undefined } => ({
     token_hash: typeof search["token_hash"] === "string" ? search["token_hash"] : undefined,
     type: TYPES.find((t) => t === search["type"]),
   }),
@@ -37,12 +46,19 @@ function ConfirmPage() {
       if (token_hash && type) {
         const { error } = await supabase.auth.verifyOtp({ token_hash, type });
         if (error) return setError(authErrorMessage(error));
-        return navigate({ to: choosePassword(type) ? "/app/reinitialiser" : "/app", replace: true });
+        return navigate({
+          to: choosePassword(type) ? "/app/reinitialiser" : "/app",
+          replace: true,
+        });
       }
       // Default Supabase e-mails carry the session in the URL fragment instead.
       const { data } = await supabase.auth.getSession();
-      if (!data.session) return setError("Ce lien a expiré ou a déjà été utilisé. Demandez-en un nouveau.");
-      return navigate({ to: choosePassword(urlLinkType()) ? "/app/reinitialiser" : "/app", replace: true });
+      if (!data.session)
+        return setError("Ce lien a expiré ou a déjà été utilisé. Demandez-en un nouveau.");
+      return navigate({
+        to: choosePassword(urlLinkType()) ? "/app/reinitialiser" : "/app",
+        replace: true,
+      });
     };
     void run();
   }, [token_hash, type, navigate]);

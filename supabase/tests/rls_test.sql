@@ -243,6 +243,27 @@ begin
   reset role;
   total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'commercial : modifie l''organisation'::text; end if;
 
+  set local role authenticated;
+  insert into public.projects (organization_id, name, slug) values (org_a, 'Créé par le commercial', 'rls-test-commercial');
+  get diagnostics n = row_count;
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas créer de programme'::text; end if;
+
+  set local role authenticated;
+  update public.projects set city = 'Marrakech' where id = p_draft; get diagnostics n = row_count;
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas modifier un programme'::text; end if;
+
+  set local role authenticated;
+  delete from public.projects where id = p_draft; get diagnostics n = row_count;
+  reset role;
+  total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'commercial : supprime un programme'::text; end if;
+
+  set local role authenticated;
+  delete from public.organizations where id = org_a; get diagnostics n = row_count;
+  reset role;
+  total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'commercial : supprime l''organisation'::text; end if;
+
   ---------------------------------------------------------- owner of A
   perform set_config('request.jwt.claims', json_build_object('sub', owner_a, 'role', 'authenticated')::text, true);
   perform set_config('request.jwt.claim.sub', owner_a::text, true);
@@ -258,6 +279,40 @@ begin
   select count(*) into n from public.members where organization_id = new_org.id and user_id = owner_a and role = 'owner';
   reset role;
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'create_organization : le créateur n''est pas propriétaire'::text; end if;
+
+  set local role authenticated;
+  update public.organizations set name = 'Org A renommée', slug = 'rls-test-org-a2' where id = org_a; get diagnostics n = row_count;
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'propriétaire : ne peut pas modifier son organisation'::text; end if;
+
+  set local role authenticated;
+  begin insert into public.projects (organization_id, name, slug) values (org_b, 'Intrus', 'rls-test-intrus'); ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'propriétaire : crée un programme dans une autre organisation'::text; end if;
+
+  set local role authenticated;
+  begin update public.projects set organization_id = org_b where id = p_draft; ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'propriétaire : déplace un programme vers une autre organisation'::text; end if;
+
+  set local role authenticated;
+  begin insert into public.projects (organization_id, name, slug) values (org_a, 'Doublon', 'rls-test-autre'); ok := false;
+  exception when unique_violation then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'adresse de programme en double acceptée'::text; end if;
+
+  set local role authenticated;
+  begin perform public.create_organization('Doublon', 'rls-test-org-b'); ok := false;
+  exception when unique_violation then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'adresse d''organisation en double acceptée'::text; end if;
+
+  set local role authenticated;
+  delete from public.projects where id = p_draft; get diagnostics n = row_count;
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'propriétaire : ne peut pas supprimer un programme'::text; end if;
 
   ------------------------------------------------------------- integrity
   begin
@@ -279,6 +334,12 @@ begin
   begin delete from public.organizations where id = org_b; ok := true;
   exception when others then ok := false; end;
   total := total + 1; if not ok then failed := failed + 1; report := report || 'suppression d''une organisation bloquée'::text; end if;
+
+  select (select count(*) from public.projects where organization_id = org_b)
+       + (select count(*) from public.lots where id = lot_other)
+       + (select count(*) from public.members where organization_id = org_b)
+    into n;
+  total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'suppression d''une organisation : programmes, lots ou membres restants'::text; end if;
 
   ---------------------------------------------------------------- report
   if failed = 0 then

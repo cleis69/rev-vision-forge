@@ -36,6 +36,10 @@ import { Route as SiteEnPortfolioRouteImport } from './routes/_site/en/portfolio
 import { Route as SiteEnPricingRouteImport } from './routes/_site/en/pricing'
 import { Route as SiteEnServicesRouteImport } from './routes/_site/en/services'
 import { Route as AppEspaceIndexRouteImport } from './routes/app/_espace/index'
+import { Route as AppEspaceOrganisationRouteImport } from './routes/app/_espace/organisation'
+import { Route as AppEspaceProjetsIdRouteRouteImport } from './routes/app/_espace/projets/$id/route'
+import { Route as AppEspaceProjetsIdIndexRouteImport } from './routes/app/_espace/projets/$id/index'
+import { Route as AppEspaceProjetsIdReglagesRouteImport } from './routes/app/_espace/projets/$id/reglages'
 
 const SiteRouteRoute = SiteRouteRouteImport.update({
   id: '/_site',
@@ -170,6 +174,27 @@ const AppEspaceIndexRoute = AppEspaceIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppEspaceRouteRoute,
 } as any)
+const AppEspaceOrganisationRoute = AppEspaceOrganisationRouteImport.update({
+  id: '/organisation',
+  path: '/organisation',
+  getParentRoute: () => AppEspaceRouteRoute,
+} as any)
+const AppEspaceProjetsIdRouteRoute = AppEspaceProjetsIdRouteRouteImport.update({
+  id: '/projets/$id',
+  path: '/projets/$id',
+  getParentRoute: () => AppEspaceRouteRoute,
+} as any)
+const AppEspaceProjetsIdIndexRoute = AppEspaceProjetsIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppEspaceProjetsIdRouteRoute,
+} as any)
+const AppEspaceProjetsIdReglagesRoute =
+  AppEspaceProjetsIdReglagesRouteImport.update({
+    id: '/reglages',
+    path: '/reglages',
+    getParentRoute: () => AppEspaceProjetsIdRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
@@ -195,8 +220,12 @@ export interface FileRoutesByFullPath {
   '/en/portfolio': typeof SiteEnPortfolioRoute
   '/en/pricing': typeof SiteEnPricingRoute
   '/en/services': typeof SiteEnServicesRoute
+  '/app/organisation': typeof AppEspaceOrganisationRoute
   '/en/': typeof SiteEnIndexRoute
   '/app/': typeof AppEspaceIndexRoute
+  '/app/projets/$id': typeof AppEspaceProjetsIdRouteRouteWithChildren
+  '/app/projets/$id/reglages': typeof AppEspaceProjetsIdReglagesRoute
+  '/app/projets/$id/': typeof AppEspaceProjetsIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/app': typeof AppEspaceIndexRoute
@@ -222,7 +251,10 @@ export interface FileRoutesByTo {
   '/en/portfolio': typeof SiteEnPortfolioRoute
   '/en/pricing': typeof SiteEnPricingRoute
   '/en/services': typeof SiteEnServicesRoute
+  '/app/organisation': typeof AppEspaceOrganisationRoute
   '/en': typeof SiteEnIndexRoute
+  '/app/projets/$id/reglages': typeof AppEspaceProjetsIdReglagesRoute
+  '/app/projets/$id': typeof AppEspaceProjetsIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -251,8 +283,12 @@ export interface FileRoutesById {
   '/_site/en/portfolio': typeof SiteEnPortfolioRoute
   '/_site/en/pricing': typeof SiteEnPricingRoute
   '/_site/en/services': typeof SiteEnServicesRoute
+  '/app/_espace/organisation': typeof AppEspaceOrganisationRoute
   '/_site/en/': typeof SiteEnIndexRoute
   '/app/_espace/': typeof AppEspaceIndexRoute
+  '/app/_espace/projets/$id': typeof AppEspaceProjetsIdRouteRouteWithChildren
+  '/app/_espace/projets/$id/reglages': typeof AppEspaceProjetsIdReglagesRoute
+  '/app/_espace/projets/$id/': typeof AppEspaceProjetsIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -280,8 +316,12 @@ export interface FileRouteTypes {
     | '/en/portfolio'
     | '/en/pricing'
     | '/en/services'
+    | '/app/organisation'
     | '/en/'
     | '/app/'
+    | '/app/projets/$id'
+    | '/app/projets/$id/reglages'
+    | '/app/projets/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/app'
@@ -307,7 +347,10 @@ export interface FileRouteTypes {
     | '/en/portfolio'
     | '/en/pricing'
     | '/en/services'
+    | '/app/organisation'
     | '/en'
+    | '/app/projets/$id/reglages'
+    | '/app/projets/$id'
   id:
     | '__root__'
     | '/_site'
@@ -335,8 +378,12 @@ export interface FileRouteTypes {
     | '/_site/en/portfolio'
     | '/_site/en/pricing'
     | '/_site/en/services'
+    | '/app/_espace/organisation'
     | '/_site/en/'
     | '/app/_espace/'
+    | '/app/_espace/projets/$id'
+    | '/app/_espace/projets/$id/reglages'
+    | '/app/_espace/projets/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -535,6 +582,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEspaceIndexRouteImport
       parentRoute: typeof AppEspaceRouteRoute
     }
+    '/app/_espace/organisation': {
+      id: '/app/_espace/organisation'
+      path: '/organisation'
+      fullPath: '/app/organisation'
+      preLoaderRoute: typeof AppEspaceOrganisationRouteImport
+      parentRoute: typeof AppEspaceRouteRoute
+    }
+    '/app/_espace/projets/$id': {
+      id: '/app/_espace/projets/$id'
+      path: '/projets/$id'
+      fullPath: '/app/projets/$id'
+      preLoaderRoute: typeof AppEspaceProjetsIdRouteRouteImport
+      parentRoute: typeof AppEspaceRouteRoute
+    }
+    '/app/_espace/projets/$id/': {
+      id: '/app/_espace/projets/$id/'
+      path: '/'
+      fullPath: '/app/projets/$id/'
+      preLoaderRoute: typeof AppEspaceProjetsIdIndexRouteImport
+      parentRoute: typeof AppEspaceProjetsIdRouteRoute
+    }
+    '/app/_espace/projets/$id/reglages': {
+      id: '/app/_espace/projets/$id/reglages'
+      path: '/reglages'
+      fullPath: '/app/projets/$id/reglages'
+      preLoaderRoute: typeof AppEspaceProjetsIdReglagesRouteImport
+      parentRoute: typeof AppEspaceProjetsIdRouteRoute
+    }
   }
 }
 
@@ -588,12 +663,32 @@ const SiteRouteRouteWithChildren = SiteRouteRoute._addFileChildren(
   SiteRouteRouteChildren,
 )
 
+interface AppEspaceProjetsIdRouteRouteChildren {
+  AppEspaceProjetsIdReglagesRoute: typeof AppEspaceProjetsIdReglagesRoute
+  AppEspaceProjetsIdIndexRoute: typeof AppEspaceProjetsIdIndexRoute
+}
+
+const AppEspaceProjetsIdRouteRouteChildren: AppEspaceProjetsIdRouteRouteChildren =
+  {
+    AppEspaceProjetsIdReglagesRoute: AppEspaceProjetsIdReglagesRoute,
+    AppEspaceProjetsIdIndexRoute: AppEspaceProjetsIdIndexRoute,
+  }
+
+const AppEspaceProjetsIdRouteRouteWithChildren =
+  AppEspaceProjetsIdRouteRoute._addFileChildren(
+    AppEspaceProjetsIdRouteRouteChildren,
+  )
+
 interface AppEspaceRouteRouteChildren {
+  AppEspaceOrganisationRoute: typeof AppEspaceOrganisationRoute
   AppEspaceIndexRoute: typeof AppEspaceIndexRoute
+  AppEspaceProjetsIdRouteRoute: typeof AppEspaceProjetsIdRouteRouteWithChildren
 }
 
 const AppEspaceRouteRouteChildren: AppEspaceRouteRouteChildren = {
+  AppEspaceOrganisationRoute: AppEspaceOrganisationRoute,
   AppEspaceIndexRoute: AppEspaceIndexRoute,
+  AppEspaceProjetsIdRouteRoute: AppEspaceProjetsIdRouteRouteWithChildren,
 }
 
 const AppEspaceRouteRouteWithChildren = AppEspaceRouteRoute._addFileChildren(

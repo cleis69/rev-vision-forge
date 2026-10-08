@@ -5,6 +5,15 @@ type ToasterProps = React.ComponentProps<typeof Sonner>;
 const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
+      // Sonner's own styles win over Tailwind's layers: set its colours from the theme.
+      theme="dark"
+      style={
+        {
+          "--normal-bg": "var(--card)",
+          "--normal-text": "var(--foreground)",
+          "--normal-border": "var(--border)",
+        } as React.CSSProperties
+      }
       className="toaster group"
       toastOptions={{
         classNames: {

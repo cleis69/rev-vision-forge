@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Building2, Check, ChevronDown, ExternalLink, LogOut } from "lucide-react";
+import { Building2, Check, ChevronDown, ExternalLink, LogOut, Plus, Settings } from "lucide-react";
 
 import { RevLogo } from "@/components/rev/Logo";
 import { Container } from "@/components/rev/ui";
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getSupabase } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/supabase/auth";
+import { NewOrganizationDialog } from "./OrganizationForms";
 import { useOrganizations } from "./Organizations";
 
 const ROLE_LABELS = { owner: "Propriétaire", commercial: "Commercial" } as const;
@@ -22,6 +24,7 @@ export function AppTopBar() {
   const { memberships, active, setActiveId } = useOrganizations();
   const navigate = useNavigate();
   const email = session?.user.email ?? "";
+  const [creating, setCreating] = useState(false);
 
   const signOut = async () => {
     await getSupabase().auth.signOut();
@@ -31,7 +34,11 @@ export function AppTopBar() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-xl">
       <Container className="flex h-16 items-center gap-3">
-        <Link to="/app" className="flex shrink-0 items-center gap-3" aria-label="Espace promoteur, accueil">
+        <Link
+          to="/app"
+          className="flex shrink-0 items-center gap-3"
+          aria-label="Espace promoteur, accueil"
+        >
           <RevLogo className="h-9 w-auto" />
           <span className="hidden text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground sm:inline">
             Espace promoteur
@@ -40,29 +47,39 @@ export function AppTopBar() {
 
         <div className="ml-auto flex min-w-0 items-center gap-2">
           {active ? (
-            memberships.length > 1 ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger className="flex h-9 min-w-0 items-center gap-2 rounded-lg border border-border px-3 text-sm transition-colors hover:border-foreground/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                  <Building2 className="size-4 shrink-0 text-primary" aria-hidden />
-                  <span className="truncate">{active.organization.name}</span>
-                  <ChevronDown className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="min-w-56">
-                  <DropdownMenuLabel>Organisation</DropdownMenuLabel>
-                  {memberships.map((m) => (
-                    <DropdownMenuItem key={m.organization.id} onSelect={() => setActiveId(m.organization.id)}>
-                      <span className="flex-1 truncate">{m.organization.name}</span>
-                      {m.organization.id === active.organization.id ? <Check className="size-4 text-primary" /> : null}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <span className="flex min-w-0 items-center gap-2 px-1 text-sm text-foreground/90">
+            // Not modal, so the "Nouvelle organisation" dialog can take the focus.
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger className="flex h-9 min-w-0 items-center gap-2 rounded-lg border border-border px-3 text-sm transition-colors hover:border-foreground/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                 <Building2 className="size-4 shrink-0 text-primary" aria-hidden />
                 <span className="truncate">{active.organization.name}</span>
-              </span>
-            )
+                <ChevronDown className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-60">
+                <DropdownMenuLabel>Organisation</DropdownMenuLabel>
+                {memberships.map((m) => (
+                  <DropdownMenuItem
+                    key={m.organization.id}
+                    onSelect={() => setActiveId(m.organization.id)}
+                  >
+                    <span className="flex-1 truncate">{m.organization.name}</span>
+                    {m.organization.id === active.organization.id ? (
+                      <Check className="size-4 text-primary" />
+                    ) : null}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/app/organisation">
+                    <Settings className="size-4" aria-hidden />
+                    Réglages de l'organisation
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setCreating(true)}>
+                  <Plus className="size-4" aria-hidden />
+                  Nouvelle organisation
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : null}
 
           <DropdownMenu>
@@ -76,7 +93,9 @@ export function AppTopBar() {
               <DropdownMenuLabel className="font-normal">
                 <span className="block truncate text-sm">{email}</span>
                 {active ? (
-                  <span className="mt-0.5 block text-xs text-muted-foreground">{ROLE_LABELS[active.role]}</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    {ROLE_LABELS[active.role]}
+                  </span>
                 ) : null}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
@@ -94,6 +113,7 @@ export function AppTopBar() {
           </DropdownMenu>
         </div>
       </Container>
+      <NewOrganizationDialog open={creating} onOpenChange={setCreating} />
     </header>
   );
 }

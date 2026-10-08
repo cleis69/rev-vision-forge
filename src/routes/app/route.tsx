@@ -12,10 +12,7 @@ import { AuthProvider } from "@/lib/supabase/auth";
 export const Route = createFileRoute("/app")({
   ssr: false,
   head: () => ({
-    meta: [
-      { title: "Espace promoteur — REV" },
-      { name: "robots", content: "noindex, nofollow" },
-    ],
+    meta: [{ title: "Espace promoteur — REV" }, { name: "robots", content: "noindex, nofollow" }],
   }),
   component: AppRoot,
   notFoundComponent: AppNotFound,
@@ -23,7 +20,10 @@ export const Route = createFileRoute("/app")({
 
 function AppNotFound() {
   return (
-    <AuthCard title="Page introuvable" description="Cette adresse n'existe pas dans l'espace promoteur.">
+    <AuthCard
+      title="Page introuvable"
+      description="Cette adresse n'existe pas dans l'espace promoteur."
+    >
       <Button asChild className="h-11 w-full">
         <Link to="/app">Retour à mes programmes</Link>
       </Button>

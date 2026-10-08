@@ -28,7 +28,8 @@ function ResetPasswordPage() {
 
   const save = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (password.length < MIN_LENGTH) return setError(`Le mot de passe doit faire au moins ${MIN_LENGTH} caractères.`);
+    if (password.length < MIN_LENGTH)
+      return setError(`Le mot de passe doit faire au moins ${MIN_LENGTH} caractères.`);
     if (password !== confirm) return setError("Les deux mots de passe ne correspondent pas.");
     setPending(true);
     setError(null);
@@ -42,14 +43,19 @@ function ResetPasswordPage() {
   if (!ready) {
     return (
       <AuthCard title="Nouveau mot de passe">
-        <p className="text-sm text-muted-foreground" role="status">Chargement…</p>
+        <p className="text-sm text-muted-foreground" role="status">
+          Chargement…
+        </p>
       </AuthCard>
     );
   }
 
   if (!session) {
     return (
-      <AuthCard title="Lien expiré" description="Ce lien n'est plus valable. Demandez-en un nouveau depuis la page de connexion.">
+      <AuthCard
+        title="Lien expiré"
+        description="Ce lien n'est plus valable. Demandez-en un nouveau depuis la page de connexion."
+      >
         <Button asChild className="h-11 w-full">
           <Link to="/app/login">Retour à la connexion</Link>
         </Button>

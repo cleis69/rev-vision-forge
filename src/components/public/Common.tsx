@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+import { RevLogo } from "@/components/rev/Logo";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/sonner";
 import { LOT_STATUSES, STATUS_LABELS, type LotStatus } from "@/lib/app/lot-fields";
@@ -25,17 +26,18 @@ export function PublicProviders({ children }: { children: ReactNode }) {
   );
 }
 
+/** REV's signature, always shown on the public pages, whatever the promoter's branding. */
 export function PoweredBy({ className }: { className?: string }) {
   return (
-    <p className={cn("text-xs text-white/40", className)}>
-      Propulsé par{" "}
+    <p className={cn("text-xs text-white/45", className)}>
       <a
         href="https://realestatevision360.com/"
         target="_blank"
         rel="noopener"
-        className="text-white/60 underline-offset-4 hover:text-white hover:underline"
+        className="inline-flex items-center gap-2 rounded transition-colors hover:text-white/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
       >
-        REV
+        Propulsé par
+        <RevLogo variant="compact" lazy className="h-6 w-auto" />
       </a>
     </p>
   );

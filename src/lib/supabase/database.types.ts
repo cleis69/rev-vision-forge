@@ -485,9 +485,6 @@ export type Database = {
           name: string;
           organization_id: string;
           places: Json;
-          plan_height: number | null;
-          plan_image_path: string | null;
-          plan_width: number | null;
           show_prices: boolean;
           slug: string;
           status: Database["public"]["Enums"]["project_status"];
@@ -506,9 +503,6 @@ export type Database = {
           name: string;
           organization_id: string;
           places?: Json;
-          plan_height?: number | null;
-          plan_image_path?: string | null;
-          plan_width?: number | null;
           show_prices?: boolean;
           slug: string;
           status?: Database["public"]["Enums"]["project_status"];
@@ -527,9 +521,6 @@ export type Database = {
           name?: string;
           organization_id?: string;
           places?: Json;
-          plan_height?: number | null;
-          plan_image_path?: string | null;
-          plan_width?: number | null;
           show_prices?: boolean;
           slug?: string;
           status?: Database["public"]["Enums"]["project_status"];
@@ -596,9 +587,6 @@ export type Database = {
           organization_logo_path: string | null;
           organization_name: string | null;
           organization_slug: string | null;
-          plan_height: number | null;
-          plan_image_path: string | null;
-          plan_width: number | null;
           places: Json | null;
           show_prices: boolean | null;
           slug: string | null;

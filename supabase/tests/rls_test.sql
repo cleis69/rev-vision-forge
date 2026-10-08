@@ -18,6 +18,10 @@ declare
   lot_pub constant uuid := '00000000-0000-4000-8000-000000a00001';
   lot_draft constant uuid := '00000000-0000-4000-8000-000000a00002';
   lot_other constant uuid := '00000000-0000-4000-8000-000000b00001';
+  view_pub constant uuid := '00000000-0000-4000-8000-00000a000001';
+  view_rdc constant uuid := '00000000-0000-4000-8000-00000a000002';
+  view_draft constant uuid := '00000000-0000-4000-8000-00000a000003';
+  view_other constant uuid := '00000000-0000-4000-8000-00000b000001';
   report text[] := '{}';
   total int := 0;
   failed int := 0;
@@ -41,10 +45,13 @@ begin
      'Route de test', 31.6, -7.9, '[{"name": "Aéroport", "minutes": 15, "mode": "voiture"}]'),
     (p_draft, org_a, 'Brouillon', 'rls-test-brouillon', 'draft', true, null, null, null, '[]'),
     (p_other, org_b, 'Publié avec prix', 'rls-test-autre', 'published', true, null, null, null, '[]');
-  insert into public.lots (id, project_id, numero, prix) values
-    (lot_pub, p_pub, '1', 1000000), (lot_draft, p_draft, '1', 500000), (lot_other, p_other, '1', 900000);
-  insert into public.lot_shapes (lot_id, project_id, points) values
-    (lot_pub, p_pub, '[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]]');
+  insert into public.lots (id, project_id, numero, prix, niveau) values
+    (lot_pub, p_pub, '1', 1000000, 0), (lot_draft, p_draft, '1', 500000, null), (lot_other, p_other, '1', 900000, null);
+  insert into public.project_views (id, project_id, name, kind, level, sort_order) values
+    (view_pub, p_pub, 'Vue aérienne', 'aerienne', null, 0), (view_rdc, p_pub, 'RDC', 'niveau', 0, 1),
+    (view_draft, p_draft, 'Vue aérienne', 'aerienne', null, 0), (view_other, p_other, 'Vue aérienne', 'aerienne', null, 0);
+  insert into public.lot_shapes (lot_id, project_id, view_id, points) values
+    (lot_pub, p_pub, view_pub, '[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]]');
   insert into public.leads (project_id, lot_id, nom, telephone, session_id) values
     (p_pub, lot_pub, 'Fixture', '+212600000000', 'fixture');
   insert into public.media (project_id, lot_id, kind, path) values
@@ -189,7 +196,7 @@ begin
 
   set local role anon;
   begin
-    insert into public.lot_shapes (lot_id, project_id, points) values (lot_draft, p_draft, '[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]]');
+    insert into public.lot_shapes (lot_id, project_id, view_id, points) values (lot_draft, p_draft, view_draft, '[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]]');
     ok := false;
   exception when insufficient_privilege then ok := true; end;
   reset role;
@@ -243,6 +250,22 @@ begin
   total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : ajoute une couleur orbitale'::text; end if;
 
   set local role anon;
+  select count(*) into n from public.project_views where project_id in (p_pub, p_draft);
+  reset role;
+  total := total + 1; if n <> 2 then failed := failed + 1; report := report || 'visiteur : vues d''un brouillon visibles (ou celles du publié absentes)'::text; end if;
+
+  set local role anon;
+  begin insert into public.project_views (project_id, name) values (p_pub, 'Pirate'); ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : ajoute une vue'::text; end if;
+
+  set local role anon;
+  select count(*) into n from public.public_lots where id = lot_pub and niveau = 0;
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'visiteur : niveau absent de public_lots'::text; end if;
+
+  set local role anon;
   begin perform public.project_stats(p_pub, 7, 'UTC'); ok := false;
   exception when insufficient_privilege then ok := true; end;
   reset role;
@@ -288,7 +311,7 @@ begin
 
   set local role authenticated;
   begin
-    insert into public.lot_shapes (lot_id, project_id, points) values (lot_draft, p_draft, '[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]]');
+    insert into public.lot_shapes (lot_id, project_id, view_id, points) values (lot_draft, p_draft, view_draft, '[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]]');
     ok := false;
   exception when insufficient_privilege then ok := true; end;
   reset role;
@@ -322,6 +345,22 @@ begin
   update public.orbit_colors set lot_id = null where project_id = p_pub; get diagnostics n = row_count;
   reset role;
   total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'autre organisation : modifie une couleur orbitale'::text; end if;
+
+  set local role authenticated;
+  update public.project_views set is_main = true where id = view_pub; get diagnostics n = row_count;
+  reset role;
+  total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'autre organisation : modifie une vue de A'::text; end if;
+
+  set local role authenticated;
+  begin insert into public.project_views (project_id, name) values (p_pub, 'Intruse'); ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'autre organisation : ajoute une vue chez A'::text; end if;
+
+  set local role authenticated;
+  select count(*) into n from public.project_views where project_id = p_draft;
+  reset role;
+  total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'autre organisation : voit les vues du brouillon de A'::text; end if;
 
   ------------------------------------------------------ commercial of A
   perform set_config('request.jwt.claims', json_build_object('sub', commercial_a, 'role', 'authenticated')::text, true);
@@ -428,8 +467,8 @@ begin
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas supprimer un lot'::text; end if;
 
   set local role authenticated;
-  insert into public.lot_shapes (lot_id, project_id, points) values (lot_pub, p_pub, '[[0.5, 0.5], [0.6, 0.5], [0.6, 0.6]]')
-    on conflict (lot_id) do update set points = excluded.points;
+  insert into public.lot_shapes (lot_id, project_id, view_id, points) values (lot_pub, p_pub, view_pub, '[[0.5, 0.5], [0.6, 0.5], [0.6, 0.6]]')
+    on conflict (lot_id, view_id) do update set points = excluded.points;
   get diagnostics n = row_count;
   reset role;
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas modifier une forme'::text; end if;
@@ -438,6 +477,23 @@ begin
   select private.can_write_media(org_a || '/' || p_pub || '/plan/plan.webp') into ok;
   reset role;
   total := total + 1; if not ok then failed := failed + 1; report := report || 'commercial : ne peut pas gérer le plan de son programme'::text; end if;
+
+  set local role authenticated;
+  insert into public.lot_shapes (lot_id, project_id, view_id, points) values (lot_pub, p_pub, view_rdc, '[[0.3, 0.3], [0.4, 0.3], [0.4, 0.4]]');
+  select count(*) into n from public.lot_shapes where lot_id = lot_pub;
+  reset role;
+  total := total + 1; if n <> 2 then failed := failed + 1; report := report || 'commercial : ne peut pas tracer un lot sur une deuxième vue'::text; end if;
+
+  set local role authenticated;
+  insert into public.project_views (project_id, name, kind, level, sort_order) values (p_pub, 'R+1', 'niveau', 1, 2);
+  update public.project_views set is_main = true where id = view_rdc; get diagnostics n = row_count;
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas ajouter une vue ou choisir la vue principale'::text; end if;
+
+  set local role authenticated;
+  delete from public.project_views where project_id = p_pub and name = 'R+1'; get diagnostics n = row_count;
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas supprimer une vue'::text; end if;
 
   set local role authenticated;
   update public.media set meta = '{"caption": "Vue mer"}' where project_id = p_pub; get diagnostics n = row_count;
@@ -532,18 +588,50 @@ begin
   total := total + 1; if not ok then failed := failed + 1; report := report || 'position incomplète acceptée'::text; end if;
 
   begin
-    insert into public.lot_shapes (lot_id, project_id, points) values (lot_other, p_other, '[[1.5, 0], [0, 0], [0, 1]]');
+    insert into public.lot_shapes (lot_id, project_id, view_id, points) values (lot_other, p_other, view_other, '[[1.5, 0], [0, 0], [0, 1]]');
     ok := false;
   exception when check_violation then ok := true; end;
   total := total + 1; if not ok then failed := failed + 1; report := report || 'forme hors du plan acceptée'::text; end if;
 
   begin
-    insert into public.lot_shapes (lot_id, project_id, points) values (lot_other, p_pub, '[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]]');
+    insert into public.lot_shapes (lot_id, project_id, view_id, points) values (lot_other, p_pub, view_pub, '[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]]');
     ok := false;
   exception when foreign_key_violation then ok := true; end;
   total := total + 1; if not ok then failed := failed + 1; report := report || 'forme rattachée au mauvais programme'::text; end if;
 
+  begin
+    insert into public.lot_shapes (lot_id, project_id, view_id, points) values (lot_other, p_other, view_pub, '[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]]');
+    ok := false;
+  exception when foreign_key_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'forme posée sur la vue d''un autre programme'::text; end if;
 
+  begin
+    insert into public.lot_shapes (lot_id, project_id, view_id, points) values (lot_pub, p_pub, view_pub, '[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2]]');
+    ok := false;
+  exception when unique_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'deux formes du même lot sur une vue'::text; end if;
+
+  begin
+    update public.project_views set is_main = true where id = view_pub;
+    ok := false;
+  exception when unique_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'deux vues principales acceptées'::text; end if;
+
+  begin
+    insert into public.project_views (project_id, name, kind) values (p_pub, 'Étage', 'niveau');
+    ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'vue de niveau sans niveau acceptée'::text; end if;
+
+  begin
+    update public.lots set niveau = 120 where id = lot_pub;
+    ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'niveau hors limites accepté'::text; end if;
+
+  delete from public.project_views where id = view_rdc;
+  select count(*) into n from public.lot_shapes where view_id = view_rdc;
+  total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'suppression d''une vue : formes restantes'::text; end if;
 
   select count(*) into n from net.http_request_queue where url like '%/functions/v1/notify-lead';
   insert into public.leads (project_id, nom, telephone, session_id) values (p_pub, 'Notification', '+212600000009', 'notif');
@@ -565,6 +653,7 @@ begin
 
   select (select count(*) from public.projects where organization_id = org_b)
        + (select count(*) from public.lots where id = lot_other)
+       + (select count(*) from public.project_views where id = view_other)
        + (select count(*) from public.members where organization_id = org_b)
     into n;
   total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'suppression d''une organisation : programmes, lots ou membres restants'::text; end if;

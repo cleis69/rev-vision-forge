@@ -54,6 +54,20 @@ Situation :
   `public_projects`. Carte : OpenFreeMap (sans clé ni cookie) ; recherche d'adresse dans
   l'espace promoteur : Nominatim (OpenStreetMap), à la demande seulement.
 
+Vues du plan :
+
+- Un programme a plusieurs vues dans `project_views` : vue aérienne, toiture, niveaux
+  (`kind = 'niveau'` et `level` : -1 pour R-1, 0 pour le RDC, 1 pour R+1…), vue piéton
+  ou autre. Chacune a son image (en 4 096 et 1 600 px, fichiers dans
+  `<organisation>/<programme>/plan/`) et son ordre ; une seule peut être la vue
+  principale (`is_main`), montrée d'abord sur les pages publiques.
+- `lot_shapes` : une forme par lot et par vue (`unique (lot_id, view_id)`), la vue du même
+  programme que le lot. Supprimer une vue supprime ses formes.
+- Les lots ont un niveau (`lots.niveau`), lu par le public dans `public_lots`.
+- Les colonnes `plan_*` de `projects` ont disparu : le plan unique de chaque programme
+  est devenu sa première vue (« Vue aérienne »), en deux migrations pour que le site en
+  ligne continue de marcher entre les deux.
+
 Vue orbitale :
 
 - La séquence est dans `media` : `orbit_frame` (vues WebP en 2 048 et 1 280 px) et
@@ -63,6 +77,9 @@ Vue orbitale :
   de chacune ; `lot_id` reste vide tant que le promoteur ne l'a pas associée, et le
   redevient si le lot est supprimé. Une couleur par lot. Lecture publique pour les
   programmes publiés, écriture par les membres.
+- Les vues (orbitale, aérienne, piéton) de la démo « Villas de démonstration » sont des
+  rendus Three.js générés depuis le plan, avec les masques ou les formes des lots
+  calculés depuis un rendu des mêmes lots en couleurs pleines, sous le même angle.
 
 Statistiques :
 

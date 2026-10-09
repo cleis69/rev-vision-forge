@@ -9,7 +9,10 @@ import { VIEWER_LANG } from "@/components/tour/arrow";
 import type { LotStatus } from "@/lib/app/lot-fields";
 import type { PublicLot, PublicViewPanorama } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
+import { Maximize, Minimize } from "lucide-react";
+
 import { lotTagElement } from "./lot-tag";
+import { ViewerControls } from "./ViewerControls";
 import { StatusLegend } from "./status";
 
 /* A view of the programme shown as a 360° panorama (an aerial view above all):
@@ -45,6 +48,7 @@ export default function AerialViewer({
   onOpen: (lot: PublicLot, from: "plan" | "keyboard") => void;
 }) {
   const large = variant === "presentation";
+  const box = useRef<HTMLDivElement>(null);
   const container = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Viewer | null>(null);
   const [ready, setReady] = useState(false);
@@ -68,7 +72,8 @@ export default function AerialViewer({
         defaultYaw: panorama.startYaw,
         defaultPitch: panorama.startPitch,
         defaultZoomLvl: 0,
-        navbar: ["zoom", ...(large ? [] : (["fullscreen"] as const))],
+        // Our own buttons: the viewer's bar folded the zoom into a menu on narrow screens.
+        navbar: false,
         lang: LANG,
         keyboard: large ? "always" : "fullscreen",
         mousewheelCtrlKey: !large,
@@ -138,6 +143,18 @@ export default function AerialViewer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, markerKey, filter, currency, large]);
 
+  const [full, setFull] = useState(false);
+  useEffect(() => {
+    const sync = () => setFull(document.fullscreenElement === box.current);
+    document.addEventListener("fullscreenchange", sync);
+    return () => document.removeEventListener("fullscreenchange", sync);
+  }, []);
+  const canFull = typeof document !== "undefined" && document.fullscreenEnabled && !large;
+  const toggleFull = () => {
+    if (document.fullscreenElement) void document.exitFullscreen();
+    else void box.current?.requestFullscreen().catch(() => undefined);
+  };
+
   // Presentation left idle: back to the first direction.
   useEffect(() => {
     if (!resetKey) return;
@@ -152,15 +169,45 @@ export default function AerialViewer({
   return (
     <div className={large ? "flex h-full min-h-0 flex-col gap-3" : "space-y-3"}>
       <div
-        ref={container}
-        role="region"
-        aria-roledescription="vue 360°"
-        aria-label={`${viewName} en 360°. ${panorama.markers.length} lots repérés.`}
+        ref={box}
         className={cn(
           "relative w-full overflow-hidden rounded-2xl border border-white/10 bg-black [&_.psv-container]:[background:#000]!",
-          large ? "min-h-0 flex-1" : "aspect-[16/10] max-h-[78svh] sm:aspect-[16/9]",
+          full
+            ? "h-full rounded-none"
+            : large
+              ? "min-h-0 flex-1"
+              : "aspect-[16/10] max-h-[78svh] sm:aspect-[16/9]",
         )}
-      />
+      >
+        <div
+          ref={container}
+          role="region"
+          aria-roledescription="vue 360°"
+          aria-label={`${viewName} en 360°. ${panorama.markers.length} lots repérés.`}
+          className="absolute inset-0"
+        />
+        <ViewerControls
+          large={large}
+          className={cn("absolute z-10", large ? "bottom-4 right-4" : "bottom-2.5 right-2.5")}
+          onZoomIn={() => viewerRef.current?.zoomIn(20)}
+          onZoomOut={() => viewerRef.current?.zoomOut(20)}
+        >
+          {canFull ? (
+            <button
+              type="button"
+              onClick={toggleFull}
+              aria-label={full ? "Quitter le plein écran" : "Plein écran"}
+              className="grid size-9 place-items-center rounded-full transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            >
+              {full ? (
+                <Minimize className="size-4" aria-hidden />
+              ) : (
+                <Maximize className="size-4" aria-hidden />
+              )}
+            </button>
+          ) : null}
+        </ViewerControls>
+      </div>
       <StatusLegend
         large={large}
         hint="Glissez pour regarder autour, Ctrl + molette pour zoomer, cliquez un lot pour sa fiche"

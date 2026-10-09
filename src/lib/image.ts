@@ -1,8 +1,9 @@
 import { fitWithin } from "./geometry";
 
-/* Plans are resized and converted in the browser before upload: WebP when the
-   browser can encode it, JPEG otherwise (older Safari), or PNG for a logo,
-   which keeps its transparent background. */
+/* Images are sent as they are when small enough (asSent): a new compression
+   loses quality. Otherwise they are resized and converted in the browser
+   before upload: WebP when the browser can encode it, JPEG otherwise (older
+   Safari), or PNG for a logo, which keeps its transparent background. */
 
 export const PLAN_TYPES = ["image/jpeg", "image/png", "image/webp"];
 export const MAX_SOURCE_BYTES = 50 * 1024 * 1024;
@@ -40,6 +41,28 @@ export async function decodeImage(file: File, maxBytes = MAX_SOURCE_BYTES): Prom
 
 const toBlob = (canvas: HTMLCanvasElement, type: string, quality: number) =>
   new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, type, quality));
+
+const SENT_AS_IS: Record<string, EncodedImage["extension"]> = {
+  "image/jpeg": "jpg",
+  "image/webp": "webp",
+  "image/png": "png",
+};
+
+/**
+ * The file as sent, when it is small enough to be shown as it is: no new
+ * compression, the promoter's image stays exactly as it was (null otherwise).
+ */
+export function asSent(
+  file: File,
+  bitmap: ImageBitmap,
+  maxSide: number,
+  maxBytes: number,
+): EncodedImage | null {
+  const extension = SENT_AS_IS[file.type];
+  if (!extension || Math.max(bitmap.width, bitmap.height) > maxSide || file.size > maxBytes)
+    return null;
+  return { blob: file, width: bitmap.width, height: bitmap.height, extension };
+}
 
 /** The image reduced to fit in `maxSide` pixels (and `maxPixels` in all). */
 export async function encodeImage(

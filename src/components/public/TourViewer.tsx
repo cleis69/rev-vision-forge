@@ -6,13 +6,14 @@ import { GyroscopePlugin } from "@photo-sphere-viewer/gyroscope-plugin";
 import { MarkersPlugin } from "@photo-sphere-viewer/markers-plugin";
 import "@photo-sphere-viewer/core/index.css";
 import "@photo-sphere-viewer/markers-plugin/index.css";
-import { CalendarCheck, Maximize, Minimize, Rotate3d, X } from "lucide-react";
+import { CalendarCheck, Compass, Maximize, Minimize, Rotate3d, X } from "lucide-react";
 
 import { arrowElement, VIEWER_LANG } from "@/components/tour/arrow";
 import type { PublicRoom, PublicTour } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
 import { floorName } from "@/lib/views";
 import { RevBadge } from "./Common";
+import { ViewerControls } from "./ViewerControls";
 
 /* 360° tour of the public pages: the panorama of a room, the arrows placed by
    the promoter to go to the next room, a strip of the rooms, a slow rotation
@@ -22,6 +23,8 @@ import { RevBadge } from "./Common";
    Loaded on demand (the viewer weighs its own). */
 
 const LANG = { ...VIEWER_LANG, autorotate: "Rotation automatique", gyroscope: "Gyroscope" };
+// A click on − or + : a fifth of the zoom range.
+const ZOOM_STEP = 20;
 
 const control =
   "grid place-items-center rounded-full bg-black/55 text-white/90 backdrop-blur transition-colors hover:bg-black/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";
@@ -56,6 +59,8 @@ function TourStage({
       : (tour.rooms[0]?.id ?? ""),
   );
   const [shown, setShown] = useState<string | null>(null);
+  // Phones: look around by moving the phone (null where it is not available).
+  const [gyro, setGyro] = useState<"on" | "off" | null>(null);
   const room = tour.rooms.find((r) => r.id === roomId) ?? tour.rooms[0];
   const names = new Map(tour.rooms.map((r) => [r.id, r.name]));
   // Large screens get the large panoramas, phones (and the page) the 4 096 px ones.
@@ -107,7 +112,8 @@ function TourStage({
         defaultYaw: room.startYaw,
         defaultPitch: room.startPitch,
         defaultZoomLvl: 0,
-        navbar: inline ? ["zoom"] : ["autorotate", "zoom", "gyroscope"],
+        // Our own zoom buttons: the viewer's bar folded the zoom into a menu on narrow screens.
+        navbar: false,
         lang: LANG,
         keyboard: inline ? "fullscreen" : "always",
         // In the page, the wheel scrolls (Ctrl zooms) and one finger scrolls too.
@@ -129,6 +135,13 @@ function TourStage({
       });
       viewerRef.current = viewer;
       viewer.addEventListener("ready", () => setShown(room.id), { once: true });
+      if (!inline) {
+        const gyroscope = viewer.getPlugin<GyroscopePlugin>(GyroscopePlugin);
+        void gyroscope.isSupported().then((ok) => setGyro(ok ? "off" : null));
+        gyroscope.addEventListener("gyroscope-updated", ({ gyroscopeEnabled }) =>
+          setGyro(gyroscopeEnabled ? "on" : "off"),
+        );
+      }
       viewer
         .getPlugin<MarkersPlugin>(MarkersPlugin)
         .addEventListener("select-marker", ({ marker }) => go.current(String(marker.data)));
@@ -213,7 +226,32 @@ function TourStage({
             {tour.rooms.length > 1 ? ` · pièce ${index + 1} sur ${tour.rooms.length}` : ""}
           </p>
         </div>
-        <div className="pointer-events-auto ml-auto flex items-center gap-2">{actions}</div>
+        <div className="pointer-events-auto ml-auto flex items-center gap-2">
+          <ViewerControls
+            large={large}
+            className={inline ? "hidden sm:flex" : undefined}
+            onZoomIn={() => viewerRef.current?.zoomIn(ZOOM_STEP)}
+            onZoomOut={() => viewerRef.current?.zoomOut(ZOOM_STEP)}
+          >
+            {gyro ? (
+              <button
+                type="button"
+                aria-pressed={gyro === "on"}
+                aria-label="Regarder en bougeant le téléphone"
+                onClick={() =>
+                  viewerRef.current?.getPlugin<GyroscopePlugin>(GyroscopePlugin).toggle()
+                }
+                className={cn(
+                  "grid size-9 place-items-center rounded-full transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                  gyro === "on" && "bg-white/20",
+                )}
+              >
+                <Compass className="size-4" aria-hidden />
+              </button>
+            ) : null}
+          </ViewerControls>
+          {actions}
+        </div>
       </div>
 
       <div

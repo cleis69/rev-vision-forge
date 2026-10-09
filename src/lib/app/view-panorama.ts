@@ -57,8 +57,8 @@ export function useUploadViewPanorama(project: Project) {
             `Panorama trop petit : ${PANO_MIN_WIDTH} px de large au moins, 6 000 px ou plus conseillés.`,
           );
         }
-        large = await encodeLarge(bitmap);
-        small = await encodeImage(bitmap, PANO_SMALL, 0.8);
+        large = await encodeLarge(bitmap, file);
+        small = await encodeImage(bitmap, PANO_SMALL, 0.88);
         thumb = await encodeImage(bitmap, PANO_THUMB, 0.75);
       } finally {
         bitmap.close();

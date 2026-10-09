@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { ImageError, decodeImage, encodeImage, type EncodedImage } from "@/lib/image";
+import { ImageError, asSent, decodeImage, encodeImage, type EncodedImage } from "@/lib/image";
 import { getSupabase } from "@/lib/supabase/client";
 import type { Tables, TablesUpdate } from "@/lib/supabase/database.types";
 import {
@@ -79,16 +79,24 @@ export function usePanoramaLinks(projectId: string) {
   });
 }
 
-/** The large version: 8 192 px where the browser allows such a canvas, else as large as it can. */
-export async function encodeLarge(bitmap: ImageBitmap): Promise<EncodedImage> {
+const PANO_AS_SENT_BYTES = 30 * 1024 * 1024;
+
+/**
+ * The large version: the file as sent when it is up to 8 192 px and 30 MB,
+ * else 8 192 px where the browser allows such a canvas, else as large as it can.
+ */
+export async function encodeLarge(bitmap: ImageBitmap, file?: File): Promise<EncodedImage> {
+  // The panorama as sent when it is not too large: no new compression.
+  const sent = file ? asSent(file, bitmap, PANO_LARGE, PANO_AS_SENT_BYTES) : null;
+  if (sent) return sent;
   try {
-    const large = await encodeImage(bitmap, PANO_LARGE, 0.82, "jpg", PANO_MAX_PIXELS);
+    const large = await encodeImage(bitmap, PANO_LARGE, 0.9, "jpg", PANO_MAX_PIXELS);
     // An oversized canvas can come back empty instead of failing (iOS).
     if (large.blob.size > 64 * 1024) return large;
   } catch {
     // Falls back to the size every browser accepts.
   }
-  return encodeImage(bitmap, PANO_LARGE, 0.82);
+  return encodeImage(bitmap, PANO_LARGE, 0.9);
 }
 
 export type PanoramaProgress = { index: number; count: number; phase: "preparing" | "uploading" };
@@ -133,8 +141,8 @@ export function useUploadPanoramas(
                 `Panorama trop petit : ${PANO_MIN_WIDTH} px de large au moins, 6 000 px ou plus conseillés.`,
               );
             }
-            large = await encodeLarge(bitmap);
-            small = await encodeImage(bitmap, PANO_SMALL, 0.8);
+            large = await encodeLarge(bitmap, file);
+            small = await encodeImage(bitmap, PANO_SMALL, 0.88);
             thumb = await encodeImage(bitmap, PANO_THUMB, 0.75);
           } finally {
             bitmap.close();

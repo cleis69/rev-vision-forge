@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { decodeImage, encodeImage, ImageError, PLAN_TYPES } from "@/lib/image";
+import { asSent, decodeImage, encodeImage, ImageError, PLAN_TYPES } from "@/lib/image";
 import { getSupabase } from "@/lib/supabase/client";
 import type { Enums, Json, Tables } from "@/lib/supabase/database.types";
 import { checkFile, DOCUMENT_TYPES, readVideo, VIDEO_TYPES, VideoError } from "@/lib/video";
@@ -10,15 +10,18 @@ import { publicUrl, removeFiles, uploadFile } from "./storage";
 
 /* Media of a programme, in the media table, files side by side in
    <organization_id>/<project_id>/media/:
-   - photos (kind "image") and plans of a type (kind "plan"): a 2 048 px WebP
-     and an 800 px thumbnail;
+   - photos (kind "image") and plans of a type (kind "plan"): the file as sent
+     when it is up to 4 096 px and 10 MB (else reduced to 3 072 px at high
+     quality), and an 800 px thumbnail;
    - videos (kind "video"): the MP4 or WebM file as sent, and a still
      (<name>-poster.webp) shown before it plays;
    - documents (kind "document"): a PDF, offered for download under its name.
    Each belongs to the programme (gallery), to a lot (its sheet), or to every
    lot of a type (Typologies section). The order of the gallery is sort_order. */
 
-export const MEDIA_LARGE = 2048;
+export const MEDIA_LARGE = 3072;
+const MEDIA_AS_SENT_SIDE = 4096;
+const MEDIA_AS_SENT_BYTES = 10 * 1024 * 1024;
 export const MEDIA_THUMB = 800;
 
 export type MediaKind = Extract<Enums<"media_kind">, "image" | "plan" | "video" | "document">;
@@ -192,7 +195,10 @@ export function useUploadMedia(
             const bitmap = await decodeImage(file);
             let large, thumb;
             try {
-              large = await encodeImage(bitmap, MEDIA_LARGE, 0.82);
+              // The photo as sent when it can be: a new compression loses quality.
+              large =
+                asSent(file, bitmap, MEDIA_AS_SENT_SIDE, MEDIA_AS_SENT_BYTES) ??
+                (await encodeImage(bitmap, MEDIA_LARGE, 0.9));
               thumb = await encodeImage(bitmap, MEDIA_THUMB, 0.8);
             } finally {
               bitmap.close();

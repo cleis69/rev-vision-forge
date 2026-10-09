@@ -366,3 +366,16 @@ html.lenis body {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* 360° viewers of the public pages: the viewer's own hints ("Ctrl + molette",
+   "deux doigts") as a discreet line rather than a large mouse picture. */
+.psv-overlay .psv-overlay-image {
+  display: none;
+}
+.psv-overlay {
+  background: rgb(0 0 0 / 0.45) !important;
+}
+.psv-overlay .psv-overlay-title {
+  font-size: 15px !important;
+  font-weight: 500;
+}

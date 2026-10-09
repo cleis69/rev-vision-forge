@@ -34,7 +34,7 @@ import { useFollowLot, useViewKey } from "@/lib/public/use-views";
 import { VisitForm } from "@/components/public/VisitForm";
 import type { LotStatus } from "@/lib/app/lot-fields";
 import { formatPrice } from "@/lib/app/lot-format";
-import { mediaImage, mediaVideo, type MediaItem } from "@/lib/app/media";
+import { coverPhoto, mediaImage, mediaVideo, type MediaItem } from "@/lib/app/media";
 import { sameType } from "@/lib/lot-types";
 import { MAX_COMPARE, toggleCompared } from "@/lib/public/compare";
 import { phoneLabel, telHref, whatsappHref } from "@/lib/public/contact";
@@ -186,7 +186,7 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
       ),
     [media, data.videos],
   );
-  const heroPhoto = media.find((m) => !m.lot_id && !m.lot_type) ?? media[0] ?? null;
+  const heroPhoto = coverPhoto(media, data.programme.coverId);
   // In the background: the shortest video of the programme (a loop); "Voir le film": the longest.
   const heroVideo =
     ownVideos.reduce<MediaItem | null>(

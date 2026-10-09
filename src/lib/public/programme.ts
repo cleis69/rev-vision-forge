@@ -108,6 +108,8 @@ export type PublicProgramme = {
   amenities: Amenity[];
   /** Text of each type of lot, in the order of the Typologies section. */
   lotTypes: LotTypeNote[];
+  /** Photo chosen for the top of the page (see coverPhoto). */
+  coverId: string | null;
 };
 
 export type PublicData = {
@@ -148,6 +150,7 @@ type Source = {
   contact_phone: string | null;
   amenities: unknown;
   lot_types: unknown;
+  cover_media_id: string | null;
 };
 
 const features = (value: unknown) =>
@@ -295,6 +298,7 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
       phone: source.contact_phone?.trim() || null,
       amenities: parseAmenities(source.amenities),
       lotTypes: parseLotTypes(source.lot_types),
+      coverId: source.cover_media_id ?? null,
     },
     lots: lots.data
       .flatMap((l) =>

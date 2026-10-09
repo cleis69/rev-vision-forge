@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, FileText, Play, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, FileText, Play, Star, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,6 +84,8 @@ export function MediaCard({
   onCategory,
   onPlan,
   onDelete,
+  cover = false,
+  onCover,
 }: {
   item: MediaItem;
   lots: Lot[];
@@ -96,6 +98,10 @@ export function MediaCard({
   onCategory: (category: MediaCategory | null) => void;
   onPlan: (plan: boolean) => void;
   onDelete: () => void;
+  /** The photo at the top of the public page. */
+  cover?: boolean;
+  /** Photos only: makes it the photo at the top of the public page. */
+  onCover?: (() => void) | undefined;
 }) {
   const initial = item.meta.caption ?? "";
   const [caption, setCaption] = useState(initial);
@@ -130,7 +136,15 @@ export function MediaCard({
 
   return (
     <li className="flex flex-col overflow-hidden rounded-xl border border-border bg-card">
-      <Preview item={item} label={label} />
+      <div className="relative">
+        <Preview item={item} label={label} />
+        {cover ? (
+          <span className="pointer-events-none absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-black/70 px-2 py-1 text-[11px] font-medium text-white backdrop-blur">
+            <Star className="size-3 fill-primary text-primary" aria-hidden />
+            Photo d'accueil
+          </span>
+        ) : null}
+      </div>
       <div className="flex flex-1 flex-col gap-2 p-2.5">
         <div className="flex items-center gap-1.5 text-[11px]">
           <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 font-medium">
@@ -143,6 +157,20 @@ export function MediaCard({
             <span className="shrink-0 text-muted-foreground">{formatSize(item.meta.size)}</span>
           ) : null}
           <span className="ml-auto flex shrink-0">
+            {onCover ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8"
+                disabled={cover}
+                onClick={onCover}
+                aria-pressed={cover}
+                aria-label={`Photo d'accueil, ${label}`}
+                title={cover ? "Photo d'accueil" : "Choisir comme photo d'accueil"}
+              >
+                <Star aria-hidden className={cover ? "fill-primary text-primary" : undefined} />
+              </Button>
+            ) : null}
             <Button
               variant="ghost"
               size="icon"

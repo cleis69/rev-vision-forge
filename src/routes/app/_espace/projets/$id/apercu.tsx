@@ -14,7 +14,7 @@ import { SOURCE_LABELS, useLeads } from "@/lib/app/leads";
 import type { LotStatus } from "@/lib/app/lot-fields";
 import { formatPrice } from "@/lib/app/lot-format";
 import { useLots } from "@/lib/app/lots";
-import { useMedia } from "@/lib/app/media";
+import { coverPhoto, mediaImage, useMedia } from "@/lib/app/media";
 import { useOrbits } from "@/lib/app/orbit";
 import {
   pageChecks,
@@ -395,6 +395,9 @@ function Activity() {
 
 function PublicPage() {
   const { project } = useCurrentProject();
+  const media = useMedia(project.id);
+  const cover = coverPhoto(media.data ?? [], project.cover_media_id);
+  const image = cover ? mediaImage(cover) : null;
   const url = `${window.location.origin}/p/${project.slug}`;
   const published = project.status === "published";
 
@@ -409,6 +412,28 @@ function PublicPage() {
 
   return (
     <Panel title="Page publique" action={<StatusBadge status={project.status} />}>
+      <Link
+        to="/app/projets/$id/medias"
+        params={{ id: project.id }}
+        className="group relative mb-3.5 block aspect-[16/9] overflow-hidden rounded-xl border border-border bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        {image ? (
+          <img
+            src={image.thumb}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+          />
+        ) : null}
+        <span className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-gradient-to-t from-black/75 to-transparent px-3 pb-2.5 pt-8 text-xs text-white">
+          <span className="font-medium">
+            {image ? "Photo d'accueil" : media.isPending ? "" : "Aucune photo d'accueil"}
+          </span>
+          <span className="inline-flex items-center gap-0.5 text-white/80 group-hover:text-white">
+            {image ? "Changer" : "Ajouter"}
+            <ChevronRight className="size-3.5" aria-hidden />
+          </span>
+        </span>
+      </Link>
       <p className="truncate font-mono text-[12px] text-muted-foreground" title={url}>
         {url.replace(/^https?:\/\//, "")}
       </p>

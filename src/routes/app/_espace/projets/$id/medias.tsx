@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { dbErrorMessage } from "@/lib/app/errors";
 import { useLots } from "@/lib/app/lots";
 import {
+  coverPhoto,
   ACCEPTED_TYPES,
   ownerValues,
   useDeleteMedia,
@@ -23,6 +24,7 @@ import {
   type MediaKind,
   type MediaOwner,
 } from "@/lib/app/media";
+import { useUpdateProject } from "@/lib/app/projects";
 import { lotTypeNames, parseLotTypes } from "@/lib/lot-types";
 import { cn } from "@/lib/utils";
 
@@ -49,6 +51,8 @@ function MediaPage() {
   const upload = useUploadMedia(project, (done, total) => setProgress({ done, total }));
   const update = useUpdateMedia(project.id);
   const remove = useDeleteMedia(project.id);
+  const updateProject = useUpdateProject(project.id);
+  const cover = coverPhoto(media.data ?? [], project.cover_media_id);
   const input = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const [target, setTarget] = useState<MediaOwner>(null);
@@ -139,8 +143,9 @@ function MediaPage() {
         <div className="min-w-0 flex-1 basis-72">
           <p className="text-sm font-medium">Photos, plans, vidéos et brochures</p>
           <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-            Photos JPEG, PNG ou WebP (optimisées avant l'envoi), vidéos MP4 ou WebM et documents PDF
-            jusqu'à 50 Mo. La première photo du programme sert d'image principale ; sa vidéo la plus
+            Photos JPEG, PNG ou WebP (gardées telles quelles jusqu'à 4 096 px), vidéos MP4 ou WebM
+            et documents PDF jusqu'à 50 Mo. L'étoile choisit la photo d'accueil, en haut de la page
+            et dans les aperçus de lien (sinon, la première photo du programme) ; la vidéo la plus
             courte passe en fond sur ordinateur, la plus longue devient « Voir le film ».
           </p>
         </div>
@@ -247,6 +252,19 @@ function MediaPage() {
                 )
               }
               onDelete={() => setToDelete({ item, open: true })}
+              cover={item.id === cover?.id}
+              onCover={
+                item.kind === "image"
+                  ? () =>
+                      updateProject.mutate(
+                        { cover_media_id: item.id },
+                        {
+                          onSuccess: () => toast.success("Photo d'accueil choisie"),
+                          onError: (error) => toast.error(dbErrorMessage(error)),
+                        },
+                      )
+                  : undefined
+              }
             />
           ))}
         </ul>

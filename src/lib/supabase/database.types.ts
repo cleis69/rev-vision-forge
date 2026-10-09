@@ -578,6 +578,7 @@ export type Database = {
           amenities: Json;
           city: string | null;
           contact_phone: string | null;
+          cover_media_id: string | null;
           created_at: string;
           currency: string;
           custom_domain: string | null;
@@ -600,6 +601,7 @@ export type Database = {
           amenities?: Json;
           city?: string | null;
           contact_phone?: string | null;
+          cover_media_id?: string | null;
           created_at?: string;
           currency?: string;
           custom_domain?: string | null;
@@ -622,6 +624,7 @@ export type Database = {
           amenities?: Json;
           city?: string | null;
           contact_phone?: string | null;
+          cover_media_id?: string | null;
           created_at?: string;
           currency?: string;
           custom_domain?: string | null;
@@ -640,6 +643,13 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "projects_cover_media_id_fkey";
+            columns: ["cover_media_id"];
+            isOneToOne: false;
+            referencedRelation: "media";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "projects_organization_id_fkey";
             columns: ["organization_id"];
@@ -724,6 +734,7 @@ export type Database = {
           brand_font: string | null;
           city: string | null;
           contact_phone: string | null;
+          cover_media_id: string | null;
           currency: string | null;
           description: string | null;
           id: string | null;

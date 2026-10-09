@@ -37,6 +37,9 @@ declare
   stats jsonb;
   leads_pub int;
   leads_lot int;
+  cover_pub uuid;
+  cover_plan uuid;
+  cover_draft uuid;
 begin
   ------------------------------------------------------------------ fixtures
   insert into auth.users (id, email) values
@@ -865,6 +868,34 @@ begin
        + (select count(*) from public.members where organization_id = org_b)
     into n;
   total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'suppression d''une organisation : programmes, lots ou membres restants'::text; end if;
+
+  -- Photo d'accueil: one of the programme's photos only, cleared with the photo.
+  insert into public.media (project_id, kind, path) values (p_pub, 'image', 'fixture/accueil.webp')
+    returning id into cover_pub;
+  insert into public.media (project_id, kind, path) values (p_pub, 'plan', 'fixture/plan.webp')
+    returning id into cover_plan;
+  select id into cover_draft from public.media where project_id = p_draft and kind = 'image' limit 1;
+  update public.projects set cover_media_id = cover_pub where id = p_pub;
+  set local role anon;
+  select count(*) into n from public.public_projects where id = p_pub and cover_media_id = cover_pub;
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'photo d''accueil absente de la page publique'::text; end if;
+
+  begin
+    update public.projects set cover_media_id = cover_plan where id = p_pub;
+    ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'plan accepté comme photo d''accueil'::text; end if;
+
+  begin
+    update public.projects set cover_media_id = cover_draft where id = p_pub;
+    ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'photo d''un autre programme acceptée comme photo d''accueil'::text; end if;
+
+  delete from public.media where id = cover_pub;
+  select count(*) into n from public.projects where id = p_pub and cover_media_id is null;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'suppression de la photo d''accueil : choix resté'::text; end if;
 
   ---------------------------------------------------------------- report
   if failed = 0 then

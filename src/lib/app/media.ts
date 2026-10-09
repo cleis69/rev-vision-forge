@@ -85,6 +85,24 @@ export function mediaDocument(item: Pick<MediaItem, "path" | "meta">) {
   };
 }
 
+/**
+ * The photo at the top of the public page and in the link previews: the one
+ * chosen by the promoter, else the first photo of the programme (media in
+ * their order).
+ */
+export function coverPhoto<T extends Pick<MediaItem, "id" | "kind" | "lot_id" | "lot_type">>(
+  media: readonly T[],
+  coverId: string | null,
+): T | null {
+  const photos = media.filter((m) => m.kind === "image");
+  return (
+    (coverId ? photos.find((m) => m.id === coverId) : undefined) ??
+    photos.find((m) => !m.lot_id && !m.lot_type) ??
+    photos[0] ??
+    null
+  );
+}
+
 /** Every file of a media in the storage. */
 export function mediaFiles(item: Pick<MediaItem, "kind" | "path" | "meta">): string[] {
   if (item.kind === "video") return item.meta.poster ? [item.path, item.meta.poster] : [item.path];

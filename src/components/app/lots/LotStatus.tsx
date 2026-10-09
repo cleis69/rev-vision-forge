@@ -7,12 +7,7 @@ import {
 } from "@/components/ui/select";
 import { LOT_STATUSES, STATUS_LABELS, type LotStatus } from "@/lib/app/lot-fields";
 import { cn } from "@/lib/utils";
-
-const DOT: Record<LotStatus, string> = {
-  disponible: "bg-emerald-400",
-  reservee: "bg-amber-400",
-  vendue: "bg-zinc-500",
-};
+import { STATUS_BG } from "./status-colors";
 
 const TEXT: Record<LotStatus, string> = {
   disponible: "text-emerald-300",
@@ -24,7 +19,7 @@ export function StatusDot({ status, className }: { status: LotStatus; className?
   return (
     <span
       aria-hidden
-      className={cn("inline-block size-2 shrink-0 rounded-full", DOT[status], className)}
+      className={cn("inline-block size-2 shrink-0 rounded-full", STATUS_BG[status], className)}
     />
   );
 }

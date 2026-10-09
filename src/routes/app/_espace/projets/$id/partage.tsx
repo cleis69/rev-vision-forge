@@ -9,8 +9,10 @@ import { dbErrorMessage } from "@/lib/app/errors";
 import { useLots } from "@/lib/app/lots";
 import { useMedia } from "@/lib/app/media";
 import { useOrbits } from "@/lib/app/orbit";
+import { pageChecks } from "@/lib/app/overview";
 import { useViews } from "@/lib/app/plan";
 import { useUpdateProject } from "@/lib/app/projects";
+import { usePanoramas } from "@/lib/app/tours";
 import { useViewMarkers } from "@/lib/app/view-panorama";
 import { embedCode } from "@/lib/public/embed";
 import { cn } from "@/lib/utils";
@@ -26,6 +28,7 @@ function SharePage() {
   const views = useViews(project.id);
   const markers = useViewMarkers(project.id);
   const media = useMedia(project.id);
+  const rooms = usePanoramas(project.id);
   const update = useUpdateProject(project.id);
   const origin = window.location.origin;
   const url = `${origin}/p/${project.slug}`;
@@ -33,35 +36,18 @@ function SharePage() {
   const code = embedCode(origin, project.slug, project.name);
   const published = project.status === "published";
 
-  const lotCount = lots.data?.length ?? 0;
-  const sequences = [...(orbits.data?.values() ?? [])].filter((o) => o.frames.length > 0);
-  const panoramas = (views.data ?? []).filter((v) => v.panorama_path);
-  const placed = new Set([
-    ...sequences.flatMap((o) => o.colors.flatMap((c) => c.lot_id ?? [])),
-    ...(markers.data ?? []).map((m) => m.lot_id),
-  ]);
-  const traced = lots.data?.filter((l) => placed.has(l.id)).length ?? 0;
-  const withSequence = sequences.length + panoramas.length;
-  const checks = [
-    {
-      ok: withSequence > 0,
-      label:
-        withSequence > 1
-          ? `${withSequence} vues prêtes`
-          : withSequence === 1
-            ? "Une vue prête"
-            : "Une vue avec sa séquence orbitale ou son panorama 360° (onglet Vues)",
-    },
-    { ok: lotCount > 0, label: lotCount > 0 ? `${lotCount} lots créés` : "Lots créés" },
-    {
-      ok: lotCount > 0 && traced === lotCount,
-      label:
-        lotCount > 0
-          ? `${traced} / ${lotCount} lots repérés sur au moins une vue`
-          : "Lots repérés sur une vue",
-    },
-    { ok: (media.data?.length ?? 0) > 0, label: "Photos ajoutées (facultatif)", optional: true },
-  ];
+  // The essentials, and the photos (optional): the full list is in the Aperçu tab.
+  const checks = pageChecks({
+    project,
+    lots: lots.data ?? [],
+    orbits: [...(orbits.data?.values() ?? [])],
+    views: views.data ?? [],
+    markers: markers.data ?? [],
+    media: media.data ?? [],
+    rooms: rooms.data?.length ?? 0,
+  })
+    .filter((c) => c.essential || c.key === "photos")
+    .map((c) => ({ ...c, optional: !c.essential }));
   const ready = checks.every((c) => c.ok || c.optional);
 
   const copy = async (text: string, done: string) => {
@@ -171,7 +157,10 @@ function SharePage() {
                   <X className="size-3.5" aria-hidden />
                 )}
               </span>
-              <span className={c.ok ? "" : "text-muted-foreground"}>{c.label}</span>
+              <span className={c.ok ? "" : "text-muted-foreground"}>
+                {c.label}
+                {c.optional ? " (facultatif)" : ""}
+              </span>
               <span className="sr-only">{c.ok ? "fait" : "à faire"}</span>
             </li>
           ))}

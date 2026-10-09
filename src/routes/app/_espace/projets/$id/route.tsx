@@ -16,8 +16,9 @@ export const Route = createFileRoute("/app/_espace/projets/$id")({
   component: ProjectLayout,
 });
 
-// Tabs of the programme, in the order of the spec.
+// Tabs of the programme: the overview, then the order of the spec.
 const TABS = [
+  { label: "Aperçu", to: "/app/projets/$id/apercu" },
   { label: "Vues", to: "/app/projets/$id/plan" },
   { label: "Lots", to: "/app/projets/$id/lots" },
   { label: "Typologies", to: "/app/projets/$id/typologies" },

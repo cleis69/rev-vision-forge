@@ -1,8 +1,8 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-// Opens the first available tab of the programme.
+// Opens the programme on its overview.
 export const Route = createFileRoute("/app/_espace/projets/$id/")({
   beforeLoad: ({ params }) => {
-    throw redirect({ to: "/app/projets/$id/plan", params, replace: true });
+    throw redirect({ to: "/app/projets/$id/apercu", params, replace: true });
   },
 });

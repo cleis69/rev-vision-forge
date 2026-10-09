@@ -1,11 +1,12 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowDownRight, ArrowUpDown, ArrowUpRight, Download, Minus } from "lucide-react";
+import { ArrowUpDown, Download } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import { EmptyState } from "@/components/app/Blocks";
 import { useCurrentProject } from "@/components/app/ProjectContext";
 import { LotStatusLabel } from "@/components/app/lots/LotStatus";
+import { Kpi } from "@/components/app/stats/Kpi";
 import { Button } from "@/components/ui/button";
 import {
   ChartContainer,
@@ -22,7 +23,6 @@ import {
   conversion,
   lotRows,
   lotStatsCsv,
-  trend,
   useProjectStats,
   type LotSort,
   type Period,
@@ -260,61 +260,6 @@ function StatsView({
         </>
       )}
     </>
-  );
-}
-
-function Kpi({
-  label,
-  hint,
-  value,
-  previous,
-  compared,
-  extra,
-}: {
-  label: string;
-  hint?: string;
-  value: number;
-  previous: number;
-  compared: string;
-  extra?: string | undefined;
-}) {
-  const t = trend(value, previous);
-  return (
-    <div className="rounded-2xl border border-border bg-card p-5" title={hint}>
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="mt-2 font-display text-3xl font-medium tabular-nums tracking-tight">
-        {count.format(value)}
-      </p>
-      <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
-        {t.kind === "up" || t.kind === "down" ? (
-          <span
-            className={cn(
-              "inline-flex items-center gap-0.5 font-medium",
-              t.kind === "up" ? "text-emerald-300" : "text-rose-300",
-            )}
-          >
-            {t.kind === "up" ? (
-              <ArrowUpRight className="size-3.5" aria-hidden />
-            ) : (
-              <ArrowDownRight className="size-3.5" aria-hidden />
-            )}
-            <span className="sr-only">{t.kind === "up" ? "En hausse de" : "En baisse de"}</span>
-            {t.percent} %
-          </span>
-        ) : t.kind === "same" ? (
-          <span className="inline-flex items-center gap-1 text-muted-foreground">
-            <Minus className="size-3.5" aria-hidden />
-            Stable
-          </span>
-        ) : t.kind === "new" ? (
-          <span className="font-medium text-emerald-300">Nouveau</span>
-        ) : (
-          <span className="text-muted-foreground">—</span>
-        )}
-        {t.kind !== "none" ? <span className="text-muted-foreground">{compared}</span> : null}
-      </p>
-      {extra ? <p className="mt-1 text-xs text-muted-foreground">{extra}</p> : null}
-    </div>
   );
 }
 

@@ -45,6 +45,7 @@ import { Route as PSlugDonneesPersonnellesRouteImport } from './routes/p/$slug/d
 import { Route as AppEspaceProjetsIdRouteRouteImport } from './routes/app/_espace/projets/$id/route'
 import { Route as PSlugLotNumeroRouteImport } from './routes/p/$slug/lot/$numero'
 import { Route as AppEspaceProjetsIdIndexRouteImport } from './routes/app/_espace/projets/$id/index'
+import { Route as AppEspaceProjetsIdApercuRouteImport } from './routes/app/_espace/projets/$id/apercu'
 import { Route as AppEspaceProjetsIdDemandesRouteImport } from './routes/app/_espace/projets/$id/demandes'
 import { Route as AppEspaceProjetsIdLotsRouteImport } from './routes/app/_espace/projets/$id/lots'
 import { Route as AppEspaceProjetsIdMarqueRouteImport } from './routes/app/_espace/projets/$id/marque'
@@ -235,6 +236,12 @@ const AppEspaceProjetsIdIndexRoute = AppEspaceProjetsIdIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppEspaceProjetsIdRouteRoute,
 } as any)
+const AppEspaceProjetsIdApercuRoute =
+  AppEspaceProjetsIdApercuRouteImport.update({
+    id: '/apercu',
+    path: '/apercu',
+    getParentRoute: () => AppEspaceProjetsIdRouteRoute,
+  } as any)
 const AppEspaceProjetsIdDemandesRoute =
   AppEspaceProjetsIdDemandesRouteImport.update({
     id: '/demandes',
@@ -328,6 +335,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppEspaceIndexRoute
   '/app/projets/$id': typeof AppEspaceProjetsIdRouteRouteWithChildren
   '/p/$slug/lot/$numero': typeof PSlugLotNumeroRoute
+  '/app/projets/$id/apercu': typeof AppEspaceProjetsIdApercuRoute
   '/app/projets/$id/demandes': typeof AppEspaceProjetsIdDemandesRoute
   '/app/projets/$id/lots': typeof AppEspaceProjetsIdLotsRoute
   '/app/projets/$id/marque': typeof AppEspaceProjetsIdMarqueRoute
@@ -372,6 +380,7 @@ export interface FileRoutesByTo {
   '/p/$slug/donnees-personnelles': typeof PSlugDonneesPersonnellesRoute
   '/en': typeof SiteEnIndexRoute
   '/p/$slug/lot/$numero': typeof PSlugLotNumeroRoute
+  '/app/projets/$id/apercu': typeof AppEspaceProjetsIdApercuRoute
   '/app/projets/$id/demandes': typeof AppEspaceProjetsIdDemandesRoute
   '/app/projets/$id/lots': typeof AppEspaceProjetsIdLotsRoute
   '/app/projets/$id/marque': typeof AppEspaceProjetsIdMarqueRoute
@@ -421,6 +430,7 @@ export interface FileRoutesById {
   '/app/_espace/': typeof AppEspaceIndexRoute
   '/app/_espace/projets/$id': typeof AppEspaceProjetsIdRouteRouteWithChildren
   '/p/$slug/lot/$numero': typeof PSlugLotNumeroRoute
+  '/app/_espace/projets/$id/apercu': typeof AppEspaceProjetsIdApercuRoute
   '/app/_espace/projets/$id/demandes': typeof AppEspaceProjetsIdDemandesRoute
   '/app/_espace/projets/$id/lots': typeof AppEspaceProjetsIdLotsRoute
   '/app/_espace/projets/$id/marque': typeof AppEspaceProjetsIdMarqueRoute
@@ -469,6 +479,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/projets/$id'
     | '/p/$slug/lot/$numero'
+    | '/app/projets/$id/apercu'
     | '/app/projets/$id/demandes'
     | '/app/projets/$id/lots'
     | '/app/projets/$id/marque'
@@ -513,6 +524,7 @@ export interface FileRouteTypes {
     | '/p/$slug/donnees-personnelles'
     | '/en'
     | '/p/$slug/lot/$numero'
+    | '/app/projets/$id/apercu'
     | '/app/projets/$id/demandes'
     | '/app/projets/$id/lots'
     | '/app/projets/$id/marque'
@@ -561,6 +573,7 @@ export interface FileRouteTypes {
     | '/app/_espace/'
     | '/app/_espace/projets/$id'
     | '/p/$slug/lot/$numero'
+    | '/app/_espace/projets/$id/apercu'
     | '/app/_espace/projets/$id/demandes'
     | '/app/_espace/projets/$id/lots'
     | '/app/_espace/projets/$id/marque'
@@ -835,6 +848,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEspaceProjetsIdIndexRouteImport
       parentRoute: typeof AppEspaceProjetsIdRouteRoute
     }
+    '/app/_espace/projets/$id/apercu': {
+      id: '/app/_espace/projets/$id/apercu'
+      path: '/apercu'
+      fullPath: '/app/projets/$id/apercu'
+      preLoaderRoute: typeof AppEspaceProjetsIdApercuRouteImport
+      parentRoute: typeof AppEspaceProjetsIdRouteRoute
+    }
     '/app/_espace/projets/$id/demandes': {
       id: '/app/_espace/projets/$id/demandes'
       path: '/demandes'
@@ -959,6 +979,7 @@ const SiteRouteRouteWithChildren = SiteRouteRoute._addFileChildren(
 )
 
 interface AppEspaceProjetsIdRouteRouteChildren {
+  AppEspaceProjetsIdApercuRoute: typeof AppEspaceProjetsIdApercuRoute
   AppEspaceProjetsIdDemandesRoute: typeof AppEspaceProjetsIdDemandesRoute
   AppEspaceProjetsIdLotsRoute: typeof AppEspaceProjetsIdLotsRoute
   AppEspaceProjetsIdMarqueRoute: typeof AppEspaceProjetsIdMarqueRoute
@@ -974,6 +995,7 @@ interface AppEspaceProjetsIdRouteRouteChildren {
 
 const AppEspaceProjetsIdRouteRouteChildren: AppEspaceProjetsIdRouteRouteChildren =
   {
+    AppEspaceProjetsIdApercuRoute: AppEspaceProjetsIdApercuRoute,
     AppEspaceProjetsIdDemandesRoute: AppEspaceProjetsIdDemandesRoute,
     AppEspaceProjetsIdLotsRoute: AppEspaceProjetsIdLotsRoute,
     AppEspaceProjetsIdMarqueRoute: AppEspaceProjetsIdMarqueRoute,

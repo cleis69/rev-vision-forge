@@ -123,7 +123,9 @@ export function ProgrammeViews({
         className={cn(
           "flex gap-3",
           large ? "min-h-0 flex-1" : "flex-col sm:flex-row",
-          floors.length === 0 && "block",
+          // Without floors the stage takes the whole width; in presentation it
+          // must stay a flex item, or a 360° view gets no height at all.
+          floors.length === 0 && !large && "block",
         )}
       >
         <div className={cn("min-w-0 flex-1", large && "flex min-h-0 flex-col")}>{stage}</div>

@@ -167,7 +167,7 @@ export default function AerialViewer({
   }, [resetKey, panorama.startYaw, panorama.startPitch]);
 
   return (
-    <div className={large ? "flex h-full min-h-0 flex-col gap-3" : "space-y-3"}>
+    <div className={large ? "flex min-h-0 flex-1 flex-col gap-3" : "space-y-3"}>
       <div
         ref={box}
         className={cn(

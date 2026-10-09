@@ -21,29 +21,16 @@ const ABOUT = {
   },
 } as const;
 
-const CASES = {
-  fr: {
-    title: "Études de cas REV — Résultats mesurés en contrats signés",
-    description:
-      "Programmes neufs, agences et agents : objectifs, stratégie, production, campagnes, automatisation et KPIs détaillés de missions menées par REV.",
-  },
-  en: {
-    title: "REV case studies — Results measured in signed deals",
-    description:
-      "New developments, agencies and agents: objectives, strategy, production, campaigns, automation and detailed KPIs from REV engagements.",
-  },
-} as const;
-
 const CONTACT = {
   fr: {
     title: "Contact REV — Planifier un appel stratégique",
     description:
-      "Parlons de votre programme, de votre agence ou de votre portefeuille. Formulaire, WhatsApp, Calendly et coordonnées de l'agence REV.",
+      "Parlons de votre programme, de votre agence ou de votre portefeuille. Formulaire, WhatsApp et coordonnées de l'agence REV.",
   },
   en: {
     title: "Contact REV — Book a strategy call",
     description:
-      "Let's talk about your development, your agency or your portfolio. Form, WhatsApp, Calendly and REV's contact details.",
+      "Let's talk about your development, your agency or your portfolio. Form, WhatsApp and REV's contact details.",
   },
 } as const;
 
@@ -126,7 +113,6 @@ const AGENT = {
 } as const;
 
 export const aboutHead = (locale: Locale) => pageHead("about", locale, ABOUT[locale]);
-export const caseStudiesHead = (locale: Locale) => pageHead("cases", locale, CASES[locale]);
 export const contactHead = (locale: Locale) => pageHead("contact", locale, CONTACT[locale]);
 export const insightsHead = (locale: Locale) => pageHead("insights", locale, INSIGHTS[locale]);
 export const portfolioHead = (locale: Locale) => pageHead("portfolio", locale, PORTFOLIO[locale]);

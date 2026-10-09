@@ -3,9 +3,7 @@ import { TrustedBy } from "@/components/rev/TrustedBy";
 import { Ecosystem } from "@/components/rev/Ecosystem";
 import { Services } from "@/components/rev/Services";
 import { Portfolio } from "@/components/rev/Portfolio";
-import { CaseStudies } from "@/components/rev/CaseStudies";
 import { WhyRev } from "@/components/rev/WhyRev";
-import { Testimonials } from "@/components/rev/Testimonials";
 import { Faq } from "@/components/rev/Faq";
 import { ProcessSteps } from "@/components/rev/ProcessSteps";
 import { BrandingProgram } from "@/components/rev/BrandingProgram";
@@ -24,9 +22,7 @@ export function HomePage() {
       {isPublic("agent") ? <AgentTeaser /> : null}
       <Ecosystem />
       <Services />
-      <CaseStudies />
       <WhyRev />
-      <Testimonials />
       <Faq />
       <FinalCta />
     </>

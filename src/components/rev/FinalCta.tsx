@@ -1,12 +1,4 @@
-import {
-  ArrowUpRight,
-  Instagram,
-  Linkedin,
-  Youtube,
-  Mail,
-  MessageCircle,
-  Phone,
-} from "lucide-react";
+import { ArrowUpRight, Mail, MessageCircle, Phone } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 import { Container, Cta } from "./ui";
@@ -22,18 +14,11 @@ const ALL_NAV: { page: PageKey; label: Record<Locale, string> }[] = [
   { page: "agent", label: { fr: "Agent IA", en: "AI agent" } },
   { page: "pricing", label: { fr: "Tarifs", en: "Pricing" } },
   { page: "portfolio", label: { fr: "Portfolio", en: "Portfolio" } },
-  { page: "cases", label: { fr: "Études de cas", en: "Case studies" } },
   { page: "about", label: { fr: "À propos", en: "About" } },
   { page: "insights", label: { fr: "Insights", en: "Insights" } },
   { page: "contact", label: { fr: "Contact", en: "Contact" } },
 ];
 const NAV = ALL_NAV.filter((item) => isPublic(item.page));
-
-const SOCIALS = [
-  { label: "Instagram", icon: Instagram, href: "https://instagram.com" },
-  { label: "LinkedIn", icon: Linkedin, href: "https://linkedin.com" },
-  { label: "YouTube", icon: Youtube, href: "https://youtube.com" },
-];
 
 const COPY = {
   fr: {
@@ -47,7 +32,6 @@ const COPY = {
     navLabel: "Navigation du pied de page",
     contact: "Contact",
     rights: "Tous droits réservés.",
-    legal: "Mentions légales · Politique de confidentialité",
   },
   en: {
     title: "Ready to sell your properties faster?",
@@ -60,7 +44,6 @@ const COPY = {
     navLabel: "Footer navigation",
     contact: "Contact",
     rights: "All rights reserved.",
-    legal: "Legal notice · Privacy policy",
   },
 } as const;
 
@@ -113,20 +96,6 @@ export function Footer() {
           <div className="col-span-2 lg:col-span-1">
             <RevLogo variant="full" lazy className="h-14 w-auto sm:h-16" />
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground">{copy.about}</p>
-            <div className="mt-6 flex gap-2">
-              {SOCIALS.map(({ label, icon: Icon, href: url }) => (
-                <a
-                  key={label}
-                  href={url}
-                  aria-label={label}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="grid h-10 w-10 place-items-center rounded-lg border border-border text-muted-foreground transition-colors duration-300 hover:border-primary/50 hover:text-primary"
-                >
-                  <Icon size={16} />
-                </a>
-              ))}
-            </div>
           </div>
 
           <nav aria-label={copy.navLabel} className="col-span-2 sm:col-span-1">
@@ -181,11 +150,10 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col gap-2 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between lg:mt-14">
+        <div className="mt-10 border-t border-border pt-6 text-xs text-muted-foreground lg:mt-14">
           <p>
             © {new Date().getFullYear()} REV — Real Estate Vision. {copy.rights}
           </p>
-          <p>{copy.legal}</p>
         </div>
 
         <AgencyCredit className="mt-6 border-t border-border/60 pt-6" />

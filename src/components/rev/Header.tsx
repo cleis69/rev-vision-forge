@@ -13,7 +13,6 @@ const ALL_NAV: { page: PageKey; label: Record<Locale, string> }[] = [
   { page: "agent", label: { fr: "Agent IA", en: "AI agent" } },
   { page: "pricing", label: { fr: "Tarifs", en: "Pricing" } },
   { page: "portfolio", label: { fr: "Portfolio", en: "Portfolio" } },
-  { page: "cases", label: { fr: "Études de cas", en: "Case studies" } },
   { page: "about", label: { fr: "À propos", en: "About" } },
 ];
 const NAV = ALL_NAV.filter((item) => isPublic(item.page));

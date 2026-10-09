@@ -67,33 +67,11 @@ export const ADS: Ad[] = [
 ];
 
 /**
- * PROVISOIRE — chiffres de démonstration affichés autour de l'iPhone du hero.
- * À remplacer par les vraies statistiques (vues, likes, leads) de chaque ad
- * avant de promouvoir le site.
+ * Real statistics of each ad (views, likes, leads), shown around the hero's
+ * iPhone. Only measured figures go here: an ad without an entry shows no
+ * counters, so the hero shows none while this is empty.
  */
-export const AD_STATS: Record<string, AdStats> = {
-  "ad-01": { views: 182400, likes: 6700, leads: 74 },
-  "ad-02": { views: 96300, likes: 3100, leads: 41 },
-  "ad-03": { views: 118500, likes: 4200, leads: 52 },
-  "ad-04": { views: 54800, likes: 1900, leads: 23 },
-  "ad-05": { views: 87200, likes: 2800, leads: 36 },
-  "ad-06": { views: 63400, likes: 2500, leads: 29 },
-  "ad-07": { views: 102900, likes: 3600, leads: 47 },
-  "ad-08": { views: 74100, likes: 2400, leads: 33 },
-  "ad-09": { views: 128700, likes: 5400, leads: 58 },
-  "ad-10": { views: 49600, likes: 1700, leads: 19 },
-  "ad-11": { views: 141300, likes: 5100, leads: 61 },
-  "ad-12": { views: 68800, likes: 2200, leads: 31 },
-  "ad-13": { views: 92500, likes: 3000, leads: 39 },
-  "ad-14": { views: 45200, likes: 1500, leads: 17 },
-  "ad-15": { views: 71200, likes: 2300, leads: 37 },
-  "ad-16": { views: 59700, likes: 1900, leads: 26 },
-  "ad-17": { views: 83600, likes: 2700, leads: 35 },
-  "ad-18": { views: 66100, likes: 2100, leads: 28 },
-  "ad-19": { views: 52300, likes: 1800, leads: 22 },
-  "ad-20": { views: 97800, likes: 4600, leads: 34 },
-  "ad-21": { views: 38900, likes: 1300, leads: 15 },
-};
+export const AD_STATS: Partial<Record<string, AdStats>> = {};
 
 /** Bump when media files are re-encoded, so browsers and the CDN fetch the new ones. */
 const MEDIA_VERSION = "3";

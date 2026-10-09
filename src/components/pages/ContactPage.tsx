@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { CalendarClock, Mail, MapPin, MessageCircle, Phone, ArrowUpRight } from "lucide-react";
+import { Mail, MessageCircle, Phone, ArrowUpRight } from "lucide-react";
 
 import { Container, PageHero, Section } from "@/components/rev/ui";
 import { Reveal } from "@/components/rev/Reveal";
@@ -36,13 +36,9 @@ const COPY = {
     line: (label: string, value: string) => `${label} : ${value}`,
     needLine: "Besoin",
     nameLine: "Nom",
-    slotTitle: "Réserver un créneau",
-    slotBody: "30 minutes, en visio, avec un stratège REV.",
-    slotCta: "Ouvrir Calendly",
-    waBody: "Pour une question rapide ou un devis urgent.",
+    waBody: "Pour convenir d'un appel, poser une question ou demander un devis.",
     waCta: "Écrire sur WhatsApp",
     details: "Coordonnées",
-    address: "12 rue de la Paix, 75002 Paris",
   },
   en: {
     title: "Let's talk about your next launch.",
@@ -70,13 +66,9 @@ const COPY = {
     line: (label: string, value: string) => `${label}: ${value}`,
     needLine: "Need",
     nameLine: "Name",
-    slotTitle: "Book a slot",
-    slotBody: "30 minutes, by video call, with a REV strategist.",
-    slotCta: "Open Calendly",
-    waBody: "For a quick question or an urgent quote.",
+    waBody: "To arrange a call, ask a question or request a quote.",
     waCta: "Message us on WhatsApp",
     details: "Contact details",
-    address: "12 rue de la Paix, 75002 Paris, France",
   },
 };
 
@@ -179,22 +171,8 @@ export function ContactPage() {
             </Reveal>
 
             <div className="space-y-4">
+              {/* No booking calendar yet: calls are arranged on WhatsApp. */}
               <Reveal className="surface p-5 sm:p-6">
-                <CalendarClock size={18} className="text-primary" />
-                <h2 className="mt-4 font-display text-lg font-medium tracking-tight">{copy.slotTitle}</h2>
-                <p className="mt-2 text-sm text-muted-foreground">{copy.slotBody}</p>
-                <a
-                  href="https://calendly.com/rev-agency/30min"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-5 inline-flex h-11 items-center gap-2 rounded-lg border border-border px-5 text-sm transition-colors hover:border-primary/50 hover:text-primary"
-                >
-                  {copy.slotCta}
-                  <ArrowUpRight size={15} />
-                </a>
-              </Reveal>
-
-              <Reveal className="surface p-5 sm:p-6" delay={80}>
                 <MessageCircle size={18} className="text-primary" />
                 <h2 className="mt-4 font-display text-lg font-medium tracking-tight">WhatsApp</h2>
                 <p className="mt-2 text-sm text-muted-foreground">{copy.waBody}</p>
@@ -209,7 +187,7 @@ export function ContactPage() {
                 </a>
               </Reveal>
 
-              <Reveal className="surface p-5 sm:p-6" delay={160}>
+              <Reveal className="surface p-5 sm:p-6" delay={80}>
                 <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">{copy.details}</p>
                 <ul className="mt-6 space-y-4 text-sm">
                   <li>
@@ -229,10 +207,6 @@ export function ContactPage() {
                       <Phone size={15} className="shrink-0" />
                       {CONTACT_PHONE}
                     </a>
-                  </li>
-                  <li className="flex items-start gap-3 text-muted-foreground">
-                    <MapPin size={15} className="mt-0.5 shrink-0" />
-                    {copy.address}
                   </li>
                 </ul>
               </Reveal>

@@ -17,7 +17,6 @@ import { Route as SiteIndexRouteImport } from './routes/_site/index'
 import { Route as Site404RouteImport } from './routes/_site/404'
 import { Route as SiteAboutRouteImport } from './routes/_site/about'
 import { Route as SiteAgentIaRouteImport } from './routes/_site/agent-ia'
-import { Route as SiteCaseStudiesRouteImport } from './routes/_site/case-studies'
 import { Route as SiteContactRouteImport } from './routes/_site/contact'
 import { Route as SiteInsightsRouteImport } from './routes/_site/insights'
 import { Route as SitePortfolioRouteImport } from './routes/_site/portfolio'
@@ -35,7 +34,6 @@ import { Route as SiteEnIndexRouteImport } from './routes/_site/en/index'
 import { Route as SiteEn404RouteImport } from './routes/_site/en/404'
 import { Route as SiteEnAboutRouteImport } from './routes/_site/en/about'
 import { Route as SiteEnAiAgentRouteImport } from './routes/_site/en/ai-agent'
-import { Route as SiteEnCaseStudiesRouteImport } from './routes/_site/en/case-studies'
 import { Route as SiteEnContactRouteImport } from './routes/_site/en/contact'
 import { Route as SiteEnInsightsRouteImport } from './routes/_site/en/insights'
 import { Route as SiteEnPortfolioRouteImport } from './routes/_site/en/portfolio'
@@ -103,11 +101,6 @@ const SiteAboutRoute = SiteAboutRouteImport.update({
 const SiteAgentIaRoute = SiteAgentIaRouteImport.update({
   id: '/agent-ia',
   path: '/agent-ia',
-  getParentRoute: () => SiteRouteRoute,
-} as any)
-const SiteCaseStudiesRoute = SiteCaseStudiesRouteImport.update({
-  id: '/case-studies',
-  path: '/case-studies',
   getParentRoute: () => SiteRouteRoute,
 } as any)
 const SiteContactRoute = SiteContactRouteImport.update({
@@ -192,11 +185,6 @@ const SiteEnAboutRoute = SiteEnAboutRouteImport.update({
 const SiteEnAiAgentRoute = SiteEnAiAgentRouteImport.update({
   id: '/en/ai-agent',
   path: '/en/ai-agent',
-  getParentRoute: () => SiteRouteRoute,
-} as any)
-const SiteEnCaseStudiesRoute = SiteEnCaseStudiesRouteImport.update({
-  id: '/en/case-studies',
-  path: '/en/case-studies',
   getParentRoute: () => SiteRouteRoute,
 } as any)
 const SiteEnContactRoute = SiteEnContactRouteImport.update({
@@ -366,7 +354,6 @@ export interface FileRoutesByFullPath {
   '/404': typeof Site404Route
   '/about': typeof SiteAboutRoute
   '/agent-ia': typeof SiteAgentIaRoute
-  '/case-studies': typeof SiteCaseStudiesRoute
   '/contact': typeof SiteContactRoute
   '/insights': typeof SiteInsightsRoute
   '/portfolio': typeof SitePortfolioRoute
@@ -380,7 +367,6 @@ export interface FileRoutesByFullPath {
   '/en/404': typeof SiteEn404Route
   '/en/about': typeof SiteEnAboutRoute
   '/en/ai-agent': typeof SiteEnAiAgentRoute
-  '/en/case-studies': typeof SiteEnCaseStudiesRoute
   '/en/contact': typeof SiteEnContactRoute
   '/en/insights': typeof SiteEnInsightsRoute
   '/en/portfolio': typeof SiteEnPortfolioRoute
@@ -421,7 +407,6 @@ export interface FileRoutesByTo {
   '/404': typeof Site404Route
   '/about': typeof SiteAboutRoute
   '/agent-ia': typeof SiteAgentIaRoute
-  '/case-studies': typeof SiteCaseStudiesRoute
   '/contact': typeof SiteContactRoute
   '/insights': typeof SiteInsightsRoute
   '/portfolio': typeof SitePortfolioRoute
@@ -436,7 +421,6 @@ export interface FileRoutesByTo {
   '/en/404': typeof SiteEn404Route
   '/en/about': typeof SiteEnAboutRoute
   '/en/ai-agent': typeof SiteEnAiAgentRoute
-  '/en/case-studies': typeof SiteEnCaseStudiesRoute
   '/en/contact': typeof SiteEnContactRoute
   '/en/insights': typeof SiteEnInsightsRoute
   '/en/portfolio': typeof SiteEnPortfolioRoute
@@ -478,7 +462,6 @@ export interface FileRoutesById {
   '/_site/404': typeof Site404Route
   '/_site/about': typeof SiteAboutRoute
   '/_site/agent-ia': typeof SiteAgentIaRoute
-  '/_site/case-studies': typeof SiteCaseStudiesRoute
   '/_site/contact': typeof SiteContactRoute
   '/_site/insights': typeof SiteInsightsRoute
   '/_site/portfolio': typeof SitePortfolioRoute
@@ -493,7 +476,6 @@ export interface FileRoutesById {
   '/_site/en/404': typeof SiteEn404Route
   '/_site/en/about': typeof SiteEnAboutRoute
   '/_site/en/ai-agent': typeof SiteEnAiAgentRoute
-  '/_site/en/case-studies': typeof SiteEnCaseStudiesRoute
   '/_site/en/contact': typeof SiteEnContactRoute
   '/_site/en/insights': typeof SiteEnInsightsRoute
   '/_site/en/portfolio': typeof SiteEnPortfolioRoute
@@ -537,7 +519,6 @@ export interface FileRouteTypes {
     | '/404'
     | '/about'
     | '/agent-ia'
-    | '/case-studies'
     | '/contact'
     | '/insights'
     | '/portfolio'
@@ -551,7 +532,6 @@ export interface FileRouteTypes {
     | '/en/404'
     | '/en/about'
     | '/en/ai-agent'
-    | '/en/case-studies'
     | '/en/contact'
     | '/en/insights'
     | '/en/portfolio'
@@ -592,7 +572,6 @@ export interface FileRouteTypes {
     | '/404'
     | '/about'
     | '/agent-ia'
-    | '/case-studies'
     | '/contact'
     | '/insights'
     | '/portfolio'
@@ -607,7 +586,6 @@ export interface FileRouteTypes {
     | '/en/404'
     | '/en/about'
     | '/en/ai-agent'
-    | '/en/case-studies'
     | '/en/contact'
     | '/en/insights'
     | '/en/portfolio'
@@ -648,7 +626,6 @@ export interface FileRouteTypes {
     | '/_site/404'
     | '/_site/about'
     | '/_site/agent-ia'
-    | '/_site/case-studies'
     | '/_site/contact'
     | '/_site/insights'
     | '/_site/portfolio'
@@ -663,7 +640,6 @@ export interface FileRouteTypes {
     | '/_site/en/404'
     | '/_site/en/about'
     | '/_site/en/ai-agent'
-    | '/_site/en/case-studies'
     | '/_site/en/contact'
     | '/_site/en/insights'
     | '/_site/en/portfolio'
@@ -761,13 +737,6 @@ declare module '@tanstack/react-router' {
       path: '/agent-ia'
       fullPath: '/agent-ia'
       preLoaderRoute: typeof SiteAgentIaRouteImport
-      parentRoute: typeof SiteRouteRoute
-    }
-    '/_site/case-studies': {
-      id: '/_site/case-studies'
-      path: '/case-studies'
-      fullPath: '/case-studies'
-      preLoaderRoute: typeof SiteCaseStudiesRouteImport
       parentRoute: typeof SiteRouteRoute
     }
     '/_site/contact': {
@@ -887,13 +856,6 @@ declare module '@tanstack/react-router' {
       path: '/en/ai-agent'
       fullPath: '/en/ai-agent'
       preLoaderRoute: typeof SiteEnAiAgentRouteImport
-      parentRoute: typeof SiteRouteRoute
-    }
-    '/_site/en/case-studies': {
-      id: '/_site/en/case-studies'
-      path: '/en/case-studies'
-      fullPath: '/en/case-studies'
-      preLoaderRoute: typeof SiteEnCaseStudiesRouteImport
       parentRoute: typeof SiteRouteRoute
     }
     '/_site/en/contact': {
@@ -1106,7 +1068,6 @@ interface SiteRouteRouteChildren {
   Site404Route: typeof Site404Route
   SiteAboutRoute: typeof SiteAboutRoute
   SiteAgentIaRoute: typeof SiteAgentIaRoute
-  SiteCaseStudiesRoute: typeof SiteCaseStudiesRoute
   SiteContactRoute: typeof SiteContactRoute
   SiteInsightsRoute: typeof SiteInsightsRoute
   SitePortfolioRoute: typeof SitePortfolioRoute
@@ -1116,7 +1077,6 @@ interface SiteRouteRouteChildren {
   SiteEn404Route: typeof SiteEn404Route
   SiteEnAboutRoute: typeof SiteEnAboutRoute
   SiteEnAiAgentRoute: typeof SiteEnAiAgentRoute
-  SiteEnCaseStudiesRoute: typeof SiteEnCaseStudiesRoute
   SiteEnContactRoute: typeof SiteEnContactRoute
   SiteEnInsightsRoute: typeof SiteEnInsightsRoute
   SiteEnPortfolioRoute: typeof SiteEnPortfolioRoute
@@ -1129,7 +1089,6 @@ const SiteRouteRouteChildren: SiteRouteRouteChildren = {
   Site404Route: Site404Route,
   SiteAboutRoute: SiteAboutRoute,
   SiteAgentIaRoute: SiteAgentIaRoute,
-  SiteCaseStudiesRoute: SiteCaseStudiesRoute,
   SiteContactRoute: SiteContactRoute,
   SiteInsightsRoute: SiteInsightsRoute,
   SitePortfolioRoute: SitePortfolioRoute,
@@ -1139,7 +1098,6 @@ const SiteRouteRouteChildren: SiteRouteRouteChildren = {
   SiteEn404Route: SiteEn404Route,
   SiteEnAboutRoute: SiteEnAboutRoute,
   SiteEnAiAgentRoute: SiteEnAiAgentRoute,
-  SiteEnCaseStudiesRoute: SiteEnCaseStudiesRoute,
   SiteEnContactRoute: SiteEnContactRoute,
   SiteEnInsightsRoute: SiteEnInsightsRoute,
   SiteEnPortfolioRoute: SiteEnPortfolioRoute,

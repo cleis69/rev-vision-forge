@@ -121,7 +121,7 @@ export function Hero() {
                 phoneClassName="w-[min(56vw,270px)] lg:w-[clamp(230px,calc((100svh-240px)*0.478),318px)]"
               />
 
-              {/* Counters floating around the phone */}
+              {/* Counters floating around the phone, only for an ad with real stats in AD_STATS */}
               <FloatingStat
                 className="left-0 top-[17%] -translate-x-[40%] sm:-translate-x-[74%]"
                 icon={<Eye size={15} />}

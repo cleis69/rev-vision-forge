@@ -15,7 +15,6 @@ export const PAGES = {
   agent: { fr: "/agent-ia", en: "/en/ai-agent" },
   pricing: { fr: "/tarifs", en: "/en/pricing" },
   portfolio: { fr: "/portfolio", en: "/en/portfolio" },
-  cases: { fr: "/case-studies", en: "/en/case-studies" },
   about: { fr: "/about", en: "/en/about" },
   insights: { fr: "/insights", en: "/en/insights" },
   contact: { fr: "/contact", en: "/en/contact" },

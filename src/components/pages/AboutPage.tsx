@@ -6,6 +6,9 @@ import { photo } from "@/lib/images";
 
 const interior = photo("work-interior");
 
+/** UltraVision Agency's case study about this website (in French). */
+const CASE_STUDY_URL = "https://ultravisionagency.com/realisations/rev";
+
 const TECH = [
   "HubSpot CRM",
   "Meta Business Suite",
@@ -33,6 +36,7 @@ const COPY: Record<
     gearLabel: string;
     gear: string[];
     techLabel: string;
+    credit: { text: string; link: string };
   }
 > = {
   fr: {
@@ -80,6 +84,10 @@ const COPY: Record<
       "Suite de post-production étalonnée",
     ],
     techLabel: "Technologies",
+    credit: {
+      text: "Ce site a été réalisé par UltraVision Agency : ",
+      link: "voir l'étude de cas",
+    },
   },
   en: {
     eyebrow: "About",
@@ -126,6 +134,10 @@ const COPY: Record<
       "Calibrated post-production suite",
     ],
     techLabel: "Technology",
+    credit: {
+      text: "This website was built by UltraVision Agency: ",
+      link: "see the case study (in French)",
+    },
   },
 };
 
@@ -219,6 +231,19 @@ export function AboutPage() {
               </div>
             </Reveal>
           </div>
+          <Reveal as="p" className="mt-10 text-sm leading-relaxed text-muted-foreground lg:mt-14">
+            {copy.credit.text}
+            <a
+              href={CASE_STUDY_URL}
+              target="_blank"
+              rel="noopener"
+              hrefLang="fr"
+              className="text-foreground underline underline-offset-4 transition-colors duration-300 hover:text-primary"
+            >
+              {copy.credit.link}
+            </a>
+            .
+          </Reveal>
         </Container>
       </Section>
 

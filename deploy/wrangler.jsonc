@@ -28,6 +28,8 @@
       "/app/*",
       "/p/*",
       "/embed/*",
+      "/en/p/*",
+      "/en/embed/*",
       "/agent-ia",
       "/agent-ia.html",
       "/agent-ia/*",

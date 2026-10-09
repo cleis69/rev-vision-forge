@@ -70,6 +70,11 @@ begin
     (p_pub, lot_pub, 'image', 'fixture/pub.webp'), (p_draft, null, 'image', 'fixture/draft.webp');
   insert into public.orbit_colors (project_id, view_id, hex, share, lot_id) values
     (p_pub, view_pub, '#ff0000', 0.1, lot_pub), (p_draft, view_draft, '#00ff00', 0.1, lot_draft);
+  -- 360° views (step 18): the published aerial view and the draft one carry a marker.
+  update public.project_views set panorama_path = 'fixture/aerien.webp', panorama_width = 6144, panorama_height = 3072
+    where id in (view_pub, view_draft);
+  insert into public.view_markers (project_id, view_id, lot_id, yaw, pitch) values
+    (p_pub, view_pub, lot_pub, 1.2, -0.5), (p_draft, view_draft, lot_draft, 2.0, -0.4);
   insert into public.media (project_id, view_id, kind, path, sort_order) values
     (p_pub, view_pub, 'orbit_frame', 'fixture/orbit/vue-001.webp', 0),
     (p_pub, view_pub, 'orbit_mask', 'fixture/orbit/masque-001.png', 0),
@@ -363,6 +368,25 @@ begin
   exception when check_violation then ok := true; end;
   total := total + 1; if not ok then failed := failed + 1; report := report || 'nombre de salles de bains invalide accepté'::text; end if;
 
+  set local role anon;
+  select count(*) into n from public.view_markers where project_id in (p_pub, p_draft);
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'visiteur : repères d''un brouillon visibles (ou ceux du publié absents)'::text; end if;
+
+  set local role anon;
+  begin insert into public.view_markers (project_id, view_id, lot_id, yaw, pitch) values (p_pub, view_rdc, lot_pub, 0, 0); ok := false;
+  exception when insufficient_privilege then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'visiteur : pose un repère'::text; end if;
+
+  begin insert into public.view_markers (project_id, view_id, lot_id, yaw, pitch) values (p_pub, view_rdc, lot_pub, 7, 0); ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'repère hors limites accepté'::text; end if;
+
+  begin update public.project_views set panorama_path = 'x.webp', panorama_width = null where id = view_rdc; ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'panorama de vue incomplet accepté'::text; end if;
+
   ------------------------------------------- signed in, other organization
   perform set_config('request.jwt.claims', json_build_object('sub', owner_b, 'role', 'authenticated')::text, true);
   perform set_config('request.jwt.claim.sub', owner_b::text, true);
@@ -471,6 +495,11 @@ begin
   select count(*) into n from public.panoramas where project_id = p_draft;
   reset role;
   total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'autre organisation : voit la visite du brouillon de A'::text; end if;
+
+  set local role authenticated;
+  update public.view_markers set yaw = 0.5 where project_id = p_pub; get diagnostics n = row_count;
+  reset role;
+  total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'autre organisation : déplace un repère de A'::text; end if;
 
   ------------------------------------------------------ commercial of A
   perform set_config('request.jwt.claims', json_build_object('sub', commercial_a, 'role', 'authenticated')::text, true);
@@ -612,6 +641,12 @@ begin
   select count(*) into n from public.panorama_links where project_id = p_pub;
   reset role;
   total := total + 1; if n <> 2 then failed := failed + 1; report := report || 'commercial : ne peut pas compléter une visite 360°'::text; end if;
+
+  set local role authenticated;
+  insert into public.view_markers (project_id, view_id, lot_id, yaw, pitch) values (p_pub, view_rdc, lot_pub, 3.0, -0.2);
+  update public.view_markers set yaw = 1.3 where view_id = view_pub and lot_id = lot_pub; get diagnostics n = row_count;
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'commercial : ne peut pas poser ou déplacer un repère'::text; end if;
 
   set local role authenticated;
   delete from public.panorama_links where from_id = pano_salon; get diagnostics n = row_count;
@@ -762,6 +797,7 @@ begin
   delete from public.project_views where id = view_rdc;
   select (select count(*) from public.media where view_id = view_rdc)
        + (select count(*) from public.orbit_colors where view_id = view_rdc)
+       + (select count(*) from public.view_markers where view_id = view_rdc)
     into n;
   total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'suppression d''une vue : séquence ou couleurs restantes'::text; end if;
 

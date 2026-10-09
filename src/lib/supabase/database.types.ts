@@ -460,6 +460,7 @@ export type Database = {
           image_height: number;
           image_path: string;
           image_width: number;
+          level: number | null;
           lot_id: string | null;
           lot_type: string | null;
           name: string;
@@ -474,6 +475,7 @@ export type Database = {
           image_height: number;
           image_path: string;
           image_width: number;
+          level?: number | null;
           lot_id?: string | null;
           lot_type?: string | null;
           name: string;
@@ -488,6 +490,7 @@ export type Database = {
           image_height?: number;
           image_path?: string;
           image_width?: number;
+          level?: number | null;
           lot_id?: string | null;
           lot_type?: string | null;
           name?: string;
@@ -521,8 +524,13 @@ export type Database = {
           kind: Database["public"]["Enums"]["view_kind"];
           level: number | null;
           name: string;
+          panorama_height: number | null;
+          panorama_path: string | null;
+          panorama_width: number | null;
           project_id: string;
           sort_order: number;
+          start_pitch: number;
+          start_yaw: number;
         };
         Insert: {
           created_at?: string;
@@ -531,8 +539,13 @@ export type Database = {
           kind?: Database["public"]["Enums"]["view_kind"];
           level?: number | null;
           name: string;
+          panorama_height?: number | null;
+          panorama_path?: string | null;
+          panorama_width?: number | null;
           project_id: string;
           sort_order?: number;
+          start_pitch?: number;
+          start_yaw?: number;
         };
         Update: {
           created_at?: string;
@@ -541,8 +554,13 @@ export type Database = {
           kind?: Database["public"]["Enums"]["view_kind"];
           level?: number | null;
           name?: string;
+          panorama_height?: number | null;
+          panorama_path?: string | null;
+          panorama_width?: number | null;
           project_id?: string;
           sort_order?: number;
+          start_pitch?: number;
+          start_yaw?: number;
         };
         Relationships: [
           {
@@ -630,6 +648,36 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      view_markers: {
+        Row: {
+          created_at: string;
+          id: string;
+          lot_id: string;
+          pitch: number;
+          project_id: string;
+          view_id: string;
+          yaw: number;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          lot_id: string;
+          pitch: number;
+          project_id: string;
+          view_id: string;
+          yaw: number;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          lot_id?: string;
+          pitch?: number;
+          project_id?: string;
+          view_id?: string;
+          yaw?: number;
+        };
+        Relationships: [];
       };
     };
     Views: {

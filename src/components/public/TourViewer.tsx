@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ElementType, type ReactNode } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Viewer } from "@photo-sphere-viewer/core";
 import { AutorotatePlugin } from "@photo-sphere-viewer/autorotate-plugin";
@@ -6,45 +6,90 @@ import { GyroscopePlugin } from "@photo-sphere-viewer/gyroscope-plugin";
 import { MarkersPlugin } from "@photo-sphere-viewer/markers-plugin";
 import "@photo-sphere-viewer/core/index.css";
 import "@photo-sphere-viewer/markers-plugin/index.css";
-import { CalendarCheck, Maximize, Minimize, X } from "lucide-react";
+import { CalendarCheck, Maximize, Minimize, Rotate3d, X } from "lucide-react";
 
 import { arrowElement, VIEWER_LANG } from "@/components/tour/arrow";
 import type { PublicRoom, PublicTour } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
+import { floorName } from "@/lib/views";
 import { RevBadge } from "./Common";
 
-/* 360° tour of the public pages, full screen: the panorama of a room, the
-   arrows placed by the promoter to go to the next room, a strip of the rooms,
-   a slow rotation when nobody touches it, the gyroscope on phones, and the
-   visit request. Loaded on demand (the viewer weighs its own). */
+/* 360° tour of the public pages: the panorama of a room, the arrows placed by
+   the promoter to go to the next room, a strip of the rooms, a slow rotation
+   when nobody touches it, the gyroscope on phones, and the visit request.
+   Full screen (TourViewer), or inside the page next to the sales plan
+   (TourInline), where the wheel and one finger keep scrolling the page.
+   Loaded on demand (the viewer weighs its own). */
 
 const LANG = { ...VIEWER_LANG, autorotate: "Rotation automatique", gyroscope: "Gyroscope" };
 
-export default function TourViewer({
+const control =
+  "grid place-items-center rounded-full bg-black/55 text-white/90 backdrop-blur transition-colors hover:bg-black/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";
+
+function TourStage({
   tour,
-  onClose,
+  startRoomId,
+  variant,
+  inline,
   onPlan,
-  variant = "page",
+  Title,
+  actions,
+  onRoomChange,
 }: {
   tour: PublicTour;
-  onClose: () => void;
-  /** Visit request (the lot's form, or the page's); null in presentation mode. */
+  startRoomId?: string | undefined;
+  variant: "page" | "embed" | "presentation";
+  inline: boolean;
   onPlan: (() => void) | null;
-  variant?: "page" | "embed" | "presentation";
+  Title: ElementType;
+  /** Buttons at the top right (full screen, close…). */
+  actions: ReactNode;
+  onRoomChange?: ((id: string) => void) | undefined;
 }) {
   const large = variant === "presentation";
-  const box = useRef<HTMLDivElement>(null);
   // The dialog puts its content in the page after its first render: the viewer waits for it.
   const [element, setElement] = useState<HTMLDivElement | null>(null);
   const viewerRef = useRef<Viewer | null>(null);
-  const [roomId, setRoomId] = useState(tour.rooms[0]?.id ?? "");
+  const [roomId, setRoomId] = useState(
+    tour.rooms.some((r) => r.id === startRoomId)
+      ? (startRoomId as string)
+      : (tour.rooms[0]?.id ?? ""),
+  );
   const [shown, setShown] = useState<string | null>(null);
-  const [full, setFull] = useState(false);
   const room = tour.rooms.find((r) => r.id === roomId) ?? tour.rooms[0];
   const names = new Map(tour.rooms.map((r) => [r.id, r.name]));
-  // Large screens get the 8 192 px panoramas, phones the 4 096 px ones.
-  const [big] = useState(() => window.innerWidth * (window.devicePixelRatio || 1) > 1700);
+  // Large screens get the large panoramas, phones (and the page) the 4 096 px ones.
+  const [big] = useState(
+    () => !inline && window.innerWidth * (window.devicePixelRatio || 1) > 1700,
+  );
   const src = (r: PublicRoom) => (big ? r.image.large : r.image.small);
+
+  const onRoomChangeRef = useRef(onRoomChange);
+  onRoomChangeRef.current = onRoomChange;
+  useEffect(() => {
+    if (room) onRoomChangeRef.current?.(room.id);
+  }, [room]);
+
+  // Floors of the tour: tabs, each listing its rooms; the tab follows the room shown.
+  const floors = [...new Set(tour.rooms.flatMap((r) => (r.level === null ? [] : [r.level])))].sort(
+    (a, b) => a - b,
+  );
+  const byFloor = floors.length > 1;
+  const roomFloor = room?.level ?? null;
+  const [floor, setFloor] = useState<number | null>(roomFloor);
+  useEffect(() => {
+    setFloor(roomFloor);
+  }, [roomFloor]);
+  const listed = byFloor ? tour.rooms.filter((r) => r.level === floor) : tour.rooms;
+  const others = byFloor ? tour.rooms.filter((r) => r.level === null) : [];
+  // An arrow to another floor says which one.
+  const arrowLabel = (toId: string) => {
+    const target = tour.rooms.find((r) => r.id === toId);
+    if (!target) return "Pièce";
+    return byFloor && target.level !== null && target.level !== roomFloor
+      ? `${floorName(target.level)} · ${target.name}`
+      : target.name;
+  };
 
   const go = useRef<(id: string) => void>(() => {});
   go.current = (id) => {
@@ -62,23 +107,24 @@ export default function TourViewer({
         defaultYaw: room.startYaw,
         defaultPitch: room.startPitch,
         defaultZoomLvl: 0,
-        navbar: ["autorotate", "zoom", "gyroscope"],
+        navbar: inline ? ["zoom"] : ["autorotate", "zoom", "gyroscope"],
         lang: LANG,
-        keyboard: "always",
-        mousewheelCtrlKey: false,
-        touchmoveTwoFingers: false,
+        keyboard: inline ? "fullscreen" : "always",
+        // In the page, the wheel scrolls (Ctrl zooms) and one finger scrolls too.
+        mousewheelCtrlKey: inline,
+        touchmoveTwoFingers: inline,
         plugins: [
           [MarkersPlugin, {}],
           [
             AutorotatePlugin,
             {
-              autostartDelay: 4000,
+              autostartDelay: inline ? 6000 : 4000,
               autostartOnIdle: true,
               autorotateSpeed: "0.6rpm",
               autorotatePitch: room.startPitch,
             },
           ],
-          [GyroscopePlugin, {}],
+          ...(inline ? [] : [[GyroscopePlugin, {}] as [typeof GyroscopePlugin, object]]),
         ],
       });
       viewerRef.current = viewer;
@@ -124,7 +170,7 @@ export default function TourViewer({
       room.links.map((l, i) => ({
         id: `${room.id}-${i}`,
         position: { yaw: l.yaw, pitch: l.pitch },
-        element: arrowElement(names.get(l.toId) ?? "Pièce"),
+        element: arrowElement(arrowLabel(l.toId)),
         anchor: "center center",
         data: l.toId,
       })),
@@ -135,6 +181,184 @@ export default function TourViewer({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shown, room?.id]);
+
+  const index = tour.rooms.findIndex((r) => r.id === room?.id);
+
+  return (
+    <>
+      <div ref={setElement} className="absolute inset-0" />
+
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-x-0 top-0 flex items-start gap-3 bg-gradient-to-b from-black/75 to-transparent",
+          inline ? "p-3 pb-10 sm:p-4 sm:pb-12" : "p-4 pb-12 sm:p-6 sm:pb-16",
+        )}
+      >
+        <div className="min-w-0">
+          <Title
+            className={cn(
+              "font-brand font-medium tracking-tight",
+              large ? "text-3xl" : inline ? "text-base sm:text-lg" : "text-xl sm:text-2xl",
+            )}
+          >
+            {room?.name}
+          </Title>
+          <p
+            className={cn(
+              "mt-0.5 text-white/65",
+              large ? "text-base" : inline ? "text-[11px] sm:text-xs" : "text-xs sm:text-sm",
+            )}
+          >
+            Visite 360° · {tour.label}
+            {tour.rooms.length > 1 ? ` · pièce ${index + 1} sur ${tour.rooms.length}` : ""}
+          </p>
+        </div>
+        <div className="pointer-events-auto ml-auto flex items-center gap-2">{actions}</div>
+      </div>
+
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-x-0 flex flex-col",
+          inline ? "bottom-10 gap-2 px-3 pb-1" : "bottom-10 gap-3 p-4 sm:bottom-12 sm:p-6",
+        )}
+      >
+        {onPlan ? (
+          <button
+            type="button"
+            onClick={onPlan}
+            className={cn(
+              "pointer-events-auto inline-flex items-center justify-center gap-2 self-center rounded-full bg-[color:var(--brand)] font-medium text-[color:var(--brand-contrast)] shadow-xl transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:self-end",
+              inline ? "h-10 px-4 text-xs" : "h-12 px-6 text-sm",
+            )}
+          >
+            <CalendarCheck className="size-4" aria-hidden />
+            Planifier une visite
+          </button>
+        ) : null}
+        {byFloor ? (
+          <div
+            role="group"
+            aria-label="Étages"
+            className="pointer-events-auto flex gap-1.5 self-start rounded-full bg-black/55 p-1 backdrop-blur"
+          >
+            {floors.map((f) => {
+              const active = f === floor;
+              const count = tour.rooms.filter((r) => r.level === f).length;
+              return (
+                <button
+                  key={f}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => {
+                    setFloor(f);
+                    // The floor opens on its first room.
+                    if (room?.level !== f) {
+                      const first = tour.rooms.find((r) => r.level === f);
+                      if (first) go.current(first.id);
+                    }
+                  }}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                    large
+                      ? "h-11 px-5 text-base"
+                      : inline
+                        ? "h-7 px-3 text-[11px]"
+                        : "h-9 px-4 text-sm",
+                    active
+                      ? "bg-white text-black"
+                      : "text-white/80 hover:bg-white/10 hover:text-white",
+                  )}
+                >
+                  {floorName(f)}
+                  <span className={cn("tabular-nums", active ? "text-black/50" : "text-white/45")}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
+        {tour.rooms.length > 1 ? (
+          <ol
+            aria-label="Pièces de la visite"
+            className="pointer-events-auto flex gap-2 overflow-x-auto pb-1"
+          >
+            {[...listed, ...others].map((r) => {
+              const active = r.id === room?.id;
+              return (
+                <li key={r.id} className="shrink-0">
+                  {inline ? (
+                    // In the page: the names only, the panorama stays in sight.
+                    <button
+                      type="button"
+                      onClick={() => go.current(r.id)}
+                      aria-current={active ? "true" : undefined}
+                      className={cn(
+                        "inline-flex h-7 items-center whitespace-nowrap rounded-full border px-3 text-[11px] font-medium backdrop-blur transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                        active
+                          ? "border-[color:var(--brand)] bg-[color:var(--brand)] text-[color:var(--brand-contrast)]"
+                          : "border-white/20 bg-black/55 text-white/85 hover:border-white/50",
+                      )}
+                    >
+                      {r.name}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => go.current(r.id)}
+                      aria-current={active ? "true" : undefined}
+                      className={cn(
+                        "block overflow-hidden rounded-xl border-2 bg-black/50 text-left backdrop-blur transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                        large ? "w-44" : "w-28 sm:w-36",
+                        active
+                          ? "border-[color:var(--brand)]"
+                          : "border-transparent hover:border-white/40",
+                      )}
+                    >
+                      <img
+                        src={r.image.thumb}
+                        alt=""
+                        className="aspect-[2/1] w-full object-cover"
+                        loading="lazy"
+                      />
+                      <span
+                        className={cn(
+                          "block truncate px-2 py-1 font-medium",
+                          large ? "text-sm" : "text-[11px] sm:text-xs",
+                        )}
+                      >
+                        {r.name}
+                      </span>
+                    </button>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+        ) : null}
+      </div>
+    </>
+  );
+}
+
+/** Full screen. */
+export default function TourViewer({
+  tour,
+  startRoomId,
+  onClose,
+  onPlan,
+  variant = "page",
+}: {
+  tour: PublicTour;
+  startRoomId?: string | undefined;
+  onClose: () => void;
+  /** Visit request (the lot's form, or the page's); null in presentation mode. */
+  onPlan: (() => void) | null;
+  variant?: "page" | "embed" | "presentation";
+}) {
+  const large = variant === "presentation";
+  const box = useRef<HTMLDivElement>(null);
+  const [full, setFull] = useState(false);
 
   useEffect(() => {
     const sync = () => setFull(document.fullscreenElement === box.current);
@@ -147,9 +371,6 @@ export default function TourViewer({
     else void box.current?.requestFullscreen().catch(() => undefined);
   };
 
-  const control =
-    "grid place-items-center rounded-full bg-black/55 text-white/90 backdrop-blur transition-colors hover:bg-black/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";
-
   return (
     <DialogPrimitive.Root open onOpenChange={(open) => !open && onClose()}>
       <DialogPrimitive.Portal>
@@ -160,109 +381,123 @@ export default function TourViewer({
           className="fixed inset-0 z-[70] bg-black text-white outline-none [&_.psv-container]:[background:#000]!"
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
-          <div ref={setElement} className="absolute inset-0" />
-
-          <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start gap-3 bg-gradient-to-b from-black/75 to-transparent p-4 pb-12 sm:p-6 sm:pb-16">
-            <div className="min-w-0">
-              <DialogPrimitive.Title
-                className={cn(
-                  "font-brand font-medium tracking-tight",
-                  large ? "text-3xl" : "text-xl sm:text-2xl",
-                )}
-              >
-                {room?.name}
-              </DialogPrimitive.Title>
-              <p className={cn("mt-1 text-white/65", large ? "text-base" : "text-xs sm:text-sm")}>
-                Visite 360° · {tour.label}
-                {tour.rooms.length > 1
-                  ? ` · pièce ${tour.rooms.findIndex((r) => r.id === room?.id) + 1} sur ${tour.rooms.length}`
-                  : ""}
-              </p>
-            </div>
-            <div className="pointer-events-auto ml-auto flex items-center gap-2">
-              <RevBadge size="sm" className="mr-1 hidden sm:inline-flex" />
-              {canFull && !large ? (
-                <button
-                  type="button"
-                  onClick={toggleFull}
-                  className={cn(control, "size-11")}
-                  aria-label={full ? "Quitter le plein écran" : "Plein écran"}
+          <TourStage
+            tour={tour}
+            startRoomId={startRoomId}
+            variant={variant}
+            inline={false}
+            onPlan={onPlan}
+            Title={DialogPrimitive.Title}
+            actions={
+              <>
+                <RevBadge size="sm" className="mr-1 hidden sm:inline-flex" />
+                {canFull && !large ? (
+                  <button
+                    type="button"
+                    onClick={toggleFull}
+                    className={cn(control, "size-11")}
+                    aria-label={full ? "Quitter le plein écran" : "Plein écran"}
+                  >
+                    {full ? (
+                      <Minimize className="size-5" aria-hidden />
+                    ) : (
+                      <Maximize className="size-5" aria-hidden />
+                    )}
+                  </button>
+                ) : null}
+                <DialogPrimitive.Close
+                  className={cn(control, large ? "h-12 gap-2 px-5 text-base" : "size-11")}
+                  aria-label="Fermer la visite"
                 >
-                  {full ? (
-                    <Minimize className="size-5" aria-hidden />
-                  ) : (
-                    <Maximize className="size-5" aria-hidden />
-                  )}
-                </button>
-              ) : null}
-              <DialogPrimitive.Close
-                className={cn(control, large ? "h-12 gap-2 px-5 text-base" : "size-11")}
-                aria-label="Fermer la visite"
-              >
-                <X className="size-5" aria-hidden />
-                {large ? <span className="flex">Fermer</span> : null}
-              </DialogPrimitive.Close>
-            </div>
-          </div>
-
-          <div className="pointer-events-none absolute inset-x-0 bottom-10 flex flex-col gap-3 p-4 sm:bottom-12 sm:p-6">
-            {onPlan ? (
-              <button
-                type="button"
-                onClick={onPlan}
-                className="pointer-events-auto inline-flex h-12 items-center justify-center gap-2 self-center rounded-full bg-[color:var(--brand)] px-6 text-sm font-medium text-[color:var(--brand-contrast)] shadow-xl transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:self-end"
-              >
-                <CalendarCheck className="size-4" aria-hidden />
-                Planifier une visite
-              </button>
-            ) : null}
-            {tour.rooms.length > 1 ? (
-              <ol
-                aria-label="Pièces de la visite"
-                className="pointer-events-auto flex gap-2 overflow-x-auto pb-1"
-              >
-                {tour.rooms.map((r) => {
-                  const active = r.id === room?.id;
-                  return (
-                    <li key={r.id} className="shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => go.current(r.id)}
-                        aria-current={active ? "true" : undefined}
-                        className={cn(
-                          "block overflow-hidden rounded-xl border-2 bg-black/50 text-left backdrop-blur transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
-                          large ? "w-44" : "w-28 sm:w-36",
-                          active
-                            ? "border-[color:var(--brand)]"
-                            : "border-transparent hover:border-white/40",
-                        )}
-                      >
-                        <img
-                          src={r.image.thumb}
-                          alt=""
-                          className="aspect-[2/1] w-full object-cover"
-                          loading="lazy"
-                        />
-                        <span
-                          className={cn(
-                            "block truncate px-2 py-1.5 font-medium",
-                            large ? "text-sm" : "text-[11px] sm:text-xs",
-                          )}
-                        >
-                          {r.name}
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ol>
-            ) : null}
-          </div>
-
+                  <X className="size-5" aria-hidden />
+                  {large ? <span className="flex">Fermer</span> : null}
+                </DialogPrimitive.Close>
+              </>
+            }
+          />
           {/* Phones: the logo under the title, the top bar being narrow. */}
           <RevBadge size="sm" className="absolute left-4 top-[5.25rem] sm:hidden" />
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
+  );
+}
+
+/** Inside the page: the viewer starts once the box comes into sight; full screen opens the tour where it is. */
+export function TourInline({
+  tour,
+  onPlan,
+  onExpand,
+  variant = "page",
+  className,
+}: {
+  tour: PublicTour;
+  onPlan: (() => void) | null;
+  onExpand: (roomId: string) => void;
+  variant?: "page" | "embed" | "presentation";
+  className?: string;
+}) {
+  const box = useRef<HTMLDivElement>(null);
+  const [near, setNear] = useState(false);
+  const current = useRef(tour.rooms[0]?.id ?? "");
+  useEffect(() => {
+    const el = box.current;
+    if (!el || near) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) setNear(true);
+      },
+      { rootMargin: "300px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [near]);
+  const first = tour.rooms[0];
+
+  return (
+    <div
+      ref={box}
+      className={cn(
+        "relative overflow-hidden rounded-2xl border border-white/10 bg-black text-white [&_.psv-container]:[background:#000]!",
+        className,
+      )}
+    >
+      {near ? (
+        <TourStage
+          tour={tour}
+          variant={variant}
+          inline
+          onPlan={onPlan}
+          Title="h3"
+          onRoomChange={(id) => {
+            current.current = id;
+          }}
+          actions={
+            <button
+              type="button"
+              onClick={() => onExpand(current.current)}
+              className={cn(control, "size-10")}
+              aria-label="Ouvrir la visite en plein écran"
+            >
+              <Maximize className="size-4" aria-hidden />
+            </button>
+          }
+        />
+      ) : first ? (
+        <>
+          <img
+            src={first.image.thumb}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover opacity-70"
+          />
+          <span className="absolute inset-0 grid place-items-center">
+            <span className="inline-flex items-center gap-2 rounded-full bg-black/60 px-4 py-2 text-sm backdrop-blur">
+              <Rotate3d className="size-4" aria-hidden />
+              Chargement de la visite…
+            </span>
+          </span>
+        </>
+      ) : null}
+    </div>
   );
 }

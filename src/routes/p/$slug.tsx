@@ -26,7 +26,7 @@ import { LotSheet } from "@/components/public/LotSheet";
 import { MediaViewer } from "@/components/public/MediaViewer";
 import { Presentation } from "@/components/public/Presentation";
 import { Situation } from "@/components/public/Situation";
-import { TourButton, TourOverlay, ToursSection, type OpenTour } from "@/components/public/Tours";
+import { TourButton, TourInPage, TourOverlay, type OpenTour } from "@/components/public/Tours";
 import { Typologies } from "@/components/public/Typologies";
 import { ProgrammeViews } from "@/components/public/ProgrammeViews";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
@@ -281,10 +281,13 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
   /* ----- 360° tours: full screen, from the section or from the sheet of a lot */
   const [touring, setTouring] = useState<OpenTour | null>(null);
   const [askVisit, setAskVisit] = useState<{ lotId: string } | null>(null);
-  const openTour = (tour: PublicTour, lotId: string | null) => {
-    setTouring({ tour, lotId });
+  const openTour = (tour: PublicTour, lotId: string | null, roomId?: string) => {
+    setTouring({ tour, lotId, ...(roomId ? { roomId } : {}) });
     if (!preview) track(programme.id, "visite_360", lotId ?? tour.lotId ?? undefined);
   };
+  // The tour shown next to the sales plan (the first one, unless the visitor picks another).
+  const [pageTourKey, setPageTourKey] = useState<string | null>(null);
+  const pageTour = tours.find((t) => t.key === pageTourKey) ?? tours[0] ?? null;
   // The visit request: the form of the lot (its sheet), else the one of the page.
   const planFromTour = ({ tour, lotId }: OpenTour) => {
     setTouring(null);
@@ -448,10 +451,10 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
             </dl>
             <div className="mt-7 flex flex-wrap gap-3">
               <a
-                href={hasViews ? "#plan" : withTypes ? "#typologies" : "#lots"}
+                href={hasViews || pageTour ? "#plan" : withTypes ? "#typologies" : "#lots"}
                 className="inline-flex h-12 items-center gap-2 rounded-full bg-[color:var(--brand)] px-6 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
               >
-                {hasViews ? "Voir le plan de vente" : "Voir les lots"}
+                {hasViews ? "Voir le plan de vente" : pageTour ? "Visite 360°" : "Voir les lots"}
                 <ArrowDown className="size-4" aria-hidden />
               </a>
               {ownVideos.length > 0 ? (
@@ -480,26 +483,74 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
           title={programme.name}
         />
 
-        {hasViews ? (
+        {hasViews || pageTour ? (
           <section id="plan" className="scroll-mt-20 border-t border-white/10">
             <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8 sm:py-14">
-              <SectionTitle title="Plan de vente">
-                <StatusFilters
-                  value={filter}
-                  onChange={setFilter}
-                  counts={counts}
-                  total={lots.length}
-                />
+              <SectionTitle title={hasViews ? "Plan de vente" : "Visite 360°"}>
+                {hasViews ? (
+                  <StatusFilters
+                    value={filter}
+                    onChange={setFilter}
+                    counts={counts}
+                    total={lots.length}
+                  />
+                ) : null}
               </SectionTitle>
-              <div className="mt-6">
-                <ProgrammeViews
-                  data={data}
-                  viewKey={viewKey}
-                  onViewChange={setViewKey}
-                  filter={filter}
-                  highlight={highlight}
-                  onOpen={open}
-                />
+              <div
+                className={cn(
+                  "mt-6 grid gap-6",
+                  // The 360° tour beside the sales plan on a wide screen, under it on a phone.
+                  hasViews && pageTour && "lg:grid-cols-[1.45fr_1fr]",
+                )}
+              >
+                {hasViews ? (
+                  <div className="min-w-0">
+                    <ProgrammeViews
+                      data={data}
+                      viewKey={viewKey}
+                      onViewChange={setViewKey}
+                      filter={filter}
+                      highlight={highlight}
+                      onOpen={open}
+                    />
+                  </div>
+                ) : null}
+                {pageTour ? (
+                  <div id="visite-360" className="flex min-w-0 scroll-mt-24 flex-col gap-3">
+                    {hasViews || tours.length > 1 ? (
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        {hasViews ? (
+                          <h3 className="font-brand text-lg font-medium tracking-tight">
+                            Visite 360°
+                          </h3>
+                        ) : null}
+                        {tours.length > 1 ? (
+                          <Chips
+                            label="Choisir la visite"
+                            options={tours.map((t) => ({ value: t.key, label: t.label }))}
+                            value={pageTour.key}
+                            onChange={(key) => setPageTourKey(key)}
+                          />
+                        ) : null}
+                      </div>
+                    ) : null}
+                    <TourInPage
+                      tour={pageTour}
+                      onPlan={null}
+                      onExpand={(roomId) => openTour(pageTour, null, roomId)}
+                      className={
+                        hasViews
+                          ? "aspect-[4/3] w-full lg:aspect-auto lg:min-h-[340px] lg:flex-1"
+                          : "aspect-[4/3] max-h-[78svh] w-full sm:aspect-[16/9]"
+                      }
+                    />
+                    <p className="text-xs text-white/45">
+                      Suivez les flèches d'une pièce à l'autre, ou choisissez une pièce dans le
+                      bandeau.
+                      <span className="sm:hidden"> Deux doigts pour regarder autour.</span>
+                    </p>
+                  </div>
+                ) : null}
               </div>
             </div>
           </section>
@@ -610,29 +661,6 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
               <SectionTitle title="Galerie" />
               <div className="mt-6">
                 <Gallery items={gallery} name={programme.name} />
-              </div>
-            </div>
-          </section>
-        ) : null}
-
-        {tours.length > 0 ? (
-          <section id="visite-360" className="scroll-mt-20 border-t border-white/10">
-            <div
-              className={cn(
-                "mx-auto max-w-6xl px-5 py-10 sm:px-8 sm:py-14",
-                // A single tour beside its text rather than alone in a wide row.
-                tours.length === 1 && "lg:grid lg:grid-cols-[1fr_1.25fr] lg:items-center lg:gap-12",
-              )}
-            >
-              <div>
-                <SectionTitle title="Visite 360°" />
-                <p className="mt-3 max-w-2xl text-base leading-relaxed text-white/65">
-                  Entrez dans les logements : tournez la tête du bout du doigt, et suivez les
-                  flèches d'une pièce à l'autre.
-                </p>
-              </div>
-              <div className={tours.length === 1 ? "mt-6 lg:mt-0" : "mt-6"}>
-                <ToursSection tours={tours} lots={lots} onOpen={(t) => openTour(t, null)} />
               </div>
             </div>
           </section>

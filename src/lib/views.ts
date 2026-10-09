@@ -46,6 +46,9 @@ export function parseLevel(input: string): number | null | undefined {
   return undefined;
 }
 
+/** Floor in words, for the floors of a 360° tour: "Rez-de-chaussée", "R+1", "R-1". */
+export const floorName = (level: number) => (level === 0 ? "Rez-de-chaussée" : levelLabel(level));
+
 export const VIEW_KIND_LABELS: Record<ViewKind, string> = {
   aerienne: "Vue aérienne",
   toiture: "Toiture",

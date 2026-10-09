@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { Suspense, lazy, useMemo } from "react";
 
 import type { LotStatus } from "@/lib/app/lot-fields";
 import type { PublicData, PublicLot } from "@/lib/public/programme";
@@ -7,10 +7,12 @@ import type { ViewKey } from "@/lib/public/use-views";
 import { floorsDown, sideViews } from "@/lib/views";
 import { OrbitViewer } from "./OrbitViewer";
 
-/* The views of a programme on the public pages, each an orbital sequence:
-   the aerial view, the roof, the pedestrian view… as buttons, the floors as
-   a column from the top floor down, as on a building, each with its number
-   of available lots; the chosen one turns in the viewer. */
+const AerialViewer = lazy(() => import("./AerialViewer"));
+
+/* The views of a programme on the public pages, each an orbital sequence or
+   a 360° panorama: the aerial view, the roof, the pedestrian view… as
+   buttons, the floors as a column from the top floor down, as on a building,
+   each with its number of available lots; the chosen one is shown. */
 
 export function ProgrammeViews({
   data,
@@ -54,7 +56,34 @@ export function ProgrammeViews({
         : "border-white/15 text-white/75 hover:border-white/35 hover:text-white",
     );
 
-  const stage = current ? (
+  const stage = current?.panorama ? (
+    <Suspense
+      fallback={
+        <div
+          className={cn(
+            "grid w-full place-items-center rounded-2xl border border-white/10 bg-black text-xs text-white/60",
+            large ? "min-h-0 flex-1" : "aspect-[16/10] sm:aspect-[16/9]",
+          )}
+        >
+          Chargement de la vue…
+        </div>
+      }
+    >
+      <AerialViewer
+        key={current.id}
+        panorama={current.panorama}
+        viewName={current.name}
+        lots={lots}
+        currency={programme.currency}
+        filter={filter}
+        {...(highlight ? { highlight } : {})}
+        selected={selected}
+        variant={variant}
+        resetKey={resetKey}
+        onOpen={onOpen}
+      />
+    </Suspense>
+  ) : current?.orbit ? (
     <OrbitViewer
       // Another view starts from its first image.
       key={current.id}

@@ -5,6 +5,7 @@ import { parseAmenities, type Amenity } from "@/lib/amenities";
 import { parseLotTypes, type LotTypeNote } from "@/lib/lot-types";
 import { toView, type OrbitView } from "@/lib/app/orbit";
 import { panoramaImage, type PanoramaImage } from "@/lib/app/tours";
+import { viewPanoramaImage } from "@/lib/app/view-panorama";
 import { publicUrl } from "@/lib/app/storage";
 import { LOT_STATUSES, compareNumeros, type LotStatus } from "@/lib/app/lot-fields";
 import type { Tables } from "@/lib/supabase/database.types";
@@ -42,10 +43,19 @@ export type PublicOrbit = {
   colors: { hex: string; lotId: string }[];
 };
 
-/** A view of the programme (aerial view, roof, floor, pedestrian view…) and its sequence. */
+/** A view shown as a 360° panorama: the image, the direction shown first, a marker per lot. */
+export type PublicViewPanorama = {
+  image: PanoramaImage;
+  startYaw: number;
+  startPitch: number;
+  markers: { lotId: string; yaw: number; pitch: number }[];
+};
+
+/** A view of the programme (aerial view, roof, floor, pedestrian view…): an orbital sequence or a 360° panorama. */
 export type PublicView = ViewLike & {
-  orbit: PublicOrbit;
-  /** Lots shown on this view (their colour is linked). */
+  orbit: PublicOrbit | null;
+  panorama: PublicViewPanorama | null;
+  /** Lots shown on this view (colour linked, or marker placed). */
   lots: ReadonlySet<string>;
 };
 
@@ -53,6 +63,8 @@ export type PublicView = ViewLike & {
 export type PublicRoom = {
   id: string;
   name: string;
+  /** Floor of the room (0 for the ground floor), when the promoter gave it. */
+  level: number | null;
   startYaw: number;
   startPitch: number;
   image: PanoramaImage;
@@ -147,11 +159,11 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
   const lotsQuery = preview
     ? supabase.from("lots").select("*").eq("project_id", source.id)
     : supabase.from("public_lots").select("*").eq("project_id", source.id);
-  const [lots, views, media, orbitMedia, orbitColors, rooms, links] = await Promise.all([
+  const [lots, views, media, orbitMedia, orbitColors, rooms, links, markers] = await Promise.all([
     lotsQuery,
     supabase
       .from("project_views")
-      .select("id, name, kind, level, sort_order, is_main")
+      .select("id, name, kind, level, sort_order, is_main, panorama_path, start_yaw, start_pitch")
       .eq("project_id", source.id)
       .order("sort_order"),
     supabase
@@ -177,6 +189,7 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
       .from("panorama_links")
       .select("from_id, to_id, yaw, pitch")
       .eq("project_id", source.id),
+    supabase.from("view_markers").select("view_id, lot_id, yaw, pitch").eq("project_id", source.id),
   ]);
   if (lots.error) throw lots.error;
   if (orbitMedia.error) throw orbitMedia.error;
@@ -185,13 +198,27 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
   if (media.error) throw media.error;
   if (rooms.error) throw rooms.error;
   if (links.error) throw links.error;
+  if (markers.error) throw markers.error;
 
+  const lotIds = new Set(lots.data.flatMap((l) => (l.id ? [l.id] : [])));
   const publicViews = views.data.flatMap((v): PublicView[] => {
     const orbit = orbitOf(
       orbitMedia.data.filter((m) => m.view_id === v.id),
       orbitColors.data.filter((c) => c.view_id === v.id),
     );
-    if (!orbit) return [];
+    // A sequence first; else its panorama (with or without markers yet).
+    const panorama: PublicViewPanorama | null =
+      !orbit && v.panorama_path
+        ? {
+            image: viewPanoramaImage(v.panorama_path),
+            startYaw: v.start_yaw,
+            startPitch: v.start_pitch,
+            markers: markers.data
+              .filter((m) => m.view_id === v.id && lotIds.has(m.lot_id))
+              .map((m) => ({ lotId: m.lot_id, yaw: m.yaw, pitch: m.pitch })),
+          }
+        : null;
+    if (!orbit && !panorama) return [];
     return [
       {
         id: v.id,
@@ -201,7 +228,10 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
         sort_order: v.sort_order,
         is_main: v.is_main,
         orbit,
-        lots: new Set(orbit.colors.map((c) => c.lotId)),
+        panorama,
+        lots: new Set(
+          orbit ? orbit.colors.map((c) => c.lotId) : (panorama?.markers ?? []).map((m) => m.lotId),
+        ),
       },
     ];
   });
@@ -222,6 +252,7 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
         rooms: list.map((r) => ({
           id: r.id,
           name: r.name,
+          level: r.level ?? null,
           startYaw: r.start_yaw,
           startPitch: r.start_pitch,
           image: panoramaImage(r),

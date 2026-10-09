@@ -40,7 +40,11 @@ export const panoramaImage = (room: Pick<Panorama, "image_path">): PanoramaImage
   thumb: publicUrl(thumbPanoramaPath(room.image_path)),
 });
 
-const panoramaFiles = (path: string) => [path, smallPanoramaPath(path), thumbPanoramaPath(path)];
+export const panoramaFiles = (path: string) => [
+  path,
+  smallPanoramaPath(path),
+  thumbPanoramaPath(path),
+];
 
 const panoramasKey = (projectId: string) => ["panoramas", projectId] as const;
 const linksKey = (projectId: string) => ["panorama-links", projectId] as const;
@@ -76,7 +80,7 @@ export function usePanoramaLinks(projectId: string) {
 }
 
 /** The large version: 8 192 px where the browser allows such a canvas, else as large as it can. */
-async function encodeLarge(bitmap: ImageBitmap): Promise<EncodedImage> {
+export async function encodeLarge(bitmap: ImageBitmap): Promise<EncodedImage> {
   try {
     const large = await encodeImage(bitmap, PANO_LARGE, 0.82, "jpg", PANO_MAX_PIXELS);
     // An oversized canvas can come back empty instead of failing (iOS).

@@ -8,8 +8,9 @@ import { viewOrbitFolders, type Orbits } from "./orbit";
 import { removeFolder } from "./storage";
 
 /* Views of a programme (Vues tab): aerial view, roof, floors, pedestrian
-   view…, each an orbital sequence (see orbit.ts), in the promoter's order;
-   one of them can be shown first on the public pages. */
+   view…, each an orbital sequence (see orbit.ts) or a 360° panorama with a
+   marker per lot (see view-panorama.ts), in the promoter's order; one of
+   them can be shown first on the public pages. */
 
 export type ProjectView = Tables<"project_views">;
 
@@ -135,6 +136,9 @@ export function useDeleteView(projectId: string) {
   return useMutation({
     mutationFn: async (view: ProjectView) => {
       const folders = await viewOrbitFolders(view.id);
+      // Its 360° panorama, if it has one, sits in a folder of its own.
+      if (view.panorama_path)
+        folders.push(view.panorama_path.slice(0, view.panorama_path.lastIndexOf("/")));
       const { data, error } = await getSupabase()
         .from("project_views")
         .delete()

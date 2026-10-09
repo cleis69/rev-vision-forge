@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { EmptyState, SettingsSection } from "@/components/app/Blocks";
 import { ConfirmDialog } from "@/components/app/ConfirmDialog";
 import { ViewOrbit } from "@/components/app/orbit/ViewOrbit";
+import { ViewPanorama } from "@/components/app/views/ViewPanorama";
 import { useCurrentProject } from "@/components/app/ProjectContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,6 +39,7 @@ import {
   useViews,
   type ProjectView,
 } from "@/lib/app/plan";
+import { useViewMarkers, type ViewMarker } from "@/lib/app/view-panorama";
 import { cn } from "@/lib/utils";
 import {
   VIEW_KIND_LABELS,
@@ -68,6 +70,7 @@ function ViewsPage() {
   const views = useViews(project.id);
   const lots = useLots(project.id);
   const orbits = useOrbits(project.id);
+  const markers = useViewMarkers(project.id);
   const create = useCreateView(project.id);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [settingsOf, setSettingsOf] = useState<ProjectView | null>(null);
@@ -110,7 +113,7 @@ function ViewsPage() {
       <div className="max-w-3xl">
         <SettingsSection
           title="Vues du programme"
-          description="Ajoutez les vues sur lesquelles les visiteurs choisiront leur lot : vue aérienne, toiture, chaque niveau, vue piéton… Chacune est une séquence orbitale que le visiteur fait tourner, avec ses masques pour reconnaître les lots."
+          description="Ajoutez les vues sur lesquelles les visiteurs choisiront leur lot : vue aérienne, toiture, chaque niveau, vue piéton… Chacune est une séquence orbitale que le visiteur fait tourner (avec ses masques pour reconnaître les lots), ou un panorama 360° sur lequel vous placez chaque lot."
         >
           <div className="flex flex-wrap gap-2">
             {VIEW_PRESETS.map((preset) => (
@@ -137,6 +140,7 @@ function ViewsPage() {
         views={list}
         selectedId={selected?.id ?? null}
         orbits={orbits.data}
+        markers={markers.data ?? []}
         onSelect={setSelectedId}
         onAdd={add}
         adding={create.isPending}
@@ -166,6 +170,7 @@ function ViewsBar({
   views,
   selectedId,
   orbits,
+  markers,
   onSelect,
   onAdd,
   adding,
@@ -173,12 +178,15 @@ function ViewsBar({
   views: ProjectView[];
   selectedId: string | null;
   orbits: Orbits;
+  markers: ViewMarker[];
   onSelect: (id: string) => void;
   onAdd: (preset: ViewPreset, configure?: boolean) => void;
   adding: boolean;
 }) {
-  // Only the views with a sequence reach the public pages.
-  const shown = views.filter((v) => orbitOfView(orbits, v.id).frames.length > 0);
+  // Only the views with a sequence or a panorama reach the public pages.
+  const shown = views.filter(
+    (v) => orbitOfView(orbits, v.id).frames.length > 0 || Boolean(v.panorama_path),
+  );
   const first = firstView(shown);
   const chip =
     "inline-flex h-10 shrink-0 items-center gap-2 rounded-full border px-4 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
@@ -188,7 +196,11 @@ function ViewsBar({
       <ul aria-label="Vues du programme" className="flex flex-wrap gap-2">
         {views.map((v) => {
           const orbit = orbitOfView(orbits, v.id);
-          const count = orbit.colors.filter((c) => c.lot_id).length;
+          const hasContent = orbit.frames.length > 0 || Boolean(v.panorama_path);
+          const count =
+            orbit.frames.length > 0
+              ? orbit.colors.filter((c) => c.lot_id).length
+              : markers.filter((m) => m.view_id === v.id).length;
           const active = v.id === selectedId;
           return (
             <li key={v.id}>
@@ -210,16 +222,20 @@ function ViewsBar({
                     aria-label="vue montrée en premier"
                   />
                 ) : null}
-                {orbit.frames.length > 0 ? (
+                {hasContent ? (
                   <span
                     className="text-xs tabular-nums text-muted-foreground"
-                    title="Lots associés à une couleur"
+                    title={
+                      v.panorama_path
+                        ? "Lots placés sur le panorama"
+                        : "Lots associés à une couleur"
+                    }
                   >
                     {count}
                   </span>
                 ) : (
                   <span className="rounded bg-amber-400/15 px-1.5 py-0.5 text-[10px] text-amber-300">
-                    sans séquence
+                    à remplir
                   </span>
                 )}
               </button>
@@ -287,6 +303,9 @@ function ViewPanel({
   const setMain = useSetMainView(project.id);
   const remove = useDeleteView(project.id);
   const [deleting, setDeleting] = useState(false);
+  const [content, setContent] = useState<"orbit" | "panorama">(
+    view.kind === "aerienne" ? "panorama" : "orbit",
+  );
   const index = views.findIndex((v) => v.id === view.id);
   const orbit = orbitOfView(orbits, view.id);
 
@@ -362,7 +381,46 @@ function ViewPanel({
         </div>
       </div>
 
-      <ViewOrbit project={project} view={view} orbit={orbit} lots={lots} />
+      {orbit.frames.length > 0 ? (
+        <ViewOrbit project={project} view={view} orbit={orbit} lots={lots} />
+      ) : view.panorama_path ? (
+        <ViewPanorama project={project} view={view} lots={lots} />
+      ) : (
+        <div className="space-y-3">
+          <div
+            role="group"
+            aria-label="Contenu de la vue"
+            className="inline-flex rounded-full border border-border p-1"
+          >
+            {(
+              [
+                ["orbit", "Séquence orbitale"],
+                ["panorama", "Panorama 360°"],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={content === value}
+                onClick={() => setContent(value)}
+                className={cn(
+                  "h-8 rounded-full px-4 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  content === value
+                    ? "bg-primary/15 text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {content === "orbit" ? (
+            <ViewOrbit project={project} view={view} orbit={orbit} lots={lots} />
+          ) : (
+            <ViewPanorama project={project} view={view} lots={lots} />
+          )}
+        </div>
+      )}
 
       <ConfirmDialog
         open={deleting}
@@ -371,7 +429,9 @@ function ViewPanel({
         description={
           orbit.frames.length > 0
             ? "Sa séquence (images et masques) et ses couleurs associées aux lots sont effacées. Les lots ne changent pas, ni les autres vues."
-            : "Les lots ne changent pas, ni les autres vues."
+            : view.panorama_path
+              ? "Son panorama et les repères des lots sont effacés. Les lots ne changent pas, ni les autres vues."
+              : "Les lots ne changent pas, ni les autres vues."
         }
         actionLabel="Supprimer la vue"
         onConfirm={async () => {

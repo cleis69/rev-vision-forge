@@ -43,6 +43,7 @@ import {
   type TourTarget,
 } from "@/lib/tours";
 import { cn } from "@/lib/utils";
+import { floorName } from "@/lib/views";
 
 const PanoramaEditor = lazy(() => import("@/components/app/tour/PanoramaEditor"));
 
@@ -371,7 +372,7 @@ function TourPanel({
                 <h3 className="mr-2 font-medium">{room.name}</h3>
                 <Button variant="ghost" className="h-9" onClick={() => setRenaming(room)}>
                   <Pencil aria-hidden />
-                  Renommer
+                  Nom et étage
                 </Button>
                 <Button
                   variant="ghost"
@@ -587,10 +588,12 @@ function RenameRoomDialog({ room, onClose }: { room: Panorama | null; onClose: (
   const { project } = useCurrentProject();
   const update = useUpdatePanorama(project.id);
   const [name, setName] = useState("");
+  const [level, setLevel] = useState<string>("");
   const [shownId, setShownId] = useState<string | null>(null);
   if (room && room.id !== shownId) {
     setShownId(room.id);
     setName(room.name);
+    setLevel(room.level === null ? "" : String(room.level));
   }
 
   const save = () => {
@@ -601,10 +604,13 @@ function RenameRoomDialog({ room, onClose }: { room: Panorama | null; onClose: (
       return;
     }
     update.mutate(
-      { id: room.id, values: { name: trimmed.slice(0, 60) } },
+      {
+        id: room.id,
+        values: { name: trimmed.slice(0, 60), level: level === "" ? null : Number(level) },
+      },
       {
         onSuccess: () => {
-          toast.success("Pièce renommée");
+          toast.success("Pièce enregistrée");
           setShownId(null);
           onClose();
         },
@@ -625,8 +631,11 @@ function RenameRoomDialog({ room, onClose }: { room: Panorama | null; onClose: (
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Renommer la pièce</DialogTitle>
-          <DialogDescription>Le nom s'affiche sur les flèches qui y mènent.</DialogDescription>
+          <DialogTitle>Nom et étage de la pièce</DialogTitle>
+          <DialogDescription>
+            Le nom s'affiche sur les flèches qui y mènent ; avec l'étage, la visite range ses pièces
+            par niveau.
+          </DialogDescription>
         </DialogHeader>
         <form
           onSubmit={(e) => {
@@ -634,14 +643,29 @@ function RenameRoomDialog({ room, onClose }: { room: Panorama | null; onClose: (
             save();
           }}
         >
-          <Input
-            value={name}
-            maxLength={60}
-            onChange={(e) => setName(e.target.value)}
-            className="h-10"
-            aria-label="Nom de la pièce"
-            autoFocus
-          />
+          <div className="space-y-3">
+            <Input
+              value={name}
+              maxLength={60}
+              onChange={(e) => setName(e.target.value)}
+              className="h-10"
+              aria-label="Nom de la pièce"
+              autoFocus
+            />
+            <select
+              value={level}
+              onChange={(e) => setLevel(e.target.value)}
+              aria-label="Étage de la pièce"
+              className="h-10 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+            >
+              <option value="">Étage non précisé</option>
+              {[-2, -1, 0, 1, 2, 3, 4, 5].map((l) => (
+                <option key={l} value={l}>
+                  {floorName(l)}
+                </option>
+              ))}
+            </select>
+          </div>
           <DialogFooter className="mt-5">
             <Button type="button" variant="ghost" onClick={onClose}>
               Annuler

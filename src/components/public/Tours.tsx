@@ -10,8 +10,12 @@ import { cn } from "@/lib/utils";
    downloaded only when a tour is opened. */
 
 const TourViewer = lazy(() => import("./TourViewer"));
+const TourInlineViewer = lazy(() =>
+  import("./TourViewer").then((m) => ({ default: m.TourInline })),
+);
 
-export type OpenTour = { tour: PublicTour; lotId: string | null };
+/** A tour opened full screen: for a lot (or the programme), from a room (else the entrance). */
+export type OpenTour = { tour: PublicTour; lotId: string | null; roomId?: string };
 
 export function TourOverlay({
   open,
@@ -40,9 +44,56 @@ export function TourOverlay({
         // Another tour starts from its entrance.
         key={open.tour.key}
         tour={open.tour}
+        startRoomId={open.roomId}
         onClose={onClose}
         onPlan={onPlan ? () => onPlan(open) : null}
         variant={variant}
+      />
+    </Suspense>
+  );
+}
+
+/** The tour inside the page (next to the sales plan), the viewer downloaded once it comes near. */
+export function TourInPage({
+  tour,
+  onPlan,
+  onExpand,
+  variant = "page",
+  className,
+}: {
+  tour: PublicTour;
+  onPlan: (() => void) | null;
+  onExpand: (roomId: string) => void;
+  variant?: "page" | "embed" | "presentation";
+  className?: string;
+}) {
+  return (
+    <Suspense
+      fallback={
+        <div
+          className={cn(
+            "relative overflow-hidden rounded-2xl border border-white/10 bg-black",
+            className,
+          )}
+        >
+          {tour.rooms[0] ? (
+            <img
+              src={tour.rooms[0].image.thumb}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover opacity-70"
+            />
+          ) : null}
+        </div>
+      }
+    >
+      <TourInlineViewer
+        // Another tour starts from its entrance.
+        key={tour.key}
+        tour={tour}
+        onPlan={onPlan}
+        onExpand={onExpand}
+        variant={variant}
+        {...(className ? { className } : {})}
       />
     </Suspense>
   );

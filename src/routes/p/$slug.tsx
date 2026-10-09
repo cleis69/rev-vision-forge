@@ -200,6 +200,12 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
   const [film, setFilm] = useState<number | null>(null);
 
   const counts = useMemo(() => countByStatus(lots), [lots]);
+  // The first paragraph of the description in the hero, the rest under it.
+  const [tagline, rest] = useMemo(() => {
+    const text = programme.description?.trim() ?? "";
+    const cut = text.indexOf("\n");
+    return cut < 0 ? [text, ""] : [text.slice(0, cut).trim(), text.slice(cut + 1).trim()];
+  }, [programme.description]);
   const from = programmePrice(programme, lots);
   const types = useMemo(() => typologies(data), [data]);
   const withTypes = showTypologies(types);
@@ -424,58 +430,101 @@ function Programme({ data, slug }: { data: PublicData; slug: string }) {
           <HeroBackdrop photo={heroPhoto} video={heroVideo} />
           <div
             className={cn(
-              "mx-auto max-w-6xl px-5 sm:px-8",
-              heroPhoto || heroVideo ? "pb-14 pt-20 sm:pb-20 sm:pt-28" : "pb-10 pt-12 sm:pt-14",
+              "mx-auto flex max-w-6xl flex-col px-5 sm:px-8",
+              heroPhoto || heroVideo
+                ? "min-h-[74svh] justify-end pb-8 pt-24 sm:min-h-[84svh] sm:pb-12"
+                : "pb-10 pt-12 sm:pt-14",
             )}
           >
-            {programme.city ? (
-              <p className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.24em] text-[color:var(--brand)]">
-                <MapPin className="size-3.5" aria-hidden />
-                {programme.city}
-              </p>
-            ) : null}
-            <h1 className="mt-4 max-w-3xl font-brand text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl">
-              {programme.name}
-            </h1>
-            {programme.description ? (
-              <p className="mt-4 max-w-2xl whitespace-pre-line text-base leading-relaxed text-white/80">
-                {programme.description}
-              </p>
-            ) : null}
-            <dl className="mt-7 flex flex-wrap gap-x-10 gap-y-3">
-              <Stat label="Lots">{lots.length}</Stat>
-              <Stat label="Disponibles">{counts.disponible}</Stat>
-              {from !== null ? (
-                <Stat label="À partir de">{formatPrice(from, programme.currency)}</Stat>
-              ) : null}
-            </dl>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <a
-                href={hasViews || pageTour ? "#plan" : withTypes ? "#typologies" : "#lots"}
-                className="inline-flex h-12 items-center gap-2 rounded-full bg-[color:var(--brand)] px-6 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-              >
-                {hasViews ? "Voir le plan de vente" : pageTour ? "Visite 360°" : "Voir les lots"}
-                <ArrowDown className="size-4" aria-hidden />
-              </a>
-              {ownVideos.length > 0 ? (
-                <button
-                  type="button"
-                  onClick={() => setFilm(filmIndex)}
-                  className="inline-flex h-12 items-center gap-2 rounded-full border border-white/25 bg-black/20 px-6 text-sm font-medium text-white backdrop-blur transition-colors hover:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            <div className="flex flex-wrap items-end justify-between gap-8">
+              <div className="min-w-0 max-w-3xl">
+                <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-medium uppercase tracking-[0.24em] text-[color:var(--brand)]">
+                  {programme.city ? (
+                    <span className="inline-flex items-center gap-1.5">
+                      <MapPin className="size-3.5" aria-hidden />
+                      {programme.city}
+                    </span>
+                  ) : null}
+                </p>
+                <h1 className="mt-4 font-brand text-5xl font-medium leading-[0.95] tracking-tight drop-shadow-[0_2px_24px_rgba(0,0,0,0.45)] sm:text-7xl">
+                  {programme.name}
+                </h1>
+                {tagline ? (
+                  <p className="mt-5 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg">
+                    {tagline}
+                  </p>
+                ) : null}
+              </div>
+              {gallery.length > 2 ? (
+                <a
+                  href="#galerie"
+                  className="group hidden shrink-0 items-center gap-3 rounded-2xl border border-white/15 bg-black/35 p-2 pr-4 text-sm text-white/90 backdrop-blur transition-colors hover:border-white/40 lg:flex"
                 >
-                  <Play className="size-4 fill-current" aria-hidden />
-                  Voir le film
-                </button>
+                  <span className="flex -space-x-6">
+                    {gallery
+                      .filter((m) => m.kind === "image")
+                      .slice(1, 4)
+                      .map((m) => (
+                        <img
+                          key={m.id}
+                          src={mediaImage(m).thumb}
+                          alt=""
+                          className="size-14 rounded-xl border-2 border-black/60 object-cover transition-transform duration-500 group-hover:translate-x-1"
+                        />
+                      ))}
+                  </span>
+                  <span>
+                    <span className="block font-medium">Galerie</span>
+                    <span className="block text-xs text-white/55">{gallery.length} médias</span>
+                  </span>
+                </a>
               ) : null}
-              <a
-                href="#visite"
-                className="inline-flex h-12 items-center rounded-full border border-white/25 bg-black/20 px-6 text-sm font-medium text-white backdrop-blur transition-colors hover:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-              >
-                Planifier une visite
-              </a>
+            </div>
+
+            <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-white/10 bg-black/45 p-4 backdrop-blur-md sm:flex-row sm:items-center sm:justify-between sm:p-5">
+              <dl className="grid grid-cols-2 gap-x-8 gap-y-3 sm:flex sm:flex-wrap sm:gap-x-10">
+                <Stat label="Lots">{lots.length}</Stat>
+                <Stat label="Disponibles">{counts.disponible}</Stat>
+                {types.length > 1 ? <Stat label="Typologies">{types.length}</Stat> : null}
+                {from !== null ? (
+                  <Stat label="À partir de">{formatPrice(from, programme.currency)}</Stat>
+                ) : null}
+              </dl>
+              <div className="flex flex-wrap gap-2.5">
+                <a
+                  href={hasViews || pageTour ? "#plan" : withTypes ? "#typologies" : "#lots"}
+                  className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-[color:var(--brand)] px-6 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:flex-none"
+                >
+                  {hasViews ? "Voir le plan de vente" : pageTour ? "Visite 360°" : "Voir les lots"}
+                  <ArrowDown className="size-4" aria-hidden />
+                </a>
+                {ownVideos.length > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => setFilm(filmIndex)}
+                    className="inline-flex h-12 items-center gap-2 rounded-full border border-white/25 px-5 text-sm font-medium text-white transition-colors hover:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                  >
+                    <Play className="size-4 fill-current" aria-hidden />
+                    Le film
+                  </button>
+                ) : null}
+                <a
+                  href="#visite"
+                  className="hidden h-12 items-center rounded-full border border-white/25 px-5 text-sm font-medium text-white transition-colors hover:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:inline-flex"
+                >
+                  Planifier une visite
+                </a>
+              </div>
             </div>
           </div>
         </section>
+        {rest ? (
+          <section aria-label="Le programme" className="border-t border-white/10">
+            <p className="mx-auto max-w-6xl whitespace-pre-line px-5 py-8 text-base leading-relaxed text-white/70 sm:px-8 sm:py-10 sm:text-lg">
+              {rest}
+            </p>
+          </section>
+        ) : null}
         <MediaViewer
           items={ownVideos}
           index={film}
@@ -863,9 +912,10 @@ function HeroBackdrop({ photo, video }: { photo: MediaItem | null; video: MediaI
           className="absolute inset-0 -z-10 h-full w-full object-cover"
         />
       ) : null}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/50 via-black/40 to-[#080808]" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/45 via-transparent to-[#080808]" />
       {/* The text stays readable over a busy image. */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black/65 via-black/20 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 -z-10 h-2/3 bg-gradient-to-t from-[#080808] via-[#080808]/70 to-transparent" />
     </>
   );
 }
@@ -905,7 +955,7 @@ function Stat({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div>
       <dt className="text-[11px] uppercase tracking-[0.2em] text-white/50">{label}</dt>
-      <dd className="mt-1.5 font-brand text-2xl font-medium tracking-tight">{children}</dd>
+      <dd className="mt-1 font-brand text-xl font-medium tracking-tight sm:text-2xl">{children}</dd>
     </div>
   );
 }

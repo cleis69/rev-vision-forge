@@ -43,10 +43,12 @@ import { Route as SiteEnPricingRouteImport } from './routes/_site/en/pricing'
 import { Route as SiteEnServicesRouteImport } from './routes/_site/en/services'
 import { Route as AppEspaceIndexRouteImport } from './routes/app/_espace/index'
 import { Route as AppEspaceOrganisationRouteImport } from './routes/app/_espace/organisation'
+import { Route as EmbedVisiteSlugRouteImport } from './routes/embed/visite/$slug'
 import { Route as EnEmbedSlugRouteImport } from './routes/en/embed/$slug'
 import { Route as EnPSlugRouteImport } from './routes/en/p/$slug'
 import { Route as PSlugDonneesPersonnellesRouteImport } from './routes/p/$slug/donnees-personnelles'
 import { Route as AppEspaceProjetsIdRouteRouteImport } from './routes/app/_espace/projets/$id/route'
+import { Route as EnEmbedTourSlugRouteImport } from './routes/en/embed/tour/$slug'
 import { Route as EnPSlugPrivacyRouteImport } from './routes/en/p/$slug/privacy'
 import { Route as PSlugLotNumeroRouteImport } from './routes/p/$slug/lot/$numero'
 import { Route as AppEspaceProjetsIdIndexRouteImport } from './routes/app/_espace/projets/$id/index'
@@ -232,6 +234,11 @@ const AppEspaceOrganisationRoute = AppEspaceOrganisationRouteImport.update({
   path: '/organisation',
   getParentRoute: () => AppEspaceRouteRoute,
 } as any)
+const EmbedVisiteSlugRoute = EmbedVisiteSlugRouteImport.update({
+  id: '/visite/$slug',
+  path: '/visite/$slug',
+  getParentRoute: () => EmbedRouteRoute,
+} as any)
 const EnEmbedSlugRoute = EnEmbedSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -252,6 +259,11 @@ const AppEspaceProjetsIdRouteRoute = AppEspaceProjetsIdRouteRouteImport.update({
   id: '/projets/$id',
   path: '/projets/$id',
   getParentRoute: () => AppEspaceRouteRoute,
+} as any)
+const EnEmbedTourSlugRoute = EnEmbedTourSlugRouteImport.update({
+  id: '/tour/$slug',
+  path: '/tour/$slug',
+  getParentRoute: () => EnEmbedRouteRoute,
 } as any)
 const EnPSlugPrivacyRoute = EnPSlugPrivacyRouteImport.update({
   id: '/privacy',
@@ -375,12 +387,14 @@ export interface FileRoutesByFullPath {
   '/en/pricing': typeof SiteEnPricingRoute
   '/en/services': typeof SiteEnServicesRoute
   '/app/organisation': typeof AppEspaceOrganisationRoute
+  '/embed/visite/$slug': typeof EmbedVisiteSlugRoute
   '/en/embed/$slug': typeof EnEmbedSlugRoute
   '/en/p/$slug': typeof EnPSlugRouteWithChildren
   '/p/$slug/donnees-personnelles': typeof PSlugDonneesPersonnellesRoute
   '/en/': typeof SiteEnIndexRoute
   '/app/': typeof AppEspaceIndexRoute
   '/app/projets/$id': typeof AppEspaceProjetsIdRouteRouteWithChildren
+  '/en/embed/tour/$slug': typeof EnEmbedTourSlugRoute
   '/en/p/$slug/privacy': typeof EnPSlugPrivacyRoute
   '/p/$slug/lot/$numero': typeof PSlugLotNumeroRoute
   '/app/projets/$id/anglais': typeof AppEspaceProjetsIdAnglaisRoute
@@ -429,10 +443,12 @@ export interface FileRoutesByTo {
   '/en/pricing': typeof SiteEnPricingRoute
   '/en/services': typeof SiteEnServicesRoute
   '/app/organisation': typeof AppEspaceOrganisationRoute
+  '/embed/visite/$slug': typeof EmbedVisiteSlugRoute
   '/en/embed/$slug': typeof EnEmbedSlugRoute
   '/en/p/$slug': typeof EnPSlugRouteWithChildren
   '/p/$slug/donnees-personnelles': typeof PSlugDonneesPersonnellesRoute
   '/en': typeof SiteEnIndexRoute
+  '/en/embed/tour/$slug': typeof EnEmbedTourSlugRoute
   '/en/p/$slug/privacy': typeof EnPSlugPrivacyRoute
   '/p/$slug/lot/$numero': typeof PSlugLotNumeroRoute
   '/app/projets/$id/anglais': typeof AppEspaceProjetsIdAnglaisRoute
@@ -484,12 +500,14 @@ export interface FileRoutesById {
   '/_site/en/pricing': typeof SiteEnPricingRoute
   '/_site/en/services': typeof SiteEnServicesRoute
   '/app/_espace/organisation': typeof AppEspaceOrganisationRoute
+  '/embed/visite/$slug': typeof EmbedVisiteSlugRoute
   '/en/embed/$slug': typeof EnEmbedSlugRoute
   '/en/p/$slug': typeof EnPSlugRouteWithChildren
   '/p/$slug/donnees-personnelles': typeof PSlugDonneesPersonnellesRoute
   '/_site/en/': typeof SiteEnIndexRoute
   '/app/_espace/': typeof AppEspaceIndexRoute
   '/app/_espace/projets/$id': typeof AppEspaceProjetsIdRouteRouteWithChildren
+  '/en/embed/tour/$slug': typeof EnEmbedTourSlugRoute
   '/en/p/$slug/privacy': typeof EnPSlugPrivacyRoute
   '/p/$slug/lot/$numero': typeof PSlugLotNumeroRoute
   '/app/_espace/projets/$id/anglais': typeof AppEspaceProjetsIdAnglaisRoute
@@ -540,12 +558,14 @@ export interface FileRouteTypes {
     | '/en/pricing'
     | '/en/services'
     | '/app/organisation'
+    | '/embed/visite/$slug'
     | '/en/embed/$slug'
     | '/en/p/$slug'
     | '/p/$slug/donnees-personnelles'
     | '/en/'
     | '/app/'
     | '/app/projets/$id'
+    | '/en/embed/tour/$slug'
     | '/en/p/$slug/privacy'
     | '/p/$slug/lot/$numero'
     | '/app/projets/$id/anglais'
@@ -594,10 +614,12 @@ export interface FileRouteTypes {
     | '/en/pricing'
     | '/en/services'
     | '/app/organisation'
+    | '/embed/visite/$slug'
     | '/en/embed/$slug'
     | '/en/p/$slug'
     | '/p/$slug/donnees-personnelles'
     | '/en'
+    | '/en/embed/tour/$slug'
     | '/en/p/$slug/privacy'
     | '/p/$slug/lot/$numero'
     | '/app/projets/$id/anglais'
@@ -648,12 +670,14 @@ export interface FileRouteTypes {
     | '/_site/en/pricing'
     | '/_site/en/services'
     | '/app/_espace/organisation'
+    | '/embed/visite/$slug'
     | '/en/embed/$slug'
     | '/en/p/$slug'
     | '/p/$slug/donnees-personnelles'
     | '/_site/en/'
     | '/app/_espace/'
     | '/app/_espace/projets/$id'
+    | '/en/embed/tour/$slug'
     | '/en/p/$slug/privacy'
     | '/p/$slug/lot/$numero'
     | '/app/_espace/projets/$id/anglais'
@@ -921,6 +945,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEspaceOrganisationRouteImport
       parentRoute: typeof AppEspaceRouteRoute
     }
+    '/embed/visite/$slug': {
+      id: '/embed/visite/$slug'
+      path: '/visite/$slug'
+      fullPath: '/embed/visite/$slug'
+      preLoaderRoute: typeof EmbedVisiteSlugRouteImport
+      parentRoute: typeof EmbedRouteRoute
+    }
     '/en/embed/$slug': {
       id: '/en/embed/$slug'
       path: '/$slug'
@@ -948,6 +979,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/projets/$id'
       preLoaderRoute: typeof AppEspaceProjetsIdRouteRouteImport
       parentRoute: typeof AppEspaceRouteRoute
+    }
+    '/en/embed/tour/$slug': {
+      id: '/en/embed/tour/$slug'
+      path: '/tour/$slug'
+      fullPath: '/en/embed/tour/$slug'
+      preLoaderRoute: typeof EnEmbedTourSlugRouteImport
+      parentRoute: typeof EnEmbedRouteRoute
     }
     '/en/p/$slug/privacy': {
       id: '/en/p/$slug/privacy'
@@ -1188,10 +1226,12 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
 
 interface EmbedRouteRouteChildren {
   EmbedSlugRoute: typeof EmbedSlugRoute
+  EmbedVisiteSlugRoute: typeof EmbedVisiteSlugRoute
 }
 
 const EmbedRouteRouteChildren: EmbedRouteRouteChildren = {
   EmbedSlugRoute: EmbedSlugRoute,
+  EmbedVisiteSlugRoute: EmbedVisiteSlugRoute,
 }
 
 const EmbedRouteRouteWithChildren = EmbedRouteRoute._addFileChildren(
@@ -1223,10 +1263,12 @@ const PRouteRouteWithChildren =
 
 interface EnEmbedRouteRouteChildren {
   EnEmbedSlugRoute: typeof EnEmbedSlugRoute
+  EnEmbedTourSlugRoute: typeof EnEmbedTourSlugRoute
 }
 
 const EnEmbedRouteRouteChildren: EnEmbedRouteRouteChildren = {
   EnEmbedSlugRoute: EnEmbedSlugRoute,
+  EnEmbedTourSlugRoute: EnEmbedTourSlugRoute,
 }
 
 const EnEmbedRouteRouteWithChildren = EnEmbedRouteRoute._addFileChildren(

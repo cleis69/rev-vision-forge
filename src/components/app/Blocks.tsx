@@ -45,19 +45,23 @@ export function SettingsSection({
   title,
   description,
   danger = false,
+  anchor,
   children,
 }: {
   title: string;
   description?: string | undefined;
   danger?: boolean;
+  /** Id of the section, for a link to it (#…). */
+  anchor?: string;
   children: ReactNode;
 }) {
   const id = useId();
   return (
     <section
+      id={anchor}
       aria-labelledby={id}
       className={cn(
-        "rounded-2xl border bg-card p-4 sm:p-5",
+        "scroll-mt-24 rounded-2xl border bg-card p-4 sm:p-5",
         danger ? "border-destructive/40" : "border-border",
       )}
     >

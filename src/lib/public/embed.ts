@@ -2,7 +2,8 @@ import type { Locale } from "./i18n";
 
 /* Sales plan on the promoter's own website: /embed/$slug (/en/embed/$slug in
    English) in an iframe. The page sends its height to the parent page, whose
-   small script resizes the iframe, so there is never a scroll bar inside it. */
+   small script resizes the iframe, so there is never a scroll bar inside it.
+   The 360° tour alone has its own page, for a link or a 16:9 iframe. */
 
 export const HEIGHT_MESSAGE = "rev-plan:height";
 
@@ -35,4 +36,29 @@ export function embedCode(
     `<iframe src="${attr(src)}" title="${attr(`${TITLE[locale]} — ${programme}`)}" data-rev-plan loading="lazy" allow="clipboard-write; web-share" style="display:block;width:100%;height:720px;border:0"></iframe>`,
     `<script>${script}</script>`,
   ].join("\n");
+}
+
+/** Which tour of the programme: a type's (?type=Villa A) or a lot's (?lot=A1); none for the first one. */
+export type TourChoice = { type: string } | { lot: string } | null;
+
+/** Link of the 360° tour alone: /embed/visite/$slug, /en/embed/tour/$slug in English. */
+export function tourUrl(origin: string, slug: string, choice: TourChoice, locale: Locale = "fr") {
+  const base = `${origin}${locale === "en" ? "/en/embed/tour/" : "/embed/visite/"}${encodeURIComponent(slug)}`;
+  if (!choice) return base;
+  const [key, value] = "type" in choice ? ["type", choice.type] : ["lot", choice.lot];
+  return `${base}?${key}=${encodeURIComponent(value)}`;
+}
+
+const TOUR_TITLE: Record<Locale, string> = { fr: "Visite 360°", en: "360° tour" };
+
+/** HTML to paste on the promoter's site: the tour in a 16:9 frame, full screen and gyroscope allowed. */
+export function tourEmbedCode(
+  origin: string,
+  slug: string,
+  programme: string,
+  choice: TourChoice,
+  locale: Locale = "fr",
+): string {
+  const src = tourUrl(origin, slug, choice, locale);
+  return `<iframe src="${attr(src)}" title="${attr(`${TOUR_TITLE[locale]} — ${programme}`)}" loading="lazy" allow="fullscreen; gyroscope; accelerometer; xr-spatial-tracking; web-share" allowfullscreen style="display:block;width:100%;aspect-ratio:16/9;min-height:420px;border:0;border-radius:12px"></iframe>`;
 }

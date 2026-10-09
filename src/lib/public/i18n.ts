@@ -34,8 +34,12 @@ export function publicPathIn(pathname: string, target: Locale): string {
   const path = pathname.replace(/^\/en(?=\/)/, "");
   const swapped =
     target === "en"
-      ? path.replace(/\/donnees-personnelles\/?$/, "/privacy")
-      : path.replace(/\/privacy\/?$/, "/donnees-personnelles");
+      ? path
+          .replace(/\/donnees-personnelles\/?$/, "/privacy")
+          .replace(/^\/embed\/visite\//, "/embed/tour/")
+      : path
+          .replace(/\/privacy\/?$/, "/donnees-personnelles")
+          .replace(/^\/embed\/tour\//, "/embed/visite/");
   return target === "en" ? `/en${swapped}` : swapped;
 }
 

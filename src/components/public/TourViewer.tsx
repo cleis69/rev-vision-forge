@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type ElementType, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ElementType,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Viewer } from "@photo-sphere-viewer/core";
 import { AutorotatePlugin } from "@photo-sphere-viewer/autorotate-plugin";
@@ -19,8 +26,9 @@ import { ViewerControls } from "./ViewerControls";
 /* 360° tour of the public pages: the panorama of a room, the arrows placed by
    the promoter to go to the next room, a strip of the rooms, a slow rotation
    when nobody touches it, the gyroscope on phones, and the visit request.
-   Full screen (TourViewer), or inside the page next to the sales plan
-   (TourInline), where the wheel and one finger keep scrolling the page.
+   Full screen (TourViewer), inside the page next to the sales plan
+   (TourInline), where the wheel and one finger keep scrolling the page, or
+   alone on its own page, for a link or an iframe (TourAlone).
    Loaded on demand (the viewer weighs its own). */
 
 const COPY = {
@@ -415,6 +423,22 @@ function TourStage({
   );
 }
 
+/** Full screen of the browser for a box: whether it is on, and the switch. */
+function useFullscreen(box: RefObject<HTMLDivElement | null>) {
+  const [full, setFull] = useState(false);
+  useEffect(() => {
+    const sync = () => setFull(document.fullscreenElement === box.current);
+    document.addEventListener("fullscreenchange", sync);
+    return () => document.removeEventListener("fullscreenchange", sync);
+  }, [box]);
+  const canFull = typeof document !== "undefined" && document.fullscreenEnabled;
+  const toggleFull = () => {
+    if (document.fullscreenElement) void document.exitFullscreen();
+    else void box.current?.requestFullscreen().catch(() => undefined);
+  };
+  return { full, canFull, toggleFull };
+}
+
 /** Full screen. */
 export default function TourViewer({
   tour,
@@ -433,18 +457,7 @@ export default function TourViewer({
   const large = variant === "presentation";
   const copy = useCopy(COPY);
   const box = useRef<HTMLDivElement>(null);
-  const [full, setFull] = useState(false);
-
-  useEffect(() => {
-    const sync = () => setFull(document.fullscreenElement === box.current);
-    document.addEventListener("fullscreenchange", sync);
-    return () => document.removeEventListener("fullscreenchange", sync);
-  }, []);
-  const canFull = typeof document !== "undefined" && document.fullscreenEnabled;
-  const toggleFull = () => {
-    if (document.fullscreenElement) void document.exitFullscreen();
-    else void box.current?.requestFullscreen().catch(() => undefined);
-  };
+  const { full, canFull, toggleFull } = useFullscreen(box);
 
   return (
     <DialogPrimitive.Root open onOpenChange={(open) => !open && onClose()}>
@@ -574,6 +587,57 @@ export function TourInline({
           </span>
         </>
       ) : null}
+    </div>
+  );
+}
+
+/** The tour alone, filling its page: a link of its own, or an iframe on the promoter's site. */
+export function TourAlone({
+  tour,
+  onPlan,
+  actions,
+}: {
+  tour: PublicTour;
+  onPlan: (() => void) | null;
+  /** More buttons at the top right (the programme page, the language…). */
+  actions?: ReactNode;
+}) {
+  const copy = useCopy(COPY);
+  const box = useRef<HTMLDivElement>(null);
+  const { full, canFull, toggleFull } = useFullscreen(box);
+  return (
+    <div
+      ref={box}
+      className="fixed inset-0 bg-black text-white [&_.psv-container]:[background:#000]!"
+    >
+      <TourStage
+        tour={tour}
+        variant="page"
+        inline={false}
+        onPlan={onPlan}
+        Title="h1"
+        actions={
+          <>
+            {actions}
+            <RevBadge size="sm" className="mr-1 hidden sm:inline-flex" />
+            {canFull ? (
+              <button
+                type="button"
+                onClick={toggleFull}
+                className={cn(control, "size-11")}
+                aria-label={full ? copy.exitFullscreen : copy.fullscreen}
+              >
+                {full ? (
+                  <Minimize className="size-5" aria-hidden />
+                ) : (
+                  <Maximize className="size-5" aria-hidden />
+                )}
+              </button>
+            ) : null}
+          </>
+        }
+      />
+      <RevBadge size="sm" className="absolute left-4 top-[5.25rem] sm:hidden" />
     </div>
   );
 }

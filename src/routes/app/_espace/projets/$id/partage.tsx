@@ -1,6 +1,16 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, Code2, Copy, ExternalLink, Globe, Lock, MonitorSmartphone, X } from "lucide-react";
+import {
+  Check,
+  Code2,
+  Copy,
+  ExternalLink,
+  Globe,
+  Lock,
+  MonitorSmartphone,
+  Rotate3d,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { SettingsSection, StatusBadge } from "@/components/app/Blocks";
@@ -15,7 +25,8 @@ import { useViews } from "@/lib/app/plan";
 import { useUpdateProject } from "@/lib/app/projects";
 import { usePanoramas } from "@/lib/app/tours";
 import { useViewMarkers } from "@/lib/app/view-panorama";
-import { embedCode } from "@/lib/public/embed";
+import { embedCode, tourEmbedCode, tourUrl, type TourChoice } from "@/lib/public/embed";
+import { groupTours, roomTarget } from "@/lib/tours";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/_espace/projets/$id/partage")({
@@ -38,6 +49,23 @@ function SharePage() {
   const presentationUrl = `${url}?mode=presentation`;
   const code = embedCode(origin, project.slug, project.name, lang);
   const published = project.status === "published";
+
+  // The 360° tours, each with its own link and code (a type's or a lot's).
+  const numeros = new Map((lots.data ?? []).map((l) => [l.id, l.numero]));
+  const grouped = [...groupTours(rooms.data ?? [])];
+  const tours = grouped.flatMap(([key, list]) => {
+    const target = roomTarget(list[0]!);
+    const numero = "lotId" in target ? numeros.get(target.lotId) : undefined;
+    if ("lotId" in target && !numero) return [];
+    const choice: TourChoice =
+      grouped.length === 1
+        ? null
+        : "lotId" in target
+          ? { lot: numero as string }
+          : { type: target.lotType };
+    const label = "lotId" in target ? `Lot ${numero}` : target.lotType;
+    return [{ key, label, choice, rooms: list.length }];
+  });
 
   // The essentials, and the photos (optional): the full list is in the Aperçu tab.
   const checks = pageChecks({
@@ -223,7 +251,11 @@ function SharePage() {
             Copier le code
           </Button>
           <Button asChild variant="outline" className="h-11">
-            <a href={`${origin}/embed/${project.slug}`} target="_blank" rel="noopener">
+            <a
+              href={`${origin}${lang === "en" ? "/en" : ""}/embed/${project.slug}`}
+              target="_blank"
+              rel="noopener"
+            >
               <ExternalLink aria-hidden />
               Voir le plan intégré
             </a>
@@ -235,6 +267,84 @@ function SharePage() {
           scripts, gardez seulement la ligne {"<iframe>"} : le plan aura une hauteur fixe de 720 px.
           Il n'apparaît qu'une fois le programme publié.
         </p>
+      </SettingsSection>
+
+      <SettingsSection
+        anchor="visite-360-seule"
+        title="Visite 360° seule"
+        description="La visite sans le reste de la page : un lien à envoyer, ou un cadre à intégrer sur votre site. Les visiteurs passent d'une pièce et d'un étage à l'autre, en plein écran ou en bougeant leur téléphone ; « Planifier une visite » ouvre la page du programme."
+      >
+        {tours.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Aucune visite 360° pour l'instant : ajoutez-en une dans l'onglet Visite 360°.
+          </p>
+        ) : (
+          <div className="space-y-6">
+            {tours.map((tour) => {
+              const link = tourUrl(origin, project.slug, tour.choice, lang);
+              const tourCode = tourEmbedCode(origin, project.slug, project.name, tour.choice, lang);
+              return (
+                <div key={tour.key} className="space-y-3">
+                  {tours.length > 1 ? (
+                    <h3 className="flex items-center gap-2 text-sm font-medium">
+                      <Rotate3d className="size-4 text-primary" aria-hidden />
+                      {tour.label}
+                      <span className="font-normal text-muted-foreground">
+                        · {tour.rooms} pièce{tour.rooms > 1 ? "s" : ""}
+                      </span>
+                    </h3>
+                  ) : null}
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <input
+                      readOnly
+                      value={link}
+                      onFocus={(e) => e.currentTarget.select()}
+                      aria-label={`Lien de la visite 360° ${tour.label}`}
+                      className="h-11 min-w-0 flex-1 rounded-md border border-input bg-transparent px-3 font-mono text-[13px] text-foreground"
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        className="h-11"
+                        onClick={() => void copy(link, "Lien de la visite copié")}
+                      >
+                        <Copy aria-hidden />
+                        Copier
+                      </Button>
+                      <Button asChild variant="outline" className="h-11">
+                        <a href={link} target="_blank" rel="noopener">
+                          <ExternalLink aria-hidden />
+                          Ouvrir
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
+                  <textarea
+                    readOnly
+                    value={tourCode}
+                    rows={3}
+                    onFocus={(e) => e.currentTarget.select()}
+                    aria-label={`Code d'intégration de la visite 360° ${tour.label}`}
+                    spellCheck={false}
+                    className="w-full resize-none rounded-md border border-input bg-transparent p-3 font-mono text-[12px] leading-relaxed text-foreground"
+                  />
+                  <Button
+                    variant="outline"
+                    className="h-11"
+                    onClick={() => void copy(tourCode, "Code de la visite copié")}
+                  >
+                    <Code2 aria-hidden />
+                    Copier le code
+                  </Button>
+                </div>
+              );
+            })}
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              Le cadre prend toute la largeur, au format 16:9. À coller dans un bloc « HTML » ou «
+              code » de votre site. La visite n'est visible qu'une fois le programme publié.
+            </p>
+          </div>
+        )}
       </SettingsSection>
 
       <SettingsSection

@@ -1,6 +1,6 @@
 import { Suspense, lazy, useMemo, useRef, useState, type DragEvent } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, ImageUp, Pencil, Plus, Trash2 } from "lucide-react";
+import { Link, createFileRoute } from "@tanstack/react-router";
+import { ArrowLeft, ArrowRight, ImageUp, Pencil, Plus, Share2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { FormMessage as Notice } from "@/components/app/AuthCard";
@@ -194,6 +194,12 @@ function ToursPage() {
         <Button variant="outline" className="h-10 rounded-full" onClick={() => setCreating(true)}>
           <Plus aria-hidden />
           Nouvelle visite
+        </Button>
+        <Button asChild variant="ghost" className="ml-auto h-10 rounded-full">
+          <Link to="/app/projets/$id/partage" params={{ id: project.id }} hash="visite-360-seule">
+            <Share2 aria-hidden />
+            Lien et code de la visite
+          </Link>
         </Button>
       </div>
 

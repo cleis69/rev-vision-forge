@@ -19,7 +19,8 @@ const PRIVATE = /^\/(agent-ia|en\/ai-agent)(\.html|\/)?$/;
 const APP = /^\/app(\/|$)/;
 const PROGRAMME = /^\/(?:en\/)?p\/[^/]+/;
 // Sales plan alone, embedded in an iframe on the promoter's own website.
-const EMBED = /^\/(?:en\/)?embed\/[^/]+\/?$/;
+// The 360° tour alone too: /embed/visite/$slug, /en/embed/tour/$slug.
+const EMBED = /^\/(?:en\/)?embed\/(?:(?:visite|tour)\/)?[^/]+\/?$/;
 // Programme page or lot page (in French, or in English under /en), whose link
 // preview is written by the Worker.
 const PREVIEWED = /^\/(en\/)?p\/([^/]+)(?:\/lot\/([^/]+))?\/?$/;

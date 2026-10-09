@@ -1,13 +1,32 @@
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { Car, Footprints, MapPin, Navigation } from "lucide-react";
 
+import { useCopy } from "@/lib/i18n";
 import { directions, placeTime } from "@/lib/location";
+import { useLocale } from "@/lib/public/i18n";
 import type { PublicProgramme } from "@/lib/public/programme";
 
 // MapLibre is loaded only when the section comes near the screen.
 const ProgrammeMap = lazy(() => import("@/components/map/ProgrammeMap"));
 
+const COPY = {
+  fr: {
+    title: "Situation",
+    nearby: "À proximité",
+    google: "Itinéraire Google Maps",
+    waze: "Ouvrir dans Waze",
+  },
+  en: {
+    title: "Location",
+    nearby: "Nearby",
+    google: "Directions in Google Maps",
+    waze: "Open in Waze",
+  },
+};
+
 export function Situation({ programme }: { programme: PublicProgramme }) {
+  const copy = useCopy(COPY);
+  const locale = useLocale();
   const { address, city, position, places } = programme;
   const box = useRef<HTMLDivElement>(null);
   const [near, setNear] = useState(false);
@@ -36,7 +55,7 @@ export function Situation({ programme }: { programme: PublicProgramme }) {
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_1.35fr]">
       <div>
-        <h2 className="font-brand text-2xl font-medium tracking-tight sm:text-3xl">Situation</h2>
+        <h2 className="font-brand text-2xl font-medium tracking-tight sm:text-3xl">{copy.title}</h2>
         {where ? (
           <p className="mt-4 flex gap-2.5 text-base leading-relaxed text-white/75">
             <MapPin className="mt-1 size-4 shrink-0 text-[color:var(--brand)]" aria-hidden />
@@ -52,7 +71,7 @@ export function Situation({ programme }: { programme: PublicProgramme }) {
         {places.length > 0 ? (
           <ul
             className="mt-6 divide-y divide-white/10 border-y border-white/10"
-            aria-label="À proximité"
+            aria-label={copy.nearby}
           >
             {places.map((place, i) => (
               <li key={i} className="flex items-center justify-between gap-4 py-3">
@@ -64,7 +83,9 @@ export function Situation({ programme }: { programme: PublicProgramme }) {
                   )}
                   <span className="text-white/90">{place.name}</span>
                 </span>
-                <span className="shrink-0 tabular-nums text-white/60">{placeTime(place)}</span>
+                <span className="shrink-0 tabular-nums text-white/60">
+                  {placeTime(place, locale)}
+                </span>
               </li>
             ))}
           </ul>
@@ -79,7 +100,7 @@ export function Situation({ programme }: { programme: PublicProgramme }) {
               className={`${button} bg-[color:var(--brand)] text-[color:var(--brand-contrast)] hover:opacity-90`}
             >
               <Navigation className="size-4" aria-hidden />
-              Itinéraire Google Maps
+              {copy.google}
             </a>
             <a
               href={route.waze}
@@ -87,7 +108,7 @@ export function Situation({ programme }: { programme: PublicProgramme }) {
               rel="noopener"
               className={`${button} border border-white/25 text-white hover:border-white/60`}
             >
-              Ouvrir dans Waze
+              {copy.waze}
             </a>
           </div>
         ) : null}

@@ -2,8 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { EmbedPage } from "@/components/public/pages/EmbedPage";
 
-// Sales plan alone, for an iframe on the promoter's site.
-export const Route = createFileRoute("/embed/$slug")({
+// Sales plan alone, for an iframe on the promoter's site (in English).
+export const Route = createFileRoute("/en/embed/$slug")({
   component: Page,
 });
 

@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Play } from "lucide-react";
 
 import { mediaImage, mediaVideo, type MediaItem } from "@/lib/app/media";
+import { useCopy } from "@/lib/i18n";
 import { formatDuration } from "@/lib/video";
 import { cn } from "@/lib/utils";
 import { MediaViewer } from "./MediaViewer";
@@ -11,11 +12,31 @@ import { MediaViewer } from "./MediaViewer";
    to sort, a dozen shown and the rest on demand, all opened full screen. */
 
 type Filter = "tout" | "exterieur" | "interieur" | "video";
-const LABELS: Record<Filter, string> = {
-  tout: "Tout",
-  exterieur: "Extérieurs",
-  interieur: "Intérieurs",
-  video: "Vidéos",
+const COPY = {
+  fr: {
+    labels: {
+      tout: "Tout",
+      exterieur: "Extérieurs",
+      interieur: "Intérieurs",
+      video: "Vidéos",
+    } satisfies Record<Filter, string>,
+    filter: "Filtrer la galerie",
+    all: (n: number) => `Tout voir (${n})`,
+    tile: (video: boolean, caption: string, index: number, name: string) =>
+      `${video ? "Lire la vidéo" : "Agrandir"} : ${caption || `${video ? "vidéo" : "photo"} ${index} de ${name}`}`,
+  },
+  en: {
+    labels: {
+      tout: "All",
+      exterieur: "Exterior",
+      interieur: "Interior",
+      video: "Videos",
+    } satisfies Record<Filter, string>,
+    filter: "Filter the gallery",
+    all: (n: number) => `View all (${n})`,
+    tile: (video: boolean, caption: string, index: number, name: string) =>
+      `${video ? "Play video" : "Enlarge"}: ${caption || `${video ? "video" : "photo"} ${index} of ${name}`}`,
+  },
 };
 const FIRST_SHOWN = 12;
 const FEW_COLUMNS: Record<number, string> = {
@@ -29,6 +50,7 @@ const matches = (item: MediaItem, filter: Filter) =>
   filter === "tout" || (filter === "video" ? item.kind === "video" : item.meta.category === filter);
 
 export function Gallery({ items, name }: { items: MediaItem[]; name: string }) {
+  const copy = useCopy(COPY);
   const [filter, setFilter] = useState<Filter>("tout");
   const [all, setAll] = useState(false);
   const [open, setOpen] = useState<number | null>(null);
@@ -51,7 +73,7 @@ export function Gallery({ items, name }: { items: MediaItem[]; name: string }) {
       {filters.length > 0 ? (
         <div
           role="group"
-          aria-label="Filtrer la galerie"
+          aria-label={copy.filter}
           className="-mx-5 mb-5 flex gap-2 overflow-x-auto px-5 [scrollbar-width:none] sm:mx-0 sm:px-0"
         >
           {filters.map((f) => {
@@ -72,7 +94,7 @@ export function Gallery({ items, name }: { items: MediaItem[]; name: string }) {
                     : "border-white/15 text-white/75 hover:border-white/35 hover:text-white",
                 )}
               >
-                {LABELS[f]}
+                {copy.labels[f]}
                 <span className={cn("tabular-nums", active ? "text-black/55" : "text-white/45")}>
                   {items.filter((m) => matches(m, f)).length}
                 </span>
@@ -120,7 +142,7 @@ export function Gallery({ items, name }: { items: MediaItem[]; name: string }) {
             onClick={() => setAll(true)}
             className="inline-flex h-11 items-center rounded-full border border-white/20 px-6 text-sm font-medium text-white transition-colors hover:border-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >
-            Tout voir ({shown.length})
+            {copy.all(shown.length)}
           </button>
         </div>
       ) : null}
@@ -143,6 +165,7 @@ function Tile({
   large: boolean;
   onOpen: () => void;
 }) {
+  const copy = useCopy(COPY);
   const video = item.kind === "video" ? mediaVideo(item) : null;
   const image = video ? null : mediaImage(item);
   const caption = video?.caption || image?.caption || "";
@@ -152,7 +175,7 @@ function Tile({
       type="button"
       onClick={onOpen}
       className="group relative block h-full w-full overflow-hidden rounded-xl bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-      aria-label={`${video ? "Lire la vidéo" : "Agrandir"} : ${caption || `${video ? "vidéo" : "photo"} ${index + 1} de ${name}`}`}
+      aria-label={copy.tile(Boolean(video), caption, index + 1, name)}
     >
       {still ? (
         <img

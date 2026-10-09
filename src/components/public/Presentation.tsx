@@ -4,12 +4,14 @@ import { ClipboardList, Eye, Maximize, Minimize, X } from "lucide-react";
 import { toast } from "sonner";
 
 import type { LotStatus } from "@/lib/app/lot-fields";
+import { useCopy } from "@/lib/i18n";
 import { useLiveLots } from "@/lib/public/live";
 import { countByStatus, tourOfLot, type PublicData, type PublicLot } from "@/lib/public/programme";
 import { lotMedia } from "@/lib/public/typologies";
+import { usePublicRoutes } from "@/lib/public/i18n";
 import { cn } from "@/lib/utils";
 import { firstView } from "@/lib/views";
-import { PoweredBy, RevBadge, StatusFilters } from "./Common";
+import { LanguageSwitch, PoweredBy, RevBadge, StatusFilters } from "./Common";
 import { LotCards } from "./LotCards";
 import { LotDetails } from "./LotDetails";
 import { useFollowLot, useViewKey } from "@/lib/public/use-views";
@@ -17,19 +19,55 @@ import { ProgrammeViews } from "./ProgrammeViews";
 import { TourButton, TourOverlay, type OpenTour } from "./Tours";
 import { VisitForm } from "./VisitForm";
 
-/* Presentation mode (/p/$slug?mode=presentation): the sales plan full screen
-   on the sales office tablet. Large buttons, the lot in large beside the
-   plan, contact details taken on request only. Left alone for 3 minutes, it
-   comes back to the whole plan, and forgets what the last visitor typed.
-   Taps here are the sales team's, not visits: no statistics are recorded. */
+/* Presentation mode (/p/$slug?mode=presentation, /en/p/$slug?mode=presentation
+   in English): the sales plan full screen on the sales office tablet. Large
+   buttons, the lot in large beside the plan, contact details taken on request
+   only. Left alone for 3 minutes, it comes back to the whole plan (in the same
+   language), and forgets what the last visitor typed. Taps here are the sales
+   team's, not visits: no statistics are recorded. */
 
 const IDLE_MS = 3 * 60 * 1000;
+
+const COPY = {
+  fr: {
+    title: (name: string) => `${name} — Présentation`,
+    preview: "Aperçu : programme non publié, le formulaire est désactivé.",
+    takeDetails: "Prendre les coordonnées",
+    fullscreen: "Plein écran",
+    exitFullscreen: "Quitter le plein écran",
+    noFullscreen: "Le plein écran n'est pas disponible sur cet appareil.",
+    exit: "Quitter le mode présentation",
+    noLots: "Les lots seront bientôt présentés.",
+    noMatch: "Aucun lot avec ce statut.",
+    aboutLot: (numero: string) => `Pour être recontacté au sujet du lot ${numero}.`,
+    aboutProgramme: "Pour être recontacté au sujet du programme ou d'un lot.",
+    send: "Envoyer",
+    close: "Fermer",
+  },
+  en: {
+    title: (name: string) => `${name} — Presentation`,
+    preview: "Preview: programme not published; the form is disabled.",
+    takeDetails: "Take contact details",
+    fullscreen: "Full screen",
+    exitFullscreen: "Exit full screen",
+    noFullscreen: "Full screen is not available on this device.",
+    exit: "Exit presentation mode",
+    noLots: "The lots will be listed soon.",
+    noMatch: "No lots with this status.",
+    aboutLot: (numero: string) => `To be contacted about Lot ${numero}.`,
+    aboutProgramme: "To be contacted about the programme or a lot.",
+    send: "Send",
+    close: "Close",
+  },
+};
 
 type Panel = { kind: "lot"; id: string; contact: boolean } | { kind: "contact" } | null;
 
 export function Presentation({ data, slug }: { data: PublicData; slug: string }) {
   const { programme, lots, media, preview } = data;
   const navigate = useNavigate();
+  const routes = usePublicRoutes();
+  const copy = useCopy(COPY);
   const { numero } = useParams({ strict: false }) as { numero?: string };
   const [panel, setPanel] = useState<Panel>(() => {
     const lot = numero ? lots.find((l) => l.numero === numero) : undefined;
@@ -55,16 +93,17 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
     setVisitor(crypto.randomUUID());
     // Also closes the personal data notice, or a lot opened from a link.
     void navigate({
-      to: "/p/$slug",
+      to: routes.programme,
       params: { slug },
       search: { mode: "presentation" },
       replace: true,
     });
   });
 
+  const title = copy.title(programme.name);
   useEffect(() => {
-    document.title = `${programme.name} — Présentation`;
-  }, [programme.name]);
+    document.title = title;
+  }, [title]);
 
   const counts = countByStatus(lots);
   const hasViews = data.views.length > 0;
@@ -87,7 +126,7 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
       {preview ? (
         <div className="bg-amber-400 px-5 py-1.5 text-center text-sm font-medium text-black">
           <Eye className="mr-2 inline size-4 align-[-3px]" aria-hidden />
-          Aperçu : programme non publié, le formulaire est désactivé.
+          {copy.preview}
         </div>
       ) : null}
 
@@ -118,20 +157,21 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
         </div>
         <div className="ml-auto flex items-center gap-2">
           {programme.organization.slug !== "rev" ? <RevBadge size="lg" className="mr-2" /> : null}
+          <LanguageSwitch large />
           <button
             type="button"
             onClick={() => setPanel({ kind: "contact" })}
             className="inline-flex h-12 items-center gap-2 rounded-full border border-white/20 px-5 text-base text-white transition-colors hover:border-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >
             <ClipboardList className="size-5" aria-hidden />
-            Prendre les coordonnées
+            {copy.takeDetails}
           </button>
           {fullscreen.supported ? (
             <button
               type="button"
               onClick={fullscreen.toggle}
-              aria-label={fullscreen.active ? "Quitter le plein écran" : "Plein écran"}
-              title={fullscreen.active ? "Quitter le plein écran" : "Plein écran"}
+              aria-label={fullscreen.active ? copy.exitFullscreen : copy.fullscreen}
+              title={fullscreen.active ? copy.exitFullscreen : copy.fullscreen}
               className="grid size-12 place-items-center rounded-full border border-white/20 text-white/85 transition-colors hover:border-white/50 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
             >
               {fullscreen.active ? (
@@ -142,11 +182,11 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
             </button>
           ) : null}
           <Link
-            to="/p/$slug"
+            to={routes.programme}
             params={{ slug }}
             search={{}}
-            aria-label="Quitter le mode présentation"
-            title="Quitter le mode présentation"
+            aria-label={copy.exit}
+            title={copy.exit}
             className="grid size-12 place-items-center rounded-full text-white/50 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >
             <X className="size-5" aria-hidden />
@@ -179,9 +219,7 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
                 />
               ) : (
                 <p className="py-10 text-center text-lg text-white/60">
-                  {lots.length === 0
-                    ? "Les lots seront bientôt présentés."
-                    : "Aucun lot avec ce statut."}
+                  {lots.length === 0 ? copy.noLots : copy.noMatch}
                 </p>
               )}
             </div>
@@ -193,7 +231,7 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
           <SidePanel
             // Another lot starts from an empty form.
             key={panel.kind === "lot" ? panel.id : "contact"}
-            label={lot ? `Lot ${lot.numero}` : "Prendre les coordonnées"}
+            label={lot ? `Lot ${lot.numero}` : copy.takeDetails}
             onClose={() => setPanel(null)}
             footer={
               lot && panel?.kind === "lot" && !panel.contact && lot.statut !== "vendue" ? (
@@ -203,7 +241,7 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
                   className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-full bg-[color:var(--brand)] px-6 text-lg font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                 >
                   <ClipboardList className="size-5" aria-hidden />
-                  Prendre les coordonnées
+                  {copy.takeDetails}
                 </button>
               ) : null
             }
@@ -232,12 +270,10 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
                 className={cn("scroll-mt-2 p-8", lot && "border-t border-white/10")}
               >
                 <h2 className="font-brand text-2xl font-medium tracking-tight">
-                  Prendre les coordonnées
+                  {copy.takeDetails}
                 </h2>
                 <p className="mt-2 text-base text-white/60">
-                  {lot
-                    ? `Pour être recontacté au sujet du lot ${lot.numero}.`
-                    : "Pour être recontacté au sujet du programme ou d'un lot."}
+                  {lot ? copy.aboutLot(lot.numero) : copy.aboutProgramme}
                 </p>
                 <div className="mt-6">
                   <VisitForm
@@ -249,7 +285,7 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
                     preview={preview}
                     source="presentation"
                     session={visitor}
-                    submitLabel="Envoyer"
+                    submitLabel={copy.send}
                     // The next request is another visitor's.
                     onSent={() => setVisitor(crypto.randomUUID())}
                   />
@@ -282,6 +318,7 @@ function SidePanel({
   footer: ReactNode;
   children: ReactNode;
 }) {
+  const copy = useCopy(COPY);
   const close = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     close.current?.focus({ preventScroll: true });
@@ -299,7 +336,7 @@ function SidePanel({
           className="inline-flex h-12 items-center gap-2 rounded-full border border-white/15 px-5 text-base text-white/85 transition-colors hover:border-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
         >
           <X className="size-5" aria-hidden />
-          Fermer
+          {copy.close}
         </button>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{children}</div>
@@ -328,14 +365,18 @@ function useIdle(ms: number, onIdle: () => void) {
 }
 
 function useFullscreen() {
+  const copy = useCopy(COPY);
   const [active, setActive] = useState(() => Boolean(document.fullscreenElement));
   useEffect(() => {
     const onChange = () => setActive(Boolean(document.fullscreenElement));
     document.addEventListener("fullscreenchange", onChange);
     return () => {
       document.removeEventListener("fullscreenchange", onChange);
-      // Leaving the presentation leaves full screen too.
-      if (document.fullscreenElement) void document.exitFullscreen().catch(() => undefined);
+      // Leaving the presentation leaves full screen too; switching its language
+      // (the same presentation at its other address, already in the bar) does not.
+      const stays = new URLSearchParams(window.location.search).get("mode") === "presentation";
+      if (document.fullscreenElement && !stays)
+        void document.exitFullscreen().catch(() => undefined);
     };
   }, []);
   return {
@@ -347,7 +388,7 @@ function useFullscreen() {
       else
         void document.documentElement
           .requestFullscreen()
-          .catch(() => toast.error("Le plein écran n'est pas disponible sur cet appareil."));
+          .catch(() => toast.error(copy.noFullscreen));
     },
   };
 }

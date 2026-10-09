@@ -1,15 +1,54 @@
 import { useState, type ReactNode } from "react";
 import { Bath, BedDouble, FileDown, LayoutGrid, Maximize2, Play, Trees } from "lucide-react";
 
-import { formatPrice } from "@/lib/app/lot-format";
 import { mediaDocument, mediaImage, type MediaItem } from "@/lib/app/media";
-import { rangeLabel, type Typology } from "@/lib/public/typologies";
-import { formatSize } from "@/lib/video";
+import { useCopy } from "@/lib/i18n";
+import { usePublicText } from "@/lib/public/i18n";
+import { fileSize, rangeLabel, type Typology } from "@/lib/public/typologies";
 import { cn } from "@/lib/utils";
 import { MediaViewer } from "./MediaViewer";
 
 /* Typologies section: a card per type of lot, with its photo, its figures,
    what is still free, its plans and its brochure, and a way to its lots. */
+
+const COPY = {
+  fr: {
+    photos: (name: string) => `Photos : ${name}`,
+    media: (n: number, _videos: boolean) => `${n} médias`,
+    lots: (n: number) => (n > 1 ? "lots" : "lot"),
+    full: "complet",
+    available: (n: number) => `${n} disponible${n > 1 ? "s" : ""}`,
+    from: (price: string) => `À partir de ${price}`,
+    surface: "Surface",
+    bedrooms: "Chambres",
+    bedroomsShort: "ch.",
+    bathrooms: "Salles de bains",
+    bathroomsShort: "sdb",
+    plot: "Terrain",
+    plans: "Plans",
+    enlargePlan: (what: string) => `Agrandir le plan : ${what}`,
+    planOf: (n: number, name: string) => `plan ${n}, ${name}`,
+    showLots: "Voir les lots",
+  },
+  en: {
+    photos: (name: string) => `Photos: ${name}`,
+    media: (n: number, videos: boolean) => `${n} ${videos ? "photos & videos" : "photos"}`,
+    lots: (n: number) => (n > 1 ? "lots" : "lot"),
+    full: "none available",
+    available: (n: number) => `${n} available`,
+    from: (price: string) => `From ${price}`,
+    surface: "Living area",
+    bedrooms: "Bedrooms",
+    bedroomsShort: "bed",
+    bathrooms: "Bathrooms",
+    bathroomsShort: "bath",
+    plot: "Plot",
+    plans: "Floor plans",
+    enlargePlan: (what: string) => `Enlarge floor plan: ${what}`,
+    planOf: (n: number, name: string) => `plan ${n}, ${name}`,
+    showLots: "View lots",
+  },
+};
 
 export function Typologies({
   types,
@@ -67,6 +106,8 @@ function TypeCard({
   /** The only type: photo beside the text on a wide screen. */
   wide: boolean;
 }) {
+  const copy = useCopy(COPY);
+  const text = usePublicText();
   const [viewing, setViewing] = useState<{ items: MediaItem[]; index: number } | null>(null);
   const cover = type.photos[0] ? mediaImage(type.photos[0]) : null;
   const gallery = [...type.photos, ...type.videos];
@@ -74,9 +115,9 @@ function TypeCard({
   const price = !showPrices
     ? null
     : type.priceFrom !== null
-      ? `À partir de ${formatPrice(type.priceFrom, currency)}`
+      ? copy.from(text.price(type.priceFrom, currency))
       : type.available > 0
-        ? "Prix sur demande"
+        ? text.onRequest
         : null;
 
   return (
@@ -94,7 +135,7 @@ function TypeCard({
           "group relative block aspect-[16/10] w-full shrink-0 overflow-hidden bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70 disabled:cursor-default",
           wide && "md:aspect-auto md:min-h-80 md:w-1/2",
         )}
-        aria-label={gallery.length ? `Photos : ${type.name}` : type.name}
+        aria-label={gallery.length ? copy.photos(type.name) : type.name}
       >
         {cover ? (
           <img
@@ -113,7 +154,7 @@ function TypeCard({
           {gallery.length > 1 ? (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-black/55 px-2.5 py-1 text-[11px] text-white/85 backdrop-blur">
               {type.videos.length ? <Play className="size-3 fill-current" aria-hidden /> : null}
-              {gallery.length} médias
+              {copy.media(gallery.length, type.videos.length > 0)}
             </span>
           ) : null}
         </span>
@@ -122,12 +163,10 @@ function TypeCard({
       <div className="flex flex-1 flex-col gap-4 p-4 sm:p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <p className="text-sm text-white/70">
-            {total} {total > 1 ? "lots" : "lot"}
+            {total} {copy.lots(total)}
             {" · "}
             <span className={type.available ? "text-[color:var(--brand)]" : "text-white/50"}>
-              {type.available === 0
-                ? "complet"
-                : `${type.available} disponible${type.available > 1 ? "s" : ""}`}
+              {type.available === 0 ? copy.full : copy.available(type.available)}
             </span>
           </p>
           {price ? <p className="text-sm font-medium text-white">{price}</p> : null}
@@ -135,23 +174,23 @@ function TypeCard({
 
         <dl className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/75">
           {type.surface ? (
-            <Fact icon={<Maximize2 className="size-3.5" aria-hidden />} label="Surface">
-              {rangeLabel(type.surface, "m²")}
+            <Fact icon={<Maximize2 className="size-3.5" aria-hidden />} label={copy.surface}>
+              {rangeLabel(type.surface, "m²", text.locale)}
             </Fact>
           ) : null}
           {type.chambres ? (
-            <Fact icon={<BedDouble className="size-3.5" aria-hidden />} label="Chambres">
-              {rangeLabel(type.chambres)} ch.
+            <Fact icon={<BedDouble className="size-3.5" aria-hidden />} label={copy.bedrooms}>
+              {rangeLabel(type.chambres, "", text.locale)} {copy.bedroomsShort}
             </Fact>
           ) : null}
           {type.sallesDeBain ? (
-            <Fact icon={<Bath className="size-3.5" aria-hidden />} label="Salles de bains">
-              {rangeLabel(type.sallesDeBain)} sdb
+            <Fact icon={<Bath className="size-3.5" aria-hidden />} label={copy.bathrooms}>
+              {rangeLabel(type.sallesDeBain, "", text.locale)} {copy.bathroomsShort}
             </Fact>
           ) : null}
           {type.terrain ? (
-            <Fact icon={<Trees className="size-3.5" aria-hidden />} label="Terrain">
-              {rangeLabel(type.terrain, "m²")}
+            <Fact icon={<Trees className="size-3.5" aria-hidden />} label={copy.plot}>
+              {rangeLabel(type.terrain, "m²", text.locale)}
             </Fact>
           ) : null}
         </dl>
@@ -165,7 +204,7 @@ function TypeCard({
         {type.plans.length > 0 ? (
           <div>
             <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/50">
-              Plans
+              {copy.plans}
             </h3>
             <ul className="mt-3 flex gap-2 overflow-x-auto [scrollbar-width:none]">
               {type.plans.map((plan, i) => {
@@ -176,7 +215,7 @@ function TypeCard({
                       type="button"
                       onClick={() => setViewing({ items: type.plans, index: i })}
                       className="block overflow-hidden rounded-lg border border-white/10 bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-                      aria-label={`Agrandir le plan : ${image.caption || `plan ${i + 1}, ${type.name}`}`}
+                      aria-label={copy.enlargePlan(image.caption || copy.planOf(i + 1, type.name))}
                     >
                       <img
                         src={image.thumb}
@@ -204,7 +243,7 @@ function TypeCard({
             className="inline-flex h-10 items-center gap-2 rounded-full bg-white px-4 text-sm font-medium text-black transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >
             <LayoutGrid className="size-4" aria-hidden />
-            Voir les lots
+            {copy.showLots}
           </button>
           {type.documents.map((doc) => {
             const file = mediaDocument(doc);
@@ -220,7 +259,9 @@ function TypeCard({
                 <FileDown className="size-4" aria-hidden />
                 {file.caption || "Brochure"}
                 {file.size ? (
-                  <span className="text-xs text-white/50">PDF · {formatSize(file.size)}</span>
+                  <span className="text-xs text-white/50">
+                    PDF · {fileSize(file.size, text.locale)}
+                  </span>
                 ) : null}
               </a>
             );

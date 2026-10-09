@@ -1,5 +1,7 @@
 import type { MediaItem } from "@/lib/app/media";
 import { lotTypeNames, noteOf, sameType } from "@/lib/lot-types";
+import { formatSize } from "@/lib/video";
+import { NUMBER_LOCALE, type Locale } from "./i18n";
 import type { PublicData, PublicLot } from "./programme";
 
 /* Typologies section of the public page: one card per type of lot (Villa A,
@@ -63,9 +65,9 @@ export const showTypologies = (list: Typology[]) =>
   list.length > 1 ||
   list.some((t) => t.description || t.plans.length || t.documents.length || t.videos.length);
 
-/** "585 m²", "248 – 312 m²" */
-export function rangeLabel(r: Range, unit = "") {
-  const f = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 });
+/** "585 m²", "248 – 312 m²" ("1 250 m²" in French, "1,250 m²" in English). */
+export function rangeLabel(r: Range, unit = "", locale: Locale = "fr") {
+  const f = new Intl.NumberFormat(NUMBER_LOCALE[locale], { maximumFractionDigits: 0 });
   const text = r.min === r.max ? f.format(r.min) : `${f.format(r.min)} – ${f.format(r.max)}`;
   return unit ? `${text} ${unit}` : text;
 }
@@ -80,4 +82,13 @@ export function lotMedia(data: PublicData, lot: Pick<PublicLot, "id" | "type">) 
     documents: [...data.documents.filter((m) => m.lot_id === lot.id), ...ofType(data.documents)],
     videos: [...data.videos.filter((m) => m.lot_id === lot.id), ...ofType(data.videos)],
   };
+}
+
+/** Size of a brochure: "2,4 Mo" in French, "2.4 MB" in English. */
+export function fileSize(bytes: number, locale: Locale = "fr") {
+  if (locale === "fr") return formatSize(bytes);
+  const mb = bytes / 1024 / 1024;
+  return mb >= 1
+    ? `${new Intl.NumberFormat(NUMBER_LOCALE.en, { maximumFractionDigits: 1 }).format(mb)} MB`
+    : `${Math.max(1, Math.round(bytes / 1024))} KB`;
 }

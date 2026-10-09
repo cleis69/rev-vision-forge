@@ -25,6 +25,7 @@ const TABS = [
   { label: "Médias", to: "/app/projets/$id/medias" },
   { label: "Visite 360°", to: "/app/projets/$id/visite" },
   { label: "Marque", to: "/app/projets/$id/marque" },
+  { label: "Anglais", to: "/app/projets/$id/anglais" },
   { label: "Demandes", to: "/app/projets/$id/demandes" },
   { label: "Statistiques", to: "/app/projets/$id/statistiques" },
   { label: "Partage", to: "/app/projets/$id/partage" },

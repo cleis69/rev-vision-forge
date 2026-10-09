@@ -1,6 +1,7 @@
 import { Suspense, lazy } from "react";
 import { Rotate3d } from "lucide-react";
 
+import { useCopy } from "@/lib/i18n";
 import type { PublicLot, PublicTour } from "@/lib/public/programme";
 import { normalizeType } from "@/lib/tours";
 import { cn } from "@/lib/utils";
@@ -13,6 +14,24 @@ const TourViewer = lazy(() => import("./TourViewer"));
 const TourInlineViewer = lazy(() =>
   import("./TourViewer").then((m) => ({ default: m.TourInline })),
 );
+
+const COPY = {
+  fr: {
+    opening: "Ouverture de la visite…",
+    tour: "Visite 360°",
+    rooms: (n: number) => `${n} pièce${n > 1 ? "s" : ""}`,
+    toExplore: (n: number) => `${n} pièce${n > 1 ? "s" : ""} à parcourir`,
+    forType: (count: number) =>
+      ` · pour ${count === 1 ? "le lot" : `les ${count} lots`} de ce type`,
+  },
+  en: {
+    opening: "Opening the tour…",
+    tour: "360° tour",
+    rooms: (n: number) => `${n} room${n === 1 ? "" : "s"}`,
+    toExplore: (n: number) => `${n} room${n === 1 ? "" : "s"} to explore`,
+    forType: (count: number) => ` · for ${count} lot${count === 1 ? "" : "s"} of this type`,
+  },
+};
 
 /** A tour opened full screen: for a lot (or the programme), from a room (else the entrance). */
 export type OpenTour = { tour: PublicTour; lotId: string | null; roomId?: string };
@@ -28,6 +47,7 @@ export function TourOverlay({
   onPlan: ((open: OpenTour) => void) | null;
   variant?: "page" | "embed" | "presentation";
 }) {
+  const copy = useCopy(COPY);
   if (!open) return null;
   return (
     <Suspense
@@ -36,7 +56,7 @@ export function TourOverlay({
           className="fixed inset-0 z-[70] grid place-items-center bg-black text-sm text-white/70"
           role="status"
         >
-          Ouverture de la visite…
+          {copy.opening}
         </div>
       }
     >
@@ -99,8 +119,6 @@ export function TourInPage({
   );
 }
 
-const rooms = (n: number) => `${n} pièce${n > 1 ? "s" : ""}`;
-
 /** Button of the lot sheet. */
 export function TourButton({
   tour,
@@ -111,6 +129,7 @@ export function TourButton({
   onOpen: () => void;
   large?: boolean;
 }) {
+  const copy = useCopy(COPY);
   return (
     <button
       type="button"
@@ -133,10 +152,10 @@ export function TourButton({
       </span>
       <span className="min-w-0">
         <span className={cn("block font-medium text-white", large ? "text-xl" : "text-sm")}>
-          Visite 360°
+          {copy.tour}
         </span>
         <span className={cn("block text-white/55", large ? "text-base" : "text-xs")}>
-          {rooms(tour.rooms.length)} à parcourir
+          {copy.toExplore(tour.rooms.length)}
         </span>
       </span>
     </button>
@@ -153,6 +172,7 @@ export function ToursSection({
   lots: PublicLot[];
   onOpen: (tour: PublicTour) => void;
 }) {
+  const copy = useCopy(COPY);
   const typeCount = (type: string) =>
     lots.filter((l) => l.type && normalizeType(l.type) === normalizeType(type)).length;
   return (
@@ -184,9 +204,9 @@ export function ToursSection({
                   {tour.label}
                 </span>
                 <span className="mt-1 block text-sm text-white/55">
-                  {rooms(tour.rooms.length)}
+                  {copy.rooms(tour.rooms.length)}
                   {tour.lotType && count > 0
-                    ? ` · pour ${count === 1 ? "le lot" : `les ${count} lots`} de ce type`
+                    ? copy.forType(count)
                     : lot?.type
                       ? ` · ${lot.type}`
                       : ""}

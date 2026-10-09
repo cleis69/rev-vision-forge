@@ -4,11 +4,13 @@ import { STATUS_LABELS, type LotField, type LotValues } from "./lot-fields";
 const decimal = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
 const prices = new Map<string, Intl.NumberFormat>();
 
-export function formatPrice(value: number, currency: string): string {
-  let format = prices.get(currency);
+/** Price in French (1 250 000 €), or in British English (€1,250,000) on the English pages. */
+export function formatPrice(value: number, currency: string, locale: "fr" | "en" = "fr"): string {
+  const key = `${locale}:${currency}`;
+  let format = prices.get(key);
   if (!format) {
     try {
-      format = new Intl.NumberFormat("fr-FR", {
+      format = new Intl.NumberFormat(locale === "en" ? "en-GB" : "fr-FR", {
         style: "currency",
         currency,
         maximumFractionDigits: 2,
@@ -17,7 +19,7 @@ export function formatPrice(value: number, currency: string): string {
     } catch {
       format = decimal;
     }
-    prices.set(currency, format);
+    prices.set(key, format);
   }
   return format.format(value);
 }

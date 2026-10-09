@@ -2,8 +2,23 @@ import { useState } from "react";
 import { FileDown, Play } from "lucide-react";
 
 import { mediaDocument, mediaImage, mediaVideo, type MediaItem } from "@/lib/app/media";
-import { formatSize } from "@/lib/video";
+import { useCopy } from "@/lib/i18n";
+import { useLocale } from "@/lib/public/i18n";
+import { fileSize } from "@/lib/public/typologies";
 import { MediaViewer } from "./MediaViewer";
+
+const COPY = {
+  fr: {
+    playVideo: "Lire la vidéo",
+    enlargePlan: (n: number) => `Agrandir le plan ${n}`,
+    plan: "Plan",
+  },
+  en: {
+    playVideo: "Play video",
+    enlargePlan: (n: number) => `Enlarge floor plan ${n}`,
+    plan: "Floor plan",
+  },
+};
 
 /** Plans, videos and brochure of a lot (its own, and those of its type), in its sheet. */
 export function LotFiles({
@@ -17,6 +32,8 @@ export function LotFiles({
   documents: MediaItem[];
   title: string;
 }) {
+  const copy = useCopy(COPY);
+  const locale = useLocale();
   const [viewing, setViewing] = useState<{ items: MediaItem[]; index: number } | null>(null);
   if (plans.length + videos.length + documents.length === 0) return null;
   const tiles = [...plans, ...videos];
@@ -33,7 +50,7 @@ export function LotFiles({
                   type="button"
                   onClick={() => setViewing({ items: tiles, index: i })}
                   className="relative block h-20 w-28 overflow-hidden rounded-lg border border-white/10 bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-                  aria-label={video ? "Lire la vidéo" : `Agrandir le plan ${i + 1}`}
+                  aria-label={video ? copy.playVideo : copy.enlargePlan(i + 1)}
                 >
                   {still ? (
                     <img
@@ -53,7 +70,7 @@ export function LotFiles({
                     </span>
                   ) : (
                     <span className="absolute bottom-1 left-1 rounded bg-black/65 px-1.5 py-0.5 text-[10px] text-white">
-                      Plan
+                      {copy.plan}
                     </span>
                   )}
                 </button>
@@ -78,7 +95,7 @@ export function LotFiles({
                 <FileDown className="size-4" aria-hidden />
                 {file.caption || "Brochure"}
                 {file.size ? (
-                  <span className="text-xs text-white/50">PDF · {formatSize(file.size)}</span>
+                  <span className="text-xs text-white/50">PDF · {fileSize(file.size, locale)}</span>
                 ) : null}
               </a>
             );

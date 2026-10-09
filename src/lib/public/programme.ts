@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
+import { useLocale } from "@/lib/i18n";
+
 import { toMediaItem, type MediaItem } from "@/lib/app/media";
 import { parseAmenities, type Amenity } from "@/lib/amenities";
 import { parseLotTypes, type LotTypeNote } from "@/lib/lot-types";
@@ -14,6 +16,8 @@ import type { ViewLike } from "@/lib/views";
 import { getSupabase } from "@/lib/supabase/client";
 import { DEFAULT_BRAND } from "@/lib/brand";
 import { isPosition, parsePlaces, type Place, type Position } from "@/lib/location";
+import { parseTranslations, type TranslationMap } from "@/lib/translations";
+import { localizeData } from "./localize";
 
 /* Public page of a programme (/p/$slug). Visitors read the public views
    (published programmes only, prices hidden when show_prices is off). A member
@@ -110,6 +114,8 @@ export type PublicProgramme = {
   lotTypes: LotTypeNote[];
   /** Photo chosen for the top of the page (see coverPhoto). */
   coverId: string | null;
+  /** English version of the promoter's texts (see localizeData). */
+  translations: TranslationMap;
 };
 
 export type PublicData = {
@@ -151,6 +157,7 @@ type Source = {
   amenities: unknown;
   lot_types: unknown;
   cover_media_id: string | null;
+  translations: unknown;
 };
 
 const features = (value: unknown) =>
@@ -299,6 +306,7 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
       amenities: parseAmenities(source.amenities),
       lotTypes: parseLotTypes(source.lot_types),
       coverId: source.cover_media_id ?? null,
+      translations: parseTranslations(source.translations),
     },
     lots: lots.data
       .flatMap((l) =>
@@ -349,9 +357,14 @@ function orbitOf(
   return { frames, masks, colors: linked };
 }
 
+// In English, the promoter's texts that have an English version (stable: React Query keeps the result).
+const inEnglish = (data: PublicData | null) => (data ? localizeData(data) : data);
+
 export function usePublicProgramme(slug: string) {
+  const locale = useLocale();
   return useQuery({
     queryKey: ["public-programme", slug],
+    ...(locale === "en" ? { select: inEnglish } : {}),
     queryFn: async (): Promise<PublicData | null> => {
       const supabase = getSupabase();
       const { data: published, error } = await supabase

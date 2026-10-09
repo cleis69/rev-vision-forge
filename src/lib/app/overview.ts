@@ -49,7 +49,8 @@ export function salesSummary(
 export const percentOf = (part: number, total: number) =>
   total === 0 ? 0 : Math.round((part / total) * 100);
 
-export type CheckTab = "plan" | "lots" | "typologies" | "medias" | "visite" | "reglages";
+export type CheckTab =
+  "plan" | "lots" | "typologies" | "medias" | "visite" | "anglais" | "reglages";
 export type PageCheck = {
   key: string;
   ok: boolean;
@@ -70,6 +71,7 @@ export function pageChecks({
   markers,
   media,
   rooms,
+  english,
 }: {
   project: Pick<
     Project,
@@ -83,6 +85,8 @@ export function pageChecks({
   media: readonly { kind: string; lot_type: string | null }[];
   /** Rooms of the 360° tours. */
   rooms: number;
+  /** The promoter's texts that have their English version, out of all of them. */
+  english?: { done: number; total: number };
 }): PageCheck[] {
   const sequences = orbits.filter((o) => o.frames.length > 0);
   const ready = sequences.length + views.filter((v) => v.panorama_path).length;
@@ -208,6 +212,17 @@ export function pageChecks({
       tab: "reglages",
       essential: false,
     },
+    ...(english && english.total > 0
+      ? [
+          {
+            key: "english",
+            ok: english.done === english.total,
+            label: `Version anglaise : ${english.done} / ${english.total} textes`,
+            tab: "anglais" as const,
+            essential: false,
+          },
+        ]
+      : []),
   ];
   return checks;
 }

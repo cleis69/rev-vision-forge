@@ -594,6 +594,7 @@ export type Database = {
           show_prices: boolean;
           slug: string;
           status: Database["public"]["Enums"]["project_status"];
+          translations: Json;
           updated_at: string;
         };
         Insert: {
@@ -617,6 +618,7 @@ export type Database = {
           show_prices?: boolean;
           slug: string;
           status?: Database["public"]["Enums"]["project_status"];
+          translations?: Json;
           updated_at?: string;
         };
         Update: {
@@ -640,6 +642,7 @@ export type Database = {
           show_prices?: boolean;
           slug?: string;
           status?: Database["public"]["Enums"]["project_status"];
+          translations?: Json;
           updated_at?: string;
         };
         Relationships: [
@@ -749,6 +752,7 @@ export type Database = {
           price_from: number | null;
           show_prices: boolean | null;
           slug: string | null;
+          translations: Json | null;
           updated_at: string | null;
         };
         Relationships: [];
@@ -776,6 +780,7 @@ export type Database = {
       is_valid_amenities: { Args: { amenities: Json }; Returns: boolean };
       is_valid_lot_types: { Args: { lot_types: Json }; Returns: boolean };
       is_valid_places: { Args: { places: Json }; Returns: boolean };
+      is_valid_translations: { Args: { translations: Json }; Returns: boolean };
       project_stats: {
         Args: { p_days: number; p_project_id: string; p_tz?: string };
         Returns: Json;

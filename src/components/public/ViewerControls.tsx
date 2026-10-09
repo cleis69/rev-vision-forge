@@ -1,11 +1,17 @@
 import type { ReactNode } from "react";
 import { Minus, Plus } from "lucide-react";
 
+import { useCopy } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 /* Zoom buttons of the 360° viewers of the public pages, in the same pill as
    the orbital views (the viewer's own bar is not shown: on a narrow screen
    it folded the zoom into a menu, which showed it twice). */
+
+const COPY = {
+  fr: { zoomOut: "Dézoomer", zoomIn: "Zoomer" },
+  en: { zoomOut: "Zoom out", zoomIn: "Zoom in" },
+};
 
 export function ViewerControls({
   onZoomIn,
@@ -21,6 +27,7 @@ export function ViewerControls({
   /** More buttons after the zoom (full screen…). */
   children?: ReactNode;
 }) {
+  const copy = useCopy(COPY);
   const button = cn(
     "grid place-items-center rounded-full transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
     large ? "size-11" : "size-9",
@@ -34,10 +41,10 @@ export function ViewerControls({
         className,
       )}
     >
-      <button type="button" aria-label="Dézoomer" onClick={onZoomOut} className={button}>
+      <button type="button" aria-label={copy.zoomOut} onClick={onZoomOut} className={button}>
         <Minus aria-hidden className={large ? "size-5" : "size-4"} />
       </button>
-      <button type="button" aria-label="Zoomer" onClick={onZoomIn} className={button}>
+      <button type="button" aria-label={copy.zoomIn} onClick={onZoomIn} className={button}>
         <Plus aria-hidden className={large ? "size-5" : "size-4"} />
       </button>
       {children}

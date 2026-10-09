@@ -28,6 +28,7 @@ import { useViews } from "@/lib/app/plan";
 import { lotRows, useProjectStats } from "@/lib/app/stats";
 import { usePanoramas } from "@/lib/app/tours";
 import { useViewMarkers } from "@/lib/app/view-panorama";
+import { parseTranslations, sourceTexts } from "@/lib/translations";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/_espace/projets/$id/apercu")({
@@ -44,6 +45,7 @@ const TAB_ROUTES = {
   typologies: "/app/projets/$id/typologies",
   medias: "/app/projets/$id/medias",
   visite: "/app/projets/$id/visite",
+  anglais: "/app/projets/$id/anglais",
   reglages: "/app/projets/$id/reglages",
 } as const satisfies Record<CheckTab, string>;
 
@@ -483,6 +485,17 @@ function Contents() {
   const loading = [lots, orbits, views, markers, media, rooms].some((q) => q.isPending);
 
   if (loading) return <Skeleton className="h-80 rounded-2xl" />;
+  function englishProgress() {
+    const texts = sourceTexts({
+      project,
+      lots: lots.data ?? [],
+      media: media.data ?? [],
+      views: views.data ?? [],
+      rooms: rooms.data ?? [],
+    });
+    const map = parseTranslations(project.translations);
+    return { done: texts.filter((t) => map[t.text]).length, total: texts.length };
+  }
   const checks = pageChecks({
     project,
     lots: lots.data ?? [],
@@ -491,6 +504,7 @@ function Contents() {
     markers: markers.data ?? [],
     media: media.data ?? [],
     rooms: rooms.data?.length ?? 0,
+    english: englishProgress(),
   });
   const done = checks.filter((c) => c.ok).length;
 

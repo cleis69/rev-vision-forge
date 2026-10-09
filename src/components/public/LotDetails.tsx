@@ -1,16 +1,42 @@
 import type { ElementType, ReactNode } from "react";
 import { Bath, BedDouble, Layers, Maximize2, Trees } from "lucide-react";
 
-import { STATUS_LABELS, type LotStatus } from "@/lib/app/lot-fields";
+import type { LotStatus } from "@/lib/app/lot-fields";
 import { mediaImage, type MediaItem } from "@/lib/app/media";
+import { useCopy } from "@/lib/i18n";
+import { NUMBER_LOCALE, usePublicText, type Locale } from "@/lib/public/i18n";
 import type { PublicLot } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
-import { levelLabel } from "@/lib/views";
 import { priceLabel } from "./status";
 
-const area = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
+const AREA: Record<Locale, Intl.NumberFormat> = {
+  fr: new Intl.NumberFormat(NUMBER_LOCALE.fr, { maximumFractionDigits: 2 }),
+  en: new Intl.NumberFormat(NUMBER_LOCALE.en, { maximumFractionDigits: 2 }),
+};
+
+const COPY = {
+  fr: {
+    photos: (numero: string) => `Photos du lot ${numero}`,
+    livingArea: "Surface habitable",
+    plot: "Terrain",
+    bedrooms: "Chambres",
+    bathrooms: "Salles de bains",
+    floor: "Niveau",
+    features: "Caractéristiques",
+  },
+  en: {
+    photos: (numero: string) => `Photos of lot ${numero}`,
+    livingArea: "Living area",
+    plot: "Plot",
+    bedrooms: "Bedrooms",
+    bathrooms: "Bathrooms",
+    floor: "Floor",
+    features: "Features",
+  },
+};
 
 export function StatusChip({ status, className }: { status: LotStatus; className?: string }) {
+  const text = usePublicText();
   return (
     <span
       className={cn(
@@ -30,7 +56,7 @@ export function StatusChip({ status, className }: { status: LotStatus; className
           status === "vendue" && "bg-white/50",
         )}
       />
-      {STATUS_LABELS[status]}
+      {text.status[status]}
     </span>
   );
 }
@@ -62,12 +88,15 @@ export function LotDetails({
   /** Under the price: the 360° tour of the lot. */
   extra?: ReactNode;
 }) {
+  const copy = useCopy(COPY);
+  const text = usePublicText();
+  const area = AREA[text.locale];
   return (
     <article className={cn(split && photos.length > 0 && "md:grid md:grid-cols-2")}>
       {photos.length > 0 ? (
         <div
           className={cn("flex snap-x snap-mandatory overflow-x-auto", split && "md:self-start")}
-          aria-label={`Photos du lot ${lot.numero}`}
+          aria-label={copy.photos(lot.numero)}
           role="region"
           tabIndex={0}
         >
@@ -124,7 +153,7 @@ export function LotDetails({
               lot.statut === "vendue" && "text-white/50",
             )}
           >
-            {priceLabel(lot, currency)}
+            {priceLabel(lot, currency, text.locale)}
           </Description>
         </div>
 
@@ -135,13 +164,13 @@ export function LotDetails({
             <Fact
               large={large}
               icon={<Maximize2 className="size-4" aria-hidden />}
-              label="Surface habitable"
+              label={copy.livingArea}
             >
               {area.format(lot.surface_habitable)} m²
             </Fact>
           ) : null}
           {lot.surface_terrain !== null ? (
-            <Fact large={large} icon={<Trees className="size-4" aria-hidden />} label="Terrain">
+            <Fact large={large} icon={<Trees className="size-4" aria-hidden />} label={copy.plot}>
               {area.format(lot.surface_terrain)} m²
             </Fact>
           ) : null}
@@ -149,7 +178,7 @@ export function LotDetails({
             <Fact
               large={large}
               icon={<BedDouble className="size-4" aria-hidden />}
-              label="Chambres"
+              label={copy.bedrooms}
             >
               {lot.chambres}
             </Fact>
@@ -158,14 +187,14 @@ export function LotDetails({
             <Fact
               large={large}
               icon={<Bath className="size-4" aria-hidden />}
-              label="Salles de bains"
+              label={copy.bathrooms}
             >
               {lot.salles_de_bain}
             </Fact>
           ) : null}
           {lot.niveau !== null ? (
-            <Fact large={large} icon={<Layers className="size-4" aria-hidden />} label="Niveau">
-              {levelLabel(lot.niveau)}
+            <Fact large={large} icon={<Layers className="size-4" aria-hidden />} label={copy.floor}>
+              {text.level(lot.niveau)}
             </Fact>
           ) : null}
         </dl>
@@ -184,7 +213,7 @@ export function LotDetails({
         {lot.features.length > 0 ? (
           <div>
             <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/50">
-              Caractéristiques
+              {copy.features}
             </h3>
             <ul className="mt-3 flex flex-wrap gap-2">
               {lot.features.map((f) => (

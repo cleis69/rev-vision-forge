@@ -5,8 +5,9 @@ import { MarkersPlugin } from "@photo-sphere-viewer/markers-plugin";
 import "@photo-sphere-viewer/core/index.css";
 import "@photo-sphere-viewer/markers-plugin/index.css";
 
-import { VIEWER_LANG } from "@/components/tour/arrow";
+import { viewerLang } from "@/components/tour/arrow";
 import type { LotStatus } from "@/lib/app/lot-fields";
+import { useLocale } from "@/lib/public/i18n";
 import type { PublicLot, PublicViewPanorama } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
 import { Maximize, Minimize } from "lucide-react";
@@ -22,7 +23,29 @@ import { StatusLegend } from "./status";
    two fingers turn); in presentation mode everything turns the view.
    Loaded on demand (the viewer weighs its own). */
 
-const LANG = { ...VIEWER_LANG, autorotate: "Rotation automatique" };
+const COPY = {
+  fr: {
+    autorotate: "Rotation automatique",
+    view: "vue 360°",
+    label: (name: string, lots: number) => `${name} en 360°. ${lots} lots repérés.`,
+    fullscreen: "Plein écran",
+    exitFullscreen: "Quitter le plein écran",
+    hint: "Glissez pour regarder autour, Ctrl + molette pour zoomer, cliquez un lot pour sa fiche",
+    touchHint: "Glissez pour regarder autour · touchez un lot pour sa fiche",
+    twoFingersHint: "Deux doigts pour regarder autour · touchez un lot pour sa fiche",
+  },
+  en: {
+    autorotate: "Auto-rotation",
+    view: "360° view",
+    label: (name: string, lots: number) =>
+      `${name} in 360°. ${lots} lot${lots === 1 ? "" : "s"} marked.`,
+    fullscreen: "Full screen",
+    exitFullscreen: "Exit full screen",
+    hint: "Drag to look around, Ctrl + scroll to zoom, click a lot for its details",
+    touchHint: "Drag to look around · tap a lot for its details",
+    twoFingersHint: "Two fingers to look around · tap a lot for its details",
+  },
+};
 
 export default function AerialViewer({
   panorama,
@@ -48,6 +71,8 @@ export default function AerialViewer({
   onOpen: (lot: PublicLot, from: "plan" | "keyboard") => void;
 }) {
   const large = variant === "presentation";
+  const locale = useLocale();
+  const copy = COPY[locale];
   const box = useRef<HTMLDivElement>(null);
   const container = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Viewer | null>(null);
@@ -74,7 +99,7 @@ export default function AerialViewer({
         defaultZoomLvl: 0,
         // Our own buttons: the viewer's bar folded the zoom into a menu on narrow screens.
         navbar: false,
-        lang: LANG,
+        lang: { ...viewerLang(locale), autorotate: copy.autorotate },
         keyboard: large ? "always" : "fullscreen",
         mousewheelCtrlKey: !large,
         touchmoveTwoFingers: !large,
@@ -130,6 +155,7 @@ export default function AerialViewer({
             element: lotTagElement(lot, {
               currency,
               large,
+              locale,
               dim: filter !== null && lot.statut !== filter,
               active: selected === lot.id || Boolean(highlight?.has(lot.id)),
             }),
@@ -141,7 +167,7 @@ export default function AerialViewer({
     );
     // markerKey sums up the markers.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, markerKey, filter, currency, large]);
+  }, [ready, markerKey, filter, currency, large, locale]);
 
   const [full, setFull] = useState(false);
   useEffect(() => {
@@ -182,8 +208,8 @@ export default function AerialViewer({
         <div
           ref={container}
           role="region"
-          aria-roledescription="vue 360°"
-          aria-label={`${viewName} en 360°. ${panorama.markers.length} lots repérés.`}
+          aria-roledescription={copy.view}
+          aria-label={copy.label(viewName, panorama.markers.length)}
           className="absolute inset-0"
         />
         <ViewerControls
@@ -196,7 +222,7 @@ export default function AerialViewer({
             <button
               type="button"
               onClick={toggleFull}
-              aria-label={full ? "Quitter le plein écran" : "Plein écran"}
+              aria-label={full ? copy.exitFullscreen : copy.fullscreen}
               className="grid size-9 place-items-center rounded-full transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
             >
               {full ? (
@@ -210,12 +236,8 @@ export default function AerialViewer({
       </div>
       <StatusLegend
         large={large}
-        hint="Glissez pour regarder autour, Ctrl + molette pour zoomer, cliquez un lot pour sa fiche"
-        touchHint={
-          large
-            ? "Glissez pour regarder autour · touchez un lot pour sa fiche"
-            : "Deux doigts pour regarder autour · touchez un lot pour sa fiche"
-        }
+        hint={copy.hint}
+        touchHint={large ? copy.touchHint : copy.twoFingersHint}
       />
     </div>
   );

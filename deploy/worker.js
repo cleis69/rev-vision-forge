@@ -5,7 +5,8 @@
 //   password is the Worker secret AGENT_PASSWORD; while it is not set, the
 //   pages stay closed to everyone.
 // - /app/…: the promoter space, /p/…: the public pages of the programmes, and
-//   /embed/…: their sales plan for an iframe on the promoters' sites, all
+//   /embed/…: their sales plan for an iframe on the promoters' sites (both
+//   also in English under /en/p/… and /en/embed/…), all
 //   rendered in the browser from the SPA shell (_shell.html); for /p/… the
 //   Worker also writes the link preview (title, description, image).
 // Everything else on the site is served straight from static assets.
@@ -16,11 +17,12 @@ const PRIVATE = /^\/(agent-ia|en\/ai-agent)(\.html|\/)?$/;
 // Promoter space and public programme pages: rendered in the browser from the
 // SPA shell of the build, never indexed (programmes are shared by link).
 const APP = /^\/app(\/|$)/;
-const PROGRAMME = /^\/p\/[^/]+/;
+const PROGRAMME = /^\/(?:en\/)?p\/[^/]+/;
 // Sales plan alone, embedded in an iframe on the promoter's own website.
-const EMBED = /^\/embed\/[^/]+\/?$/;
-// Programme page or lot page, whose link preview is written by the Worker.
-const PREVIEWED = /^\/p\/([^/]+)(?:\/lot\/([^/]+))?\/?$/;
+const EMBED = /^\/(?:en\/)?embed\/[^/]+\/?$/;
+// Programme page or lot page (in French, or in English under /en), whose link
+// preview is written by the Worker.
+const PREVIEWED = /^\/(en\/)?p\/([^/]+)(?:\/lot\/([^/]+))?\/?$/;
 
 export default {
   async fetch(request, env) {
@@ -110,13 +112,15 @@ async function programmePage(request, env) {
   const match = PREVIEWED.exec(url.pathname);
   if (!match || !env.SUPABASE_URL || !env.SUPABASE_KEY || shell.status !== 200) return shell;
   let meta = null;
+  const locale = match[1] ? "en" : "fr";
   try {
-    const numero = match[2] ? decodeURIComponent(match[2]) : null;
+    const numero = match[3] ? decodeURIComponent(match[3]) : null;
     meta = await loadPreview(
       env,
-      decodeURIComponent(match[1]),
+      decodeURIComponent(match[2]),
       numero,
       `https://${url.host}${url.pathname}`,
+      locale,
     );
   } catch {
     // Supabase unreachable: the page still works, only the preview is generic.
@@ -124,7 +128,12 @@ async function programmePage(request, env) {
   if (!meta) {
     // Unknown or unpublished programme: a neutral title instead of the shell's.
     return new HTMLRewriter()
-      .on("title", { element: (el) => void el.setInnerContent("Programme non disponible") })
+      .on("title", {
+        element: (el) =>
+          void el.setInnerContent(
+            locale === "en" ? "Programme unavailable" : "Programme non disponible",
+          ),
+      })
       .transform(shell);
   }
   return new HTMLRewriter()

@@ -897,6 +897,26 @@ begin
   select count(*) into n from public.projects where id = p_pub and cover_media_id is null;
   total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'suppression de la photo d''accueil : choix resté'::text; end if;
 
+  -- English version of the texts: { en: { "<français>": "<English>" } } only.
+  update public.projects set translations = '{"en":{"Salon":"Living room"}}' where id = p_pub;
+  set local role anon;
+  select count(*) into n from public.public_projects
+  where id = p_pub and translations->'en'->>'Salon' = 'Living room';
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'traductions absentes de la page publique'::text; end if;
+
+  begin
+    update public.projects set translations = '{"de":{"Salon":"Wohnzimmer"}}' where id = p_pub;
+    ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'traduction dans une autre langue acceptée'::text; end if;
+
+  begin
+    update public.projects set translations = '{"en":{"Salon":"  "}}' where id = p_pub;
+    ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'traduction vide acceptée'::text; end if;
+
   ---------------------------------------------------------------- report
   if failed = 0 then
     raise exception 'RLS TESTS PASSED %/%', total, total;

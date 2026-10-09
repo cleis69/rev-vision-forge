@@ -1,13 +1,36 @@
 import { Bath, BedDouble, GitCompareArrows, Maximize2, Trees } from "lucide-react";
 
 import { mediaImage, type MediaItem } from "@/lib/app/media";
+import { useCopy } from "@/lib/i18n";
+import { NUMBER_LOCALE, usePublicText, type Locale } from "@/lib/public/i18n";
 import type { PublicLot } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
-import { levelLabel } from "@/lib/views";
 import { StatusChip } from "./LotDetails";
 import { priceLabel } from "./status";
 
-const area = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 });
+const AREA: Record<Locale, Intl.NumberFormat> = {
+  fr: new Intl.NumberFormat(NUMBER_LOCALE.fr, { maximumFractionDigits: 0 }),
+  en: new Intl.NumberFormat(NUMBER_LOCALE.en, { maximumFractionDigits: 0 }),
+};
+
+const COPY = {
+  fr: {
+    bedrooms: (n: number) => `${n} ch.`,
+    bathrooms: (n: number) => `${n} sdb`,
+    plot: (area: string) => `Terrain ${area} m²`,
+    compare: "Comparer",
+    toggle: (compared: boolean, numero: string) =>
+      `${compared ? "Retirer du" : "Ajouter au"} comparateur : lot ${numero}`,
+  },
+  en: {
+    bedrooms: (n: number) => `${n} bed`,
+    bathrooms: (n: number) => `${n} bath`,
+    plot: (area: string) => `Plot ${area} m²`,
+    compare: "Compare",
+    toggle: (compared: boolean, numero: string) =>
+      `${compared ? "Remove from" : "Add to"} comparison: lot ${numero}`,
+  },
+};
 
 /** Grid of the lots: under the plan on the programme page, or instead of it when there is none. */
 export function LotCards({
@@ -27,6 +50,9 @@ export function LotCards({
   /** Photo of a lot (its own, else one of its type). */
   photoOf?: (lot: PublicLot) => MediaItem | null;
 }) {
+  const copy = useCopy(COPY);
+  const text = usePublicText();
+  const area = AREA[text.locale];
   const withPhotos = Boolean(photoOf && lots.some((l) => photoOf(l)));
   return (
     <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -82,7 +108,7 @@ export function LotCards({
                   />
                 </span>
                 <span className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1 text-sm text-white/60">
-                  {lot.niveau !== null ? <span>{levelLabel(lot.niveau)}</span> : null}
+                  {lot.niveau !== null ? <span>{text.level(lot.niveau)}</span> : null}
                   {lot.surface_habitable !== null ? (
                     <span className="inline-flex items-center gap-1.5">
                       <Maximize2 className="size-3.5" aria-hidden />
@@ -92,19 +118,19 @@ export function LotCards({
                   {lot.chambres !== null ? (
                     <span className="inline-flex items-center gap-1.5">
                       <BedDouble className="size-3.5" aria-hidden />
-                      {lot.chambres} ch.
+                      {copy.bedrooms(lot.chambres)}
                     </span>
                   ) : null}
                   {lot.salles_de_bain !== null ? (
                     <span className="inline-flex items-center gap-1.5">
                       <Bath className="size-3.5" aria-hidden />
-                      {lot.salles_de_bain} sdb
+                      {copy.bathrooms(lot.salles_de_bain)}
                     </span>
                   ) : null}
                   {lot.surface_terrain !== null ? (
                     <span className="inline-flex items-center gap-1.5">
                       <Trees className="size-3.5" aria-hidden />
-                      Terrain {area.format(lot.surface_terrain)} m²
+                      {copy.plot(area.format(lot.surface_terrain))}
                     </span>
                   ) : null}
                 </span>
@@ -114,7 +140,7 @@ export function LotCards({
                     sold ? "text-white/45" : "text-white",
                   )}
                 >
-                  {priceLabel(lot, currency)}
+                  {priceLabel(lot, currency, text.locale)}
                 </span>
               </span>
             </button>
@@ -123,7 +149,7 @@ export function LotCards({
                 type="button"
                 onClick={() => compare.onToggle(lot)}
                 aria-pressed={compared}
-                aria-label={`${compared ? "Retirer du" : "Ajouter au"} comparateur : lot ${lot.numero}`}
+                aria-label={copy.toggle(compared, lot.numero)}
                 className={cn(
                   "absolute bottom-3.5 right-3.5 inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:bottom-4 sm:right-4",
                   compared
@@ -132,7 +158,7 @@ export function LotCards({
                 )}
               >
                 <GitCompareArrows className="size-3.5" aria-hidden />
-                Comparer
+                {copy.compare}
               </button>
             ) : null}
           </li>

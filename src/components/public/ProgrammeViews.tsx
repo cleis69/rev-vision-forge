@@ -1,6 +1,7 @@
 import { Suspense, lazy, useMemo } from "react";
 
 import type { LotStatus } from "@/lib/app/lot-fields";
+import { useCopy } from "@/lib/i18n";
 import type { PublicData, PublicLot } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
 import type { ViewKey } from "@/lib/public/use-views";
@@ -13,6 +14,23 @@ const AerialViewer = lazy(() => import("./AerialViewer"));
    a 360° panorama: the aerial view, the roof, the pedestrian view… as
    buttons, the floors as a column from the top floor down, as on a building,
    each with its number of available lots; the chosen one is shown. */
+
+const COPY = {
+  fr: {
+    loading: "Chargement de la vue…",
+    views: "Vues du programme",
+    floors: "Niveaux",
+    full: "Complet",
+    available: (n: number) => `${n} dispo.`,
+  },
+  en: {
+    loading: "Loading the view…",
+    views: "Views of the programme",
+    floors: "Floors",
+    full: "None available",
+    available: (n: number) => `${n} available`,
+  },
+};
 
 export function ProgrammeViews({
   data,
@@ -37,6 +55,7 @@ export function ProgrammeViews({
 }) {
   const { programme, lots, views } = data;
   const large = variant === "presentation";
+  const copy = useCopy(COPY);
   const side = useMemo(() => sideViews(views), [views]);
   const floors = useMemo(() => floorsDown(views), [views]);
   const current = views.find((v) => v.id === viewKey) ?? null;
@@ -65,7 +84,7 @@ export function ProgrammeViews({
             large ? "min-h-0 flex-1" : "aspect-[16/10] sm:aspect-[16/9]",
           )}
         >
-          Chargement de la vue…
+          {copy.loading}
         </div>
       }
     >
@@ -104,7 +123,7 @@ export function ProgrammeViews({
   return (
     <div className={cn(large ? "flex h-full min-h-0 flex-col gap-3" : "space-y-3")}>
       {choices >= 2 || (choices >= 1 && floors.length > 0) ? (
-        <div role="group" aria-label="Vues du programme" className="flex flex-wrap gap-2">
+        <div role="group" aria-label={copy.views} className="flex flex-wrap gap-2">
           {side.map((v) => (
             <button
               key={v.id}
@@ -131,7 +150,7 @@ export function ProgrammeViews({
         <div className={cn("min-w-0 flex-1", large && "flex min-h-0 flex-col")}>{stage}</div>
         {floors.length > 0 ? (
           <nav
-            aria-label="Niveaux"
+            aria-label={copy.floors}
             className={cn(
               "order-first flex gap-2 sm:order-none sm:flex-col",
               // Phones: a row of floors above the plan; elsewhere a column, top floor first.
@@ -166,7 +185,7 @@ export function ProgrammeViews({
                     {v.name}
                   </span>
                   <span className={cn("text-white/55", large ? "text-sm" : "text-[11px]")}>
-                    {v.lots.size === 0 ? "\u00a0" : free === 0 ? "Complet" : `${free} dispo.`}
+                    {v.lots.size === 0 ? "\u00a0" : free === 0 ? copy.full : copy.available(free)}
                   </span>
                 </button>
               );

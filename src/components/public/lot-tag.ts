@@ -1,3 +1,4 @@
+import type { Locale } from "@/lib/public/i18n";
 import type { PublicLot } from "@/lib/public/programme";
 import { statusAndPrice } from "./status";
 
@@ -13,7 +14,15 @@ export function lotTagElement(
     dim = false,
     active = false,
     large = false,
-  }: { currency: string; dim?: boolean; active?: boolean; large?: boolean },
+    locale = "fr",
+  }: {
+    currency: string;
+    dim?: boolean;
+    active?: boolean;
+    large?: boolean;
+    /** Language of the status and price (the promoter's space: French). */
+    locale?: Locale;
+  },
 ): HTMLElement {
   const root = document.createElement("div");
   root.className = [
@@ -49,7 +58,7 @@ export function lotTagElement(
   title.textContent = `Lot ${lot.numero}${lot.type ? ` · ${lot.type}` : ""}`;
   const detail = document.createElement("p");
   detail.className = "mt-0.5 text-white/70";
-  detail.textContent = statusAndPrice(lot, currency);
+  detail.textContent = statusAndPrice(lot, currency, locale);
   card.append(title, detail);
 
   root.append(card, tag, stem, dot);

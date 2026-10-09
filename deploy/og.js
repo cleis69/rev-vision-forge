@@ -2,9 +2,28 @@
 // networks). Their crawlers do not run JavaScript, so the Worker writes the
 // title, description and image of the programme, or of the lot, into the
 // page it serves. Data comes from the public views of Supabase, with the
-// publishable key: prices hidden by the promoter stay hidden here too.
+// publishable key: prices hidden by the promoter stay hidden here too. In
+// French for /p/…, in English for /en/p/… (the promoter's texts in English
+// when they have a translation, see src/lib/translations.ts).
 
-const STATUS = { disponible: "Disponible", reservee: "Réservé", vendue: "Vendu" };
+const COPY = {
+  fr: {
+    status: { disponible: "Disponible", reservee: "Réservé", vendue: "Vendu" },
+    onRequest: "Prix sur demande",
+    bedrooms: (n) => `${n} chambre${n > 1 ? "s" : ""}`,
+    plan: "Plan de vente interactif",
+    number: "fr-FR",
+    og: "fr_FR",
+  },
+  en: {
+    status: { disponible: "Available", reservee: "Reserved", vendue: "Sold" },
+    onRequest: "Price on request",
+    bedrooms: (n) => `${n} bedroom${n > 1 ? "s" : ""}`,
+    plan: "Interactive sales plan",
+    number: "en-GB",
+    og: "en_GB",
+  },
+};
 const BUCKET = "project-media";
 
 export function escapeHtml(text) {
@@ -15,9 +34,9 @@ export function escapeHtml(text) {
     .replace(/>/g, "&gt;");
 }
 
-export function money(value, currency) {
+export function money(value, currency, locale = "fr") {
   try {
-    return new Intl.NumberFormat("fr-FR", {
+    return new Intl.NumberFormat(COPY[locale].number, {
       style: "currency",
       currency,
       maximumFractionDigits: 0,
@@ -32,36 +51,47 @@ const shorten = (text, max) => {
   return clean.length <= max ? clean : `${clean.slice(0, max - 1).replace(/\s+\S*$/, "")}…`;
 };
 
+/** The English version of a text of the promoter, when there is one. */
+const translated = (programme, text, locale) => {
+  if (!text || locale !== "en") return text;
+  const en = programme.translations?.en;
+  return (en && typeof en[text.trim()] === "string" && en[text.trim()]) || text;
+};
+
 /** Title, description and image of a programme page, or of one of its lots. */
-export function previewMeta({ programme, lot, image, url }) {
+export function previewMeta({ programme, lot, image, url, locale = "fr" }) {
+  const copy = COPY[locale];
   const owner = programme.organization_name;
+  const city = translated(programme, programme.city, locale);
   if (lot) {
-    const status = STATUS[lot.statut] ?? "";
+    const status = copy.status[lot.statut] ?? "";
     const price =
       lot.statut === "vendue"
         ? null
         : lot.prix != null
-          ? money(lot.prix, programme.currency ?? "EUR")
-          : "Prix sur demande";
+          ? money(lot.prix, programme.currency ?? "EUR", locale)
+          : copy.onRequest;
     const area = lot.surface_habitable != null ? `${Math.round(lot.surface_habitable)} m²` : null;
-    const rooms =
-      lot.chambres != null ? `${lot.chambres} chambre${lot.chambres > 1 ? "s" : ""}` : null;
+    const rooms = lot.chambres != null ? copy.bedrooms(lot.chambres) : null;
     return {
       title: `Lot ${lot.numero}${lot.type ? ` · ${lot.type}` : ""} — ${programme.name}`,
-      description: [status, price, area, rooms, programme.city].filter(Boolean).join(" · "),
+      description: [status, price, area, rooms, city].filter(Boolean).join(" · "),
       image,
       url,
       site: owner || programme.name,
+      locale,
     };
   }
+  const description = translated(programme, programme.description, locale);
   return {
     title: owner ? `${programme.name} — ${owner}` : programme.name,
-    description: programme.description
-      ? shorten(programme.description, 180)
-      : [programme.city, "Plan de vente interactif"].filter(Boolean).join(" · "),
+    description: description
+      ? shorten(description, 180)
+      : [city, copy.plan].filter(Boolean).join(" · "),
     image,
     url,
     site: owner || programme.name,
+    locale,
   };
 }
 
@@ -70,7 +100,7 @@ export function metaTags(meta) {
   const tags = [
     ["name", "description", meta.description],
     ["property", "og:type", "website"],
-    ["property", "og:locale", "fr_FR"],
+    ["property", "og:locale", COPY[meta.locale ?? "fr"].og],
     ["property", "og:site_name", meta.site],
     ["property", "og:title", meta.title],
     ["property", "og:description", meta.description],
@@ -90,7 +120,7 @@ export function metaTags(meta) {
 const withSuffix = (path, suffix) => path.replace(/(\.[a-z0-9]+)$/i, `${suffix}$1`);
 
 /** Reads the programme (and lot) from Supabase; null when it is not published. */
-export async function loadPreview(env, slug, numero, pageUrl) {
+export async function loadPreview(env, slug, numero, pageUrl, locale = "fr") {
   const rest = async (query) => {
     const res = await fetch(`${env.SUPABASE_URL}/rest/v1/${query}`, {
       headers: { apikey: env.SUPABASE_KEY, accept: "application/json" },
@@ -102,7 +132,7 @@ export async function loadPreview(env, slug, numero, pageUrl) {
   };
 
   const [programme] = await rest(
-    `public_projects?slug=eq.${encodeURIComponent(slug)}&select=id,name,city,description,currency,organization_name,cover_media_id&limit=1`,
+    `public_projects?slug=eq.${encodeURIComponent(slug)}&select=id,name,city,description,currency,organization_name,cover_media_id,translations&limit=1`,
   );
   if (!programme) return null;
 
@@ -138,5 +168,5 @@ export async function loadPreview(env, slug, numero, pageUrl) {
       : null;
   const image = path ? `${env.SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}` : null;
 
-  return previewMeta({ programme, lot, image, url: pageUrl });
+  return previewMeta({ programme, lot, image, url: pageUrl, locale });
 }

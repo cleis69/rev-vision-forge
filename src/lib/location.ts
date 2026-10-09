@@ -3,6 +3,8 @@
    open the itinerary in Google Maps or Waze. Same limits as the database
    (public.is_valid_places). */
 
+import type { Locale } from "./i18n";
+
 export const MAX_PLACES = 12;
 export const PLACE_NAME_MAX = 80;
 export const ADDRESS_MAX = 300;
@@ -11,10 +13,13 @@ export type PlaceMode = "voiture" | "pied";
 export type Place = { name: string; minutes: number; mode: PlaceMode };
 export type Position = { lat: number; lng: number };
 
-export const MODE_LABELS: Record<PlaceMode, string> = {
-  voiture: "en voiture",
-  pied: "à pied",
+/** How a place is reached, as the public pages write it. */
+export const MODE_TEXT: Record<Locale, Record<PlaceMode, string>> = {
+  fr: { voiture: "en voiture", pied: "à pied" },
+  en: { voiture: "by car", pied: "on foot" },
 };
+
+export const MODE_LABELS: Record<PlaceMode, string> = MODE_TEXT.fr;
 
 /** Places saved in the database; anything malformed is left out. */
 export function parsePlaces(value: unknown): Place[] {
@@ -29,16 +34,18 @@ export function parsePlaces(value: unknown): Place[] {
   });
 }
 
-/** "15 min", "1 h", "1 h 20". */
-export function duration(minutes: number): string {
+/** "15 min", "1 h", "1 h 20" ("15 min", "1 hr", "1 hr 20 min" in English). */
+export function duration(minutes: number, locale: Locale = "fr"): string {
   if (minutes < 60) return `${minutes} min`;
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
+  if (locale === "en") return m === 0 ? `${h} hr` : `${h} hr ${m} min`;
   return m === 0 ? `${h} h` : `${h} h ${String(m).padStart(2, "0")}`;
 }
 
-/** "15 min en voiture". */
-export const placeTime = (place: Place) => `${duration(place.minutes)} ${MODE_LABELS[place.mode]}`;
+/** "15 min en voiture" ("15 min by car"). */
+export const placeTime = (place: Place, locale: Locale = "fr") =>
+  `${duration(place.minutes, locale)} ${MODE_TEXT[locale][place.mode]}`;
 
 /** Problem with a place being typed, or null when it can be saved. */
 export function checkPlace(name: string, minutes: string): string | null {

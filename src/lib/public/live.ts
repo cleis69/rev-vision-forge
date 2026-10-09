@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import type { LotStatus } from "@/lib/app/lot-fields";
 import { getSupabase } from "@/lib/supabase/client";
+import { useLocale, type Locale } from "./i18n";
 import type { PublicData } from "./programme";
 
 /* Live changes of the lots of a programme, on the private Realtime channel
@@ -65,14 +66,26 @@ export function useLiveProgramme(
   }, [projectId]);
 }
 
-const MESSAGES: Record<LotStatus, (numero: string) => string> = {
-  reservee: (n) => `Le lot ${n} vient d'être réservé.`,
-  vendue: (n) => `Le lot ${n} vient d'être vendu.`,
-  disponible: (n) => `Le lot ${n} est de nouveau disponible.`,
+const MESSAGES: Record<Locale, Record<LotStatus, (numero: string) => string>> = {
+  fr: {
+    reservee: (n) => `Le lot ${n} vient d'être réservé.`,
+    vendue: (n) => `Le lot ${n} vient d'être vendu.`,
+    disponible: (n) => `Le lot ${n} est de nouveau disponible.`,
+  },
+  en: {
+    reservee: (n) => `Lot ${n} has just been reserved.`,
+    vendue: (n) => `Lot ${n} has just been sold.`,
+    disponible: (n) => `Lot ${n} is available again.`,
+  },
+};
+
+const SUMMARY: Record<Locale, (count: number) => string> = {
+  fr: (count) => `Les statuts de ${count} lots viennent d'être mis à jour.`,
+  en: (count) => `The statuses of ${count} lots have just been updated.`,
 };
 
 /** Messages for the visitor: one per status change, or a summary when many lots change at once. */
-export function liveMessages(signals: LotSignal[]): string[] {
+export function liveMessages(signals: LotSignal[], locale: Locale = "fr"): string[] {
   // Net change of each lot: its status before the first signal, after the last one.
   const net = new Map<string, { numero: string; from: LotStatus; to: LotStatus }>();
   for (const s of signals) {
@@ -81,18 +94,19 @@ export function liveMessages(signals: LotSignal[]): string[] {
     net.set(s.lot_id, { numero: s.numero, from: known?.from ?? s.avant, to: s.statut });
   }
   const changed = [...net.values()].filter((c) => c.from !== c.to);
-  if (changed.length > 3)
-    return [`Les statuts de ${changed.length} lots viennent d'être mis à jour.`];
-  return changed.map((c) => MESSAGES[c.to](c.numero));
+  if (changed.length > 3) return [SUMMARY[locale](changed.length)];
+  return changed.map((c) => MESSAGES[locale][c.to](c.numero));
 }
 
 /**
  * Live statuses on a public page (programme, embedded plan, presentation):
  * the new status shows at once, the lots are read again for prices and new
- * lots, and visitors see what changed. Returns the lots that just changed.
+ * lots, and visitors see what changed (in the language of the page). Returns
+ * the lots that just changed.
  */
 export function useLiveLots(projectId: string, slug: string): ReadonlySet<string> {
   const queryClient = useQueryClient();
+  const locale = useLocale();
   const [highlight, setHighlight] = useState<ReadonlySet<string>>(new Set());
   const timer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(timer.current), []);
@@ -101,7 +115,7 @@ export function useLiveLots(projectId: string, slug: string): ReadonlySet<string
     projectId,
     (signals) => {
       void queryClient.invalidateQueries({ queryKey: ["public-programme", slug] });
-      for (const message of liveMessages(signals)) toast(message);
+      for (const message of liveMessages(signals, locale)) toast(message);
     },
     (signal) => {
       setHighlight((ids) => new Set(ids).add(signal.lot_id));

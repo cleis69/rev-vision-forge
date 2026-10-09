@@ -3,10 +3,32 @@ import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { mediaImage, mediaVideo, type MediaItem } from "@/lib/app/media";
+import { useCopy } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 /* Full-screen viewer of photos, plans and videos: arrows, keyboard, swipe on
    a phone; a video plays with its sound, the others are paused. */
+
+const COPY = {
+  fr: {
+    position: (n: number, count: number) => `${n} sur ${count}`,
+    close: "Fermer",
+    video: (title: string) => `Vidéo, ${title}`,
+    plan: (title: string) => `Plan, ${title}`,
+    photo: (title: string) => `Photo, ${title}`,
+    previous: "Précédent",
+    next: "Suivant",
+  },
+  en: {
+    position: (n: number, count: number) => `${n} of ${count}`,
+    close: "Close",
+    video: (title: string) => `Video, ${title}`,
+    plan: (title: string) => `Floor plan, ${title}`,
+    photo: (title: string) => `Photo, ${title}`,
+    previous: "Previous",
+    next: "Next",
+  },
+};
 
 export function MediaViewer({
   items,
@@ -21,6 +43,7 @@ export function MediaViewer({
   /** For screen readers: the programme, or the type of lot. */
   title: string;
 }) {
+  const copy = useCopy(COPY);
   const current = index === null ? undefined : items[index];
   const count = items.length;
   const go = (step: number) =>
@@ -67,7 +90,7 @@ export function MediaViewer({
       >
         <DialogTitle className="sr-only">{title}</DialogTitle>
         <DialogDescription className="sr-only">
-          {(index ?? 0) + 1} sur {count}
+          {copy.position((index ?? 0) + 1, count)}
         </DialogDescription>
         <div className="flex h-14 shrink-0 items-center justify-between gap-4 px-4 text-sm text-white/70 sm:px-6">
           <span className="tabular-nums">
@@ -76,7 +99,7 @@ export function MediaViewer({
           <button
             type="button"
             onClick={() => onIndexChange(null)}
-            aria-label="Fermer"
+            aria-label={copy.close}
             className="grid size-10 place-items-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >
             <X className="size-5" aria-hidden />
@@ -100,6 +123,7 @@ export function MediaViewer({
 }
 
 function Shown({ item, title }: { item: MediaItem; title: string }) {
+  const copy = useCopy(COPY);
   const [loaded, setLoaded] = useState(false);
   if (item.kind === "video") {
     const video = mediaVideo(item);
@@ -111,7 +135,7 @@ function Shown({ item, title }: { item: MediaItem; title: string }) {
         autoPlay
         playsInline
         className="max-h-full max-w-full rounded-lg bg-black"
-        aria-label={video.caption || `Vidéo, ${title}`}
+        aria-label={video.caption || copy.video(title)}
       />
     );
   }
@@ -131,7 +155,7 @@ function Shown({ item, title }: { item: MediaItem; title: string }) {
       />
       <img
         src={image.large}
-        alt={image.caption || `${item.kind === "plan" ? "Plan" : "Photo"}, ${title}`}
+        alt={image.caption || (item.kind === "plan" ? copy.plan(title) : copy.photo(title))}
         onLoad={() => setLoaded(true)}
         className={cn(
           "relative max-h-full max-w-full object-contain transition-opacity duration-300",
@@ -144,12 +168,13 @@ function Shown({ item, title }: { item: MediaItem; title: string }) {
 }
 
 function Arrow({ side, onClick }: { side: "left" | "right"; onClick: () => void }) {
+  const copy = useCopy(COPY);
   const Icon = side === "left" ? ChevronLeft : ChevronRight;
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label={side === "left" ? "Précédent" : "Suivant"}
+      aria-label={side === "left" ? copy.previous : copy.next}
       className={cn(
         "absolute top-1/2 hidden size-12 -translate-y-1/2 place-items-center rounded-full bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:grid",
         side === "left" ? "left-3" : "right-3",

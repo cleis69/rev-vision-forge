@@ -2,8 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { ProgrammePage, programmeSearch } from "@/components/public/pages/ProgrammePage";
 
-// Page of a programme (the English one is /en/p/$slug).
-export const Route = createFileRoute("/p/$slug")({
+// Page of a programme in English (the French one is /p/$slug).
+export const Route = createFileRoute("/en/p/$slug")({
   validateSearch: programmeSearch,
   component: Page,
 });

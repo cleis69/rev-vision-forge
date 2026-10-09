@@ -11,12 +11,60 @@ import {
   type VisitSource,
   type VisitValues,
 } from "@/lib/public/visit";
+import { useCopy } from "@/lib/i18n";
+import { useLocale, usePublicRoutes } from "@/lib/public/i18n";
 import { cn } from "@/lib/utils";
 
 const EMPTY: VisitValues = { nom: "", telephone: "", email: "", message: "" };
 const PROGRAMME = "";
 
-/** "Planifier une visite": name, WhatsApp phone, optional e-mail and message. */
+const COPY = {
+  fr: {
+    submit: "Planifier une visite",
+    sending: "Envoi…",
+    failed: "L'envoi a échoué. Réessayez dans un instant.",
+    sentTitle: "Demande envoyée.",
+    sentText: (owner: string) =>
+      `${owner ? `${owner} vous recontactera` : "Vous serez recontacté"} rapidement, par téléphone ou sur WhatsApp.`,
+    lot: "Lot qui vous intéresse",
+    programme: "Le programme en général",
+    name: "Nom",
+    phone: "Téléphone (WhatsApp)",
+    email: "E-mail",
+    message: "Message",
+    messagePlaceholder: "Vos disponibilités, vos questions…",
+    trap: "Ne pas remplir",
+    preview:
+      "Formulaire désactivé dans l'aperçu : publiez le programme pour recevoir des demandes.",
+    notice: (owner: string) =>
+      `Vos coordonnées sont transmises à ${owner || "l'équipe commerciale du programme"} pour vous recontacter au sujet de ce programme.`,
+    privacy: "Données personnelles",
+    optional: "facultatif",
+  },
+  en: {
+    submit: "Book a visit",
+    sending: "Sending…",
+    failed: "Sending failed. Try again in a moment.",
+    sentTitle: "Request sent.",
+    sentText: (owner: string) =>
+      `${owner ? `${owner} will get back to you` : "You will be contacted"} shortly, by phone or on WhatsApp.`,
+    lot: "Lot you are interested in",
+    programme: "The programme in general",
+    name: "Name",
+    phone: "Phone (WhatsApp)",
+    email: "Email",
+    message: "Message",
+    messagePlaceholder: "Your availability, any questions…",
+    trap: "Do not fill in",
+    preview: "Form disabled in the preview: publish the programme to receive requests.",
+    notice: (owner: string) =>
+      `Your details are passed on to ${owner || "the programme's sales team"} so that they can contact you about this programme.`,
+    privacy: "Personal data",
+    optional: "optional",
+  },
+};
+
+/** "Planifier une visite" / "Book a visit": name, WhatsApp phone, optional e-mail and message. */
 export function VisitForm({
   projectId,
   slug,
@@ -27,7 +75,7 @@ export function VisitForm({
   source = "page",
   session,
   privacyInNewTab = false,
-  submitLabel = "Planifier une visite",
+  submitLabel,
   onSent,
 }: {
   projectId: string;
@@ -43,9 +91,13 @@ export function VisitForm({
   session?: string;
   /** Embedded plan: the notice opens on the programme page, in a new tab. */
   privacyInNewTab?: boolean;
+  /** "Planifier une visite" / "Book a visit" by default. */
   submitLabel?: string;
   onSent?: () => void;
 }) {
+  const routes = usePublicRoutes();
+  const locale = useLocale();
+  const copy = useCopy(COPY);
   const id = useId();
   const [values, setValues] = useState(EMPTY);
   const [lotId, setLotId] = useState<string>(lot?.id ?? PROGRAMME);
@@ -62,7 +114,7 @@ export function VisitForm({
   const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFailure(null);
-    const found = checkVisit(values);
+    const found = checkVisit(values, locale);
     setErrors(found);
     if (Object.keys(found).length > 0) {
       document.getElementById(`${id}-${Object.keys(found)[0]}`)?.focus();
@@ -71,16 +123,13 @@ export function VisitForm({
     setState("sending");
     try {
       // A robot that filled the invisible field gets the same answer, and nothing is sent.
-      if (!trap) await sendVisit(projectId, lot?.id ?? (lotId || null), values, source, session);
+      if (!trap)
+        await sendVisit(projectId, lot?.id ?? (lotId || null), values, source, session, locale);
       setState("sent");
       onSent?.();
     } catch (error) {
       setState("idle");
-      setFailure(
-        error instanceof VisitError
-          ? error.message
-          : "L'envoi a échoué. Réessayez dans un instant.",
-      );
+      setFailure(error instanceof VisitError ? error.message : copy.failed);
     }
   };
 
@@ -91,11 +140,8 @@ export function VisitForm({
         role="status"
       >
         <CheckCircle2 className="size-7 text-[color:var(--brand)]" aria-hidden />
-        <p className="font-brand text-xl font-medium tracking-tight">Demande envoyée.</p>
-        <p className="text-sm leading-relaxed text-white/65">
-          {owner ? `${owner} vous recontactera` : "Vous serez recontacté"} rapidement, par téléphone
-          ou sur WhatsApp.
-        </p>
+        <p className="font-brand text-xl font-medium tracking-tight">{copy.sentTitle}</p>
+        <p className="text-sm leading-relaxed text-white/65">{copy.sentText(owner)}</p>
       </div>
     );
   }
@@ -105,14 +151,14 @@ export function VisitForm({
   return (
     <form onSubmit={submit} noValidate className="space-y-4">
       {lot ? null : choosable.length > 0 ? (
-        <Field id={`${id}-lot`} label="Lot qui vous intéresse" optional>
+        <Field id={`${id}-lot`} label={copy.lot} optional>
           <select
             id={`${id}-lot`}
             value={lotId}
             onChange={(e) => setLotId(e.target.value)}
             className={inputClass}
           >
-            <option value={PROGRAMME}>Le programme en général</option>
+            <option value={PROGRAMME}>{copy.programme}</option>
             {choosable.map((l) => (
               <option key={l.id} value={l.id}>
                 Lot {l.numero}
@@ -124,7 +170,7 @@ export function VisitForm({
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field id={`${id}-nom`} label="Nom" error={errors.nom}>
+        <Field id={`${id}-nom`} label={copy.name} error={errors.nom}>
           <input
             id={`${id}-nom`}
             value={values.nom}
@@ -135,7 +181,7 @@ export function VisitForm({
             className={inputClass}
           />
         </Field>
-        <Field id={`${id}-telephone`} label="Téléphone (WhatsApp)" error={errors.telephone}>
+        <Field id={`${id}-telephone`} label={copy.phone} error={errors.telephone}>
           <input
             id={`${id}-telephone`}
             type="tel"
@@ -150,7 +196,7 @@ export function VisitForm({
           />
         </Field>
       </div>
-      <Field id={`${id}-email`} label="E-mail" optional error={errors.email}>
+      <Field id={`${id}-email`} label={copy.email} optional error={errors.email}>
         <input
           id={`${id}-email`}
           type="email"
@@ -163,13 +209,13 @@ export function VisitForm({
           className={inputClass}
         />
       </Field>
-      <Field id={`${id}-message`} label="Message" optional error={errors.message}>
+      <Field id={`${id}-message`} label={copy.message} optional error={errors.message}>
         <textarea
           id={`${id}-message`}
           rows={3}
           value={values.message}
           onChange={(e) => set("message")(e.target.value)}
-          placeholder="Vos disponibilités, vos questions…"
+          placeholder={copy.messagePlaceholder}
           aria-invalid={errors.message ? true : undefined}
           aria-describedby={errors.message ? `${id}-message-error` : undefined}
           className={cn(inputClass, "h-auto py-3")}
@@ -178,7 +224,7 @@ export function VisitForm({
 
       {/* Invisible to people; robots that fill every field give themselves away. */}
       <div aria-hidden className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden">
-        <label htmlFor={`${id}-site`}>Ne pas remplir</label>
+        <label htmlFor={`${id}-site`}>{copy.trap}</label>
         <input
           id={`${id}-site`}
           tabIndex={-1}
@@ -202,35 +248,34 @@ export function VisitForm({
         disabled={state === "sending" || preview}
         className="inline-flex h-12 w-full items-center justify-center rounded-full bg-[color:var(--brand)] px-6 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
       >
-        {state === "sending" ? "Envoi…" : submitLabel}
+        {state === "sending" ? copy.sending : (submitLabel ?? copy.submit)}
       </button>
-      {preview ? (
-        <p className="text-xs text-amber-300">
-          Formulaire désactivé dans l'aperçu : publiez le programme pour recevoir des demandes.
-        </p>
-      ) : null}
+      {preview ? <p className="text-xs text-amber-300">{copy.preview}</p> : null}
       <p className="text-xs leading-relaxed text-white/45">
-        Vos coordonnées sont transmises à {owner || "l'équipe commerciale du programme"} pour vous
-        recontacter au sujet de ce programme.{" "}
+        {copy.notice(owner)}{" "}
         {privacyInNewTab ? (
           <a
-            href={`/p/${encodeURIComponent(slug)}/donnees-personnelles`}
+            href={
+              locale === "en"
+                ? `/en/p/${encodeURIComponent(slug)}/privacy`
+                : `/p/${encodeURIComponent(slug)}/donnees-personnelles`
+            }
             target="_blank"
             rel="noopener"
             className="text-white/70 underline underline-offset-4 hover:text-white"
           >
-            Données personnelles
+            {copy.privacy}
           </a>
         ) : (
           <Link
-            to="/p/$slug/donnees-personnelles"
+            to={routes.privacy}
             params={{ slug }}
             // Stays in presentation mode when opened from there.
             search={true}
             resetScroll={false}
             className="text-white/70 underline underline-offset-4 hover:text-white"
           >
-            Données personnelles
+            {copy.privacy}
           </Link>
         )}
       </p>
@@ -254,11 +299,12 @@ function Field({
   error?: string | undefined;
   children: ReactNode;
 }) {
+  const copy = useCopy(COPY);
   return (
     <div className="space-y-2">
       <label htmlFor={id} className="block text-sm text-white/80">
         {label}
-        {optional ? <span className="text-white/40"> (facultatif)</span> : null}
+        {optional ? <span className="text-white/40"> ({copy.optional})</span> : null}
       </label>
       {children}
       {error ? (

@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PrivacyNotice } from "@/components/public/pages/PrivacyPage";
 
 // Personal data notice, over the page of the programme.
-export const Route = createFileRoute("/p/$slug/donnees-personnelles")({
+export const Route = createFileRoute("/en/p/$slug/privacy")({
   component: Page,
 });
 

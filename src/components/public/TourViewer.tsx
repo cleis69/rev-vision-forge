@@ -8,10 +8,11 @@ import "@photo-sphere-viewer/core/index.css";
 import "@photo-sphere-viewer/markers-plugin/index.css";
 import { CalendarCheck, Compass, Maximize, Minimize, Rotate3d, X } from "lucide-react";
 
-import { arrowElement, VIEWER_LANG } from "@/components/tour/arrow";
+import { arrowElement, viewerLang } from "@/components/tour/arrow";
+import { useCopy } from "@/lib/i18n";
+import { floorText, useLocale } from "@/lib/public/i18n";
 import type { PublicRoom, PublicTour } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
-import { floorName } from "@/lib/views";
 import { RevBadge } from "./Common";
 import { ViewerControls } from "./ViewerControls";
 
@@ -22,7 +23,40 @@ import { ViewerControls } from "./ViewerControls";
    (TourInline), where the wheel and one finger keep scrolling the page.
    Loaded on demand (the viewer weighs its own). */
 
-const LANG = { ...VIEWER_LANG, autorotate: "Rotation automatique", gyroscope: "Gyroscope" };
+const COPY = {
+  fr: {
+    autorotate: "Rotation automatique",
+    room: "Pièce",
+    tour: "Visite 360°",
+    roomOf: (n: number, total: number) => ` · pièce ${n} sur ${total}`,
+    gyroscope: "Regarder en bougeant le téléphone",
+    plan: "Planifier une visite",
+    floors: "Étages",
+    rooms: "Pièces de la visite",
+    fullscreen: "Plein écran",
+    exitFullscreen: "Quitter le plein écran",
+    closeTour: "Fermer la visite",
+    close: "Fermer",
+    expand: "Ouvrir la visite en plein écran",
+    loading: "Chargement de la visite…",
+  },
+  en: {
+    autorotate: "Auto-rotation",
+    room: "Room",
+    tour: "360° tour",
+    roomOf: (n: number, total: number) => ` · room ${n} of ${total}`,
+    gyroscope: "Look around by moving your phone",
+    plan: "Book a visit",
+    floors: "Floors",
+    rooms: "Rooms of the tour",
+    fullscreen: "Full screen",
+    exitFullscreen: "Exit full screen",
+    closeTour: "Close the tour",
+    close: "Close",
+    expand: "Open the tour in full screen",
+    loading: "Loading the tour…",
+  },
+};
 // A click on − or + : a fifth of the zoom range.
 const ZOOM_STEP = 20;
 
@@ -50,6 +84,8 @@ function TourStage({
   onRoomChange?: ((id: string) => void) | undefined;
 }) {
   const large = variant === "presentation";
+  const locale = useLocale();
+  const copy = COPY[locale];
   // The dialog puts its content in the page after its first render: the viewer waits for it.
   const [element, setElement] = useState<HTMLDivElement | null>(null);
   const viewerRef = useRef<Viewer | null>(null);
@@ -90,9 +126,9 @@ function TourStage({
   // An arrow to another floor says which one.
   const arrowLabel = (toId: string) => {
     const target = tour.rooms.find((r) => r.id === toId);
-    if (!target) return "Pièce";
+    if (!target) return copy.room;
     return byFloor && target.level !== null && target.level !== roomFloor
-      ? `${floorName(target.level)} · ${target.name}`
+      ? `${floorText(target.level, locale)} · ${target.name}`
       : target.name;
   };
 
@@ -114,7 +150,7 @@ function TourStage({
         defaultZoomLvl: 0,
         // Our own zoom buttons: the viewer's bar folded the zoom into a menu on narrow screens.
         navbar: false,
-        lang: LANG,
+        lang: { ...viewerLang(locale), autorotate: copy.autorotate, gyroscope: "Gyroscope" },
         keyboard: inline ? "fullscreen" : "always",
         // In the page, the wheel scrolls (Ctrl zooms) and one finger scrolls too.
         mousewheelCtrlKey: inline,
@@ -222,8 +258,8 @@ function TourStage({
               large ? "text-base" : inline ? "text-[11px] sm:text-xs" : "text-xs sm:text-sm",
             )}
           >
-            Visite 360° · {tour.label}
-            {tour.rooms.length > 1 ? ` · pièce ${index + 1} sur ${tour.rooms.length}` : ""}
+            {copy.tour} · {tour.label}
+            {tour.rooms.length > 1 ? copy.roomOf(index + 1, tour.rooms.length) : ""}
           </p>
         </div>
         <div className="pointer-events-auto ml-auto flex items-center gap-2">
@@ -237,7 +273,7 @@ function TourStage({
               <button
                 type="button"
                 aria-pressed={gyro === "on"}
-                aria-label="Regarder en bougeant le téléphone"
+                aria-label={copy.gyroscope}
                 onClick={() =>
                   viewerRef.current?.getPlugin<GyroscopePlugin>(GyroscopePlugin).toggle()
                 }
@@ -270,13 +306,13 @@ function TourStage({
             )}
           >
             <CalendarCheck className="size-4" aria-hidden />
-            Planifier une visite
+            {copy.plan}
           </button>
         ) : null}
         {byFloor ? (
           <div
             role="group"
-            aria-label="Étages"
+            aria-label={copy.floors}
             className="pointer-events-auto flex gap-1.5 self-start rounded-full bg-black/55 p-1 backdrop-blur"
           >
             {floors.map((f) => {
@@ -307,7 +343,7 @@ function TourStage({
                       : "text-white/80 hover:bg-white/10 hover:text-white",
                   )}
                 >
-                  {floorName(f)}
+                  {floorText(f, locale)}
                   <span className={cn("tabular-nums", active ? "text-black/50" : "text-white/45")}>
                     {count}
                   </span>
@@ -318,7 +354,7 @@ function TourStage({
         ) : null}
         {tour.rooms.length > 1 ? (
           <ol
-            aria-label="Pièces de la visite"
+            aria-label={copy.rooms}
             className="pointer-events-auto flex gap-2 overflow-x-auto pb-1"
           >
             {[...listed, ...others].map((r) => {
@@ -395,6 +431,7 @@ export default function TourViewer({
   variant?: "page" | "embed" | "presentation";
 }) {
   const large = variant === "presentation";
+  const copy = useCopy(COPY);
   const box = useRef<HTMLDivElement>(null);
   const [full, setFull] = useState(false);
 
@@ -434,7 +471,7 @@ export default function TourViewer({
                     type="button"
                     onClick={toggleFull}
                     className={cn(control, "size-11")}
-                    aria-label={full ? "Quitter le plein écran" : "Plein écran"}
+                    aria-label={full ? copy.exitFullscreen : copy.fullscreen}
                   >
                     {full ? (
                       <Minimize className="size-5" aria-hidden />
@@ -445,10 +482,10 @@ export default function TourViewer({
                 ) : null}
                 <DialogPrimitive.Close
                   className={cn(control, large ? "h-12 gap-2 px-5 text-base" : "size-11")}
-                  aria-label="Fermer la visite"
+                  aria-label={copy.closeTour}
                 >
                   <X className="size-5" aria-hidden />
-                  {large ? <span className="flex">Fermer</span> : null}
+                  {large ? <span className="flex">{copy.close}</span> : null}
                 </DialogPrimitive.Close>
               </>
             }
@@ -475,6 +512,7 @@ export function TourInline({
   variant?: "page" | "embed" | "presentation";
   className?: string;
 }) {
+  const copy = useCopy(COPY);
   const box = useRef<HTMLDivElement>(null);
   const [near, setNear] = useState(false);
   const current = useRef(tour.rooms[0]?.id ?? "");
@@ -515,7 +553,7 @@ export function TourInline({
               type="button"
               onClick={() => onExpand(current.current)}
               className={cn(control, "size-10")}
-              aria-label="Ouvrir la visite en plein écran"
+              aria-label={copy.expand}
             >
               <Maximize className="size-4" aria-hidden />
             </button>
@@ -531,7 +569,7 @@ export function TourInline({
           <span className="absolute inset-0 grid place-items-center">
             <span className="inline-flex items-center gap-2 rounded-full bg-black/60 px-4 py-2 text-sm backdrop-blur">
               <Rotate3d className="size-4" aria-hidden />
-              Chargement de la visite…
+              {copy.loading}
             </span>
           </span>
         </>

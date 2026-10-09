@@ -1,3 +1,5 @@
+import type { Locale } from "@/lib/i18n";
+
 /* Arrow of a 360° tour, drawn in the panorama where the door to another room
    is: a round button and the name of that room. A plain DOM element, as the
    viewer's markers expect; the name is user text, set as text only. */
@@ -47,3 +49,28 @@ export const VIEWER_LANG = {
   loadError: "Le panorama ne peut pas être chargé",
   webglError: "Votre navigateur ne prend pas en charge WebGL",
 };
+
+/** The same in English, for the public pages under /en. */
+export const VIEWER_LANG_EN: typeof VIEWER_LANG = {
+  zoom: "Zoom",
+  zoomOut: "Zoom out",
+  zoomIn: "Zoom in",
+  moveUp: "Up",
+  moveDown: "Down",
+  moveLeft: "Left",
+  moveRight: "Right",
+  description: "Description",
+  download: "Download",
+  fullscreen: "Full screen",
+  loading: "Loading the panorama…",
+  menu: "Menu",
+  close: "Close",
+  twoFingers: "Use two fingers to look around",
+  ctrlZoom: "Ctrl + scroll to zoom",
+  loadError: "The panorama cannot be loaded",
+  webglError: "Your browser does not support WebGL",
+};
+
+/** Texts of the viewer in a language (the promoter's space stays in French). */
+export const viewerLang = (locale: Locale = "fr") =>
+  locale === "en" ? VIEWER_LANG_EN : VIEWER_LANG;

@@ -7,16 +7,68 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { formatPrice } from "@/lib/app/lot-format";
 import { mediaImage, type MediaItem } from "@/lib/app/media";
+import { useCopy } from "@/lib/i18n";
 import { MAX_COMPARE, bestPricePerSqm, featureRows, pricePerSqm } from "@/lib/public/compare";
+import { NUMBER_LOCALE, usePublicText, type Locale } from "@/lib/public/i18n";
 import type { PublicLot } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
-import { levelLabel } from "@/lib/views";
 import { StatusChip } from "./LotDetails";
 import { priceLabel } from "./status";
 
-const area = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 });
+const AREA: Record<Locale, Intl.NumberFormat> = {
+  fr: new Intl.NumberFormat(NUMBER_LOCALE.fr, { maximumFractionDigits: 0 }),
+  en: new Intl.NumberFormat(NUMBER_LOCALE.en, { maximumFractionDigits: 0 }),
+};
+
+const COPY = {
+  fr: {
+    region: "Comparateur",
+    picked: "Comparer",
+    remove: (numero: string) => `Retirer le lot ${numero} du comparateur`,
+    clear: "Effacer",
+    atLeastTwo: "Choisissez au moins 2 lots",
+    addSecond: "Ajoutez un 2e lot",
+    compare: (n: number) => `Comparer ${n} lots`,
+    title: "Comparer les lots",
+    description: (n: number) => `${n} lots côte à côte. Touchez un lot pour ouvrir sa fiche.`,
+    criterion: "Critère",
+    status: "Statut",
+    price: "Prix",
+    pricePerSqm: "Prix au m²",
+    bestPricePerSqm: "Meilleur prix au m²",
+    livingArea: "Surface habitable",
+    plot: "Terrain",
+    bedrooms: "Chambres",
+    bathrooms: "Salles de bains",
+    floor: "Niveau",
+    yes: "Oui",
+    no: "Non",
+  },
+  en: {
+    region: "Comparison",
+    picked: "Compare",
+    remove: (numero: string) => `Remove lot ${numero} from the comparison`,
+    clear: "Clear",
+    atLeastTwo: "Choose at least 2 lots",
+    addSecond: "Add a 2nd lot",
+    compare: (n: number) => `Compare ${n} lots`,
+    title: "Compare lots",
+    description: (n: number) => `${n} lots side by side. Tap a lot to open its details.`,
+    criterion: "Criterion",
+    status: "Status",
+    price: "Price",
+    pricePerSqm: "Price per m²",
+    bestPricePerSqm: "Best price per m²",
+    livingArea: "Living area",
+    plot: "Plot",
+    bedrooms: "Bedrooms",
+    bathrooms: "Bathrooms",
+    floor: "Floor",
+    yes: "Yes",
+    no: "No",
+  },
+};
 
 /** Bar at the bottom of the page while lots are picked for comparison. */
 export function CompareBar({
@@ -30,15 +82,16 @@ export function CompareBar({
   onClear: () => void;
   onCompare: () => void;
 }) {
+  const copy = useCopy(COPY);
   if (lots.length === 0) return null;
   return (
     <div
       role="region"
-      aria-label="Comparateur"
+      aria-label={copy.region}
       className="fixed inset-x-3 bottom-3 z-40 mx-auto flex max-w-2xl flex-wrap items-center gap-2 rounded-2xl border border-white/15 bg-[#111]/95 p-2.5 pl-4 text-white shadow-2xl backdrop-blur-xl sm:bottom-5"
     >
       <span className="mr-1 text-xs text-white/55">
-        Comparer · {lots.length}/{MAX_COMPARE}
+        {copy.picked} · {lots.length}/{MAX_COMPARE}
       </span>
       <ul className="flex flex-wrap gap-1.5">
         {lots.map((lot) => (
@@ -46,7 +99,7 @@ export function CompareBar({
             <button
               type="button"
               onClick={() => onRemove(lot)}
-              aria-label={`Retirer le lot ${lot.numero} du comparateur`}
+              aria-label={copy.remove(lot.numero)}
               className="inline-flex h-8 items-center gap-1 rounded-full border border-white/15 bg-white/5 pl-3 pr-2 text-sm hover:border-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
             >
               Lot {lot.numero}
@@ -61,16 +114,16 @@ export function CompareBar({
           onClick={onClear}
           className="h-9 rounded-full px-3 text-sm text-white/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
         >
-          Effacer
+          {copy.clear}
         </button>
         <button
           type="button"
           onClick={onCompare}
           disabled={lots.length < 2}
-          title={lots.length < 2 ? "Choisissez au moins 2 lots" : undefined}
+          title={lots.length < 2 ? copy.atLeastTwo : undefined}
           className="h-9 rounded-full bg-[color:var(--brand)] px-4 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
         >
-          {lots.length < 2 ? "Ajoutez un 2e lot" : `Comparer ${lots.length} lots`}
+          {lots.length < 2 ? copy.addSecond : copy.compare(lots.length)}
         </button>
       </div>
     </div>
@@ -93,6 +146,9 @@ export function CompareDialog({
   onOpenChange: (open: boolean) => void;
   onOpenLot: (lot: PublicLot) => void;
 }) {
+  const copy = useCopy(COPY);
+  const text = usePublicText();
+  const area = AREA[text.locale];
   const best = bestPricePerSqm(lots);
   const features = featureRows(lots);
   const photo = (lot: PublicLot) =>
@@ -108,10 +164,10 @@ export function CompareDialog({
       <DialogContent className="max-h-[92svh] max-w-4xl overflow-y-auto border-white/10 bg-[#0d0d0d] p-5 text-white sm:p-7">
         <DialogHeader>
           <DialogTitle className="font-brand text-2xl font-medium tracking-tight">
-            Comparer les lots
+            {copy.title}
           </DialogTitle>
           <DialogDescription className="text-white/55">
-            {lots.length} lots côte à côte. Touchez un lot pour ouvrir sa fiche.
+            {copy.description(lots.length)}
           </DialogDescription>
         </DialogHeader>
         <div className="-mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
@@ -119,7 +175,7 @@ export function CompareDialog({
             <thead>
               <tr>
                 <th scope="col" className="w-32 py-3">
-                  <span className="sr-only">Critère</span>
+                  <span className="sr-only">{copy.criterion}</span>
                 </th>
                 {lots.map((lot) => {
                   const p = photo(lot);
@@ -153,7 +209,7 @@ export function CompareDialog({
             <tbody className="[&_tr]:border-t [&_tr]:border-white/10">
               <tr>
                 <th scope="row" className={head}>
-                  Statut
+                  {copy.status}
                 </th>
                 {lots.map((lot) => (
                   <td key={lot.id} className={cell}>
@@ -163,20 +219,20 @@ export function CompareDialog({
               </tr>
               <tr>
                 <th scope="row" className={head}>
-                  Prix
+                  {copy.price}
                 </th>
                 {lots.map((lot) => (
                   <td
                     key={lot.id}
                     className={cn(cell, "font-medium", lot.statut === "vendue" && "text-white/45")}
                   >
-                    {priceLabel(lot, currency)}
+                    {priceLabel(lot, currency, text.locale)}
                   </td>
                 ))}
               </tr>
               <tr>
                 <th scope="row" className={head}>
-                  Prix au m²
+                  {copy.pricePerSqm}
                 </th>
                 {lots.map((lot) => {
                   const v = pricePerSqm(lot);
@@ -188,10 +244,10 @@ export function CompareDialog({
                         <span
                           className={cn(best === lot.id && "font-medium text-[color:var(--brand)]")}
                         >
-                          {formatPrice(v, currency)}
+                          {text.price(v, currency)}
                           {best === lot.id ? (
                             <span className="block text-[11px] font-normal">
-                              Meilleur prix au m²
+                              {copy.bestPricePerSqm}
                             </span>
                           ) : null}
                         </span>
@@ -202,7 +258,7 @@ export function CompareDialog({
               </tr>
               <tr>
                 <th scope="row" className={head}>
-                  Surface habitable
+                  {copy.livingArea}
                 </th>
                 {lots.map((lot) => (
                   <td key={lot.id} className={cell}>
@@ -212,7 +268,7 @@ export function CompareDialog({
               </tr>
               <tr>
                 <th scope="row" className={head}>
-                  Terrain
+                  {copy.plot}
                 </th>
                 {lots.map((lot) => (
                   <td key={lot.id} className={cell}>
@@ -222,7 +278,7 @@ export function CompareDialog({
               </tr>
               <tr>
                 <th scope="row" className={head}>
-                  Chambres
+                  {copy.bedrooms}
                 </th>
                 {lots.map((lot) => (
                   <td key={lot.id} className={cell}>
@@ -233,7 +289,7 @@ export function CompareDialog({
               {lots.some((lot) => lot.salles_de_bain !== null) ? (
                 <tr>
                   <th scope="row" className={head}>
-                    Salles de bains
+                    {copy.bathrooms}
                   </th>
                   {lots.map((lot) => (
                     <td key={lot.id} className={cell}>
@@ -245,12 +301,12 @@ export function CompareDialog({
               {lots.some((lot) => lot.niveau !== null) ? (
                 <tr>
                   <th scope="row" className={head}>
-                    Niveau
+                    {copy.floor}
                   </th>
                   {lots.map((lot) => (
                     <td key={lot.id} className={cell}>
                       {lot.niveau !== null ? (
-                        levelLabel(lot.niveau)
+                        text.level(lot.niveau)
                       ) : (
                         <span className="text-white/35">—</span>
                       )}
@@ -269,9 +325,9 @@ export function CompareDialog({
                   {row.has.map((has, i) => (
                     <td key={lots[i]?.id ?? i} className={cell}>
                       {has ? (
-                        <Check className="size-4 text-[color:var(--brand)]" aria-label="Oui" />
+                        <Check className="size-4 text-[color:var(--brand)]" aria-label={copy.yes} />
                       ) : (
-                        <Minus className="size-4 text-white/25" aria-label="Non" />
+                        <Minus className="size-4 text-white/25" aria-label={copy.no} />
                       )}
                     </td>
                   ))}

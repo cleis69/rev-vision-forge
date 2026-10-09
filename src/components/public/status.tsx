@@ -1,21 +1,25 @@
-import { STATUS_LABELS } from "@/lib/app/lot-fields";
 import { formatPrice } from "@/lib/app/lot-format";
+import { STATUS_TEXT, useLocale, type Locale } from "@/lib/public/i18n";
 import type { PublicLot } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
 
 /* Status and price of a lot as the public pages write them, and the legend of
    the colours painted on the views. */
 
-/** "Disponible · 1 250 000 €", or just "Vendu". */
-export function statusAndPrice(lot: PublicLot, currency: string) {
+/** "Disponible · 1 250 000 €", or just "Vendu" ("Available · €1,250,000", "Sold"). */
+export function statusAndPrice(lot: PublicLot, currency: string, locale: Locale = "fr") {
   return lot.statut === "vendue"
-    ? STATUS_LABELS.vendue
-    : `${STATUS_LABELS[lot.statut]} · ${priceLabel(lot, currency)}`;
+    ? STATUS_TEXT[locale].vendue
+    : `${STATUS_TEXT[locale][lot.statut]} · ${priceLabel(lot, currency, locale)}`;
 }
 
-export function priceLabel(lot: PublicLot, currency: string) {
-  if (lot.statut === "vendue") return "Vendu";
-  return lot.prix !== null ? formatPrice(lot.prix, currency) : "Prix sur demande";
+export function priceLabel(lot: PublicLot, currency: string, locale: Locale = "fr") {
+  if (lot.statut === "vendue") return STATUS_TEXT[locale].vendue;
+  return lot.prix !== null
+    ? formatPrice(lot.prix, currency, locale)
+    : locale === "fr"
+      ? "Prix sur demande"
+      : "Price on request";
 }
 
 /** Colours of the statuses, as drawn on the views, and how to use them. */
@@ -30,13 +34,15 @@ export function StatusLegend({
   /** With a finger (phones, and the sales office tablet). */
   touchHint: string;
 }) {
+  const locale = useLocale();
+  const status = STATUS_TEXT[locale];
   return (
     <ul
       className={cn(
         "flex flex-wrap items-center gap-x-5 gap-y-2 pt-2 text-white/70",
         large ? "text-sm" : "text-xs",
       )}
-      aria-label="Légende"
+      aria-label={locale === "fr" ? "Légende" : "Legend"}
     >
       <li className="flex items-center gap-2">
         <span
@@ -47,7 +53,7 @@ export function StatusLegend({
           }}
           aria-hidden
         />
-        Disponible
+        {status.disponible}
       </li>
       <li className="flex items-center gap-2">
         <span
@@ -58,11 +64,11 @@ export function StatusLegend({
           }}
           aria-hidden
         />
-        Réservé
+        {status.reservee}
       </li>
       <li className="flex items-center gap-2">
         <span className="size-3 rounded-sm border border-zinc-400/70 bg-zinc-600/70" aria-hidden />
-        Vendu
+        {status.vendue}
       </li>
       {large ? (
         <li className="text-white/45">{touchHint}</li>

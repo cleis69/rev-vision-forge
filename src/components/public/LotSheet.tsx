@@ -3,9 +3,27 @@ import { CalendarCheck, GitCompareArrows, Share2 } from "lucide-react";
 
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import type { MediaItem } from "@/lib/app/media";
+import { useCopy } from "@/lib/i18n";
 import type { PublicLot } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
 import { LotDetails } from "./LotDetails";
+
+const COPY = {
+  fr: {
+    visit: "Planifier une visite",
+    compare: "Comparer",
+    compared: "Dans le comparateur",
+    share: "Partager",
+    whatsapp: (numero: string) => `Partager le lot ${numero} sur WhatsApp`,
+  },
+  en: {
+    visit: "Book a visit",
+    compare: "Compare",
+    compared: "In comparison",
+    share: "Share",
+    whatsapp: (numero: string) => `Share lot ${numero} on WhatsApp`,
+  },
+};
 
 /** Details of a lot: side panel on a computer, full screen on a phone. */
 export type LotActions = {
@@ -38,6 +56,7 @@ export function LotSheet({
   /** Shows the form of this lot (a new object each time it is asked, from the 360° tour). */
   askVisit?: { lotId: string } | null;
 }) {
+  const copy = useCopy(COPY);
   // The form shows under the details of the lot it was opened for.
   const [visitFor, setVisitFor] = useState<string | null>(null);
   useEffect(() => {
@@ -67,9 +86,7 @@ export function LotSheet({
 
             {showVisit && actions?.visit ? (
               <div ref={visitRef} className="scroll-mt-4 border-t border-white/10 p-6">
-                <h3 className="font-brand text-lg font-medium tracking-tight">
-                  Planifier une visite
-                </h3>
+                <h3 className="font-brand text-lg font-medium tracking-tight">{copy.visit}</h3>
                 <div className="mt-4">{actions.visit}</div>
               </div>
             ) : null}
@@ -83,7 +100,7 @@ export function LotSheet({
                     className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[color:var(--brand)] px-5 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                   >
                     <CalendarCheck className="size-4" aria-hidden />
-                    Planifier une visite
+                    {copy.visit}
                   </button>
                 ) : null}
                 <button
@@ -98,7 +115,7 @@ export function LotSheet({
                   )}
                 >
                   <GitCompareArrows className="size-4" aria-hidden />
-                  {actions.compared ? "Dans le comparateur" : "Comparer"}
+                  {actions.compared ? copy.compared : copy.compare}
                 </button>
                 <button
                   type="button"
@@ -106,14 +123,14 @@ export function LotSheet({
                   className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full border border-white/15 px-4 text-sm text-white/85 transition-colors hover:border-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                 >
                   <Share2 className="size-4" aria-hidden />
-                  Partager
+                  {copy.share}
                 </button>
                 <a
                   href={actions.whatsappUrl}
                   target="_blank"
                   rel="noopener"
                   onClick={actions.onWhatsApp}
-                  aria-label={`Partager le lot ${lot.numero} sur WhatsApp`}
+                  aria-label={copy.whatsapp(lot.numero)}
                   className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full border border-[#25D366]/50 px-4 text-sm text-[#5fe08f] transition-colors hover:border-[#25D366] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                 >
                   WhatsApp

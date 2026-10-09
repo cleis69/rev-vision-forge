@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Check, Code2, Copy, ExternalLink, Globe, Lock, MonitorSmartphone, X } from "lucide-react";
 import { toast } from "sonner";
@@ -31,9 +32,11 @@ function SharePage() {
   const rooms = usePanoramas(project.id);
   const update = useUpdateProject(project.id);
   const origin = window.location.origin;
-  const url = `${origin}/p/${project.slug}`;
+  // Links and code in French or in English (/en/p/…, /en/embed/…).
+  const [lang, setLang] = useState<"fr" | "en">("fr");
+  const url = `${origin}${lang === "en" ? "/en" : ""}/p/${project.slug}`;
   const presentationUrl = `${url}?mode=presentation`;
-  const code = embedCode(origin, project.slug, project.name);
+  const code = embedCode(origin, project.slug, project.name, lang);
   const published = project.status === "published";
 
   // The essentials, and the photos (optional): the full list is in the Aperçu tab.
@@ -71,6 +74,36 @@ function SharePage() {
 
   return (
     <div className="max-w-3xl space-y-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <div role="group" aria-label="Langue des liens et du code" className="flex gap-1.5">
+          {(
+            [
+              ["fr", "Français"],
+              ["en", "Anglais"],
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={lang === value}
+              onClick={() => setLang(value)}
+              className={cn(
+                "inline-flex h-9 items-center rounded-full border px-3.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                lang === value
+                  ? "border-primary bg-primary/15 text-foreground"
+                  : "border-border text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          {lang === "fr"
+            ? "Liens et code de la page en français."
+            : "Liens et code de la page en anglais : vos textes s'y affichent dans leur version anglaise (onglet Anglais)."}
+        </p>
+      </div>
       <SettingsSection
         title="Page publique"
         description="La page du programme, à partager par WhatsApp, e-mail ou sur votre site. Elle n'est pas référencée par Google."

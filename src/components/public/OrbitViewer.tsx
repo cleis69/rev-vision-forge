@@ -14,6 +14,7 @@ import { publicUrl } from "@/lib/app/storage";
 import type { LotStatus } from "@/lib/app/lot-fields";
 import { loadLabels, type LabelData } from "@/lib/orbit-loader";
 import { labelCenters, paintLabels, rgbOf, type LabelCenter, type Paint } from "@/lib/orbit-mask";
+import { useLocale } from "@/lib/public/i18n";
 import type { PublicLot, PublicOrbit } from "@/lib/public/programme";
 import { loadingOrder, nearestLoaded, useOrbitFrames } from "@/lib/use-orbit-frames";
 import { cn } from "@/lib/utils";
@@ -32,6 +33,37 @@ import { StatusLegend, statusAndPrice } from "./status";
 
 const AMBER = [251, 191, 36] as const;
 const SOLD = [70, 70, 78] as const;
+
+const COPY = {
+  fr: {
+    view: "vue 3D",
+    label: (name: string, n: number, total: number) =>
+      `${name}, image ${n} sur ${total}. Flèches gauche et droite pour tourner, plus et moins pour zoomer.`,
+    ctrlZoom: "Ctrl + molette pour zoomer",
+    loading: "Chargement de la vue…",
+    whole: "Vue entière",
+    zoomOut: "Dézoomer",
+    zoomIn: "Zoomer",
+    zoomedHint: "Glissez pour vous déplacer dans l'image, dézoomez pour tourner",
+    hint: "Glissez pour tourner, Ctrl + molette pour zoomer, cliquez un lot pour sa fiche",
+    zoomedTouchHint: "Glissez pour vous déplacer · dézoomez pour tourner",
+    touchHint: "Glissez pour tourner · pincez pour zoomer · touchez un lot pour sa fiche",
+  },
+  en: {
+    view: "3D view",
+    label: (name: string, n: number, total: number) =>
+      `${name}, image ${n} of ${total}. Left and right arrows to rotate, plus and minus to zoom.`,
+    ctrlZoom: "Ctrl + scroll to zoom",
+    loading: "Loading the view…",
+    whole: "Whole view",
+    zoomOut: "Zoom out",
+    zoomIn: "Zoom in",
+    zoomedHint: "Drag to move around the image, zoom out to rotate",
+    hint: "Drag to rotate, Ctrl + scroll to zoom, click a lot for its details",
+    zoomedTouchHint: "Drag to move around · zoom out to rotate",
+    touchHint: "Drag to rotate · pinch to zoom · tap a lot for its details",
+  },
+};
 
 type Drag = { x: number; y: number; t: number; moved: boolean; pointerId: number; pan: boolean };
 type Point = { x: number; y: number };
@@ -162,6 +194,8 @@ export function OrbitViewer({
   onOpen: (lot: PublicLot, from: "plan" | "keyboard") => void;
 }) {
   const large = variant === "presentation";
+  const locale = useLocale();
+  const copy = COPY[locale];
   // On a page or in an iframe the wheel keeps scrolling: Ctrl (or a trackpad pinch) zooms.
   const wheelZooms = variant === "presentation";
   const count = orbit.frames.length;
@@ -666,8 +700,8 @@ export function OrbitViewer({
           ref={group}
           role="group"
           tabIndex={0}
-          aria-roledescription="vue 3D"
-          aria-label={`${viewName}, image ${index + 1} sur ${count}. Flèches gauche et droite pour tourner, plus et moins pour zoomer.`}
+          aria-roledescription={copy.view}
+          aria-label={copy.label(viewName, index + 1, count)}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
@@ -740,7 +774,7 @@ export function OrbitViewer({
                 Lot {tipLot.numero}
                 {tipLot.type ? ` · ${tipLot.type}` : ""}
               </p>
-              <p className="mt-0.5 text-white/70">{statusAndPrice(tipLot, currency)}</p>
+              <p className="mt-0.5 text-white/70">{statusAndPrice(tipLot, currency, locale)}</p>
             </div>
           ) : null}
         </div>
@@ -753,7 +787,7 @@ export function OrbitViewer({
           )}
         >
           <p className="rounded-full bg-black/75 px-4 py-2 text-sm font-medium text-white">
-            Ctrl + molette pour zoomer
+            {copy.ctrlZoom}
           </p>
         </div>
 
@@ -766,7 +800,7 @@ export function OrbitViewer({
                   style={{ width: `${(ready / Math.min(6, count)) * 100}%` }}
                 />
               </div>
-              <p className="text-xs text-white/70">Chargement de la vue…</p>
+              <p className="text-xs text-white/70">{copy.loading}</p>
             </div>
           </div>
         ) : (
@@ -784,12 +818,12 @@ export function OrbitViewer({
                 onClick={() => zoomBy(0)}
                 className={cn(control, "px-3 font-medium", large ? "text-sm" : "text-xs")}
               >
-                Vue entière
+                {copy.whole}
               </button>
             ) : null}
             <button
               type="button"
-              aria-label="Dézoomer"
+              aria-label={copy.zoomOut}
               disabled={!zoomed}
               onClick={() => zoomBy(1 / ZOOM_STEP)}
               className={control}
@@ -798,7 +832,7 @@ export function OrbitViewer({
             </button>
             <button
               type="button"
-              aria-label="Zoomer"
+              aria-label={copy.zoomIn}
               disabled={zoom.z >= MAX_ZOOM - 0.01}
               onClick={() => zoomBy(ZOOM_STEP)}
               className={control}
@@ -811,16 +845,8 @@ export function OrbitViewer({
 
       <StatusLegend
         large={large}
-        hint={
-          zoomed
-            ? "Glissez pour vous déplacer dans l'image, dézoomez pour tourner"
-            : "Glissez pour tourner, Ctrl + molette pour zoomer, cliquez un lot pour sa fiche"
-        }
-        touchHint={
-          zoomed
-            ? "Glissez pour vous déplacer · dézoomez pour tourner"
-            : "Glissez pour tourner · pincez pour zoomer · touchez un lot pour sa fiche"
-        }
+        hint={zoomed ? copy.zoomedHint : copy.hint}
+        touchHint={zoomed ? copy.zoomedTouchHint : copy.touchHint}
       />
     </div>
   );

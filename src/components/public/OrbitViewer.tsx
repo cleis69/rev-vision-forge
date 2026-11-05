@@ -22,7 +22,7 @@ import { StatusLegend, statusAndPrice } from "./status";
 
 /* Orbital view of the public pages (one per view of the programme: aerial
    view, roof, floor, pedestrian view…): the sequence turned by dragging (with
-   a little inertia), the arrow keys, or a slow half turn on opening; zoomed
+   a little inertia) or the arrow keys, never on its own; zoomed
    with the − and + buttons, a pinch, Ctrl + the wheel (the wheel alone in
    presentation) or a double tap outside the lots, then moved by dragging;
    the lots painted in the colour of their status on every image, from the
@@ -246,7 +246,6 @@ export function OrbitViewer({
   const pinch = useRef<{ dist: number; x: number; y: number } | null>(null);
   const lastTap = useRef<{ t: number; x: number; y: number } | null>(null);
   const touched = useRef(false);
-  const turned = useRef(false);
   const frameCanvas = useRef<HTMLCanvasElement>(null);
   const overlay = useRef<HTMLCanvasElement>(null);
   const pixels = useRef<ImageData | null>(null);
@@ -336,26 +335,6 @@ export function OrbitViewer({
     setZoom(WHOLE);
     goTo(0);
   }, [resetKey, goTo, stopMotion, stopZoom, setZoom]);
-
-  // A slow half turn once the views are there, to show that the programme turns.
-  useEffect(() => {
-    if (still || touched.current || turned.current || ready < count || count === 0) return;
-    turned.current = true;
-    const start = performance.now();
-    const from = pos.current;
-    const duration = 5200;
-    setMoving(true);
-    const step = (now: number) => {
-      if (touched.current) return;
-      const t = Math.min(1, (now - start) / duration);
-      const eased = 0.5 - Math.cos(Math.PI * t) / 2;
-      goTo(from + eased * (count / 2));
-      if (t < 1) frame.current = requestAnimationFrame(step);
-      else setMoving(false);
-    };
-    frame.current = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(frame.current);
-  }, [ready, count, still, goTo]);
 
   // The views keep the format of the sequence inside their box (presentation: any box).
   useEffect(() => {

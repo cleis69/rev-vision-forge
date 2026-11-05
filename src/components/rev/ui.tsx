@@ -11,15 +11,11 @@ export const fadeUp = (delay: number) => ({
   animation: `rev-fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s both`,
 });
 
-export function Container({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
+export function Container({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn("mx-auto w-full max-w-[1240px] px-5 sm:px-6 md:px-10", className)}>{children}</div>
+    <div className={cn("mx-auto w-full max-w-[1240px] px-5 sm:px-6 md:px-10", className)}>
+      {children}
+    </div>
   );
 }
 
@@ -85,9 +81,19 @@ type CtaProps = {
   href: string;
   variant?: "primary" | "ghost";
   className?: string;
+  onClick?: () => void;
+  /** Opens in a new tab (always a plain link). */
+  newTab?: boolean;
 };
 
-export function Cta({ children, href, variant = "primary", className }: CtaProps) {
+export function Cta({
+  children,
+  href,
+  variant = "primary",
+  className,
+  onClick,
+  newTab = false,
+}: CtaProps) {
   const classes = cn(
     "group relative isolate inline-flex h-12 items-center justify-center gap-2 overflow-hidden rounded-lg px-6 text-sm font-medium",
     "transition-[background-color,border-color,transform] duration-300 active:scale-[0.98]",
@@ -109,16 +115,21 @@ export function Cta({ children, href, variant = "primary", className }: CtaProps
     </>
   );
 
-  if (isInternalRoute(href)) {
+  if (isInternalRoute(href) && !newTab) {
     return (
-      <Link to={href as never} className={classes}>
+      <Link to={href as never} className={classes} onClick={onClick}>
         {content}
       </Link>
     );
   }
 
   return (
-    <a href={href} className={classes}>
+    <a
+      href={href}
+      className={classes}
+      onClick={onClick}
+      {...(newTab ? { target: "_blank", rel: "noopener" } : {})}
+    >
       {content}
     </a>
   );

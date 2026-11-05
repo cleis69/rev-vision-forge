@@ -31,3 +31,11 @@ const AGENT_DEMO_MESSAGE: Record<Locale, string> = {
 };
 
 export const agentDemoUrl = (locale: Locale) => whatsappLink(AGENT_DEMO_MESSAGE[locale]);
+
+/** WhatsApp message asking for a demo of the 3D sales plan. */
+const SALES_PLAN_DEMO_MESSAGE: Record<Locale, string> = {
+  fr: "Bonjour REV, je souhaite une démo du plan de vente 3D pour mon programme.",
+  en: "Hello REV, I'd like a demo of the 3D sales plan for my development.",
+};
+
+export const salesPlanDemoUrl = (locale: Locale) => whatsappLink(SALES_PLAN_DEMO_MESSAGE[locale]);

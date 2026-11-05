@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner";
 
 import { SettingsSection, StatusBadge } from "@/components/app/Blocks";
+import { QrCode } from "@/components/app/QrCode";
 import { useCurrentProject } from "@/components/app/ProjectContext";
 import { Button } from "@/components/ui/button";
 import { dbErrorMessage } from "@/lib/app/errors";
@@ -170,6 +171,11 @@ function SharePage() {
               </a>
             </Button>
           </div>
+        </div>
+
+        <div className="mt-5 border-t border-border pt-5">
+          <h3 className="mb-3 text-sm font-medium">QR code</h3>
+          <QrCode url={url} fileName={`qr-${project.slug}${lang === "en" ? "-en" : ""}`} />
         </div>
 
         <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-border pt-5">

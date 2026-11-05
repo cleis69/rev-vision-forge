@@ -21,12 +21,11 @@ export default defineConfig({
             enabled: true,
             crawlLinks: true,
             failOnError: true,
-            // /app, /p and /embed pages are rendered in the browser from the shell below.
+            // /app, /p and /embed pages (/en/p and /en/embed in English) are
+            // rendered in the browser from the shell below. The 3D sales plan
+            // page links to the demo programme in both languages.
             filter: ({ path }: { path: string }) =>
-              !path.startsWith("/app/") &&
-              !["/p", "/embed"].includes(path) &&
-              !path.startsWith("/p/") &&
-              !path.startsWith("/embed/"),
+              !path.startsWith("/app/") && !/^\/(?:en\/)?(?:p|embed)(?:\/|$)/.test(path),
           },
           // Not linked from anywhere, so not found by the crawler. The AI agent
           // page is private for now (PRIVATE_PAGES in src/lib/i18n.ts).

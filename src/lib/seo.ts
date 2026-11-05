@@ -1,6 +1,6 @@
 import { AGENCY_NAME, AGENCY_URL } from "@/components/rev/AgencyCredit";
 import { CONTACT_EMAIL, SITE_URL } from "./contact";
-import { AGENT_FAQ, FAQ_ITEMS } from "./faq";
+import { AGENT_FAQ, FAQ_ITEMS, SALES_PLAN_FAQ } from "./faq";
 import { faqJsonLd, isPublic, pageHead, type Locale } from "./i18n";
 
 /*
@@ -86,6 +86,19 @@ const SERVICES = {
   },
 } as const;
 
+const SALES_PLAN = {
+  fr: {
+    title: "Plan de vente 3D pour promoteurs — Disponibilités en direct | REV",
+    description:
+      "Une page par programme : la résidence en 3D à tourner du doigt, chaque lot coloré selon son statut mis à jour en direct, fiches, plans, visite 360°, comparateur et demandes qui citent le lot. Démo en ligne.",
+  },
+  en: {
+    title: "3D sales plan for property developers — Live availability | REV",
+    description:
+      "One page per development: the residence in 3D, turned with a finger, every unit coloured by its live status, unit sheets, plans, 360° tour, comparison and enquiries that name the unit. Live demo.",
+  },
+} as const;
+
 const HOME = {
   fr: {
     title: "REV — Marketing visuel & croissance immobilière",
@@ -119,11 +132,18 @@ export const portfolioHead = (locale: Locale) => pageHead("portfolio", locale, P
 export const pricingHead = (locale: Locale) => pageHead("pricing", locale, PRICING[locale]);
 export const servicesHead = (locale: Locale) => pageHead("services", locale, SERVICES[locale]);
 
+export const salesPlanHead = (locale: Locale) => ({
+  ...pageHead("salesPlan", locale, SALES_PLAN[locale]),
+  scripts: [faqJsonLd(SALES_PLAN_FAQ[locale])],
+});
+
 export const agentHead = (locale: Locale) => {
   const head = pageHead("agent", locale, AGENT[locale]);
   return {
     ...head,
-    meta: isPublic("agent") ? head.meta : [...head.meta, { name: "robots", content: "noindex, nofollow" }],
+    meta: isPublic("agent")
+      ? head.meta
+      : [...head.meta, { name: "robots", content: "noindex, nofollow" }],
     scripts: [faqJsonLd(AGENT_FAQ[locale])],
   };
 };

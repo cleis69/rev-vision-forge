@@ -11,6 +11,7 @@ import { AgencyCredit } from "./AgencyCredit";
 const ALL_NAV: { page: PageKey; label: Record<Locale, string> }[] = [
   { page: "home", label: { fr: "Accueil", en: "Home" } },
   { page: "services", label: { fr: "Expertises", en: "Services" } },
+  { page: "salesPlan", label: { fr: "Plan de vente 3D", en: "3D sales plan" } },
   { page: "agent", label: { fr: "Agent IA", en: "AI agent" } },
   { page: "pricing", label: { fr: "Tarifs", en: "Pricing" } },
   { page: "portfolio", label: { fr: "Portfolio", en: "Portfolio" } },
@@ -51,7 +52,10 @@ export function FinalCta() {
   const locale = useLocale();
   const copy = COPY[locale];
   return (
-    <section id="contact" className="scroll-mt-20 border-t border-border/70 py-14 sm:py-16 lg:py-24">
+    <section
+      id="contact"
+      className="scroll-mt-20 border-t border-border/70 py-14 sm:py-16 lg:py-24"
+    >
       <Container>
         <Reveal className="relative overflow-hidden rounded-3xl border border-border bg-card px-5 py-10 text-center sm:px-10 sm:py-14 md:px-16">
           <div
@@ -95,11 +99,15 @@ export function Footer() {
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
           <div className="col-span-2 lg:col-span-1">
             <RevLogo variant="full" lazy className="h-14 w-auto sm:h-16" />
-            <p className="mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground">{copy.about}</p>
+            <p className="mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground">
+              {copy.about}
+            </p>
           </div>
 
           <nav aria-label={copy.navLabel} className="col-span-2 sm:col-span-1">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">{copy.navTitle}</p>
+            <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+              {copy.navTitle}
+            </p>
             <ul className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2.5 sm:grid-cols-1">
               {NAV.map((item) => (
                 <li key={item.page}>
@@ -115,7 +123,9 @@ export function Footer() {
           </nav>
 
           <div className="col-span-2 sm:col-span-1">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">{copy.contact}</p>
+            <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+              {copy.contact}
+            </p>
             <ul className="mt-4 space-y-3 text-sm">
               <li>
                 <a

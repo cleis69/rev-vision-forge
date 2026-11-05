@@ -106,3 +106,75 @@ export const AGENT_FAQ: Record<Locale, { q: string; a: string }[]> = {
     },
   ],
 };
+
+/** 3D sales plan page FAQ. */
+export const SALES_PLAN_FAQ: Record<Locale, { q: string; a: string }[]> = {
+  fr: [
+    {
+      q: "Est-ce que ça marche sur téléphone ?",
+      a: "Oui, la page est pensée d'abord pour le téléphone : l'acheteur tourne la 3D du doigt, ouvre les fiches et vous écrit sur WhatsApp. Elle fonctionne aussi sur tablette et sur ordinateur.",
+    },
+    {
+      q: "Faut-il installer quelque chose ?",
+      a: "Non. Ni application ni compte pour l'acheteur : il ouvre un lien, c'est tout. Votre équipe se connecte à son espace depuis un simple navigateur.",
+    },
+    {
+      q: "Qui met à jour les disponibilités ?",
+      a: "Vous. Depuis votre espace, un lot passe de disponible à réservé ou vendu en un clic (ou par import CSV), et la page change aussitôt chez tous les acheteurs. Vous n'attendez personne.",
+    },
+    {
+      q: "Peut-on l'intégrer à notre site ?",
+      a: "Oui. Votre espace vous donne un code d'iframe à coller sur votre site, et le plan de vente y prend tout seul la bonne hauteur. La visite 360° a aussi son propre lien et sa propre iframe.",
+    },
+    {
+      q: "En quelles langues ?",
+      a: "En français et en anglais, sur la même page : l'acheteur change de langue d'un geste. Vos propres textes (description, prestations, typologies) ont eux aussi leur version anglaise.",
+    },
+    {
+      q: "Combien ça coûte ?",
+      a: "C'est sur devis, selon le programme : le nombre de lots, et la 3D que vous avez déjà ou que notre studio doit produire. Vous recevez un devis ferme avant de commencer.",
+    },
+    {
+      q: "Et pour un programme hors du Maroc ?",
+      a: "C'est possible. Nous commençons par le Maroc, mais le programme peut se trouver ailleurs : la devise des prix et la carte du quartier suivent votre projet.",
+    },
+    {
+      q: "En combien de temps la page est-elle en ligne ?",
+      a: "Cela dépend du projet, et surtout de la 3D : selon que vous l'avez déjà ou que notre studio la produit. Le délai est fixé avec le devis, avant de commencer.",
+    },
+  ],
+  en: [
+    {
+      q: "Does it work on phones?",
+      a: "Yes, the page is designed for phones first: buyers turn the 3D with a finger, open the unit sheets and message you on WhatsApp. It works on tablets and computers too.",
+    },
+    {
+      q: "Does anything need installing?",
+      a: "No. No app and no account for buyers: they open a link, that's all. Your team signs in to its space from an ordinary browser.",
+    },
+    {
+      q: "Who updates availability?",
+      a: "You do. From your space, a unit goes from available to reserved or sold in one click (or by CSV import), and the page changes instantly for every buyer. You don't wait for anyone.",
+    },
+    {
+      q: "Can we embed it on our website?",
+      a: "Yes. Your space gives you an iframe code to paste on your site, and the sales plan sizes itself to fit. The 360° tour also has its own link and its own iframe.",
+    },
+    {
+      q: "Which languages?",
+      a: "French and English, on the same page: buyers switch language in one tap. Your own texts (description, amenities, unit types) get an English version too.",
+    },
+    {
+      q: "How much does it cost?",
+      a: "It's on quote, depending on the development: the number of units, and the 3D you already have or that our studio needs to produce. You receive a fixed quote before we start.",
+    },
+    {
+      q: "What about a development outside Morocco?",
+      a: "That works. We're starting in Morocco, but the development can be elsewhere: the price currency and the neighbourhood map follow your project.",
+    },
+    {
+      q: "How long until the page goes live?",
+      a: "It depends on the project, and mostly on the 3D: whether you already have it or our studio produces it. The timeline is set with the quote, before we start.",
+    },
+  ],
+};

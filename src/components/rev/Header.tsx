@@ -2,7 +2,14 @@ import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 
-import { alternatePath, href, isPublic, localeFromPath, type Locale, type PageKey } from "@/lib/i18n";
+import {
+  alternatePath,
+  href,
+  isPublic,
+  localeFromPath,
+  type Locale,
+  type PageKey,
+} from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Container } from "./ui";
 import { RevLogo } from "./Logo";
@@ -10,6 +17,7 @@ import { RevLogo } from "./Logo";
 const ALL_NAV: { page: PageKey; label: Record<Locale, string> }[] = [
   { page: "home", label: { fr: "Accueil", en: "Home" } },
   { page: "services", label: { fr: "Expertises", en: "Services" } },
+  { page: "salesPlan", label: { fr: "Plan de vente 3D", en: "3D sales plan" } },
   { page: "agent", label: { fr: "Agent IA", en: "AI agent" } },
   { page: "pricing", label: { fr: "Tarifs", en: "Pricing" } },
   { page: "portfolio", label: { fr: "Portfolio", en: "Portfolio" } },
@@ -18,8 +26,20 @@ const ALL_NAV: { page: PageKey; label: Record<Locale, string> }[] = [
 const NAV = ALL_NAV.filter((item) => isPublic(item.page));
 
 const COPY = {
-  fr: { cta: "Prendre rendez-vous", open: "Ouvrir le menu", close: "Fermer le menu", nav: "Navigation principale", home: "Accueil" },
-  en: { cta: "Book a call", open: "Open menu", close: "Close menu", nav: "Main navigation", home: "Home" },
+  fr: {
+    cta: "Prendre rendez-vous",
+    open: "Ouvrir le menu",
+    close: "Fermer le menu",
+    nav: "Navigation principale",
+    home: "Accueil",
+  },
+  en: {
+    cta: "Book a call",
+    open: "Open menu",
+    close: "Close menu",
+    nav: "Main navigation",
+    home: "Home",
+  },
 } as const;
 
 /** FR | EN switch that lands on the same page in the other language. */
@@ -28,7 +48,10 @@ export function LanguageSwitch({ className }: { className?: string }) {
   const locale = localeFromPath(pathname);
   return (
     <div
-      className={cn("inline-flex rounded-lg border border-border bg-card/60 p-0.5 text-[12px] font-medium", className)}
+      className={cn(
+        "inline-flex rounded-lg border border-border bg-card/60 p-0.5 text-[12px] font-medium",
+        className,
+      )}
       role="group"
       aria-label={locale === "fr" ? "Langue" : "Language"}
     >
@@ -41,7 +64,9 @@ export function LanguageSwitch({ className }: { className?: string }) {
           aria-current={l === locale ? "true" : undefined}
           className={cn(
             "rounded-md px-2.5 py-1.5 uppercase tracking-[0.08em] transition-colors",
-            l === locale ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+            l === locale
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground",
           )}
         >
           {l}

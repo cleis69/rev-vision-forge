@@ -13,6 +13,7 @@ export const PAGES = {
   home: { fr: "/", en: "/en" },
   services: { fr: "/services", en: "/en/services" },
   agent: { fr: "/agent-ia", en: "/en/ai-agent" },
+  salesPlan: { fr: "/plan-de-vente-3d", en: "/en/3d-sales-plan" },
   pricing: { fr: "/tarifs", en: "/en/pricing" },
   portfolio: { fr: "/portfolio", en: "/en/portfolio" },
   about: { fr: "/about", en: "/en/about" },

@@ -19,6 +19,7 @@ import { Route as SiteAboutRouteImport } from './routes/_site/about'
 import { Route as SiteAgentIaRouteImport } from './routes/_site/agent-ia'
 import { Route as SiteContactRouteImport } from './routes/_site/contact'
 import { Route as SiteInsightsRouteImport } from './routes/_site/insights'
+import { Route as SitePlanDeVente3dRouteImport } from './routes/_site/plan-de-vente-3d'
 import { Route as SitePortfolioRouteImport } from './routes/_site/portfolio'
 import { Route as SiteServicesRouteImport } from './routes/_site/services'
 import { Route as SiteTarifsRouteImport } from './routes/_site/tarifs'
@@ -31,6 +32,7 @@ import { Route as EnEmbedRouteRouteImport } from './routes/en/embed/route'
 import { Route as EnPRouteRouteImport } from './routes/en/p/route'
 import { Route as PSlugRouteImport } from './routes/p/$slug'
 import { Route as SiteEnIndexRouteImport } from './routes/_site/en/index'
+import { Route as SiteEn3dSalesPlanRouteImport } from './routes/_site/en/3d-sales-plan'
 import { Route as SiteEn404RouteImport } from './routes/_site/en/404'
 import { Route as SiteEnAboutRouteImport } from './routes/_site/en/about'
 import { Route as SiteEnAiAgentRouteImport } from './routes/_site/en/ai-agent'
@@ -113,6 +115,11 @@ const SiteInsightsRoute = SiteInsightsRouteImport.update({
   path: '/insights',
   getParentRoute: () => SiteRouteRoute,
 } as any)
+const SitePlanDeVente3dRoute = SitePlanDeVente3dRouteImport.update({
+  id: '/plan-de-vente-3d',
+  path: '/plan-de-vente-3d',
+  getParentRoute: () => SiteRouteRoute,
+} as any)
 const SitePortfolioRoute = SitePortfolioRouteImport.update({
   id: '/portfolio',
   path: '/portfolio',
@@ -170,6 +177,11 @@ const PSlugRoute = PSlugRouteImport.update({
 const SiteEnIndexRoute = SiteEnIndexRouteImport.update({
   id: '/en/',
   path: '/en/',
+  getParentRoute: () => SiteRouteRoute,
+} as any)
+const SiteEn3dSalesPlanRoute = SiteEn3dSalesPlanRouteImport.update({
+  id: '/en/3d-sales-plan',
+  path: '/en/3d-sales-plan',
   getParentRoute: () => SiteRouteRoute,
 } as any)
 const SiteEn404Route = SiteEn404RouteImport.update({
@@ -356,6 +368,7 @@ export interface FileRoutesByFullPath {
   '/agent-ia': typeof SiteAgentIaRoute
   '/contact': typeof SiteContactRoute
   '/insights': typeof SiteInsightsRoute
+  '/plan-de-vente-3d': typeof SitePlanDeVente3dRoute
   '/portfolio': typeof SitePortfolioRoute
   '/services': typeof SiteServicesRoute
   '/tarifs': typeof SiteTarifsRoute
@@ -364,6 +377,7 @@ export interface FileRoutesByFullPath {
   '/app/reinitialiser': typeof AppReinitialiserRoute
   '/embed/$slug': typeof EmbedSlugRoute
   '/p/$slug': typeof PSlugRouteWithChildren
+  '/en/3d-sales-plan': typeof SiteEn3dSalesPlanRoute
   '/en/404': typeof SiteEn404Route
   '/en/about': typeof SiteEnAboutRoute
   '/en/ai-agent': typeof SiteEnAiAgentRoute
@@ -409,6 +423,7 @@ export interface FileRoutesByTo {
   '/agent-ia': typeof SiteAgentIaRoute
   '/contact': typeof SiteContactRoute
   '/insights': typeof SiteInsightsRoute
+  '/plan-de-vente-3d': typeof SitePlanDeVente3dRoute
   '/portfolio': typeof SitePortfolioRoute
   '/services': typeof SiteServicesRoute
   '/tarifs': typeof SiteTarifsRoute
@@ -418,6 +433,7 @@ export interface FileRoutesByTo {
   '/embed/$slug': typeof EmbedSlugRoute
   '/p/$slug': typeof PSlugRouteWithChildren
   '/': typeof SiteIndexRoute
+  '/en/3d-sales-plan': typeof SiteEn3dSalesPlanRoute
   '/en/404': typeof SiteEn404Route
   '/en/about': typeof SiteEnAboutRoute
   '/en/ai-agent': typeof SiteEnAiAgentRoute
@@ -464,6 +480,7 @@ export interface FileRoutesById {
   '/_site/agent-ia': typeof SiteAgentIaRoute
   '/_site/contact': typeof SiteContactRoute
   '/_site/insights': typeof SiteInsightsRoute
+  '/_site/plan-de-vente-3d': typeof SitePlanDeVente3dRoute
   '/_site/portfolio': typeof SitePortfolioRoute
   '/_site/services': typeof SiteServicesRoute
   '/_site/tarifs': typeof SiteTarifsRoute
@@ -473,6 +490,7 @@ export interface FileRoutesById {
   '/embed/$slug': typeof EmbedSlugRoute
   '/p/$slug': typeof PSlugRouteWithChildren
   '/_site/': typeof SiteIndexRoute
+  '/_site/en/3d-sales-plan': typeof SiteEn3dSalesPlanRoute
   '/_site/en/404': typeof SiteEn404Route
   '/_site/en/about': typeof SiteEnAboutRoute
   '/_site/en/ai-agent': typeof SiteEnAiAgentRoute
@@ -521,6 +539,7 @@ export interface FileRouteTypes {
     | '/agent-ia'
     | '/contact'
     | '/insights'
+    | '/plan-de-vente-3d'
     | '/portfolio'
     | '/services'
     | '/tarifs'
@@ -529,6 +548,7 @@ export interface FileRouteTypes {
     | '/app/reinitialiser'
     | '/embed/$slug'
     | '/p/$slug'
+    | '/en/3d-sales-plan'
     | '/en/404'
     | '/en/about'
     | '/en/ai-agent'
@@ -574,6 +594,7 @@ export interface FileRouteTypes {
     | '/agent-ia'
     | '/contact'
     | '/insights'
+    | '/plan-de-vente-3d'
     | '/portfolio'
     | '/services'
     | '/tarifs'
@@ -583,6 +604,7 @@ export interface FileRouteTypes {
     | '/embed/$slug'
     | '/p/$slug'
     | '/'
+    | '/en/3d-sales-plan'
     | '/en/404'
     | '/en/about'
     | '/en/ai-agent'
@@ -628,6 +650,7 @@ export interface FileRouteTypes {
     | '/_site/agent-ia'
     | '/_site/contact'
     | '/_site/insights'
+    | '/_site/plan-de-vente-3d'
     | '/_site/portfolio'
     | '/_site/services'
     | '/_site/tarifs'
@@ -637,6 +660,7 @@ export interface FileRouteTypes {
     | '/embed/$slug'
     | '/p/$slug'
     | '/_site/'
+    | '/_site/en/3d-sales-plan'
     | '/_site/en/404'
     | '/_site/en/about'
     | '/_site/en/ai-agent'
@@ -753,6 +777,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteInsightsRouteImport
       parentRoute: typeof SiteRouteRoute
     }
+    '/_site/plan-de-vente-3d': {
+      id: '/_site/plan-de-vente-3d'
+      path: '/plan-de-vente-3d'
+      fullPath: '/plan-de-vente-3d'
+      preLoaderRoute: typeof SitePlanDeVente3dRouteImport
+      parentRoute: typeof SiteRouteRoute
+    }
     '/_site/portfolio': {
       id: '/_site/portfolio'
       path: '/portfolio'
@@ -835,6 +866,13 @@ declare module '@tanstack/react-router' {
       path: '/en'
       fullPath: '/en/'
       preLoaderRoute: typeof SiteEnIndexRouteImport
+      parentRoute: typeof SiteRouteRoute
+    }
+    '/_site/en/3d-sales-plan': {
+      id: '/_site/en/3d-sales-plan'
+      path: '/en/3d-sales-plan'
+      fullPath: '/en/3d-sales-plan'
+      preLoaderRoute: typeof SiteEn3dSalesPlanRouteImport
       parentRoute: typeof SiteRouteRoute
     }
     '/_site/en/404': {
@@ -1070,10 +1108,12 @@ interface SiteRouteRouteChildren {
   SiteAgentIaRoute: typeof SiteAgentIaRoute
   SiteContactRoute: typeof SiteContactRoute
   SiteInsightsRoute: typeof SiteInsightsRoute
+  SitePlanDeVente3dRoute: typeof SitePlanDeVente3dRoute
   SitePortfolioRoute: typeof SitePortfolioRoute
   SiteServicesRoute: typeof SiteServicesRoute
   SiteTarifsRoute: typeof SiteTarifsRoute
   SiteIndexRoute: typeof SiteIndexRoute
+  SiteEn3dSalesPlanRoute: typeof SiteEn3dSalesPlanRoute
   SiteEn404Route: typeof SiteEn404Route
   SiteEnAboutRoute: typeof SiteEnAboutRoute
   SiteEnAiAgentRoute: typeof SiteEnAiAgentRoute
@@ -1091,10 +1131,12 @@ const SiteRouteRouteChildren: SiteRouteRouteChildren = {
   SiteAgentIaRoute: SiteAgentIaRoute,
   SiteContactRoute: SiteContactRoute,
   SiteInsightsRoute: SiteInsightsRoute,
+  SitePlanDeVente3dRoute: SitePlanDeVente3dRoute,
   SitePortfolioRoute: SitePortfolioRoute,
   SiteServicesRoute: SiteServicesRoute,
   SiteTarifsRoute: SiteTarifsRoute,
   SiteIndexRoute: SiteIndexRoute,
+  SiteEn3dSalesPlanRoute: SiteEn3dSalesPlanRoute,
   SiteEn404Route: SiteEn404Route,
   SiteEnAboutRoute: SiteEnAboutRoute,
   SiteEnAiAgentRoute: SiteEnAiAgentRoute,

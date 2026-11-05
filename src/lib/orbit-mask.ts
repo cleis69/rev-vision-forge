@@ -143,12 +143,30 @@ export function labelMap(
 }
 
 /** How a label is painted: a flat tint, or stripes (reserved lots). */
-export type Paint = { rgba: readonly [number, number, number, number]; stripes?: number };
+export type Paint = {
+  rgba: readonly [number, number, number, number];
+  stripes?: number;
+  /** Contour of the lot, drawn over its edge (2 px of the label map). */
+  edge?: readonly [number, number, number, number];
+};
+
+/** A pixel of label k on the edge of its lot: a neighbour (up to 2 px away) is another label. */
+function onEdge(labels: Uint8Array, width: number, p: number, k: number): boolean {
+  const height = labels.length / width;
+  const x = p % width;
+  const y = (p - x) / width;
+  for (const d of [1, 2]) {
+    if (x - d < 0 || labels[p - d] !== k) return true;
+    if (x + d >= width || labels[p + d] !== k) return true;
+    if (y - d < 0 || labels[p - d * width] !== k) return true;
+    if (y + d >= height || labels[p + d * width] !== k) return true;
+  }
+  return false;
+}
 
 /**
- * Overlay pixels from a label map: label k painted with paints[k] (index 0
- * is never painted). Stripes: diagonal bands, `stripes` pixels wide, at full
- * opacity on one band out of two and a quarter of it on the other.
+ * Paints the lots of a label map into RGBA pixels: each label its colour
+ * (stripes for some), its contour in a stronger one; label 0 stays clear.
  */
 export function paintLabels(
   labels: Uint8Array,
@@ -163,6 +181,13 @@ export function paintLabels(
     const paint = paints[k];
     if (!paint) continue;
     const i = p * 4;
+    if (paint.edge && onEdge(labels, width, p, k)) {
+      out[i] = paint.edge[0];
+      out[i + 1] = paint.edge[1];
+      out[i + 2] = paint.edge[2];
+      out[i + 3] = paint.edge[3];
+      continue;
+    }
     let alpha = paint.rgba[3];
     if (paint.stripes) {
       const x = p % width;

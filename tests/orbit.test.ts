@@ -181,3 +181,21 @@ describe("vues orbitales", () => {
     expect(carryLinks(colors, [], [])).toEqual({ lots: [null, null, null, null], carried: 0 });
   });
 });
+
+describe("contour des lots", () => {
+  test("le bord d'un lot prend la couleur du contour, l'intérieur sa teinte", () => {
+    // A 7×7 map: label 1 in the middle 5×5, background around.
+    const width = 7;
+    const labels = new Uint8Array(49);
+    for (let y = 1; y <= 5; y++) for (let x = 1; x <= 5; x++) labels[y * width + x] = 1;
+    const out = new Uint8ClampedArray(49 * 4);
+    paintLabels(labels, width, [null, { rgba: [10, 20, 30, 100], edge: [200, 100, 0, 255] }], out);
+    const at = (x: number, y: number) => [
+      ...out.slice((y * width + x) * 4, (y * width + x) * 4 + 4),
+    ];
+    expect(at(0, 0)).toEqual([0, 0, 0, 0]);
+    expect(at(1, 3)).toEqual([200, 100, 0, 255]);
+    expect(at(2, 3)).toEqual([200, 100, 0, 255]);
+    expect(at(3, 3)).toEqual([10, 20, 30, 100]);
+  });
+});

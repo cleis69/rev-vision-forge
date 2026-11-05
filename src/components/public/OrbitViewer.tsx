@@ -14,7 +14,7 @@ import { publicUrl } from "@/lib/app/storage";
 import type { LotStatus } from "@/lib/app/lot-fields";
 import { loadLabels, type LabelData } from "@/lib/orbit-loader";
 import { labelCenters, paintLabels, rgbOf, type LabelCenter, type Paint } from "@/lib/orbit-mask";
-import { useLocale } from "@/lib/public/i18n";
+import { STATUS_TEXT, useLocale } from "@/lib/public/i18n";
 import type { PublicLot, PublicOrbit } from "@/lib/public/programme";
 import { loadingOrder, nearestLoaded, useOrbitFrames } from "@/lib/use-orbit-frames";
 import { cn } from "@/lib/utils";
@@ -453,10 +453,20 @@ export function OrbitViewer({
       if (!lot) return null;
       const dim =
         (filter !== null && lot.statut !== filter) || (focus && !focus.has(lot.id)) ? 0.22 : 1;
-      if (activeIds.has(lot.id)) return { rgba: [255, 255, 255, Math.round(150 * dim)] };
-      if (lot.statut === "disponible") return { rgba: [...brand, Math.round(92 * dim)] };
-      if (lot.statut === "reservee") return { rgba: [...AMBER, Math.round(210 * dim)], stripes: 5 };
-      return { rgba: [...SOLD, Math.round(190 * dim)] };
+      // A tint over the lot and a contour in the full colour of its status.
+      const edge = (rgb: readonly number[], a: number) =>
+        [rgb[0] ?? 0, rgb[1] ?? 0, rgb[2] ?? 0, Math.round(a * dim)] as const;
+      if (activeIds.has(lot.id))
+        return { rgba: [255, 255, 255, Math.round(150 * dim)], edge: edge([255, 255, 255], 255) };
+      if (lot.statut === "disponible")
+        return { rgba: [...brand, Math.round(92 * dim)], edge: edge(brand, 235) };
+      if (lot.statut === "reservee")
+        return {
+          rgba: [...AMBER, Math.round(210 * dim)],
+          stripes: 5,
+          edge: edge(AMBER, 255),
+        };
+      return { rgba: [...SOLD, Math.round(190 * dim)], edge: edge([150, 150, 156], 230) };
     });
   }, [lotByLabel, brandColor, filter, focus, activeIds]);
 
@@ -792,6 +802,13 @@ export function OrbitViewer({
                 style={{ left: x, top: y }}
               >
                 {lot.numero}
+                {/* As on a sales plan: what is no longer available says so, where there is room. */}
+                {lot.statut !== "disponible" && (large || (size && size.w >= 640)) ? (
+                  <span className="font-medium opacity-80">
+                    {" "}
+                    · {STATUS_TEXT[locale][lot.statut]}
+                  </span>
+                ) : null}
               </span>
             ))}
           </div>

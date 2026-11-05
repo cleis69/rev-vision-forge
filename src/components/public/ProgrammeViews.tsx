@@ -8,6 +8,7 @@ import type { PublicData, PublicLot, PublicView } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
 import type { ViewKey } from "@/lib/public/use-views";
 import { floorsDown, sideViews } from "@/lib/views";
+import { useCameraMove } from "./CameraMove";
 import { OrbitViewer } from "./OrbitViewer";
 
 const AerialViewer = lazy(() => import("./AerialViewer"));
@@ -74,6 +75,24 @@ export function ProgrammeViews({
   const side = useMemo(() => sideViews(views), [views]);
   const floors = useMemo(() => floorsDown(views), [views]);
   const current = views.find((v) => v.id === viewKey) ?? null;
+  // The camera moves exported for the views (app and sales office presentation).
+  const camera = useCameraMove({
+    transitions: data.transitions,
+    introViewId: viewKey,
+    sessionKey: `rev-intro-${programme.id}`,
+    enabled: app || large,
+    skipClassName: app
+      ? cn(
+          "bottom-3 right-3",
+          floors.length > 0 && "max-md:bottom-[4.25rem]",
+          "md:bottom-auto md:right-4 md:top-4",
+        )
+      : "right-4 top-4",
+  });
+  const pick = (id: string) => {
+    if (id !== viewKey) camera.play(id);
+    onViewChange(id);
+  };
 
   const available = useMemo(() => {
     const free = new Set(lots.filter((l) => l.statut === "disponible").map((l) => l.id));
@@ -153,6 +172,7 @@ export function ProgrammeViews({
     return (
       <div className="relative h-full w-full overflow-hidden bg-black">
         <div className="absolute inset-0 flex flex-col">{stage}</div>
+        {camera.layer}
 
         {showSide ? (
           <div
@@ -173,7 +193,7 @@ export function ProgrammeViews({
                   key={v.id}
                   type="button"
                   aria-pressed={active}
-                  onClick={() => onViewChange(v.id)}
+                  onClick={() => pick(v.id)}
                   className={cn(
                     "group shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
                     "inline-flex h-9 items-center rounded-full border px-4 text-sm backdrop-blur-md",
@@ -228,7 +248,7 @@ export function ProgrammeViews({
                   key={v.id}
                   type="button"
                   aria-pressed={active}
-                  onClick={() => onViewChange(v.id)}
+                  onClick={() => pick(v.id)}
                   className={cn(
                     "flex shrink-0 flex-col items-start rounded-xl border px-3 py-1.5 text-left backdrop-blur-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 md:backdrop-blur-none",
                     active
@@ -263,7 +283,7 @@ export function ProgrammeViews({
               key={v.id}
               type="button"
               aria-pressed={viewKey === v.id}
-              onClick={() => onViewChange(v.id)}
+              onClick={() => pick(v.id)}
               className={button(viewKey === v.id)}
             >
               {v.name}
@@ -281,7 +301,10 @@ export function ProgrammeViews({
           floors.length === 0 && !large && "block",
         )}
       >
-        <div className={cn("min-w-0 flex-1", large && "flex min-h-0 flex-col")}>{stage}</div>
+        <div className={cn("relative min-w-0 flex-1", large && "flex min-h-0 flex-col")}>
+          {stage}
+          {camera.layer}
+        </div>
         {floors.length > 0 ? (
           <nav
             aria-label={copy.floors}
@@ -300,7 +323,7 @@ export function ProgrammeViews({
                   key={v.id}
                   type="button"
                   aria-pressed={active}
-                  onClick={() => onViewChange(v.id)}
+                  onClick={() => pick(v.id)}
                   className={cn(
                     "flex shrink-0 flex-col items-start rounded-xl border text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
                     large ? "px-4 py-3" : "px-3 py-2",

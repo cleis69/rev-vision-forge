@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Plus, Settings2, Star, Trash2 } from "lucide-rea
 import { toast } from "sonner";
 
 import { EmptyState, SettingsSection } from "@/components/app/Blocks";
+import { ViewTransition } from "@/components/app/views/ViewTransition";
 import { ConfirmDialog } from "@/components/app/ConfirmDialog";
 import { ViewOrbit } from "@/components/app/orbit/ViewOrbit";
 import { ViewPanorama } from "@/components/app/views/ViewPanorama";
@@ -421,6 +422,10 @@ function ViewPanel({
           )}
         </div>
       )}
+
+      {orbit.frames.length > 0 || view.panorama_path ? (
+        <ViewTransition project={project} view={view} />
+      ) : null}
 
       <ConfirmDialog
         open={deleting}

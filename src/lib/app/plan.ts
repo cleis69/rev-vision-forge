@@ -6,6 +6,7 @@ import type { ViewPreset } from "@/lib/views";
 import { AppError, NO_RIGHTS } from "./errors";
 import { viewOrbitFolders, type Orbits } from "./orbit";
 import { removeFolder } from "./storage";
+import { removeTransitions } from "./transitions";
 
 /* Views of a programme (Vues tab): aerial view, roof, floors, pedestrian
    view…, each an orbital sequence (see orbit.ts) or a 360° panorama with a
@@ -130,12 +131,14 @@ export function useMoveView(projectId: string) {
   });
 }
 
-/** Deletes a view, its sequence and colours (cascade), then the files of the sequence. */
+/** Deletes a view, its sequence and colours (cascade), its camera move, then the files of the sequence. */
 export function useDeleteView(projectId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (view: ProjectView) => {
       const folders = await viewOrbitFolders(view.id);
+      // Its camera move is a video of the media table, not part of the cascade.
+      await removeTransitions(projectId, view.id);
       // Its 360° panorama, if it has one, sits in a folder of its own.
       if (view.panorama_path)
         folders.push(view.panorama_path.slice(0, view.panorama_path.lastIndexOf("/")));

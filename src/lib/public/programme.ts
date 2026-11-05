@@ -129,6 +129,8 @@ export type PublicData = {
   plans: MediaItem[];
   videos: MediaItem[];
   documents: MediaItem[];
+  /** Camera move arriving on each view (view id → video), played when the visitor picks it. */
+  transitions: Record<string, MediaItem>;
   /** 360° tours with at least one room, types first. */
   tours: PublicTour[];
   /** Draft seen by a member of its organization. */
@@ -337,11 +339,15 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
 }
 
 function byKind(items: MediaItem[]) {
+  const transitions: Record<string, MediaItem> = {};
+  for (const m of items)
+    if (m.kind === "video" && m.meta.transition) transitions[m.meta.transition] = m;
   return {
     media: items.filter((m) => m.kind === "image"),
     plans: items.filter((m) => m.kind === "plan"),
-    videos: items.filter((m) => m.kind === "video"),
+    videos: items.filter((m) => m.kind === "video" && !m.meta.transition),
     documents: items.filter((m) => m.kind === "document"),
+    transitions,
   };
 }
 

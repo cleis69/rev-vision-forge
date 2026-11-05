@@ -45,6 +45,11 @@ export type MediaMeta = {
   /** Documents: name of the file as sent, and its size in bytes. */
   name?: string;
   size?: number;
+  /**
+   * Videos: id of the view this camera move arrives on (Twinmotion, Unreal…),
+   * played by the 3D view; such a video is not in the gallery (see transitions.ts).
+   */
+  transition?: string;
 };
 export type MediaItem = Omit<Tables<"media">, "meta"> & { meta: MediaMeta };
 
@@ -116,10 +121,8 @@ export const ownerOf = (item: Pick<MediaItem, "lot_id" | "lot_type">): MediaOwne
 
 const readMeta = (meta: Json): MediaMeta => {
   if (!meta || typeof meta !== "object" || Array.isArray(meta)) return {};
-  const { width, height, caption, category, duration, poster, name, size } = meta as Record<
-    string,
-    unknown
-  >;
+  const { width, height, caption, category, duration, poster, name, size, transition } =
+    meta as Record<string, unknown>;
   return {
     ...(typeof width === "number" ? { width } : {}),
     ...(typeof height === "number" ? { height } : {}),
@@ -129,6 +132,7 @@ const readMeta = (meta: Json): MediaMeta => {
     ...(typeof poster === "string" ? { poster } : {}),
     ...(typeof name === "string" ? { name } : {}),
     ...(typeof size === "number" ? { size } : {}),
+    ...(typeof transition === "string" ? { transition } : {}),
   };
 };
 
@@ -150,7 +154,8 @@ export function useMedia(projectId: string) {
         .in("kind", [...MEDIA_KINDS])
         .order("sort_order");
       if (error) throw error;
-      return data.map(toMediaItem);
+      // The camera moves of the views belong to the Vues tab (see transitions.ts).
+      return data.map(toMediaItem).filter((m) => !m.meta.transition);
     },
   });
 }

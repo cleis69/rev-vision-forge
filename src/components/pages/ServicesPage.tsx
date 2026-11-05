@@ -63,7 +63,7 @@ const COPY: Record<
           "Photographie immobilière premium",
           "Vidéo cinématographique",
           "Drone (photo & vidéo)",
-          "Visites virtuelles Matterport",
+          "Visites virtuelles 3D",
           "Architecture 3D & visualisation",
           "Home staging virtuel",
         ],
@@ -174,7 +174,7 @@ const COPY: Record<
           "Premium real estate photography",
           "Cinematic video",
           "Drone (photo & video)",
-          "Matterport virtual tours",
+          "3D virtual tours",
           "3D architecture & visualisation",
           "Virtual home staging",
         ],
@@ -284,11 +284,17 @@ export function ServicesPage() {
         const service = copy.services[i];
         if (!service) return null;
         return (
-          <Section key={pillar.id} id={pillar.id} className={i > 0 ? "border-t border-border/70" : ""}>
+          <Section
+            key={pillar.id}
+            id={pillar.id}
+            className={i > 0 ? "border-t border-border/70" : ""}
+          >
             <Container>
               <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-16">
                 <Reveal className="lg:sticky lg:top-28 lg:self-start">
-                  <p className="font-display text-sm text-primary">{String(i + 1).padStart(2, "0")}</p>
+                  <p className="font-display text-sm text-primary">
+                    {String(i + 1).padStart(2, "0")}
+                  </p>
                   <h2 className="mt-3 font-display text-[clamp(1.6rem,3vw,2.6rem)] font-medium leading-[1.08] tracking-[-0.03em]">
                     {service.title}
                   </h2>

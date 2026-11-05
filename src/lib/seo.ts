@@ -36,14 +36,14 @@ const CONTACT = {
 
 const INSIGHTS = {
   fr: {
-    title: "Insights REV — Marketing, immobilier, Matterport, Ads & HubSpot",
+    title: "Insights REV — Marketing, immobilier, visite virtuelle 3D, Ads & HubSpot",
     description:
-      "Analyses et méthodes REV : marketing immobilier, visites Matterport, Meta Ads, architecture, HubSpot et SEO pour vendre plus vite et mieux.",
+      "Analyses et méthodes REV : marketing immobilier, visites virtuelles 3D, Meta Ads, architecture, HubSpot et SEO pour vendre plus vite et mieux.",
   },
   en: {
-    title: "REV insights — Marketing, real estate, Matterport, Ads & HubSpot",
+    title: "REV insights — Marketing, real estate, 3D virtual tours, Ads & HubSpot",
     description:
-      "REV analyses and methods: real estate marketing, Matterport tours, Meta Ads, architecture, HubSpot and SEO to sell faster and better.",
+      "REV analyses and methods: real estate marketing, 3D virtual tours, Meta Ads, architecture, HubSpot and SEO to sell faster and better.",
   },
 } as const;
 
@@ -77,12 +77,12 @@ const SERVICES = {
   fr: {
     title: "Expertises REV — Production visuelle, acquisition & automatisation",
     description:
-      "Photographie, vidéo, drone, Matterport, 3D, personal branding, Meta & Google Ads, landing pages, HubSpot CRM et automatisation : l'écosystème complet REV pour vendre plus vite.",
+      "Photographie, vidéo, drone, visite virtuelle 3D, personal branding, Meta & Google Ads, landing pages, HubSpot CRM et automatisation : l'écosystème complet REV pour vendre plus vite.",
   },
   en: {
     title: "REV services — Visual production, acquisition & automation",
     description:
-      "Photography, video, drone, Matterport, 3D, personal branding, Meta & Google Ads, landing pages, HubSpot CRM and automation: REV's complete ecosystem to sell faster.",
+      "Photography, video, drone, 3D virtual tours, personal branding, Meta & Google Ads, landing pages, HubSpot CRM and automation: REV's complete ecosystem to sell faster.",
   },
 } as const;
 

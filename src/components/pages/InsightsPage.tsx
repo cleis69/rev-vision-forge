@@ -16,7 +16,16 @@ const photography = photo("work-photography");
 const drone = photo("work-drone");
 const interior = photo("work-interior");
 
-const CATEGORIES = ["all", "marketing", "realEstate", "matterport", "metaAds", "architecture", "hubspot", "seo"] as const;
+const CATEGORIES = [
+  "all",
+  "marketing",
+  "realEstate",
+  "matterport",
+  "metaAds",
+  "architecture",
+  "hubspot",
+  "seo",
+] as const;
 type Category = (typeof CATEGORIES)[number];
 
 const CATEGORY_LABELS: Record<Locale, Record<Category, string>> = {
@@ -24,7 +33,7 @@ const CATEGORY_LABELS: Record<Locale, Record<Category, string>> = {
     all: "Tout",
     marketing: "Marketing",
     realEstate: "Immobilier",
-    matterport: "Matterport",
+    matterport: "Visite virtuelle 3D",
     metaAds: "Meta Ads",
     architecture: "Architecture",
     hubspot: "HubSpot",
@@ -34,7 +43,7 @@ const CATEGORY_LABELS: Record<Locale, Record<Category, string>> = {
     all: "All",
     marketing: "Marketing",
     realEstate: "Real estate",
-    matterport: "Matterport",
+    matterport: "3D virtual tours",
     metaAds: "Meta Ads",
     architecture: "Architecture",
     hubspot: "HubSpot",
@@ -78,13 +87,13 @@ const POSTS: Post[] = [
     image: matterport,
     text: {
       fr: {
-        title: "Matterport : ce qui change réellement sur le taux de visite physique",
+        title: "Visite virtuelle 3D : ce qui change réellement sur le taux de visite physique",
         excerpt:
           "Chiffres constatés sur 38 biens : la visite virtuelle ne remplace pas la visite, elle filtre les curieux.",
         alt: "Jumeau numérique 3D d'un appartement en vue maison de poupée",
       },
       en: {
-        title: "Matterport: what really changes for in-person viewings",
+        title: "3D virtual tours: what really changes for in-person viewings",
         excerpt:
           "Figures observed across 38 properties: the virtual tour doesn't replace the viewing, it filters out the window shoppers.",
         alt: "3D digital twin of an apartment in dollhouse view",
@@ -119,12 +128,14 @@ const POSTS: Post[] = [
     text: {
       fr: {
         title: "Lead scoring HubSpot pour l'immobilier : les 7 critères qui comptent",
-        excerpt: "Budget, horizon, financement, zone, typologie, canal et vitesse de réponse. Comment les pondérer.",
+        excerpt:
+          "Budget, horizon, financement, zone, typologie, canal et vitesse de réponse. Comment les pondérer.",
         alt: "Intérieur de résidence de luxe aux tonalités sombres",
       },
       en: {
         title: "HubSpot lead scoring for real estate: the 7 criteria that matter",
-        excerpt: "Budget, timeline, financing, area, property type, channel and response speed. How to weight them.",
+        excerpt:
+          "Budget, timeline, financing, area, property type, channel and response speed. How to weight them.",
         alt: "Dark-toned luxury residence interior",
       },
     },
@@ -275,7 +286,9 @@ export function InsightsPage() {
                     </div>
                     <div className="p-5 sm:p-6">
                       <div className="flex items-center gap-3 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                        <span className="text-primary">{CATEGORY_LABELS[locale][post.category]}</span>
+                        <span className="text-primary">
+                          {CATEGORY_LABELS[locale][post.category]}
+                        </span>
                         <span>·</span>
                         <time dateTime={post.date}>{formatDate(post.date, locale)}</time>
                         <span>·</span>
@@ -284,7 +297,9 @@ export function InsightsPage() {
                       <h2 className="mt-4 font-display text-lg font-medium leading-snug tracking-tight">
                         {text.title}
                       </h2>
-                      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{text.excerpt}</p>
+                      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                        {text.excerpt}
+                      </p>
                       <span className="mt-6 inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.16em] text-foreground/70 transition-colors group-hover:text-primary">
                         {copy.read}
                         <ArrowUpRight size={14} />

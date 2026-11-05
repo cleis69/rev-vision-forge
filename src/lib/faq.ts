@@ -16,7 +16,7 @@ export const FAQ_ITEMS: Record<Locale, { q: string; a: string }[]> = {
     },
     {
       q: "Quels sont vos délais de livraison ?",
-      a: "Les photographies retouchées sont livrées sous 24 heures. Les films cinématographiques et visites Matterport sont livrés sous 3 à 7 jours selon le volume.",
+      a: "Les photographies retouchées sont livrées sous 24 heures. Les films cinématographiques et visites virtuelles 3D sont livrés sous 3 à 7 jours selon le volume.",
     },
     {
       q: "Gérez-vous aussi les campagnes publicitaires ?",
@@ -42,7 +42,7 @@ export const FAQ_ITEMS: Record<Locale, { q: string; a: string }[]> = {
     },
     {
       q: "What are your turnaround times?",
-      a: "Edited photographs are delivered within 24 hours. Cinematic films and Matterport tours are delivered within 3 to 7 days, depending on volume.",
+      a: "Edited photographs are delivered within 24 hours. Cinematic films and 3D virtual tours are delivered within 3 to 7 days, depending on volume.",
     },
     {
       q: "Do you also run the ad campaigns?",

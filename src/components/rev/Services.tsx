@@ -42,7 +42,7 @@ const GROUPS: Group[] = [
       { label: "Vidéo cinématographique", icon: Film },
       { label: "Room Tour", icon: DoorOpen },
       { label: "Drone", icon: Plane },
-      { label: "Matterport", icon: Box },
+      { label: "Visite virtuelle 3D", icon: Box },
       { label: "Architecture 3D", icon: Building2 },
     ],
   },
@@ -94,7 +94,7 @@ const EN: Record<string, string> = {
   "Vidéo cinématographique": "Cinematic video",
   "Room Tour": "Room tour",
   Drone: "Drone",
-  Matterport: "Matterport",
+  "Visite virtuelle 3D": "3D virtual tour",
   "Architecture 3D": "3D architecture",
   Marketing: "Marketing",
   "Positionnement, récit et contenu qui créent le désir avant la première visite.":
@@ -128,7 +128,9 @@ export function Services() {
         <SectionHeading
           eyebrow={tr("Nos expertises")}
           title={tr("Quatre disciplines. Un seul moteur de croissance.")}
-          description={tr("Nous ne vendons pas des shootings. Nous construisons toute la couche commerciale autour de vos biens.")}
+          description={tr(
+            "Nous ne vendons pas des shootings. Nous construisons toute la couche commerciale autour de vos biens.",
+          )}
         />
 
         <div className="mt-8 grid gap-3 sm:mt-10 sm:gap-4 md:grid-cols-2 lg:mt-12">

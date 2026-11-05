@@ -13,7 +13,7 @@ const COPY = {
       "Chaque étape alimente la suivante. Le contenu crée l'attention, la stratégie la convertit, l'automatisation la démultiplie.",
     steps: [
       { label: "Bien immobilier", note: "Analyse du bien et positionnement" },
-      { label: "Production visuelle", note: "Photo, vidéo, drone, Matterport, 3D" },
+      { label: "Production visuelle", note: "Photo, vidéo, drone, visite virtuelle 3D" },
       { label: "Création de contenu", note: "Narration, formats courts, personal branding" },
       { label: "Réseaux sociaux", note: "Distribution organique et éditoriale" },
       { label: "Campagnes publicitaires", note: "Meta Ads, Google Ads, TikTok Ads" },
@@ -32,7 +32,7 @@ const COPY = {
       "Each step feeds the next. Content creates attention, strategy converts it, automation multiplies it.",
     steps: [
       { label: "The property", note: "Property analysis and positioning" },
-      { label: "Visual production", note: "Photo, video, drone, Matterport, 3D" },
+      { label: "Visual production", note: "Photo, video, drone, 3D virtual tour" },
       { label: "Content creation", note: "Storytelling, short formats, personal branding" },
       { label: "Social media", note: "Organic and editorial distribution" },
       { label: "Ad campaigns", note: "Meta Ads, Google Ads, TikTok Ads" },

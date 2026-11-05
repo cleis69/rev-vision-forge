@@ -5,11 +5,29 @@ import { Container } from "./ui";
 const COPY = {
   fr: {
     label: "Ce que nous produisons",
-    items: ["ADS VERTICALES", "ROOM TOURS", "PERSONAL BRANDING", "DRONE", "MATTERPORT", "FILMS DE LANCEMENT", "META ADS", "HUBSPOT CRM"],
+    items: [
+      "ADS VERTICALES",
+      "ROOM TOURS",
+      "PERSONAL BRANDING",
+      "DRONE",
+      "VISITE VIRTUELLE 3D",
+      "FILMS DE LANCEMENT",
+      "META ADS",
+      "HUBSPOT CRM",
+    ],
   },
   en: {
     label: "What we produce",
-    items: ["VERTICAL ADS", "ROOM TOURS", "PERSONAL BRANDING", "DRONE", "MATTERPORT", "LAUNCH FILMS", "META ADS", "HUBSPOT CRM"],
+    items: [
+      "VERTICAL ADS",
+      "ROOM TOURS",
+      "PERSONAL BRANDING",
+      "DRONE",
+      "3D VIRTUAL TOURS",
+      "LAUNCH FILMS",
+      "META ADS",
+      "HUBSPOT CRM",
+    ],
   },
 };
 

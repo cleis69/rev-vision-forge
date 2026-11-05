@@ -9,17 +9,6 @@ const interior = photo("work-interior");
 /** UltraVision Agency's case study about this website (in French). */
 const CASE_STUDY_URL = "https://ultravisionagency.com/realisations/rev";
 
-const TECH = [
-  "HubSpot CRM",
-  "Meta Business Suite",
-  "Google Ads & GA4",
-  "TikTok Ads Manager",
-  "Matterport",
-  "Blender & 3ds Max",
-  "Make / n8n",
-  "Looker Studio",
-];
-
 type Pair = [string, string];
 
 const COPY: Record<
@@ -35,7 +24,6 @@ const COPY: Record<
     team: { eyebrow: string; title: string; items: Pair[] };
     gearLabel: string;
     gear: string[];
-    techLabel: string;
     credit: { text: string; link: string };
   }
 > = {
@@ -56,11 +44,21 @@ const COPY: Record<
     values: {
       eyebrow: "Valeurs",
       title: "Quatre principes non négociables.",
-      description: "Ils déterminent les missions que nous acceptons et la manière dont nous les livrons.",
+      description:
+        "Ils déterminent les missions que nous acceptons et la manière dont nous les livrons.",
       items: [
-        ["Exactitude", "Chaque image, chaque campagne, chaque séquence est mesurée sur un résultat."],
-        ["Rareté", "Nous limitons volontairement le nombre de clients pour tenir le niveau d'exigence."],
-        ["Vitesse", "Photos livrées en 24h, réponse aux leads en minutes, itérations chaque semaine."],
+        [
+          "Exactitude",
+          "Chaque image, chaque campagne, chaque séquence est mesurée sur un résultat.",
+        ],
+        [
+          "Rareté",
+          "Nous limitons volontairement le nombre de clients pour tenir le niveau d'exigence.",
+        ],
+        [
+          "Vitesse",
+          "Photos livrées en 24h, réponse aux leads en minutes, itérations chaque semaine.",
+        ],
         ["Transparence", "Un dashboard partagé, des chiffres bruts, aucune métrique décorative."],
       ],
     },
@@ -68,8 +66,14 @@ const COPY: Record<
       eyebrow: "Équipe",
       title: "Un studio et une cellule growth sous le même toit.",
       items: [
-        ["Direction artistique", "Cadrage, lumière et cohérence visuelle sur l'ensemble des marques."],
-        ["Production & post", "Photographes, pilotes drone, opérateurs Matterport, monteurs, coloristes."],
+        [
+          "Direction artistique",
+          "Cadrage, lumière et cohérence visuelle sur l'ensemble des marques.",
+        ],
+        [
+          "Production & post",
+          "Photographes, pilotes drone, opérateurs de visite virtuelle 3D, monteurs, coloristes.",
+        ],
         ["Growth & media", "Stratèges acquisition, media buyers Meta / Google / TikTok, CRO."],
         ["Revenue ops", "Architectes HubSpot, automatisation, data et reporting."],
       ],
@@ -79,11 +83,10 @@ const COPY: Record<
       "Boîtiers plein format & optiques à décentrement",
       "Gimbals et sliders cinéma",
       "Drones certifiés catégorie ouverte",
-      "Matterport Pro3",
+      "Caméras de visite virtuelle 3D",
       "Éclairage continu haute puissance",
       "Suite de post-production étalonnée",
     ],
-    techLabel: "Technologies",
     credit: {
       text: "Ce site a été réalisé par UltraVision Agency : ",
       link: "voir l'étude de cas",
@@ -119,7 +122,10 @@ const COPY: Record<
       title: "A studio and a growth unit under one roof.",
       items: [
         ["Art direction", "Framing, light and visual consistency across every brand."],
-        ["Production & post", "Photographers, drone pilots, Matterport operators, editors, colourists."],
+        [
+          "Production & post",
+          "Photographers, drone pilots, 3D virtual tour operators, editors, colourists.",
+        ],
         ["Growth & media", "Acquisition strategists, Meta / Google / TikTok media buyers, CRO."],
         ["Revenue ops", "HubSpot architects, automation, data and reporting."],
       ],
@@ -129,11 +135,10 @@ const COPY: Record<
       "Full-frame bodies & tilt-shift lenses",
       "Cinema gimbals and sliders",
       "Open-category certified drones",
-      "Matterport Pro3",
+      "3D virtual tour cameras",
       "High-output continuous lighting",
       "Calibrated post-production suite",
     ],
-    techLabel: "Technology",
     credit: {
       text: "This website was built by UltraVision Agency: ",
       link: "see the case study (in French)",
@@ -164,7 +169,9 @@ export function AboutPage() {
             ).map(([label, block], i) => (
               <Reveal key={label} className="surface p-6 sm:p-8" delay={i * 80}>
                 <p className="text-[11px] uppercase tracking-[0.2em] text-primary">{label}</p>
-                <p className="mt-4 font-display text-xl leading-snug tracking-tight sm:text-2xl">{block.title}</p>
+                <p className="mt-4 font-display text-xl leading-snug tracking-tight sm:text-2xl">
+                  {block.title}
+                </p>
                 <p className="mt-5 text-sm leading-relaxed text-muted-foreground">{block.body}</p>
               </Reveal>
             ))}
@@ -206,31 +213,18 @@ export function AboutPage() {
 
       <Section className="border-t border-border/70">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
-            <Reveal>
-              <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">{copy.gearLabel}</p>
-              <ul className="mt-5 space-y-2.5">
-                {copy.gear.map((g) => (
-                  <li key={g} className="border-b border-border pb-3 text-sm text-foreground/85">
-                    {g}
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
-            <Reveal delay={100}>
-              <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">{copy.techLabel}</p>
-              <div className="mt-5 flex flex-wrap gap-2">
-                {TECH.map((t) => (
-                  <span
-                    key={t}
-                    className="rounded-full border border-border px-4 py-2 text-xs uppercase tracking-[0.14em] text-muted-foreground"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </Reveal>
-          </div>
+          <Reveal>
+            <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+              {copy.gearLabel}
+            </p>
+            <ul className="mt-5 grid gap-x-14 gap-y-2.5 md:grid-cols-2">
+              {copy.gear.map((g) => (
+                <li key={g} className="border-b border-border pb-3 text-sm text-foreground/85">
+                  {g}
+                </li>
+              ))}
+            </ul>
+          </Reveal>
           <Reveal as="p" className="mt-10 text-sm leading-relaxed text-muted-foreground lg:mt-14">
             {copy.credit.text}
             <a

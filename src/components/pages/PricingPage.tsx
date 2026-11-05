@@ -113,20 +113,32 @@ const COPY: Record<Locale, Copy> = {
             name: "Pack Photo",
             price: "290 €",
             unit: "/ bien",
-            features: ["15 vues HDR retouchées", "Formats portails et réseaux", "Livraison sous 24 heures"],
+            features: [
+              "15 vues HDR retouchées",
+              "Formats portails et réseaux",
+              "Livraison sous 24 heures",
+            ],
           },
           {
             name: "Pack Photo + Vidéo",
             price: "590 €",
             unit: "/ bien",
             featured: true,
-            features: ["Tout le Pack Photo, plus :", "Vidéo verticale 30 s", "Montage et étalonnage"],
+            features: [
+              "Tout le Pack Photo, plus :",
+              "Vidéo verticale 30 s",
+              "Montage et étalonnage",
+            ],
           },
           {
             name: "Pack Complet",
             price: "790 €",
             unit: "/ bien",
-            features: ["Tout le Pack Photo + Vidéo, plus :", "Visite virtuelle 3D", "Plan 2D interactif"],
+            features: [
+              "Tout le Pack Photo + Vidéo, plus :",
+              "Visite virtuelle 3D",
+              "Plan 2D interactif",
+            ],
           },
         ],
         volume: {
@@ -147,7 +159,11 @@ const COPY: Record<Locale, Copy> = {
           {
             name: "Le bien",
             price: "390 €",
-            features: ["Reportage photo premium", "Vidéo verticale 30 s", "Livraison sous 24 heures"],
+            features: [
+              "Reportage photo premium",
+              "Vidéo verticale 30 s",
+              "Livraison sous 24 heures",
+            ],
           },
           {
             name: "Le bien — Signature",
@@ -155,7 +171,7 @@ const COPY: Record<Locale, Copy> = {
             featured: true,
             features: [
               "Tout Le bien, plus :",
-              "Visite 3D Matterport",
+              "Visite virtuelle 3D",
               "Room tour filmé et monté",
               "Drone si le bien s'y prête",
             ],
@@ -220,12 +236,17 @@ const COPY: Record<Locale, Copy> = {
       {
         id: "particuliers",
         label: "Particuliers",
-        intro: "Hôtes indépendants et propriétaires vendeurs. Simple, rapide, livré sous 24 heures.",
+        intro:
+          "Hôtes indépendants et propriétaires vendeurs. Simple, rapide, livré sous 24 heures.",
         offers: [
           {
             name: "Photos",
             price: "190 €",
-            features: ["15 photos HDR retouchées", "Livrées sous 24 heures", "Formats Airbnb et Booking"],
+            features: [
+              "15 photos HDR retouchées",
+              "Livrées sous 24 heures",
+              "Formats Airbnb et Booking",
+            ],
           },
           {
             name: "Photos + Vidéo",
@@ -236,7 +257,11 @@ const COPY: Record<Locale, Copy> = {
           {
             name: "Photos + Vidéo + 3D",
             price: "490 €",
-            features: ["Tout le pack précédent", "Visite virtuelle 3D", "Conseils de mise en scène"],
+            features: [
+              "Tout le pack précédent",
+              "Visite virtuelle 3D",
+              "Conseils de mise en scène",
+            ],
           },
         ],
       },
@@ -312,20 +337,32 @@ const COPY: Record<Locale, Copy> = {
             name: "Photo Package",
             price: "€290",
             unit: "/ property",
-            features: ["15 edited HDR shots", "Portal and social media formats", "Delivered within 24 hours"],
+            features: [
+              "15 edited HDR shots",
+              "Portal and social media formats",
+              "Delivered within 24 hours",
+            ],
           },
           {
             name: "Photo + Video Package",
             price: "€590",
             unit: "/ property",
             featured: true,
-            features: ["Everything in the Photo Package, plus:", "30-second vertical video", "Editing and colour grading"],
+            features: [
+              "Everything in the Photo Package, plus:",
+              "30-second vertical video",
+              "Editing and colour grading",
+            ],
           },
           {
             name: "Complete Package",
             price: "€790",
             unit: "/ property",
-            features: ["Everything in the Photo + Video Package, plus:", "3D virtual tour", "Interactive 2D floor plan"],
+            features: [
+              "Everything in the Photo + Video Package, plus:",
+              "3D virtual tour",
+              "Interactive 2D floor plan",
+            ],
           },
         ],
         volume: {
@@ -346,7 +383,11 @@ const COPY: Record<Locale, Copy> = {
           {
             name: "The property",
             price: "€390",
-            features: ["Premium photo shoot", "30-second vertical video", "Delivered within 24 hours"],
+            features: [
+              "Premium photo shoot",
+              "30-second vertical video",
+              "Delivered within 24 hours",
+            ],
           },
           {
             name: "The property — Signature",
@@ -354,7 +395,7 @@ const COPY: Record<Locale, Copy> = {
             featured: true,
             features: [
               "Everything in The property, plus:",
-              "Matterport 3D tour",
+              "3D virtual tour",
               "Filmed and edited room tour",
               "Drone if the property lends itself to it",
             ],
@@ -419,12 +460,17 @@ const COPY: Record<Locale, Copy> = {
       {
         id: "particuliers",
         label: "Private owners",
-        intro: "Independent hosts and owners selling their home. Simple, fast, delivered within 24 hours.",
+        intro:
+          "Independent hosts and owners selling their home. Simple, fast, delivered within 24 hours.",
         offers: [
           {
             name: "Photos",
             price: "€190",
-            features: ["15 edited HDR photos", "Delivered within 24 hours", "Airbnb and Booking formats"],
+            features: [
+              "15 edited HDR photos",
+              "Delivered within 24 hours",
+              "Airbnb and Booking formats",
+            ],
           },
           {
             name: "Photos + Video",
@@ -443,7 +489,17 @@ const COPY: Record<Locale, Copy> = {
   },
 };
 
-function OfferCard({ offer, delay, copy, locale }: { offer: Offer; delay: number; copy: Copy; locale: Locale }) {
+function OfferCard({
+  offer,
+  delay,
+  copy,
+  locale,
+}: {
+  offer: Offer;
+  delay: number;
+  copy: Copy;
+  locale: Locale;
+}) {
   return (
     <Reveal delay={delay} className="h-full">
       <article
@@ -473,7 +529,9 @@ function OfferCard({ offer, delay, copy, locale }: { offer: Offer; delay: number
           {offer.features.map((feature, index) => (
             <li key={feature} className="flex gap-3 text-sm leading-relaxed">
               <Check size={15} className="mt-1 shrink-0 text-primary" />
-              <span className={index === 0 ? "text-foreground" : "text-muted-foreground"}>{feature}</span>
+              <span className={index === 0 ? "text-foreground" : "text-muted-foreground"}>
+                {feature}
+              </span>
             </li>
           ))}
         </ul>
@@ -540,7 +598,13 @@ export function PricingPage() {
 
           <div key={segment.id} className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {segment.offers.map((offer, index) => (
-              <OfferCard key={offer.name} offer={offer} delay={index * 90} copy={copy} locale={locale} />
+              <OfferCard
+                key={offer.name}
+                offer={offer}
+                delay={index * 90}
+                copy={copy}
+                locale={locale}
+              />
             ))}
           </div>
 
@@ -571,8 +635,12 @@ export function PricingPage() {
 
           <Reveal delay={120}>
             <div className="mt-10 rounded-2xl border border-border bg-card p-6 md:p-8">
-              <h2 className="font-display text-xl font-medium tracking-tight">{copy.customTitle}</h2>
-              <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">{copy.customBody}</p>
+              <h2 className="font-display text-xl font-medium tracking-tight">
+                {copy.customTitle}
+              </h2>
+              <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                {copy.customBody}
+              </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Cta href={href("contact", locale)}>
                   {copy.customCta}

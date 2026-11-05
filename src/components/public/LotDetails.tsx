@@ -7,6 +7,7 @@ import { useCopy } from "@/lib/i18n";
 import { NUMBER_LOCALE, usePublicText, type Locale } from "@/lib/public/i18n";
 import type { PublicLot } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
+import { LoanSimulator } from "./LoanSimulator";
 import { priceLabel } from "./status";
 
 const AREA: Record<Locale, Intl.NumberFormat> = {
@@ -158,6 +159,10 @@ export function LotDetails({
         </div>
 
         {extra}
+
+        {lot.prix !== null && lot.statut !== "vendue" ? (
+          <LoanSimulator price={lot.prix} currency={currency} large={large} />
+        ) : null}
 
         <dl className="grid grid-cols-3 gap-3">
           {lot.surface_habitable !== null ? (

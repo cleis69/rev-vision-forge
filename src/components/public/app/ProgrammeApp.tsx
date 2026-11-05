@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ComponentType } from "react";
-import { Link, useNavigate, useParams, useRouter } from "@tanstack/react-router";
+import { Link, useNavigate, useParams, useRouter, useSearch } from "@tanstack/react-router";
 import {
   ArrowRight,
   Box,
@@ -41,7 +41,12 @@ import { usePublicRoutes, usePublicText } from "@/lib/public/i18n";
 import { useLiveLots } from "@/lib/public/live";
 import {
   filterLots,
-  focusOfType,
+  canSearch,
+  comparedFromLink,
+  focusOf,
+  NO_SEARCH,
+  searchRange,
+  type LotSearch,
   lotsOfView,
   sortLots,
   LOT_SORTS,
@@ -56,11 +61,12 @@ import {
   type PublicLot,
   type PublicTour,
 } from "@/lib/public/programme";
-import { shareLot, whatsappShareUrl } from "@/lib/public/share";
+import { shareComparison, shareLot, whatsappShareUrl } from "@/lib/public/share";
 import { lotMedia, showTypologies, typologies } from "@/lib/public/typologies";
 import { useFollowLot, useViewKey } from "@/lib/public/use-views";
 import { cn } from "@/lib/utils";
 import { LotPanel } from "./LotPanel";
+import { LotSearchButton, LotSearchFields } from "./LotSearch";
 import { Chips, ContactLinks, HeroBackdrop, SectionTitle, Stat, WhatsAppIcon } from "./parts";
 
 /* The page of a programme as an application (/p/$slug, /en/p/$slug): the 3D
@@ -268,6 +274,23 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
   }, [compareIds, programme.id]);
   const compared = compareIds.flatMap((id) => lots.filter((l) => l.id === id));
   const [comparing, setComparing] = useState(false);
+  // A comparison received as a link (?comparer=A1,B2): those lots, side by side.
+  const { comparer } = useSearch({ strict: false }) as { comparer?: string };
+  useEffect(() => {
+    if (!comparer) return;
+    const received = comparedFromLink(comparer, lots, MAX_COMPARE);
+    if (received.length > 0) setCompareIds(received.map((l) => l.id));
+    if (received.length >= 2) setComparing(true);
+    void navigate({
+      to: routes.programme,
+      params: { slug },
+      search: {},
+      replace: true,
+      resetScroll: false,
+    });
+    // The link is read once, when the page opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const toggleCompare = (target: PublicLot) => {
     const next = toggleCompared(compareIds, target.id);
     if (!next) {
@@ -372,12 +395,18 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
   const [hovered, setHovered] = useState<string | null>(null);
   const [allLots, setAllLots] = useState(false);
   useEffect(() => setAllLots(false), [viewKey]);
-  const focus = useMemo(() => focusOfType(lots, typeFilter), [lots, typeFilter]);
+  const [search, setSearch] = useState<LotSearch>(NO_SEARCH);
+  const [searchingLots, setSearchingLots] = useState(false);
+  const range = useMemo(() => searchRange(lots), [lots]);
+  const focus = useMemo(() => focusOf(lots, typeFilter, search), [lots, typeFilter, search]);
 
   const viewLots = lotsOfView(lots, currentView);
   const scoped = viewLots.length < lots.length;
   const panelLots = scoped && !allLots ? viewLots : lots;
-  const panelShown = sortLots(filterLots(panelLots, { status: filter, type: typeFilter }), sort);
+  const panelShown = sortLots(
+    filterLots(panelLots, { status: filter, type: typeFilter, search }),
+    sort,
+  );
 
   const levels = useMemo(
     () =>
@@ -387,7 +416,7 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
     [lots],
   );
   const listShown = sortLots(
-    filterLots(lots, { status: filter, type: typeFilter, level: levelFilter }),
+    filterLots(lots, { status: filter, type: typeFilter, level: levelFilter, search }),
     sort,
   );
   // A lot without photos of its own takes one of its type, each lot another one.
@@ -627,6 +656,9 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
                 onHover={setHovered}
                 onOpen={(l) => open(l, "list")}
                 onToggleScope={() => setAllLots((v) => !v)}
+                search={search}
+                onSearch={setSearch}
+                range={range}
               />
               <PoweredBy className="mt-auto px-5 pb-6 pt-8" />
             </aside>
@@ -768,6 +800,13 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
                   />
                 </SectionTitle>
                 <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-3">
+                  {canSearch(range) ? (
+                    <LotSearchButton
+                      open={searchingLots}
+                      onToggle={() => setSearchingLots((o) => !o)}
+                      search={search}
+                    />
+                  ) : null}
                   {types.length > 1 ? (
                     <Chips
                       label={copy.byType}
@@ -807,6 +846,17 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
                     </label>
                   ) : null}
                 </div>
+                {canSearch(range) && searchingLots ? (
+                  <div className="mt-4 max-w-xl">
+                    <LotSearchFields
+                      range={range}
+                      search={search}
+                      onSearch={setSearch}
+                      currency={programme.currency}
+                      found={listShown.length}
+                    />
+                  </div>
+                ) : null}
                 {listShown.length === 0 ? (
                   <p className="mt-8 text-sm text-white/60">
                     {lots.length === 0 ? copy.noLotsYet : copy.noMatch}
@@ -958,6 +1008,7 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
         onRemove={(l) => toggleCompare(l)}
         onClear={() => setCompareIds([])}
         onCompare={() => setComparing(true)}
+        onShare={() => void shareComparison(programme, compared, locale)}
       />
       <CompareDialog
         lots={compared}

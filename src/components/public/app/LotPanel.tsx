@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Check } from "lucide-react";
 
 import { StatusFilters } from "@/components/public/Common";
@@ -6,9 +7,16 @@ import { priceLabel } from "@/components/public/status";
 import { LOT_STATUSES, type LotStatus } from "@/lib/app/lot-fields";
 import { useCopy } from "@/lib/i18n";
 import { usePublicText } from "@/lib/public/i18n";
-import { LOT_SORTS, type LotSort } from "@/lib/public/lot-list";
+import {
+  canSearch,
+  LOT_SORTS,
+  type LotSearch,
+  type LotSort,
+  type searchRange,
+} from "@/lib/public/lot-list";
 import type { PublicLot } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
+import { LotSearchButton, LotSearchFields } from "./LotSearch";
 import { Chips } from "./parts";
 
 /* Beside the 3D view: the lots it shows, how many are left (a bar in the
@@ -90,6 +98,9 @@ export function LotPanel({
   onHover,
   onOpen,
   onToggleScope,
+  search,
+  onSearch,
+  range,
   className,
 }: {
   /** Name of the view shown, or null for the whole programme. */
@@ -115,6 +126,10 @@ export function LotPanel({
   onHover: (lotId: string | null) => void;
   onOpen: (lot: PublicLot) => void;
   onToggleScope: () => void;
+  search: LotSearch;
+  onSearch: (search: LotSearch) => void;
+  /** Ends of the search, from all the lots. */
+  range: ReturnType<typeof searchRange>;
   className?: string;
 }) {
   const copy = useCopy(COPY);
@@ -124,6 +139,8 @@ export function LotPanel({
   ) as Record<LotStatus, number>;
   // One segment per lot while they fit, else the share of each status.
   const segments = lots.length <= 30;
+  const [searching, setSearching] = useState(false);
+  const searchable = canSearch(range);
 
   return (
     <div className={cn("flex flex-col", className)}>
@@ -170,7 +187,14 @@ export function LotPanel({
           total={lots.length}
           small
         />
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          {searchable ? (
+            <LotSearchButton
+              open={searching}
+              onToggle={() => setSearching((o) => !o)}
+              search={search}
+            />
+          ) : null}
           {types.length > 1 ? (
             <Chips
               label={copy.byType}
@@ -200,6 +224,15 @@ export function LotPanel({
             </label>
           ) : null}
         </div>
+        {searchable && searching ? (
+          <LotSearchFields
+            range={range}
+            search={search}
+            onSearch={onSearch}
+            currency={currency}
+            found={shown.length}
+          />
+        ) : null}
       </div>
 
       {shown.length === 0 ? (

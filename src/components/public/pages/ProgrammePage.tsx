@@ -9,11 +9,21 @@ import { useBrandTheme } from "@/lib/public/theme";
 /* Page of a programme, in French (/p/$slug) or in English (/en/p/$slug): the
    application (ProgrammeApp), or the sales office's presentation mode. */
 
-export type ProgrammeSearch = { mode?: "presentation" };
+export type ProgrammeSearch = { mode?: "presentation"; comparer?: string };
 
-/** ?mode=presentation: full screen for the sales office tablet. */
-export const programmeSearch = (search: Record<string, unknown>): ProgrammeSearch =>
-  search["mode"] === "presentation" ? { mode: "presentation" } : {};
+/**
+ * ?mode=presentation: full screen for the sales office tablet.
+ * ?comparer=A1,B2: a comparison sent by a visitor, opened for the one who receives it.
+ */
+export const programmeSearch = (search: Record<string, unknown>): ProgrammeSearch => {
+  const comparer = search["comparer"];
+  return {
+    ...(search["mode"] === "presentation" ? { mode: "presentation" as const } : {}),
+    ...(typeof comparer === "string" && comparer.trim()
+      ? { comparer: comparer.trim().slice(0, 200) }
+      : {}),
+  };
+};
 
 export function ProgrammePage({ slug, mode }: { slug: string; mode?: "presentation" | undefined }) {
   const query = usePublicProgramme(slug);

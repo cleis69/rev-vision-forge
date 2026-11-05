@@ -1,4 +1,4 @@
-import { Check, Minus, X } from "lucide-react";
+import { Check, Minus, Share2, X } from "lucide-react";
 
 import {
   Dialog,
@@ -24,6 +24,7 @@ const AREA: Record<Locale, Intl.NumberFormat> = {
 const COPY = {
   fr: {
     region: "Comparateur",
+    share: "Partager la comparaison",
     picked: "Comparer",
     remove: (numero: string) => `Retirer le lot ${numero} du comparateur`,
     clear: "Effacer",
@@ -47,6 +48,7 @@ const COPY = {
   },
   en: {
     region: "Comparison",
+    share: "Share the comparison",
     picked: "Compare",
     remove: (numero: string) => `Remove lot ${numero} from the comparison`,
     clear: "Clear",
@@ -76,11 +78,14 @@ export function CompareBar({
   onRemove,
   onClear,
   onCompare,
+  onShare,
 }: {
   lots: PublicLot[];
   onRemove: (lot: PublicLot) => void;
   onClear: () => void;
   onCompare: () => void;
+  /** Sends the comparison as a link (to the family, on WhatsApp…). */
+  onShare?: () => void;
 }) {
   const copy = useCopy(COPY);
   if (lots.length === 0) return null;
@@ -116,6 +121,17 @@ export function CompareBar({
         >
           {copy.clear}
         </button>
+        {onShare && lots.length >= 2 ? (
+          <button
+            type="button"
+            onClick={onShare}
+            aria-label={copy.share}
+            title={copy.share}
+            className="grid size-9 place-items-center rounded-full border border-white/15 text-white/80 transition-colors hover:border-white/40 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+          >
+            <Share2 className="size-4" aria-hidden />
+          </button>
+        ) : null}
         <button
           type="button"
           onClick={onCompare}

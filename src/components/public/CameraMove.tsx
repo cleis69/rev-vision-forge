@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { SkipForward } from "lucide-react";
 
 import { mediaVideo, type MediaItem } from "@/lib/app/media";
+import type { ViewFit } from "./OrbitViewer";
 import { useCopy } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -35,6 +36,7 @@ export function useCameraMove({
   sessionKey,
   enabled,
   skipClassName,
+  fit = null,
 }: {
   transitions: Record<string, MediaItem>;
   /** View shown first: its move plays when the page opens (once per visit). */
@@ -44,6 +46,8 @@ export function useCameraMove({
   enabled: boolean;
   /** Where the Skip button sits, clear of the buttons laid over the view. */
   skipClassName?: string;
+  /** How the view under it sits in the box: the video ends on exactly the same picture. */
+  fit?: ViewFit | null;
 }) {
   const copy = useCopy(COPY);
   const [playing, setPlaying] = useState<Playing | null>(null);
@@ -125,7 +129,9 @@ export function useCameraMove({
       // A tap on the video skips it too.
       onClick={end}
       className={cn(
-        "absolute inset-0 z-[5] bg-black transition-opacity ease-out",
+        "absolute inset-0 z-[5] transition-opacity ease-out",
+        // A view shown whole has blurred bands of its own: the video lets them show.
+        fit && !fit.cover ? "bg-transparent" : "bg-black",
         leaving && "pointer-events-none opacity-0",
       )}
       style={{ transitionDuration: `${FADE_MS}ms` }}
@@ -142,7 +148,15 @@ export function useCameraMove({
         onPlaying={() => window.clearTimeout(guard.current)}
         onEnded={end}
         onError={end}
-        className="h-full w-full object-cover"
+        className={cn("h-full w-full", fit && !fit.cover ? "object-contain" : "object-cover")}
+        style={
+          fit?.cover
+            ? {
+                objectPosition: `${fit.x * 100}% ${fit.y * 100}%`,
+                transition: "object-position 500ms ease-out",
+              }
+            : undefined
+        }
       />
       <button
         type="button"

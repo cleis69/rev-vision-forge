@@ -99,7 +99,40 @@ function hexRgb(hex: string): [number, number, number] {
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
-type LabelView = LabelData & { centers: (LabelCenter | null)[] };
+/** Where the lots are on an image, in fractions of it. */
+type Bounds = { x0: number; y0: number; x1: number; y1: number };
+type LabelView = LabelData & { centers: (LabelCenter | null)[]; bounds: Bounds | null };
+
+/** How the app shows the view in its box: cropped (cover) or whole, and where the crop sits (0 to 1, as object-position). */
+export type ViewFit = { cover: boolean; x: number; y: number };
+const CENTERED: ViewFit = { cover: false, x: 0.5, y: 0.5 };
+
+function boundsOf(labels: Uint8Array, width: number, height: number): Bounds | null {
+  let x0 = width;
+  let y0 = height;
+  let x1 = -1;
+  let y1 = -1;
+  for (let y = 0; y < height; y++) {
+    const row = y * width;
+    for (let x = 0; x < width; x++) {
+      if (!labels[row + x]) continue;
+      if (x < x0) x0 = x;
+      if (x > x1) x1 = x;
+      if (y < y0) y0 = y;
+      y1 = y;
+    }
+  }
+  return x1 < 0
+    ? null
+    : { x0: x0 / width, y0: y0 / height, x1: (x1 + 1) / width, y1: (y1 + 1) / height };
+}
+
+/** Crop position (0 to 1) that brings the middle of the lots to the middle of the box, without showing past the image. */
+const cropAt = (image: number, box: number, from: number, to: number) => {
+  const over = image - box;
+  if (over < 1) return 0.5;
+  return Math.min(1, Math.max(0, (((from + to) / 2) * image - box / 2) / over));
+};
 
 /** Label maps of the masks (and where each lot's number goes), loaded in the same order as the images. */
 function useOrbitLabels(urls: readonly string[], colors: readonly number[]) {
@@ -123,7 +156,11 @@ function useOrbitLabels(urls: readonly string[], colors: readonly number[]) {
             colors.length,
             data.labels.length * 0.0003,
           );
-          maps.current[i] = { ...data, centers };
+          maps.current[i] = {
+            ...data,
+            centers,
+            bounds: boundsOf(data.labels, data.width, data.height),
+          };
           setReady(++count);
         } catch {
           /* a missing mask: that view simply has no colours */
@@ -180,6 +217,7 @@ export function OrbitViewer({
   variant = "page",
   resetKey = 0,
   controlsClassName,
+  onFit,
   onOpen,
 }: {
   orbit: PublicOrbit;
@@ -198,6 +236,8 @@ export function OrbitViewer({
   resetKey?: number;
   /** Where the zoom buttons sit, when the page puts other things in the corners. */
   controlsClassName?: string;
+  /** "app": how the view sits in its box, for the camera move played over it to match. */
+  onFit?: (fit: ViewFit) => void;
   onOpen: (lot: PublicLot, from: "plan" | "keyboard") => void;
 }) {
   const large = variant === "presentation";
@@ -251,7 +291,14 @@ export function OrbitViewer({
   const pixels = useRef<ImageData | null>(null);
   const box = useRef<HTMLDivElement>(null);
   const group = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState<{ w: number; h: number } | null>(null);
+  /** Size of the image on screen, of its box, and whether it is cropped to fill the box. */
+  const [size, setSize] = useState<{
+    w: number;
+    h: number;
+    boxW: number;
+    boxH: number;
+    cover: boolean;
+  } | null>(null);
   const still = useMemo(
     () =>
       typeof window !== "undefined" &&
@@ -348,13 +395,36 @@ export function OrbitViewer({
       // Filling the box, as long as at least 70 % of the image stays in sight.
       const cover = w / h > ratio ? { w, h: w / ratio } : { w: h * ratio, h };
       const kept = Math.min(w / cover.w, h / cover.h);
-      setSize(app && kept >= 0.7 ? cover : contain);
+      const cropped = app && kept >= 0.7;
+      setSize({ ...(cropped ? cover : contain), boxW: w, boxH: h, cover: cropped });
     };
     fit();
     const observer = new ResizeObserver(fit);
     observer.observe(el);
     return () => observer.disconnect();
   }, [first, app]);
+
+  // Where the lots are on the image shown: a cropped view keeps them in sight rather than the
+  // middle. Read once the view stops (turning, the crop stays put), not while zoomed in.
+  const [lotBounds, setLotBounds] = useState<Bounds | null>(null);
+  useEffect(() => {
+    if (moving || zoomed) return;
+    const shown = nearestLoaded(maps.current, index);
+    const bounds = shown >= 0 ? (maps.current[shown]?.bounds ?? null) : null;
+    if (bounds) setLotBounds(bounds);
+  }, [index, moving, zoomed, labelsReady, maps]);
+  const viewFit = useMemo<ViewFit>(() => {
+    if (!size?.cover) return { ...CENTERED, cover: Boolean(size?.cover) };
+    if (!lotBounds) return { ...CENTERED, cover: true };
+    return {
+      cover: true,
+      x: cropAt(size.w, size.boxW, lotBounds.x0, lotBounds.x1),
+      y: cropAt(size.h, size.boxH, lotBounds.y0, lotBounds.y1),
+    };
+  }, [size, lotBounds]);
+  useEffect(() => {
+    if (app) onFit?.(viewFit);
+  }, [app, onFit, viewFit]);
 
   // The wheel and the fingers, with listeners of our own: React's are passive, and the
   // page must neither scroll nor zoom instead of the view.
@@ -437,8 +507,8 @@ export function OrbitViewer({
         [rgb[0] ?? 0, rgb[1] ?? 0, rgb[2] ?? 0, Math.round(a * dim)] as const;
       if (activeIds.has(lot.id))
         return { rgba: [255, 255, 255, Math.round(150 * dim)], edge: edge([255, 255, 255], 255) };
-      if (lot.statut === "disponible")
-        return { rgba: [...brand, Math.round(92 * dim)], edge: edge(brand, 235) };
+      // Available: the contour only, so the render shows as it is.
+      if (lot.statut === "disponible") return { rgba: [...brand, 0], edge: edge(brand, 235) };
       if (lot.statut === "reservee")
         return {
           rgba: [...AMBER, Math.round(210 * dim)],
@@ -736,7 +806,23 @@ export function OrbitViewer({
             // Vertical swipes keep scrolling the page, unless zoomed in; nothing to scroll in presentation.
             large || zoomed ? "touch-none" : "touch-pan-y",
           )}
-          style={size ? { width: size.w, height: size.h } : { width: "100%", height: "100%" }}
+          style={
+            size?.cover
+              ? {
+                  // Cropped: larger than its box, placed so the lots stay in sight (the box hides
+                  // the rest), as the camera move's object-position.
+                  position: "absolute",
+                  left: 0,
+                  top: 0,
+                  width: size.w,
+                  height: size.h,
+                  transform: `translate(${-(size.w - size.boxW) * viewFit.x}px, ${-(size.h - size.boxH) * viewFit.y}px)`,
+                  transition: "transform 500ms ease-out",
+                }
+              : size
+                ? { width: size.w, height: size.h }
+                : { width: "100%", height: "100%" }
+          }
         >
           <div className="absolute inset-0 overflow-hidden">
             <div

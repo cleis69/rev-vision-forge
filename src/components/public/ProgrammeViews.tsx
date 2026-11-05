@@ -1,4 +1,4 @@
-import { Suspense, lazy, useMemo } from "react";
+import { Suspense, lazy, useMemo, useState } from "react";
 
 import type { LotStatus } from "@/lib/app/lot-fields";
 import { smallFramePath } from "@/lib/app/orbit";
@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import type { ViewKey } from "@/lib/public/use-views";
 import { floorsDown, sideViews } from "@/lib/views";
 import { useCameraMove } from "./CameraMove";
-import { OrbitViewer } from "./OrbitViewer";
+import { OrbitViewer, type ViewFit } from "./OrbitViewer";
 
 const AerialViewer = lazy(() => import("./AerialViewer"));
 
@@ -75,8 +75,11 @@ export function ProgrammeViews({
   const side = useMemo(() => sideViews(views), [views]);
   const floors = useMemo(() => floorsDown(views), [views]);
   const current = views.find((v) => v.id === viewKey) ?? null;
+  // How the 3D view sits in the stage (app), so that its camera move lands on the same picture.
+  const [fit, setFit] = useState<ViewFit | null>(null);
   // The camera moves exported for the views (app and sales office presentation).
   const camera = useCameraMove({
+    fit: app && current?.orbit && !current.panorama ? fit : null,
     transitions: data.transitions,
     introViewId: viewKey,
     sessionKey: `rev-intro-${programme.id}`,
@@ -164,6 +167,7 @@ export function ProgrammeViews({
       variant={variant}
       resetKey={resetKey}
       {...(controls ? { controlsClassName: controls } : {})}
+      onFit={setFit}
       onOpen={onOpen}
     />
   ) : null;

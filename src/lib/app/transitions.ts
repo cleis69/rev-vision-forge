@@ -9,7 +9,7 @@ import type { Project } from "./projects";
 import { removeFiles, uploadFile } from "./storage";
 
 /* Camera moves of the 3D views (Vues tab): one video per view, exported from
-   Twinmotion, Unreal… and ending on the first image of the view. The public
+   a 3D software and ending on the first image of the view. The public
    pages play it when a visitor picks that view, and the one of the main view
    when the page opens. Stored as a video of the media table whose
    meta.transition names the view (no gallery, no owner), files in

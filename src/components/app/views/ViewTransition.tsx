@@ -15,8 +15,8 @@ import {
 } from "@/lib/app/transitions";
 import { formatDuration, VIDEO_TYPES } from "@/lib/video";
 
-/* Camera move of a view (Vues tab): a short video exported from Twinmotion,
-   Unreal… that ends on the first image of the view. Played on the public
+/* Camera move of a view (Vues tab): a short video exported from a 3D
+   software, that ends on the first image of the view. Played on the public
    pages when a visitor picks the view; for the main view, when the page opens. */
 
 export function ViewTransition({ project, view }: { project: Project; view: ProjectView }) {
@@ -48,10 +48,10 @@ export function ViewTransition({ project, view }: { project: Project; view: Proj
             Mouvement de caméra
           </h3>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            Une courte vidéo qui arrive sur cette vue, exportée de Twinmotion, Unreal ou de votre
-            logiciel 3D : sa dernière image doit être la première de la vue. Elle se joue quand
-            l'acheteur choisit la vue{view.is_main ? ", et à l'ouverture de la page" : ""}. MP4 ou
-            WebM, {TRANSITION_MAX_SECONDS} secondes au plus.
+            Une courte vidéo qui arrive sur cette vue, exportée de votre logiciel 3D : sa dernière
+            image doit être la première de la vue. Elle se joue quand l'acheteur choisit la vue
+            {view.is_main ? ", et à l'ouverture de la page" : ""}. MP4 ou WebM,{" "}
+            {TRANSITION_MAX_SECONDS} secondes au plus.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

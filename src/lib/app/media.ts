@@ -46,7 +46,7 @@ export type MediaMeta = {
   name?: string;
   size?: number;
   /**
-   * Videos: id of the view this camera move arrives on (Twinmotion, Unreal…),
+   * Videos: id of the view this camera move arrives on (exported from a 3D software),
    * played by the 3D view; such a video is not in the gallery (see transitions.ts).
    */
   transition?: string;

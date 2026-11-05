@@ -45,8 +45,18 @@ type Offer = {
 };
 
 const LEADS_IN: Record<Locale, string[]> = {
-  fr: ["Meta Ads (Facebook, Instagram)", "Formulaire de votre site", "Votre boîte e-mail", "Google Sheets ou Excel"],
-  en: ["Meta Ads (Facebook, Instagram)", "Your website form", "Your email inbox", "Google Sheets or Excel"],
+  fr: [
+    "Meta Ads (Facebook, Instagram)",
+    "Formulaire de votre site",
+    "Votre boîte e-mail",
+    "Google Sheets ou Excel",
+  ],
+  en: [
+    "Meta Ads (Facebook, Instagram)",
+    "Your website form",
+    "Your email inbox",
+    "Google Sheets or Excel",
+  ],
 };
 
 const COPY = {
@@ -62,7 +72,8 @@ const COPY = {
       audience: "Agences, promoteurs et agents indépendants",
       title: "La plupart de vos leads ne sont pas prêts. Les bons, eux, refroidissent.",
       body: "Curieux, projets trop lointains, budgets hors cible : trier les demandes prend des heures chaque semaine. Pendant ce temps, l'acheteur sérieux attend une réponse… et finit par écrire à une autre agence.",
-      callout: "L'agent IA de REV écrit à chaque lead en quelques secondes, le qualifie sur vos critères et ne vous transmet que les prospects prêts à avancer.",
+      callout:
+        "L'agent IA de REV écrit à chaque lead en quelques secondes, le qualifie sur vos critères et ne vous transmet que les prospects prêts à avancer.",
     },
     demo: {
       title: "Voyez l'agent travailler sur un vrai scénario",
@@ -74,10 +85,26 @@ const COPY = {
       accent: "dès le premier lead.",
       description: "Les engagements de l'agent, quel que soit le volume de demandes.",
       items: [
-        { value: "< 10 s", label: "Premier message", body: "Le lead reçoit une réponse avant même d'avoir quitté l'annonce." },
-        { value: "24/7", label: "Disponibilité", body: "Soirs, week-ends et jours fériés compris." },
-        { value: "100 %", label: "Leads contactés", body: "Chaque demande reçoit une réponse, sans exception." },
-        { value: "1 synthèse", label: "Par prospect qualifié", body: "Budget, délai, financement : tout est prêt avant votre appel." },
+        {
+          value: "< 10 s",
+          label: "Premier message",
+          body: "Le lead reçoit une réponse avant même d'avoir quitté l'annonce.",
+        },
+        {
+          value: "24/7",
+          label: "Disponibilité",
+          body: "Soirs, week-ends et jours fériés compris.",
+        },
+        {
+          value: "100 %",
+          label: "Leads contactés",
+          body: "Chaque demande reçoit une réponse, sans exception.",
+        },
+        {
+          value: "1 synthèse",
+          label: "Par prospect qualifié",
+          body: "Budget, délai, financement : tout est prêt avant votre appel.",
+        },
       ],
     },
     offers: {
@@ -99,8 +126,24 @@ const COPY = {
             name: "Qualification des acquéreurs et locataires",
             groups: [
               { title: "Récupération des leads", items: LEADS_IN.fr },
-              { title: "Qualification", items: ["Conversation WhatsApp naturelle", "Vos questions : budget, délai, financement…", "Le ton et le style de votre marque"] },
-              { title: "Actions", items: ["Créneaux tirés de votre Google Agenda", "Rendez-vous pris automatiquement", "Synthèse par e-mail", "Relances automatiques", "Suivi dans un Google Sheet"] },
+              {
+                title: "Qualification",
+                items: [
+                  "Conversation WhatsApp naturelle",
+                  "Vos questions : budget, délai, financement…",
+                  "Le ton et le style de votre marque",
+                ],
+              },
+              {
+                title: "Actions",
+                items: [
+                  "Créneaux tirés de votre Google Agenda",
+                  "Rendez-vous pris automatiquement",
+                  "Synthèse par e-mail",
+                  "Relances automatiques",
+                  "Suivi dans un Google Sheet",
+                ],
+              },
             ],
           },
           {
@@ -108,36 +151,93 @@ const COPY = {
             featured: true,
             groups: [
               { title: "Récupération des leads", items: LEADS_IN.fr },
-              { title: "Qualification", items: ["Conversation WhatsApp naturelle", "Adresse, type de bien, état, délai de vente", "Le ton et le style de votre marque"] },
-              { title: "Actions", items: ["Rendez-vous d'estimation dans votre agenda", "Synthèse du bien par e-mail", "Relances automatiques", "Suivi dans un Google Sheet"] },
+              {
+                title: "Qualification",
+                items: [
+                  "Conversation WhatsApp naturelle",
+                  "Adresse, type de bien, état, délai de vente",
+                  "Le ton et le style de votre marque",
+                ],
+              },
+              {
+                title: "Actions",
+                items: [
+                  "Rendez-vous d'estimation dans votre agenda",
+                  "Synthèse du bien par e-mail",
+                  "Relances automatiques",
+                  "Suivi dans un Google Sheet",
+                ],
+              },
             ],
           },
           {
             name: "Projet sur mesure",
-            intro: "Un agent IA ou une automatisation construits autour de vos outils et de vos process. On définit ensemble la solution qui colle exactement à votre activité.",
+            intro:
+              "Un agent IA ou une automatisation construits autour de vos outils et de vos process. On définit ensemble la solution qui colle exactement à votre activité.",
           },
         ],
         team: [
           {
             name: "Qualification multi-conseillers",
             groups: [
-              { title: "Récupération des leads", items: [...LEADS_IN.fr.slice(0, 3), "HubSpot ou votre CRM"] },
-              { title: "Qualification", items: ["Conversation WhatsApp naturelle", "Critères définis par l'agence", "Score de chaque prospect"] },
-              { title: "Actions", items: ["Routage vers le bon conseiller ou secteur", "Rendez-vous dans l'agenda du conseiller", "Synthèse au conseiller", "Tableau de bord de l'équipe"] },
+              {
+                title: "Récupération des leads",
+                items: [...LEADS_IN.fr.slice(0, 3), "HubSpot ou votre CRM"],
+              },
+              {
+                title: "Qualification",
+                items: [
+                  "Conversation WhatsApp naturelle",
+                  "Critères définis par l'agence",
+                  "Score de chaque prospect",
+                ],
+              },
+              {
+                title: "Actions",
+                items: [
+                  "Routage vers le bon conseiller ou secteur",
+                  "Rendez-vous dans l'agenda du conseiller",
+                  "Synthèse au conseiller",
+                  "Tableau de bord de l'équipe",
+                ],
+              },
             ],
           },
           {
             name: "Lancement de programme neuf",
             featured: true,
             groups: [
-              { title: "Récupération des leads", items: ["Campagnes Meta et Google du programme", "Landing page du programme", "Salons et portails"] },
-              { title: "Qualification", items: ["Envoi de la brochure et des plans", "Typologie, budget, financement, horizon", "Vivre ou investir"] },
-              { title: "Actions", items: ["Visites et rendez-vous au bureau de vente", "Relances jusqu'à la réservation", "HubSpot CRM mis à jour", "Reporting hebdomadaire"] },
+              {
+                title: "Récupération des leads",
+                items: [
+                  "Campagnes Meta et Google du programme",
+                  "Landing page du programme",
+                  "Salons et portails",
+                ],
+              },
+              {
+                title: "Qualification",
+                items: [
+                  "Envoi de la brochure et des plans",
+                  "Typologie, budget, financement, horizon",
+                  "Vivre ou investir",
+                ],
+              },
+              {
+                title: "Actions",
+                items: [
+                  "Visites et rendez-vous au bureau de vente",
+                  "Relances jusqu'à la réservation",
+                  "HubSpot CRM mis à jour",
+                  "Reporting hebdomadaire",
+                ],
+              },
             ],
           },
           {
             name: "Projet sur mesure",
-            intro: "Plusieurs agences, plusieurs numéros, des process propres à votre réseau : on construit l'architecture avec vos équipes.",
+            intro:
+              "Plusieurs agences, plusieurs numéros, des process propres à votre réseau : on construit l'architecture avec vos équipes.",
           },
         ],
       } satisfies Record<"solo" | "team", Offer[]>,
@@ -194,7 +294,11 @@ const COPY = {
       description:
         "L'agent de REV écrit à chaque prospect sur WhatsApp en quelques secondes, le qualifie sur vos critères et réserve le rendez-vous dans votre agenda. Vous ne rappelez que les prospects sérieux.",
       how: "Voir comment ça marche",
-      points: ["Premier message en moins de 10 s", "Sur WhatsApp, 24h/24", "Rendez-vous et CRM automatiques"],
+      points: [
+        "Premier message en moins de 10 s",
+        "Sur WhatsApp, 24h/24",
+        "Rendez-vous et CRM automatiques",
+      ],
       cards: [
         { title: "Nouveau lead", note: "Instagram · brochure résidence" },
         { title: "Message envoyé", note: "WhatsApp · en 6 secondes" },
@@ -202,7 +306,6 @@ const COPY = {
         { title: "Rendez-vous réservé", note: "Jeudi 11h · avec votre conseiller" },
       ],
     },
-
   },
   en: {
     demoCta: "Book a demo",
@@ -216,7 +319,8 @@ const COPY = {
       audience: "Agencies, developers and independent agents",
       title: "Most of your leads aren't ready. The good ones go cold.",
       body: "Window shoppers, far-off projects, budgets that don't fit: sorting enquiries takes hours every week. Meanwhile, the serious buyer is waiting for a reply… and ends up writing to another agency.",
-      callout: "REV's AI agent messages every lead within seconds, qualifies them against your criteria and only hands you the prospects who are ready to move.",
+      callout:
+        "REV's AI agent messages every lead within seconds, qualifies them against your criteria and only hands you the prospects who are ready to move.",
     },
     demo: {
       title: "Watch the agent handle a real scenario",
@@ -228,10 +332,26 @@ const COPY = {
       accent: "from the very first lead.",
       description: "The agent's commitments, whatever your volume of enquiries.",
       items: [
-        { value: "< 10 s", label: "First message", body: "The lead gets a reply before they've even left the listing." },
-        { value: "24/7", label: "Availability", body: "Evenings, weekends and bank holidays included." },
-        { value: "100%", label: "Leads contacted", body: "Every enquiry gets a reply, no exceptions." },
-        { value: "1 summary", label: "Per qualified prospect", body: "Budget, timeline, financing: everything is ready before your call." },
+        {
+          value: "< 10 s",
+          label: "First message",
+          body: "The lead gets a reply before they've even left the listing.",
+        },
+        {
+          value: "24/7",
+          label: "Availability",
+          body: "Evenings, weekends and bank holidays included.",
+        },
+        {
+          value: "100%",
+          label: "Leads contacted",
+          body: "Every enquiry gets a reply, no exceptions.",
+        },
+        {
+          value: "1 summary",
+          label: "Per qualified prospect",
+          body: "Budget, timeline, financing: everything is ready before your call.",
+        },
       ],
     },
     offers: {
@@ -253,8 +373,24 @@ const COPY = {
             name: "Buyer and tenant qualification",
             groups: [
               { title: "Lead capture", items: LEADS_IN.en },
-              { title: "Qualification", items: ["Natural WhatsApp conversation", "Your questions: budget, timeline, financing…", "Your brand's tone and style"] },
-              { title: "Actions", items: ["Slots pulled from your Google Calendar", "Appointments booked automatically", "Summary by email", "Automatic follow-ups", "Tracking in a Google Sheet"] },
+              {
+                title: "Qualification",
+                items: [
+                  "Natural WhatsApp conversation",
+                  "Your questions: budget, timeline, financing…",
+                  "Your brand's tone and style",
+                ],
+              },
+              {
+                title: "Actions",
+                items: [
+                  "Slots pulled from your Google Calendar",
+                  "Appointments booked automatically",
+                  "Summary by email",
+                  "Automatic follow-ups",
+                  "Tracking in a Google Sheet",
+                ],
+              },
             ],
           },
           {
@@ -262,13 +398,29 @@ const COPY = {
             featured: true,
             groups: [
               { title: "Lead capture", items: LEADS_IN.en },
-              { title: "Qualification", items: ["Natural WhatsApp conversation", "Address, property type, condition, sale timeline", "Your brand's tone and style"] },
-              { title: "Actions", items: ["Valuation appointments in your calendar", "Property summary by email", "Automatic follow-ups", "Tracking in a Google Sheet"] },
+              {
+                title: "Qualification",
+                items: [
+                  "Natural WhatsApp conversation",
+                  "Address, property type, condition, sale timeline",
+                  "Your brand's tone and style",
+                ],
+              },
+              {
+                title: "Actions",
+                items: [
+                  "Valuation appointments in your calendar",
+                  "Property summary by email",
+                  "Automatic follow-ups",
+                  "Tracking in a Google Sheet",
+                ],
+              },
             ],
           },
           {
             name: "Custom project",
-            intro: "An AI agent or automation built around your tools and processes. Together we define the solution that fits your business exactly.",
+            intro:
+              "An AI agent or automation built around your tools and processes. Together we define the solution that fits your business exactly.",
           },
         ],
         team: [
@@ -276,22 +428,60 @@ const COPY = {
             name: "Multi-adviser qualification",
             groups: [
               { title: "Lead capture", items: [...LEADS_IN.en.slice(0, 3), "HubSpot or your CRM"] },
-              { title: "Qualification", items: ["Natural WhatsApp conversation", "Criteria set by the agency", "A score for every prospect"] },
-              { title: "Actions", items: ["Routing to the right adviser or area", "Appointment in the adviser's calendar", "Summary sent to the adviser", "Team dashboard"] },
+              {
+                title: "Qualification",
+                items: [
+                  "Natural WhatsApp conversation",
+                  "Criteria set by the agency",
+                  "A score for every prospect",
+                ],
+              },
+              {
+                title: "Actions",
+                items: [
+                  "Routing to the right adviser or area",
+                  "Appointment in the adviser's calendar",
+                  "Summary sent to the adviser",
+                  "Team dashboard",
+                ],
+              },
             ],
           },
           {
             name: "New development launch",
             featured: true,
             groups: [
-              { title: "Lead capture", items: ["The development's Meta and Google campaigns", "The development's landing page", "Property fairs and portals"] },
-              { title: "Qualification", items: ["Brochure and floor plans sent", "Unit type, budget, financing, timeline", "Live in or invest"] },
-              { title: "Actions", items: ["Viewings and sales-office appointments", "Follow-ups until reservation", "HubSpot CRM kept up to date", "Weekly reporting"] },
+              {
+                title: "Lead capture",
+                items: [
+                  "The development's Meta and Google campaigns",
+                  "The development's landing page",
+                  "Property fairs and portals",
+                ],
+              },
+              {
+                title: "Qualification",
+                items: [
+                  "Brochure and floor plans sent",
+                  "Unit type, budget, financing, timeline",
+                  "Live in or invest",
+                ],
+              },
+              {
+                title: "Actions",
+                items: [
+                  "Viewings and sales-office appointments",
+                  "Follow-ups until reservation",
+                  "HubSpot CRM kept up to date",
+                  "Weekly reporting",
+                ],
+              },
             ],
           },
           {
             name: "Custom project",
-            intro: "Several agencies, several numbers, processes specific to your network: we build the architecture with your teams.",
+            intro:
+              "Several agencies, several numbers, processes specific to your network: we build the architecture with your teams.",
           },
         ],
       } satisfies Record<"solo" | "team", Offer[]>,
@@ -348,7 +538,11 @@ const COPY = {
       description:
         "REV's agent messages every prospect on WhatsApp within seconds, qualifies them against your criteria and books the appointment in your calendar. You only call back the serious ones.",
       how: "See how it works",
-      points: ["First message in under 10 s", "On WhatsApp, 24/7", "Automatic appointments and CRM"],
+      points: [
+        "First message in under 10 s",
+        "On WhatsApp, 24/7",
+        "Automatic appointments and CRM",
+      ],
       cards: [
         { title: "New lead", note: "Instagram · development brochure" },
         { title: "Message sent", note: "WhatsApp · in 6 seconds" },
@@ -356,7 +550,6 @@ const COPY = {
         { title: "Appointment booked", note: "Thursday 11am · with your adviser" },
       ],
     },
-
   },
 };
 
@@ -379,7 +572,9 @@ export function AgentProblem() {
                 <h3 className="mt-3 font-display text-xl font-medium leading-snug tracking-tight sm:text-2xl">
                   {p.title}
                 </h3>
-                <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-[15px]">{p.body}</p>
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
+                  {p.body}
+                </p>
                 <p className="mt-5 flex gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm leading-relaxed text-foreground/90">
                   <Sparkles size={16} className="mt-0.5 shrink-0 text-primary" />
                   {p.callout}
@@ -420,7 +615,9 @@ export function AgentDemoBand({ className }: { className?: string }) {
             <MessageCircle size={19} />
           </span>
           <div>
-            <p className="font-display text-base font-medium tracking-tight sm:text-lg">{copy.demo.title}</p>
+            <p className="font-display text-base font-medium tracking-tight sm:text-lg">
+              {copy.demo.title}
+            </p>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{copy.demo.body}</p>
           </div>
         </div>
@@ -457,7 +654,9 @@ export function AgentSpecs() {
                 <span className="grid h-9 w-9 place-items-center rounded-xl border border-border bg-background/60 text-primary">
                   <Icon size={17} />
                 </span>
-                <p className="mt-4 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">{label}</p>
+                <p className="mt-4 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                  {label}
+                </p>
                 <p className="mt-1 font-display text-[clamp(1.7rem,3vw,2.4rem)] font-medium leading-none tracking-[-0.03em] text-primary">
                   {value}
                 </p>
@@ -491,7 +690,11 @@ export function AgentOffers() {
         />
 
         <Reveal className="mt-7 flex justify-center">
-          <div className="inline-flex rounded-xl border border-border bg-card p-1" role="tablist" aria-label={o.tabsLabel}>
+          <div
+            className="inline-flex rounded-xl border border-border bg-card p-1"
+            role="tablist"
+            aria-label={o.tabsLabel}
+          >
             {(["solo", "team"] as const).map((key) => (
               <button
                 key={key}
@@ -501,7 +704,9 @@ export function AgentOffers() {
                 onClick={() => setTab(key)}
                 className={cn(
                   "whitespace-nowrap rounded-lg px-3.5 py-2 text-[13px] font-medium transition-colors duration-300 sm:px-4",
-                  tab === key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                  tab === key
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {o.tabs[key]}
@@ -512,10 +717,14 @@ export function AgentOffers() {
 
         <div
           key={tab}
-          className="-mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 pt-3 [scrollbar-width:none] md:mx-0 md:grid md:snap-none md:grid-cols-2 md:gap-4 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3 [&::-webkit-scrollbar]:hidden"
+          className="-mx-5 mt-8 flex snap-x snap-mandatory scroll-px-5 gap-3 overflow-x-auto px-5 pb-2 pt-3 [scrollbar-width:none] sm:-mx-6 sm:scroll-px-6 sm:px-6 md:mx-0 md:grid md:snap-none md:grid-cols-2 md:gap-4 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3 [&::-webkit-scrollbar]:hidden"
         >
           {offers.map((offer, i) => (
-            <Reveal key={offer.name} delay={i * 80} className="h-full w-[86%] shrink-0 snap-start md:w-auto">
+            <Reveal
+              key={offer.name}
+              delay={i * 80}
+              className="h-full w-[86%] shrink-0 snap-start md:w-auto"
+            >
               <article
                 className={cn(
                   "relative flex h-full flex-col rounded-2xl border bg-card p-5 sm:p-6",
@@ -527,11 +736,15 @@ export function AgentOffers() {
                     {o.featured}
                   </span>
                 ) : null}
-                <h3 className="font-display text-lg font-medium leading-snug tracking-tight">{offer.name}</h3>
+                <h3 className="font-display text-lg font-medium leading-snug tracking-tight">
+                  {offer.name}
+                </h3>
                 <p className="mt-3 font-display text-[1.7rem] font-medium leading-none tracking-[-0.03em] text-primary">
                   {o.price}
                 </p>
-                <p className="mt-2 text-xs text-muted-foreground">{offer.groups ? o.priceNote : o.customNote}</p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {offer.groups ? o.priceNote : o.customNote}
+                </p>
 
                 <div className="mt-5">
                   <Cta
@@ -545,15 +758,22 @@ export function AgentOffers() {
                 </div>
 
                 {offer.intro ? (
-                  <p className="mt-5 text-sm leading-relaxed text-muted-foreground">{offer.intro}</p>
+                  <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
+                    {offer.intro}
+                  </p>
                 ) : null}
 
                 {offer.groups?.map((g) => (
                   <div key={g.title} className="mt-5 border-t border-border pt-4">
-                    <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{g.title}</p>
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                      {g.title}
+                    </p>
                     <ul className="mt-3 space-y-2">
                       {g.items.map((item) => (
-                        <li key={item} className="flex gap-2.5 text-[13px] leading-snug text-foreground/85">
+                        <li
+                          key={item}
+                          className="flex gap-2.5 text-[13px] leading-snug text-foreground/85"
+                        >
                           <Check size={14} className="mt-0.5 shrink-0 text-primary" />
                           {item}
                         </li>
@@ -587,9 +807,17 @@ export function AgentProcess() {
 
         <div className="mt-8 grid items-start gap-10 sm:mt-10 lg:mt-12 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16">
           <ol className="relative space-y-3 sm:space-y-4">
-            <span aria-hidden className="absolute bottom-6 left-[19px] top-6 w-px bg-gradient-to-b from-primary/60 via-primary/25 to-transparent sm:left-[23px]" />
+            <span
+              aria-hidden
+              className="absolute bottom-6 left-[19px] top-6 w-px bg-gradient-to-b from-primary/60 via-primary/25 to-transparent sm:left-[23px]"
+            />
             {p.steps.map((step, i) => (
-              <Reveal as="li" key={step.title} delay={i * 80} className="relative flex gap-4 sm:gap-6">
+              <Reveal
+                as="li"
+                key={step.title}
+                delay={i * 80}
+                className="relative flex gap-4 sm:gap-6"
+              >
                 <span className="relative z-10 grid h-10 w-10 shrink-0 place-items-center rounded-full border border-primary/50 bg-background font-display text-sm font-medium text-primary sm:h-12 sm:w-12">
                   {String(i + 1).padStart(2, "0")}
                 </span>
@@ -597,7 +825,9 @@ export function AgentProcess() {
                   <p className="text-[10px] uppercase tracking-[0.18em] text-primary">
                     {p.step} {i + 1}
                   </p>
-                  <h3 className="mt-2 font-display text-lg font-medium tracking-tight">{step.title}</h3>
+                  <h3 className="mt-2 font-display text-lg font-medium tracking-tight">
+                    {step.title}
+                  </h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {step.chips.map((c) => (
@@ -627,7 +857,12 @@ export function AgentFaq() {
     <Section id="faq" className="border-t border-border/70">
       <Container>
         <div className="grid gap-6 sm:gap-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-14">
-          <AccentHeading eyebrow={f.eyebrow} before={f.before} accent={f.accent} description={f.description} />
+          <AccentHeading
+            eyebrow={f.eyebrow}
+            before={f.before}
+            accent={f.accent}
+            description={f.description}
+          />
           <Reveal>
             <ul className="border-t border-border">
               {f.items.map((item, i) => {
@@ -640,7 +875,9 @@ export function AgentFaq() {
                       aria-expanded={isOpen}
                       className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-4 py-4 text-left transition-colors duration-300 hover:text-primary sm:gap-6 sm:py-5"
                     >
-                      <span className="font-display text-base font-medium tracking-tight md:text-lg">{item.q}</span>
+                      <span className="font-display text-base font-medium tracking-tight md:text-lg">
+                        {item.q}
+                      </span>
                       <Plus
                         size={18}
                         className={cn(
@@ -654,7 +891,9 @@ export function AgentFaq() {
                       style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
                     >
                       <div className="overflow-hidden">
-                        <p className="max-w-2xl pb-5 text-sm leading-relaxed text-muted-foreground">{item.a}</p>
+                        <p className="max-w-2xl pb-5 text-sm leading-relaxed text-muted-foreground">
+                          {item.a}
+                        </p>
                       </div>
                     </div>
                   </li>
@@ -690,7 +929,9 @@ export function AgentFinalCta() {
             {f.before} <span className="text-primary">{f.accent}</span>
             {f.after}
           </h2>
-          <p className="relative mx-auto mt-4 max-w-xl text-[15px] text-muted-foreground sm:text-base">{f.body}</p>
+          <p className="relative mx-auto mt-4 max-w-xl text-[15px] text-muted-foreground sm:text-base">
+            {f.body}
+          </p>
           <div className="relative mt-7 flex flex-wrap justify-center gap-3">
             <Cta href={agentDemoUrl(locale)}>
               {copy.demoCta}
@@ -742,7 +983,10 @@ export function AgentHero() {
               after={h.after}
               description={h.description}
             />
-            <div className="mt-7 grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:gap-3" style={fadeUp(0.15)}>
+            <div
+              className="mt-7 grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:gap-3"
+              style={fadeUp(0.15)}
+            >
               <Cta href={agentDemoUrl(locale)} className="col-span-2 sm:col-span-1">
                 {copy.demoCta}
                 <ArrowUpRight size={16} />
@@ -756,7 +1000,10 @@ export function AgentHero() {
                 {h.points.map((label, i) => {
                   const Icon = HERO_POINT_ICONS[i] ?? Check;
                   return (
-                    <li key={label} className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                    <li
+                      key={label}
+                      className="flex items-center gap-2.5 text-sm text-muted-foreground"
+                    >
                       <Icon size={15} className="shrink-0 text-primary" />
                       {label}
                     </li>
@@ -774,7 +1021,10 @@ export function AgentHero() {
                   <div
                     key={title}
                     className="flex items-center gap-3 rounded-2xl border border-border bg-card/80 px-4 py-3 shadow-[var(--shadow-soft)] backdrop-blur-xl"
-                    style={{ marginLeft: `${(i % 2) * 28}px`, animation: `rev-float ${6 + i}s ease-in-out ${-i}s infinite` }}
+                    style={{
+                      marginLeft: `${(i % 2) * 28}px`,
+                      animation: `rev-float ${6 + i}s ease-in-out ${-i}s infinite`,
+                    }}
                   >
                     <span
                       className={cn(

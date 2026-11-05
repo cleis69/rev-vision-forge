@@ -120,7 +120,7 @@ const FR = {
       },
       {
         title: "Mouvements de caméra filmés",
-        body: "Quand l'acheteur change de vue, un plan filmé dans Twinmotion ou Unreal Engine l'y emmène.",
+        body: "Quand l'acheteur change de vue, un plan filmé l'y emmène.",
         isNew: true,
       },
       {
@@ -219,7 +219,7 @@ const FR = {
     before: "Pas encore de 3D ?",
     accent: "Notre studio la produit.",
     description:
-      "À partir de vos plans, notre studio crée les images et les films de votre programme avec Unreal Engine et Twinmotion, puis les relie à votre plan de vente.",
+      "À partir de vos plans, notre studio crée les images et les films de votre programme, puis les relie à votre plan de vente.",
     cta: "Demander un devis 3D",
     items: [
       {
@@ -229,7 +229,6 @@ const FR = {
       {
         title: "Films",
         body: "Le film du programme, pour vos réseaux, vos salons et le bureau de vente.",
-        tools: ["Unreal Engine", "Twinmotion"],
       },
       {
         title: "Visites 360°",
@@ -242,9 +241,8 @@ const FR = {
       {
         title: "Mouvements de caméra",
         body: "Des plans filmés qui emmènent l'acheteur d'une vue à l'autre.",
-        tools: ["Twinmotion", "Unreal Engine"],
       },
-    ] as { title: string; body: string; tools?: string[] }[],
+    ] as { title: string; body: string }[],
   },
   onboarding: {
     eyebrow: "Mise en route",
@@ -256,7 +254,7 @@ const FR = {
     sendItems: [
       {
         title: "Vos plans ou votre maquette 3D",
-        chips: ["SketchUp", "Revit", "ArchiCAD", "3ds Max", "DWG…"],
+        detail: "Dans le format que votre architecte vous a remis.",
       },
       {
         title: "La liste des lots",
@@ -362,7 +360,7 @@ const EN: typeof FR = {
       },
       {
         title: "Filmed camera moves",
-        body: "When a buyer picks a view, a shot filmed in Twinmotion or Unreal Engine takes them there.",
+        body: "When a buyer picks a view, a filmed shot takes them there.",
         isNew: true,
       },
       {
@@ -453,7 +451,7 @@ const EN: typeof FR = {
     before: "No 3D yet?",
     accent: "Our studio makes it.",
     description:
-      "From your plans, our studio creates your development's images and films with Unreal Engine and Twinmotion, then connects them to your sales plan.",
+      "From your plans, our studio creates your development's images and films, then connects them to your sales plan.",
     cta: "Request a 3D quote",
     items: [
       {
@@ -463,7 +461,6 @@ const EN: typeof FR = {
       {
         title: "Films",
         body: "The development's film, for social media, property fairs and the sales office.",
-        tools: ["Unreal Engine", "Twinmotion"],
       },
       {
         title: "360° tours",
@@ -476,7 +473,6 @@ const EN: typeof FR = {
       {
         title: "Camera moves",
         body: "Filmed shots that carry the buyer from one view to the next.",
-        tools: ["Twinmotion", "Unreal Engine"],
       },
     ],
   },
@@ -490,7 +486,7 @@ const EN: typeof FR = {
     sendItems: [
       {
         title: "Your plans or your 3D model",
-        chips: ["SketchUp", "Revit", "ArchiCAD", "3ds Max", "DWG…"],
+        detail: "In whatever format your architect gave you.",
       },
       {
         title: "The unit list",
@@ -1089,18 +1085,6 @@ function Studio({ copy }: { copy: Copy }) {
                   <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
                     {item.body}
                   </p>
-                  {item.tools ? (
-                    <p className="mt-auto flex flex-wrap gap-1.5 pt-4">
-                      {item.tools.map((tool) => (
-                        <span
-                          key={tool}
-                          className="rounded-md border border-border bg-background/60 px-2 py-0.5 text-[11px] text-muted-foreground"
-                        >
-                          {tool}
-                        </span>
-                      ))}
-                    </p>
-                  ) : null}
                 </article>
               </Reveal>
             );

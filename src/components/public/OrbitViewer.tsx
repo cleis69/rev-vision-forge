@@ -176,8 +176,10 @@ export function OrbitViewer({
   filter,
   highlight,
   selected = null,
+  focus = null,
   variant = "page",
   resetKey = 0,
+  controlsClassName,
   onOpen,
 }: {
   orbit: PublicOrbit;
@@ -189,15 +191,21 @@ export function OrbitViewer({
   filter: LotStatus | null;
   highlight?: ReadonlySet<string>;
   selected?: string | null;
-  variant?: "page" | "embed" | "presentation";
+  /** Lots matching the visitor's search: the others are dimmed (null: none dimmed). */
+  focus?: ReadonlySet<string> | null;
+  /** "app": the view fills its box (programme page), cropped a little rather than letterboxed. */
+  variant?: "page" | "embed" | "presentation" | "app";
   resetKey?: number;
+  /** Where the zoom buttons sit, when the page puts other things in the corners. */
+  controlsClassName?: string;
   onOpen: (lot: PublicLot, from: "plan" | "keyboard") => void;
 }) {
   const large = variant === "presentation";
+  const app = variant === "app";
   const locale = useLocale();
   const copy = COPY[locale];
   // On a page or in an iframe the wheel keeps scrolling: Ctrl (or a trackpad pinch) zooms.
-  const wheelZooms = variant === "presentation";
+  const wheelZooms = large || app;
   const count = orbit.frames.length;
   const first = orbit.frames[0];
 
@@ -357,13 +365,17 @@ export function OrbitViewer({
       const ratio = first.width / first.height;
       const w = el.clientWidth;
       const h = el.clientHeight;
-      setSize(w / h > ratio ? { w: h * ratio, h } : { w, h: w / ratio });
+      const contain = w / h > ratio ? { w: h * ratio, h } : { w, h: w / ratio };
+      // Filling the box, as long as at least 70 % of the image stays in sight.
+      const cover = w / h > ratio ? { w, h: w / ratio } : { w: h * ratio, h };
+      const kept = Math.min(w / cover.w, h / cover.h);
+      setSize(app && kept >= 0.7 ? cover : contain);
     };
     fit();
     const observer = new ResizeObserver(fit);
     observer.observe(el);
     return () => observer.disconnect();
-  }, [first]);
+  }, [first, app]);
 
   // The wheel and the fingers, with listeners of our own: React's are passive, and the
   // page must neither scroll nor zoom instead of the view.
@@ -439,13 +451,14 @@ export function OrbitViewer({
     const brand = hexRgb(brandColor);
     return lotByLabel.map((lot) => {
       if (!lot) return null;
-      const dim = filter !== null && lot.statut !== filter ? 0.22 : 1;
+      const dim =
+        (filter !== null && lot.statut !== filter) || (focus && !focus.has(lot.id)) ? 0.22 : 1;
       if (activeIds.has(lot.id)) return { rgba: [255, 255, 255, Math.round(150 * dim)] };
       if (lot.statut === "disponible") return { rgba: [...brand, Math.round(92 * dim)] };
       if (lot.statut === "reservee") return { rgba: [...AMBER, Math.round(210 * dim)], stripes: 5 };
       return { rgba: [...SOLD, Math.round(190 * dim)] };
     });
-  }, [lotByLabel, brandColor, filter, activeIds]);
+  }, [lotByLabel, brandColor, filter, focus, activeIds]);
 
   useEffect(() => {
     const canvas = overlay.current;
@@ -686,16 +699,36 @@ export function OrbitViewer({
   );
 
   return (
-    <div className={large ? "flex h-full min-h-0 flex-col gap-3" : "space-y-3"}>
+    <div
+      className={
+        app
+          ? "flex h-full min-h-0 flex-col"
+          : large
+            ? "flex h-full min-h-0 flex-col gap-3"
+            : "space-y-3"
+      }
+    >
       <div
         ref={box}
         className={cn(
-          "relative grid w-full place-items-center overflow-hidden rounded-2xl border border-white/10 bg-black",
+          "relative grid w-full place-items-center overflow-hidden bg-black",
+          !app && "rounded-2xl border border-white/10",
           variant === "page" && "max-h-[78svh]",
-          large && "min-h-0 flex-1",
+          (large || app) && "min-h-0 flex-1",
         )}
-        style={large || !first ? undefined : { aspectRatio: `${first.width} / ${first.height}` }}
+        style={
+          large || app || !first ? undefined : { aspectRatio: `${first.width} / ${first.height}` }
+        }
       >
+        {app && frameList[0] ? (
+          // Letterboxed: the bands take the colours of the view rather than black.
+          <img
+            src={frameList[0]}
+            alt=""
+            aria-hidden
+            className="pointer-events-none absolute inset-0 h-full w-full scale-110 object-cover opacity-60 blur-2xl"
+          />
+        ) : null}
         <div
           ref={group}
           role="group"
@@ -753,7 +786,8 @@ export function OrbitViewer({
                     : lot.statut === "reservee"
                       ? "bg-amber-400 text-black"
                       : "bg-zinc-700 text-white/75",
-                  filter !== null && lot.statut !== filter && "opacity-30",
+                  ((filter !== null && lot.statut !== filter) || (focus && !focus.has(lot.id))) &&
+                    "opacity-30",
                 )}
                 style={{ left: x, top: y }}
               >
@@ -809,7 +843,7 @@ export function OrbitViewer({
             aria-label="Zoom"
             className={cn(
               "absolute flex items-center gap-0.5 rounded-full border border-white/15 bg-black/65 p-1 text-white shadow-lg backdrop-blur",
-              large ? "bottom-4 right-4" : "bottom-2.5 right-2.5",
+              controlsClassName ?? (large ? "bottom-4 right-4" : "bottom-2.5 right-2.5"),
             )}
           >
             {zoomed ? (
@@ -843,11 +877,13 @@ export function OrbitViewer({
         )}
       </div>
 
-      <StatusLegend
-        large={large}
-        hint={zoomed ? copy.zoomedHint : copy.hint}
-        touchHint={zoomed ? copy.zoomedTouchHint : copy.touchHint}
-      />
+      {app ? null : (
+        <StatusLegend
+          large={large}
+          hint={zoomed ? copy.zoomedHint : copy.hint}
+          touchHint={zoomed ? copy.zoomedTouchHint : copy.touchHint}
+        />
+      )}
     </div>
   );
 }

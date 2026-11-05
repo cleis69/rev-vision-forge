@@ -1,8 +1,10 @@
 import { Suspense, lazy, useMemo } from "react";
 
 import type { LotStatus } from "@/lib/app/lot-fields";
+import { smallFramePath } from "@/lib/app/orbit";
+import { publicUrl } from "@/lib/app/storage";
 import { useCopy } from "@/lib/i18n";
-import type { PublicData, PublicLot } from "@/lib/public/programme";
+import type { PublicData, PublicLot, PublicView } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
 import type { ViewKey } from "@/lib/public/use-views";
 import { floorsDown, sideViews } from "@/lib/views";
@@ -13,7 +15,9 @@ const AerialViewer = lazy(() => import("./AerialViewer"));
 /* The views of a programme on the public pages, each an orbital sequence or
    a 360° panorama: the aerial view, the roof, the pedestrian view… as
    buttons, the floors as a column from the top floor down, as on a building,
-   each with its number of available lots; the chosen one is shown. */
+   each with its number of available lots; the chosen one is shown.
+   variant "app" (programme page): the view fills the screen, the floors float
+   on its left and the other views are thumbnails at its foot. */
 
 const COPY = {
   fr: {
@@ -32,11 +36,19 @@ const COPY = {
   },
 };
 
+/** Small image of a view, for its thumbnail. */
+const thumbOf = (view: PublicView): string | null => {
+  if (view.panorama) return view.panorama.image.thumb;
+  const first = view.orbit?.frames[0];
+  return first ? publicUrl(smallFramePath(first.path)) : null;
+};
+
 export function ProgrammeViews({
   data,
   viewKey,
   onViewChange,
   filter,
+  focus = null,
   highlight,
   selected = null,
   variant = "page",
@@ -47,14 +59,17 @@ export function ProgrammeViews({
   viewKey: ViewKey | null;
   onViewChange: (key: ViewKey) => void;
   filter: LotStatus | null;
+  /** Lots matching the visitor's search: the others are dimmed. */
+  focus?: ReadonlySet<string> | null;
   highlight?: ReadonlySet<string>;
   selected?: string | null;
-  variant?: "page" | "embed" | "presentation";
+  variant?: "page" | "embed" | "presentation" | "app";
   resetKey?: number;
   onOpen: (lot: PublicLot, from: "plan" | "keyboard") => void;
 }) {
   const { programme, lots, views } = data;
   const large = variant === "presentation";
+  const app = variant === "app";
   const copy = useCopy(COPY);
   const side = useMemo(() => sideViews(views), [views]);
   const floors = useMemo(() => floorsDown(views), [views]);
@@ -66,6 +81,15 @@ export function ProgrammeViews({
   }, [lots, views]);
 
   const choices = side.length;
+  const showSide = choices >= 2 || (choices >= 1 && floors.length > 0);
+  // In the app the zoom buttons leave the foot of the view to the floors (phones) and the views.
+  const controls = app
+    ? cn(
+        "bottom-3 right-3",
+        floors.length > 0 && "max-md:bottom-[4.25rem]",
+        "md:bottom-4 md:right-4",
+      )
+    : undefined;
   const button = (active: boolean) =>
     cn(
       "inline-flex shrink-0 items-center gap-2 rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
@@ -80,8 +104,9 @@ export function ProgrammeViews({
       fallback={
         <div
           className={cn(
-            "grid w-full place-items-center rounded-2xl border border-white/10 bg-black text-xs text-white/60",
-            large ? "min-h-0 flex-1" : "aspect-[16/10] sm:aspect-[16/9]",
+            "grid w-full place-items-center bg-black text-xs text-white/60",
+            app ? "h-full" : "rounded-2xl border border-white/10",
+            large ? "min-h-0 flex-1" : !app && "aspect-[16/10] sm:aspect-[16/9]",
           )}
         >
           {copy.loading}
@@ -95,10 +120,12 @@ export function ProgrammeViews({
         lots={lots}
         currency={programme.currency}
         filter={filter}
+        focus={focus}
         {...(highlight ? { highlight } : {})}
         selected={selected}
         variant={variant}
         resetKey={resetKey}
+        {...(controls ? { controlsClassName: controls } : {})}
         onOpen={onOpen}
       />
     </Suspense>
@@ -112,17 +139,124 @@ export function ProgrammeViews({
       currency={programme.currency}
       brandColor={programme.organization.brandColor}
       filter={filter}
+      focus={focus}
       {...(highlight ? { highlight } : {})}
       selected={selected}
       variant={variant}
       resetKey={resetKey}
+      {...(controls ? { controlsClassName: controls } : {})}
       onOpen={onOpen}
     />
   ) : null;
 
+  if (app) {
+    return (
+      <div className="relative h-full w-full overflow-hidden bg-black">
+        <div className="absolute inset-0 flex flex-col">{stage}</div>
+
+        {showSide ? (
+          <div
+            role="group"
+            aria-label={copy.views}
+            className={cn(
+              "absolute z-10 flex gap-2 overflow-x-auto [scrollbar-width:none]",
+              // Phones: a row of names at the top; computers: thumbnails at the foot.
+              "inset-x-0 top-0 p-3",
+              "md:inset-x-auto md:bottom-4 md:left-1/2 md:top-auto md:max-w-[calc(100%-20rem)] md:-translate-x-1/2 md:rounded-2xl md:border md:border-white/10 md:bg-black/55 md:p-2 md:shadow-2xl md:backdrop-blur-md",
+            )}
+          >
+            {side.map((v) => {
+              const active = viewKey === v.id;
+              const thumb = thumbOf(v);
+              return (
+                <button
+                  key={v.id}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => onViewChange(v.id)}
+                  className={cn(
+                    "group shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                    "inline-flex h-9 items-center rounded-full border px-4 text-sm backdrop-blur-md",
+                    active
+                      ? "border-[color:var(--brand)] bg-[color:var(--brand)] text-[color:var(--brand-contrast)]"
+                      : "border-white/15 bg-black/55 text-white/85",
+                    "md:h-auto md:flex-col md:items-stretch md:gap-1.5 md:rounded-xl md:border-0 md:bg-transparent md:p-1 md:text-[11px] md:backdrop-blur-none",
+                    active
+                      ? "md:bg-white/10 md:text-white"
+                      : "md:text-white/65 md:hover:text-white",
+                  )}
+                >
+                  {thumb ? (
+                    <img
+                      src={thumb}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className={cn(
+                        "hidden h-14 w-24 rounded-lg object-cover md:block",
+                        active
+                          ? "ring-2 ring-[color:var(--brand)]"
+                          : "opacity-80 ring-1 ring-white/10 group-hover:opacity-100",
+                      )}
+                    />
+                  ) : null}
+                  <span className="md:max-w-24 md:truncate md:text-center">{v.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
+
+        {floors.length > 0 ? (
+          <nav
+            aria-label={copy.floors}
+            className={cn(
+              "absolute z-10 flex gap-2 overflow-x-auto [scrollbar-width:none]",
+              // Phones: a row at the foot; computers: a column on the left, top floor first.
+              "inset-x-0 bottom-0 p-3",
+              "md:inset-x-auto md:bottom-auto md:left-4 md:top-1/2 md:max-h-[calc(100%-9rem)] md:w-36 md:-translate-y-1/2 md:flex-col md:overflow-y-auto md:rounded-2xl md:border md:border-white/10 md:bg-black/55 md:p-2 md:shadow-2xl md:backdrop-blur-md",
+            )}
+          >
+            <p className="hidden px-2 pb-1 pt-1 text-[10px] font-medium uppercase tracking-[0.22em] text-white/45 md:block">
+              {copy.floors}
+            </p>
+            {floors.map((v) => {
+              const active = viewKey === v.id;
+              const free = available.get(v.id) ?? 0;
+              return (
+                <button
+                  key={v.id}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => onViewChange(v.id)}
+                  className={cn(
+                    "flex shrink-0 flex-col items-start rounded-xl border px-3 py-1.5 text-left backdrop-blur-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 md:backdrop-blur-none",
+                    active
+                      ? "border-[color:var(--brand)] bg-[color:var(--brand)] text-[color:var(--brand-contrast)]"
+                      : "border-white/10 bg-black/55 text-white hover:border-white/30 md:border-transparent md:bg-transparent md:hover:bg-white/5",
+                  )}
+                >
+                  <span className="font-brand text-sm font-medium tracking-tight">{v.name}</span>
+                  <span
+                    className={cn(
+                      "text-[10px]",
+                      active ? "text-[color:var(--brand-contrast)]/75" : "text-white/55",
+                    )}
+                  >
+                    {v.lots.size === 0 ? " " : free === 0 ? copy.full : copy.available(free)}
+                  </span>
+                </button>
+              );
+            })}
+          </nav>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <div className={cn(large ? "flex h-full min-h-0 flex-col gap-3" : "space-y-3")}>
-      {choices >= 2 || (choices >= 1 && floors.length > 0) ? (
+      {showSide ? (
         <div role="group" aria-label={copy.views} className="flex flex-wrap gap-2">
           {side.map((v) => (
             <button
@@ -185,7 +319,7 @@ export function ProgrammeViews({
                     {v.name}
                   </span>
                   <span className={cn("text-white/55", large ? "text-sm" : "text-[11px]")}>
-                    {v.lots.size === 0 ? "\u00a0" : free === 0 ? copy.full : copy.available(free)}
+                    {v.lots.size === 0 ? " " : free === 0 ? copy.full : copy.available(free)}
                   </span>
                 </button>
               );

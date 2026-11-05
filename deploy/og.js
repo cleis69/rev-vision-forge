@@ -112,9 +112,13 @@ export function metaTags(meta) {
   if (meta.image) {
     tags.push(["property", "og:image", meta.image], ["name", "twitter:image", meta.image]);
   }
-  return tags
+  const html = tags
     .map(([attr, key, value]) => `<meta ${attr}="${key}" content="${escapeHtml(value)}"/>`)
     .join("");
+  // The page shows this photo while the programme loads: fetched with the page itself.
+  return meta.image
+    ? `${html}<link rel="preload" as="image" fetchpriority="high" href="${escapeHtml(meta.image)}"/>`
+    : html;
 }
 
 const withSuffix = (path, suffix) => path.replace(/(\.[a-z0-9]+)$/i, `${suffix}$1`);

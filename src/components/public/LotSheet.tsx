@@ -46,6 +46,8 @@ export function LotSheet({
   onOpenChange,
   actions,
   askVisit = null,
+  modal = true,
+  className,
 }: {
   lot: PublicLot | null;
   photos: MediaItem[];
@@ -55,6 +57,9 @@ export function LotSheet({
   actions: LotActions | null;
   /** Shows the form of this lot (a new object each time it is asked, from the 360° tour). */
   askVisit?: { lotId: string } | null;
+  /** false: beside the 3D view of a computer, which stays usable (another lot replaces this one). */
+  modal?: boolean;
+  className?: string | undefined;
 }) {
   const copy = useCopy(COPY);
   // The form shows under the details of the lot it was opened for.
@@ -71,8 +76,15 @@ export function LotSheet({
   }, [showVisit]);
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full overflow-y-auto border-white/10 bg-[#0d0d0d] p-0 sm:max-w-md">
+    <Sheet open={open} onOpenChange={onOpenChange} modal={modal}>
+      <SheetContent
+        className={cn(
+          "w-full overflow-y-auto border-white/10 bg-[#0d0d0d] p-0 sm:max-w-md",
+          className,
+        )}
+        // Beside the view, a click on it picks another lot rather than closing the sheet.
+        {...(modal ? {} : { onInteractOutside: (e: Event) => e.preventDefault() })}
+      >
         {lot ? (
           <>
             <LotDetails

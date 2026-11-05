@@ -55,8 +55,10 @@ export default function AerialViewer({
   filter,
   highlight,
   selected = null,
+  focus = null,
   variant = "page",
   resetKey = 0,
+  controlsClassName,
   onOpen,
 }: {
   panorama: PublicViewPanorama;
@@ -66,11 +68,17 @@ export default function AerialViewer({
   filter: LotStatus | null;
   highlight?: ReadonlySet<string>;
   selected?: string | null;
-  variant?: "page" | "embed" | "presentation";
+  /** Lots matching the visitor's search: the others are dimmed (null: none dimmed). */
+  focus?: ReadonlySet<string> | null;
+  /** "app": the view fills its box (programme page), the wheel and one finger turn it. */
+  variant?: "page" | "embed" | "presentation" | "app";
   resetKey?: number;
+  /** Where the zoom buttons sit, when the page puts other things in the corners. */
+  controlsClassName?: string;
   onOpen: (lot: PublicLot, from: "plan" | "keyboard") => void;
 }) {
   const large = variant === "presentation";
+  const app = variant === "app";
   const locale = useLocale();
   const copy = COPY[locale];
   const box = useRef<HTMLDivElement>(null);
@@ -101,8 +109,8 @@ export default function AerialViewer({
         navbar: false,
         lang: { ...viewerLang(locale), autorotate: copy.autorotate },
         keyboard: large ? "always" : "fullscreen",
-        mousewheelCtrlKey: !large,
-        touchmoveTwoFingers: !large,
+        mousewheelCtrlKey: !large && !app,
+        touchmoveTwoFingers: !large && !app,
         plugins: [
           [MarkersPlugin, {}],
           [
@@ -138,7 +146,7 @@ export default function AerialViewer({
   const markerKey = panorama.markers
     .map((m) => {
       const lot = byId.get(m.lotId);
-      return `${m.lotId}:${m.yaw}:${m.pitch}:${lot?.statut}:${lot?.prix}:${highlight?.has(m.lotId)}:${selected === m.lotId}`;
+      return `${m.lotId}:${m.yaw}:${m.pitch}:${lot?.statut}:${lot?.prix}:${highlight?.has(m.lotId)}:${selected === m.lotId}:${focus ? focus.has(m.lotId) : ""}`;
     })
     .join("|");
   useEffect(() => {
@@ -156,7 +164,8 @@ export default function AerialViewer({
               currency,
               large,
               locale,
-              dim: filter !== null && lot.statut !== filter,
+              dim:
+                (filter !== null && lot.statut !== filter) || Boolean(focus && !focus.has(lot.id)),
               active: selected === lot.id || Boolean(highlight?.has(lot.id)),
             }),
             anchor: "bottom center",
@@ -175,7 +184,7 @@ export default function AerialViewer({
     document.addEventListener("fullscreenchange", sync);
     return () => document.removeEventListener("fullscreenchange", sync);
   }, []);
-  const canFull = typeof document !== "undefined" && document.fullscreenEnabled && !large;
+  const canFull = typeof document !== "undefined" && document.fullscreenEnabled && !large && !app;
   const toggleFull = () => {
     if (document.fullscreenElement) void document.exitFullscreen();
     else void box.current?.requestFullscreen().catch(() => undefined);
@@ -193,14 +202,23 @@ export default function AerialViewer({
   }, [resetKey, panorama.startYaw, panorama.startPitch]);
 
   return (
-    <div className={large ? "flex min-h-0 flex-1 flex-col gap-3" : "space-y-3"}>
+    <div
+      className={
+        app
+          ? "flex h-full min-h-0 flex-col"
+          : large
+            ? "flex min-h-0 flex-1 flex-col gap-3"
+            : "space-y-3"
+      }
+    >
       <div
         ref={box}
         className={cn(
-          "relative w-full overflow-hidden rounded-2xl border border-white/10 bg-black [&_.psv-container]:[background:#000]!",
+          "relative w-full overflow-hidden bg-black [&_.psv-container]:[background:#000]!",
+          !app && "rounded-2xl border border-white/10",
           full
             ? "h-full rounded-none"
-            : large
+            : large || app
               ? "min-h-0 flex-1"
               : "aspect-[16/10] max-h-[78svh] sm:aspect-[16/9]",
         )}
@@ -214,7 +232,10 @@ export default function AerialViewer({
         />
         <ViewerControls
           large={large}
-          className={cn("absolute z-10", large ? "bottom-4 right-4" : "bottom-2.5 right-2.5")}
+          className={cn(
+            "absolute z-10",
+            controlsClassName ?? (large ? "bottom-4 right-4" : "bottom-2.5 right-2.5"),
+          )}
           onZoomIn={() => viewerRef.current?.zoomIn(20)}
           onZoomOut={() => viewerRef.current?.zoomOut(20)}
         >
@@ -234,11 +255,13 @@ export default function AerialViewer({
           ) : null}
         </ViewerControls>
       </div>
-      <StatusLegend
-        large={large}
-        hint={copy.hint}
-        touchHint={large ? copy.touchHint : copy.twoFingersHint}
-      />
+      {app ? null : (
+        <StatusLegend
+          large={large}
+          hint={copy.hint}
+          touchHint={large ? copy.touchHint : copy.twoFingersHint}
+        />
+      )}
     </div>
   );
 }

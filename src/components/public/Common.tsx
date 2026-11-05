@@ -76,19 +76,50 @@ export function RevBadge({
   );
 }
 
+/** The photo of the programme written in the page by the Worker (link previews), if any. */
+function previewPhoto(): string | null {
+  if (typeof document === "undefined") return null;
+  const url = document.querySelector('meta[property="og:image"]')?.getAttribute("content") ?? "";
+  // REV's own picture (other pages of the site) is not the programme's.
+  return url.includes("/storage/v1/object/public/") ? url : null;
+}
+
 export function PublicLoading({ className }: { className?: string }) {
   const locale = useLocale();
+  // Shown at once, before the programme arrives: no black screen while it loads.
+  const [photo] = useState(previewPhoto);
   return (
     <div
-      className={cn("min-h-svh bg-[#080808] px-5 py-10 sm:px-10", className)}
+      className={cn(
+        "relative min-h-svh overflow-hidden bg-[#080808] px-5 py-10 sm:px-10",
+        className,
+      )}
       aria-busy="true"
       aria-label={locale === "fr" ? "Chargement du programme" : "Loading the programme"}
     >
-      <div className="mx-auto max-w-6xl space-y-6">
-        <Skeleton className="h-6 w-40 bg-white/10" />
-        <Skeleton className="h-14 w-full max-w-xl bg-white/10" />
-        <Skeleton className="aspect-[16/9] w-full rounded-2xl bg-white/10" />
-      </div>
+      {photo ? (
+        <>
+          <img
+            src={photo}
+            alt=""
+            fetchPriority="high"
+            className="absolute inset-0 h-full w-full object-cover opacity-60"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/40 to-[#080808]/60" />
+          <div className="absolute inset-x-0 bottom-10 grid place-items-center">
+            <span className="inline-flex items-center gap-3 rounded-full bg-black/55 px-4 py-2 text-xs text-white/80 backdrop-blur">
+              <span className="size-3.5 animate-spin rounded-full border-2 border-white/25 border-t-white motion-reduce:animate-none" />
+              {locale === "fr" ? "Chargement du programme…" : "Loading the programme…"}
+            </span>
+          </div>
+        </>
+      ) : (
+        <div className="mx-auto max-w-6xl space-y-6">
+          <Skeleton className="h-6 w-40 bg-white/10" />
+          <Skeleton className="h-14 w-full max-w-xl bg-white/10" />
+          <Skeleton className="aspect-[16/9] w-full rounded-2xl bg-white/10" />
+        </div>
+      )}
     </div>
   );
 }
@@ -145,6 +176,7 @@ export function StatusFilters({
   counts,
   total,
   large = false,
+  small = false,
 }: {
   value: LotStatus | null;
   onChange: (status: LotStatus | null) => void;
@@ -152,6 +184,8 @@ export function StatusFilters({
   total: number;
   /** Presentation mode: buttons for a finger on a tablet. */
   large?: boolean;
+  /** Beside the 3D view: the four on one line. */
+  small?: boolean;
 }) {
   const locale = useLocale();
   const options: { status: LotStatus | null; label: string; count: number }[] = [
@@ -175,7 +209,11 @@ export function StatusFilters({
             onClick={() => onChange(o.status)}
             className={cn(
               "inline-flex shrink-0 items-center gap-2 rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
-              large ? "h-12 px-5 text-base" : "h-9 px-4 text-sm",
+              large
+                ? "h-12 px-5 text-base"
+                : small
+                  ? "h-8 gap-1.5 px-3 text-xs"
+                  : "h-9 px-4 text-sm",
               active
                 ? "border-white bg-white text-black"
                 : "border-white/15 text-white/75 hover:border-white/35 hover:text-white",

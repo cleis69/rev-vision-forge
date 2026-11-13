@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   ArrowUpRight,
   Check,
@@ -752,10 +752,64 @@ const MOCK_STATUS = [
   "bg-zinc-600 text-white",
 ];
 
+/** Beats of the little scene the mock plays, 900 ms each, then again. */
+const BEATS = 13;
+
+/**
+ * The promoter space at work: a villa is reserved, a request comes in,
+ * another villa is sold. Plays while in sight, never with reduced motion
+ * (then the mock stands still, the request shown).
+ */
+function useScene() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [beat, setBeat] = useState<number | null>(null);
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let timer = 0;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        window.clearInterval(timer);
+        if (!entry?.isIntersecting) return;
+        setBeat(0);
+        timer = window.setInterval(() => setBeat((b) => ((b ?? 0) + 1) % BEATS), 900);
+      },
+      { threshold: 0.35 },
+    );
+    observer.observe(node);
+    return () => {
+      window.clearInterval(timer);
+      observer.disconnect();
+    };
+  }, []);
+  return { ref, beat };
+}
+
 function TeamsMock({ copy }: { copy: Copy }) {
   const m = copy.teams.mock;
+  const { ref, beat } = useScene();
+  const playing = beat !== null;
+  const at = beat ?? 0;
+  // Row 0 gets reserved at beat 2, row 3 sold at beat 7; all back at the last beat.
+  const statusOf = (i: number, base: number) =>
+    !playing
+      ? base
+      : i === 0
+        ? at >= 2 && at < 12
+          ? 1
+          : 0
+        : i === 3
+          ? at >= 7 && at < 12
+            ? 2
+            : 1
+          : base;
+  const pressed = (i: number, s: number) =>
+    playing && ((i === 0 && s === 1 && at === 1) || (i === 3 && s === 2 && at === 6));
+  const toast = !playing || (at >= 4 && at < 12);
+  const justSaved = playing && (at === 2 || at === 7);
   return (
     <div
+      ref={ref}
       role="img"
       aria-label={m.label}
       className="overflow-hidden rounded-[10px] border border-border bg-card"
@@ -769,7 +823,12 @@ function TeamsMock({ copy }: { copy: Copy }) {
             </p>
           </div>
           <span className="inline-flex shrink-0 items-center gap-1.5 text-[11px] text-primary">
-            <span className="size-1.5 rounded-full bg-primary" />
+            <span className="relative grid size-1.5 place-items-center">
+              {justSaved ? (
+                <span className="absolute size-1.5 animate-ping rounded-full bg-primary" />
+              ) : null}
+              <span className="size-1.5 rounded-full bg-primary" />
+            </span>
             {m.live}
           </span>
         </div>
@@ -789,8 +848,10 @@ function TeamsMock({ copy }: { copy: Copy }) {
                   <span
                     key={label}
                     className={cn(
-                      "rounded-[8px] px-2 py-1 text-[11px] sm:px-2.5",
-                      s === row.status ? MOCK_STATUS[s] : "text-muted-foreground",
+                      "rounded-[8px] px-2 py-1 text-[11px] transition-[background-color,color,box-shadow,transform] duration-300 ease-out sm:px-2.5",
+                      s === statusOf(i, row.status) ? MOCK_STATUS[s] : "text-muted-foreground",
+                      pressed(i, s) &&
+                        "scale-95 text-foreground shadow-[0_0_0_1.5px_rgb(255_255_255/0.55)]",
                     )}
                   >
                     {label}
@@ -802,7 +863,12 @@ function TeamsMock({ copy }: { copy: Copy }) {
         </ul>
 
         <div className="space-y-3 border-t border-border p-4 sm:p-5">
-          <div className="flex items-center gap-3">
+          <div
+            className={cn(
+              "flex items-center gap-3 transition-[opacity,transform,filter] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
+              !toast && "translate-y-1.5 opacity-0 blur-[2px]",
+            )}
+          >
             <span className="grid size-8 shrink-0 place-items-center rounded-[8px] bg-primary text-primary-foreground">
               <Inbox size={15} />
             </span>

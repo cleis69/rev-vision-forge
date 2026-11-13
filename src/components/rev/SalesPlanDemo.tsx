@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowUpRight, LoaderCircle, Play, X } from "lucide-react";
 
+import film from "@/assets/demo-phone-film.mp4?url";
 import { photo } from "@/lib/images";
 import { useLocale, type Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -8,7 +9,7 @@ import { cn } from "@/lib/utils";
 /*
  * The live demo of the 3D sales plan (a fictional programme, open to all),
  * in a phone. Until the visitor asks for it, the phone shows a capture of
- * that same page, so the offer page stays light and passers-by count no
+ * that same page, and a short film of it being used, so the offer page stays light and passers-by count no
  * visit on the programme. On a computer the real page then loads inside the
  * phone and the capture fades into it; on a phone, the capture opens the
  * page itself.
@@ -41,6 +42,36 @@ const COPY = {
   },
 } as const;
 
+/** The film plays for visitors who accept motion and are not saving data. */
+function useFilm() {
+  const [play, setPlay] = useState(false);
+  useEffect(() => {
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const saving = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection
+      ?.saveData;
+    setPlay(!still && !saving);
+  }, []);
+  return play;
+}
+
+/** A film of the demo page being used, over its capture (the same first picture). */
+function Film({ className }: { className: string }) {
+  return (
+    <video
+      src={film}
+      poster={capture.src}
+      autoPlay
+      muted
+      loop
+      playsInline
+      preload="metadata"
+      aria-hidden
+      tabIndex={-1}
+      className={className}
+    />
+  );
+}
+
 /** Capture and page share one screen of 320 × 692, the phone's own proportions. */
 const SCREEN = "h-[692px] w-[320px]";
 
@@ -57,6 +88,7 @@ export function SalesPlanDemo({
   const copy = COPY[locale];
   const path = demoPath(locale);
   const [loaded, setLoaded] = useState(false);
+  const playing = useFilm();
 
   const close = () => {
     setLoaded(false);
@@ -99,9 +131,12 @@ export function SalesPlanDemo({
                 decoding="async"
                 className="h-full w-full object-cover object-top"
               />
+              {playing && !launched ? (
+                <Film className="absolute inset-0 h-full w-full object-cover object-top" />
+              ) : null}
               <div
                 aria-hidden
-                className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-black from-25% via-black/80 to-transparent"
+                className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black from-35% via-black/70 to-transparent"
               />
               <div className="absolute inset-x-0 bottom-0 flex flex-col items-center px-5 pb-6">
                 {launched ? (
@@ -156,9 +191,12 @@ export function SalesPlanDemo({
           decoding="async"
           className="aspect-[390/600] w-full object-cover object-top"
         />
+        {playing ? (
+          <Film className="absolute inset-x-0 top-0 aspect-[390/600] w-full object-cover object-top" />
+        ) : null}
         <span
           aria-hidden
-          className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black from-25% via-black/80 to-transparent"
+          className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-black from-35% via-black/70 to-transparent"
         />
         <span className="absolute inset-x-0 bottom-0 flex flex-col items-center px-4 pb-5">
           <span className="inline-flex h-12 w-full items-center justify-center gap-2.5 rounded-[10px] border border-white/20 bg-black/60 text-sm font-medium text-white backdrop-blur-md transition-colors duration-200 group-hover:border-white/40">

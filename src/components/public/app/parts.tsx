@@ -79,7 +79,7 @@ export function ContactLinks({ phone, text }: { phone: string; text: string }) {
     <>
       <a
         href={telHref(phone)}
-        className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-white/20 px-5 text-sm text-white transition-colors hover:border-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+        className="inline-flex h-11 items-center justify-center gap-2 rounded-[10px] border border-white/20 px-5 text-sm text-white transition-colors hover:border-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
       >
         <Phone className="size-4" aria-hidden />
         {phoneLabel(phone)}
@@ -88,7 +88,7 @@ export function ContactLinks({ phone, text }: { phone: string; text: string }) {
         href={whatsappHref(phone, text)}
         target="_blank"
         rel="noopener"
-        className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-[#25D366]/50 px-5 text-sm text-[#5fe08f] transition-colors hover:border-[#25D366] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+        className="inline-flex h-11 items-center justify-center gap-2 rounded-[10px] border border-[#25D366]/50 px-5 text-sm text-[#5fe08f] transition-colors hover:border-[#25D366] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
       >
         <WhatsAppIcon className="size-4" />
         {copy.writeWhatsapp}
@@ -154,7 +154,7 @@ export function Chips<T extends string | number>({
             aria-pressed={active}
             onClick={() => onChange(o.value)}
             className={cn(
-              "inline-flex h-8 shrink-0 items-center rounded-full border px-3.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+              "inline-flex h-8 shrink-0 items-center rounded-[10px] border px-3.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
               active
                 ? "border-[color:var(--brand)] text-[color:var(--brand)]"
                 : "border-white/15 text-white/65 hover:text-white",

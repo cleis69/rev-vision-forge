@@ -53,14 +53,14 @@ export function LoanSimulator({
   const result = monthlyPayment({ price, downPayment, years, rate });
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03]">
+    <div className="rounded-[10px] border border-white/10 bg-white/[0.03]">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-controls={id}
         className={cn(
-          "flex w-full items-center gap-3 rounded-2xl text-left transition-colors hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+          "flex w-full items-center gap-3 rounded-[10px] text-left transition-colors hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
           large ? "px-5 py-4 text-base" : "px-4 py-3 text-sm",
         )}
       >
@@ -100,7 +100,7 @@ export function LoanSimulator({
                   aria-pressed={years === y}
                   onClick={() => setYears(y)}
                   className={cn(
-                    "h-8 flex-1 rounded-full border text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                    "h-8 flex-1 rounded-[10px] border text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
                     years === y
                       ? "border-white bg-white text-black"
                       : "border-white/15 text-white/75 hover:border-white/35",
@@ -125,12 +125,12 @@ export function LoanSimulator({
                   const value = Number(e.target.value.replace(",", "."));
                   if (Number.isFinite(value)) setRate(Math.min(15, Math.max(0, value)));
                 }}
-                className="h-8 w-20 rounded-full border border-white/15 bg-transparent px-3 text-right text-sm tabular-nums text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                className="h-8 w-20 rounded-[10px] border border-white/15 bg-transparent px-3 text-right text-sm tabular-nums text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
               />
               %
             </span>
           </label>
-          <div className="rounded-xl bg-white/[0.05] p-4">
+          <div className="rounded-[10px] bg-white/[0.05] p-4">
             <p className="text-xs text-white/60">{copy.monthly}</p>
             <p className="mt-1 font-brand text-2xl font-medium tabular-nums tracking-tight">
               {text.price(Math.round(result.monthly), currency)}{" "}

@@ -5,11 +5,13 @@ import {
   Box,
   Building2,
   CalendarCheck,
+  ChevronRight,
   Eye,
   Images,
   Layers,
   LayoutGrid,
   MapPin,
+  Menu,
   Play,
   Rotate3d,
 } from "lucide-react";
@@ -68,7 +70,7 @@ import { shareComparison, shareLot, whatsappShareUrl } from "@/lib/public/share"
 import { lotMedia, showTypologies, typologies } from "@/lib/public/typologies";
 import { useFollowLot, useViewKey } from "@/lib/public/use-views";
 import { cn } from "@/lib/utils";
-import { LotPanel } from "./LotPanel";
+import { Finder } from "./Finder";
 import { LotSearchButton, LotSearchFields } from "./LotSearch";
 import { Chips, ContactLinks, HeroBackdrop, SectionTitle, Stat, WhatsAppIcon } from "./parts";
 
@@ -122,6 +124,8 @@ const COPY = {
       surface: "Surface",
     },
     nav: "Rubriques du programme",
+    menu: "Rubriques",
+    more: "Découvrir le programme",
     unknownLot: "Ce lot n'existe pas ou n'est plus présenté.",
     compareMax: (n: number) => `${n} lots au maximum : retirez-en un pour en ajouter un autre.`,
     whatsapp: (name: string) => `Bonjour, je suis intéressé(e) par le programme ${name}.`,
@@ -171,6 +175,8 @@ const COPY = {
       surface: "Living area",
     },
     nav: "Sections of the programme",
+    menu: "Sections",
+    more: "Discover the programme",
     unknownLot: "This lot does not exist or is no longer listed.",
     compareMax: (n: number) => `${n} lots at most: remove one to add another.`,
     whatsapp: (name: string) => `Hello, I am interested in the ${name} programme.`,
@@ -363,6 +369,7 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
     [hasViews, withTypes, gallery.length, tours.length, programme],
   );
   const [visitOpen, setVisitOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [tab, setTabState] = useState<AppTab>(() => {
     const asked = tabOfHash(window.location.hash, tabs);
     return asked.tab ?? firstTab(tabs);
@@ -387,9 +394,10 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
   useFollowLot(data, lot, setViewKey);
   const currentView = data.views.find((v) => v.id === viewKey) ?? null;
   const firstFrame = currentView?.orbit?.frames[0];
+  // Phones: the view at the format of its images, with room for the buttons of the other views.
   const stageHeight =
     !wide && firstFrame
-      ? `min(60svh, calc(100vw * ${(firstFrame.height / firstFrame.width).toFixed(4)} + 7.5rem))`
+      ? `calc(100vw * ${(firstFrame.height / firstFrame.width).toFixed(4)}${data.views.length > 1 ? " + 4rem" : ""})`
       : null;
 
   /* ----- filters, shared by the list beside the view and the Lots tab */
@@ -492,7 +500,7 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
     setTab(hasViews ? "plan" : "lots");
   };
 
-  const tabButton = (t: AppTab, compact: boolean) => {
+  const tabButton = (t: AppTab) => {
     const Icon = TAB_ICONS[t];
     const active = activeTab === t;
     return (
@@ -502,12 +510,12 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
         onClick={() => setTab(t)}
         aria-current={active ? "page" : undefined}
         className={cn(
-          "inline-flex shrink-0 items-center gap-2 rounded-full font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
-          compact ? "h-9 px-3.5 text-[13px]" : "h-9 px-2.5 text-[13px] xl:px-3.5 xl:text-sm",
+          "inline-flex shrink-0 items-center gap-2 rounded-[9px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+          "h-9 px-2.5 text-[13px] xl:px-3.5 xl:text-sm",
           active ? "bg-white text-black" : "text-white/70 hover:bg-white/5 hover:text-white",
         )}
       >
-        <Icon className={cn("size-4", !compact && "hidden xl:block")} aria-hidden />
+        <Icon className="hidden size-4 xl:block" aria-hidden />
         {copy.tabs[t]}
       </button>
     );
@@ -539,7 +547,7 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
         </div>
       ) : null}
 
-      <header className="relative z-30 flex h-14 shrink-0 items-center gap-3 border-b border-white/10 bg-[#080808] px-4 sm:px-6 lg:h-16">
+      <header className="relative z-30 flex h-[52px] shrink-0 items-center gap-3 border-b border-white/10 bg-[#080808] px-4 sm:px-6 lg:h-16">
         <div className="flex min-w-0 items-center gap-3 lg:max-w-[15rem] lg:shrink-0 xl:max-w-[18rem]">
           {programme.organization.logo ? (
             <img
@@ -564,9 +572,9 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
 
         <nav
           aria-label={copy.nav}
-          className="mx-auto hidden min-w-0 items-center gap-0.5 overflow-x-auto rounded-full border border-white/10 bg-white/[0.03] p-1 [scrollbar-width:none] lg:flex"
+          className="mx-auto hidden min-w-0 items-center gap-0.5 overflow-x-auto rounded-[12px] border border-white/10 bg-white/[0.03] p-1 [scrollbar-width:none] lg:flex"
         >
-          {tabs.map((t) => tabButton(t, false))}
+          {tabs.map((t) => tabButton(t))}
         </nav>
 
         <div className="ml-auto flex shrink-0 items-center gap-2 lg:ml-0">
@@ -580,7 +588,7 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
             onClick={() => setVisitOpen(true)}
             aria-label={copy.bookVisit}
             title={copy.bookVisit}
-            className="inline-flex h-10 items-center gap-2 rounded-full border border-white/20 px-3 text-sm text-white transition-colors hover:border-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 2xl:px-4"
+            className="hidden h-10 items-center gap-2 rounded-[10px] border border-white/20 px-3 text-sm text-white transition-colors hover:border-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 lg:inline-flex 2xl:px-4"
           >
             <CalendarCheck className="size-4" aria-hidden />
             <span className="hidden 2xl:inline">{copy.bookVisit}</span>
@@ -592,36 +600,38 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
               rel="noopener"
               aria-label={copy.writeWhatsapp}
               title={copy.writeWhatsapp}
-              className="inline-flex h-10 items-center gap-2 rounded-full bg-[#25D366] px-3 text-sm font-medium text-black transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 xl:px-4"
+              className="hidden h-10 items-center gap-2 rounded-[10px] bg-[#25D366] px-3 text-sm font-medium text-black transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 lg:inline-flex xl:px-4"
             >
               <WhatsAppIcon className="size-5" />
               <span className="hidden xl:inline">WhatsApp</span>
             </a>
           ) : null}
+          {tabs.length > 1 ? (
+            <button
+              type="button"
+              onClick={() => setMenuOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={menuOpen}
+              className="inline-flex h-9 items-center gap-2 rounded-[10px] border border-white/15 px-3 text-[13px] text-white/85 transition-colors hover:border-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 lg:hidden"
+            >
+              <Menu className="size-4" aria-hidden />
+              {activeTab === "plan" ? copy.menu : copy.tabs[activeTab]}
+            </button>
+          ) : null}
         </div>
       </header>
-
-      {tabs.length > 1 ? (
-        <nav
-          aria-label={copy.nav}
-          className="flex shrink-0 gap-1 overflow-x-auto border-b border-white/10 px-3 py-2 [scrollbar-width:none] lg:hidden"
-        >
-          {tabs.map((t) => tabButton(t, true))}
-        </nav>
-      ) : null}
 
       <main className="relative min-h-0 flex-1">
         {activeTab === "plan" ? (
           <div
             ref={scroller}
             className={cn(
-              "h-full overflow-y-auto lg:flex lg:overflow-hidden",
+              "h-full overflow-y-auto [scrollbar-color:rgba(255,255,255,0.18)_transparent] [scrollbar-width:thin] lg:flex lg:overflow-hidden",
               compared.length > 0 && "pb-28 lg:pb-0",
             )}
           >
             <div
-              className="relative h-[60svh] min-h-[300px] lg:!h-auto lg:min-h-0 lg:flex-1"
-              // Phones: a sequence keeps its format, with room above and below for the buttons.
+              className="relative h-[60svh] min-h-[200px] lg:!h-auto lg:min-h-0 lg:flex-1"
               style={stageHeight ? { height: stageHeight } : undefined}
             >
               <ProgrammeViews
@@ -639,16 +649,16 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
             <aside
               aria-label={copy.lotsTitle}
               className={cn(
-                "lg:flex lg:w-[400px] lg:shrink-0 lg:flex-col lg:overflow-y-auto lg:border-l lg:border-white/10",
+                "lg:flex lg:w-[440px] lg:shrink-0 lg:flex-col lg:overflow-y-auto lg:border-l lg:border-white/10 lg:[scrollbar-color:rgba(255,255,255,0.18)_transparent] lg:[scrollbar-width:thin]",
                 compared.length > 0 && "lg:pb-24",
               )}
             >
-              <LotPanel
-                title={scoped && !allLots ? (currentView?.name ?? null) : null}
+              <Finder
+                viewName={scoped && !allLots ? (currentView?.name ?? null) : null}
                 scoped={scoped ? { showingAll: allLots, total: lots.length } : null}
                 lots={panelLots}
                 shown={panelShown}
-                types={withTypes || typeNames.length > 1 ? typeNames : []}
+                types={typeNames}
                 status={filter}
                 onStatus={setFilter}
                 type={typeFilter}
@@ -666,7 +676,39 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
                 search={search}
                 onSearch={setSearch}
                 range={range}
-              />
+              >
+                {/* Phones have no row of tabs: the other sections follow the lots. */}
+                {tabs.length > 1 ? (
+                  <nav aria-label={copy.nav} className="mt-8 border-t border-white/10 lg:hidden">
+                    <h2 className="px-5 pb-1 pt-6 font-brand text-xl font-medium tracking-tight">
+                      {copy.more}
+                    </h2>
+                    <ul className="divide-y divide-white/[0.07]">
+                      {tabs
+                        .filter((t) => t !== "plan")
+                        .map((t) => {
+                          const Icon = TAB_ICONS[t];
+                          return (
+                            <li key={t}>
+                              <button
+                                type="button"
+                                onClick={() => setTab(t)}
+                                className="flex min-h-14 w-full items-center gap-3 px-5 text-left text-[15px] text-white/85 transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/60"
+                              >
+                                <Icon
+                                  className="size-[18px] text-[color:var(--brand)]"
+                                  aria-hidden
+                                />
+                                <span className="flex-1">{copy.tabs[t]}</span>
+                                <ChevronRight className="size-4 text-white/40" aria-hidden />
+                              </button>
+                            </li>
+                          );
+                        })}
+                    </ul>
+                  </nav>
+                ) : null}
+              </Finder>
               <PoweredBy className="mt-auto px-5 pb-6 pt-8" />
             </aside>
           </div>
@@ -680,7 +722,7 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
             />
             {tours.length > 1 ? (
               <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex justify-center p-3">
-                <div className="pointer-events-auto rounded-full border border-white/10 bg-black/60 p-1 backdrop-blur-md">
+                <div className="pointer-events-auto rounded-[12px] border border-white/10 bg-black/60 p-1 backdrop-blur-md">
                   <Chips
                     label={copy.chooseTour}
                     options={tours.map((t) => ({ value: t.key, label: t.label }))}
@@ -695,7 +737,10 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
         ) : (
           <div
             ref={scroller}
-            className={cn("h-full overflow-y-auto", compared.length > 0 && "pb-28")}
+            className={cn(
+              "h-full overflow-y-auto [scrollbar-color:rgba(255,255,255,0.18)_transparent] [scrollbar-width:thin]",
+              compared.length > 0 && "pb-28",
+            )}
           >
             {activeTab === "programme" ? (
               <>
@@ -736,7 +781,7 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
                         <button
                           type="button"
                           onClick={() => setTab(hasViews ? "plan" : "lots")}
-                          className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-[color:var(--brand)] px-6 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:flex-none"
+                          className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-[10px] bg-[color:var(--brand)] px-6 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:flex-none"
                         >
                           {hasViews ? copy.explore : copy.seeLots}
                           <ArrowRight className="size-4" aria-hidden />
@@ -745,7 +790,7 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
                           <button
                             type="button"
                             onClick={() => setFilm(filmIndex)}
-                            className="inline-flex h-12 items-center gap-2 rounded-full border border-white/25 px-5 text-sm font-medium text-white transition-colors hover:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                            className="inline-flex h-12 items-center gap-2 rounded-[10px] border border-white/25 px-5 text-sm font-medium text-white transition-colors hover:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                           >
                             <Play className="size-4 fill-current" aria-hidden />
                             {copy.film}
@@ -786,7 +831,7 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
                       <button
                         type="button"
                         onClick={() => setVisitOpen(true)}
-                        className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[color:var(--brand)] px-5 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                        className="inline-flex h-11 items-center justify-center gap-2 rounded-[10px] bg-[color:var(--brand)] px-5 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                       >
                         <CalendarCheck className="size-4" aria-hidden />
                         {copy.bookVisit}
@@ -842,7 +887,7 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
                       <select
                         value={sort}
                         onChange={(e) => setSort(e.target.value as LotSort)}
-                        className="h-8 rounded-full border border-white/15 bg-transparent px-3 text-xs text-white/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 [&>option]:bg-[#111]"
+                        className="h-8 rounded-[10px] border border-white/15 bg-transparent px-3 text-xs text-white/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 [&>option]:bg-[#111]"
                       >
                         {LOT_SORTS.map((s) => (
                           <option key={s} value={s}>
@@ -901,7 +946,7 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
                     <button
                       type="button"
                       onClick={() => setFilm(filmIndex)}
-                      className="inline-flex h-10 items-center gap-2 rounded-full border border-white/25 px-4 text-sm text-white transition-colors hover:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                      className="inline-flex h-10 items-center gap-2 rounded-[10px] border border-white/25 px-4 text-sm text-white transition-colors hover:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                     >
                       <Play className="size-4 fill-current" aria-hidden />
                       {copy.film}
@@ -921,6 +966,87 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
           </div>
         )}
       </main>
+
+      <div className="flex shrink-0 items-center gap-2 border-t border-white/10 bg-[#080808] px-4 pb-[max(0.625rem,env(safe-area-inset-bottom))] pt-2.5 lg:hidden">
+        <button
+          type="button"
+          onClick={() => setVisitOpen(true)}
+          className="inline-flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-[10px] bg-[color:var(--brand)] px-5 text-[15px] font-medium text-[color:var(--brand-contrast)] transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+        >
+          <CalendarCheck className="size-[18px]" aria-hidden />
+          {copy.bookVisit}
+        </button>
+        {phone ? (
+          <a
+            href={whatsappHref(phone, whatsappText)}
+            target="_blank"
+            rel="noopener"
+            aria-label={copy.writeWhatsapp}
+            title={copy.writeWhatsapp}
+            className="grid size-12 shrink-0 place-items-center rounded-[10px] bg-[#25D366] text-black transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+          >
+            <WhatsAppIcon className="size-6" />
+          </a>
+        ) : null}
+      </div>
+
+      <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+        <SheetContent
+          side="right"
+          className="w-[min(22rem,88vw)] overflow-y-auto border-white/10 bg-[#0d0d0d] p-0 text-white"
+        >
+          <div className="px-5 pb-2 pt-6">
+            <SheetTitle className="font-brand text-2xl font-medium tracking-tight text-white">
+              {programme.name}
+            </SheetTitle>
+            <SheetDescription className="mt-1 text-sm text-white/55">
+              {[programme.city, programme.organization.name].filter(Boolean).join(" · ")}
+            </SheetDescription>
+          </div>
+          <nav aria-label={copy.nav}>
+            <ul className="divide-y divide-white/[0.07] border-y border-white/[0.07]">
+              {tabs.map((t) => {
+                const Icon = TAB_ICONS[t];
+                const active = activeTab === t;
+                return (
+                  <li key={t}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTab(t);
+                        setMenuOpen(false);
+                      }}
+                      aria-current={active ? "page" : undefined}
+                      className={cn(
+                        "flex min-h-14 w-full items-center gap-3 px-5 text-left text-[15px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/60",
+                        active
+                          ? "bg-white/[0.06] text-white"
+                          : "text-white/80 hover:bg-white/[0.04]",
+                      )}
+                    >
+                      <Icon
+                        className={cn(
+                          "size-[18px]",
+                          active ? "text-[color:var(--brand)]" : "text-white/50",
+                        )}
+                        aria-hidden
+                      />
+                      <span className="flex-1">{copy.tabs[t]}</span>
+                      {active ? (
+                        <span
+                          className="size-1.5 rounded-full bg-[color:var(--brand)]"
+                          aria-hidden
+                        />
+                      ) : null}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+          <PoweredBy className="px-5 py-6" />
+        </SheetContent>
+      </Sheet>
 
       <MediaViewer items={ownVideos} index={film} onIndexChange={setFilm} title={programme.name} />
 
@@ -1046,6 +1172,8 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
         onClear={() => setCompareIds([])}
         onCompare={() => setComparing(true)}
         onShare={() => void shareComparison(programme, compared, locale)}
+        // Phones: above the bar of the page (visit, WhatsApp).
+        className="max-lg:bottom-[5.25rem]"
       />
       <CompareDialog
         lots={compared}

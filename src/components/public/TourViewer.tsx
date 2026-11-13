@@ -69,7 +69,7 @@ const COPY = {
 const ZOOM_STEP = 20;
 
 const control =
-  "grid place-items-center rounded-full bg-black/55 text-white/90 backdrop-blur transition-colors hover:bg-black/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";
+  "grid place-items-center rounded-[10px] bg-black/55 text-white/90 backdrop-blur transition-colors hover:bg-black/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";
 
 function TourStage({
   tour,
@@ -286,7 +286,7 @@ function TourStage({
                   viewerRef.current?.getPlugin<GyroscopePlugin>(GyroscopePlugin).toggle()
                 }
                 className={cn(
-                  "grid size-9 place-items-center rounded-full transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                  "grid size-9 place-items-center rounded-[10px] transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
                   gyro === "on" && "bg-white/20",
                 )}
               >
@@ -309,7 +309,7 @@ function TourStage({
             type="button"
             onClick={onPlan}
             className={cn(
-              "pointer-events-auto inline-flex items-center justify-center gap-2 self-center rounded-full bg-[color:var(--brand)] font-medium text-[color:var(--brand-contrast)] shadow-xl transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:self-end",
+              "pointer-events-auto inline-flex items-center justify-center gap-2 self-center rounded-[10px] bg-[color:var(--brand)] font-medium text-[color:var(--brand-contrast)] shadow-xl transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:self-end",
               inline ? "h-10 px-4 text-xs" : "h-12 px-6 text-sm",
             )}
           >
@@ -321,7 +321,7 @@ function TourStage({
           <div
             role="group"
             aria-label={copy.floors}
-            className="pointer-events-auto flex gap-1.5 self-start rounded-full bg-black/55 p-1 backdrop-blur"
+            className="pointer-events-auto flex gap-1.5 self-start rounded-[12px] bg-black/55 p-1 backdrop-blur"
           >
             {floors.map((f) => {
               const active = f === floor;
@@ -340,7 +340,7 @@ function TourStage({
                     }
                   }}
                   className={cn(
-                    "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                    "inline-flex items-center gap-1.5 whitespace-nowrap rounded-[9px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
                     large
                       ? "h-11 px-5 text-base"
                       : inline
@@ -376,7 +376,7 @@ function TourStage({
                       onClick={() => go.current(r.id)}
                       aria-current={active ? "true" : undefined}
                       className={cn(
-                        "inline-flex h-7 items-center whitespace-nowrap rounded-full border px-3 text-[11px] font-medium backdrop-blur transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                        "inline-flex h-7 items-center whitespace-nowrap rounded-[10px] border px-3 text-[11px] font-medium backdrop-blur transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
                         active
                           ? "border-[color:var(--brand)] bg-[color:var(--brand)] text-[color:var(--brand-contrast)]"
                           : "border-white/20 bg-black/55 text-white/85 hover:border-white/50",
@@ -580,7 +580,7 @@ export function TourInline({
             className="absolute inset-0 h-full w-full object-cover opacity-70"
           />
           <span className="absolute inset-0 grid place-items-center">
-            <span className="inline-flex items-center gap-2 rounded-full bg-black/60 px-4 py-2 text-sm backdrop-blur">
+            <span className="inline-flex items-center gap-2 rounded-[10px] bg-black/60 px-4 py-2 text-sm backdrop-blur">
               <Rotate3d className="size-4" aria-hidden />
               {copy.loading}
             </span>

@@ -194,7 +194,7 @@ export function ToursSection({
                   className="aspect-[2/1] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                   loading="lazy"
                 />
-                <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-black/65 px-3 py-1 text-xs font-medium text-white backdrop-blur">
+                <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-[10px] bg-black/65 px-3 py-1 text-xs font-medium text-white backdrop-blur">
                   <Rotate3d className="size-3.5" aria-hidden />
                   360°
                 </span>

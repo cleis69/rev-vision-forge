@@ -6,6 +6,7 @@ import type { MediaItem } from "@/lib/app/media";
 import { useCopy } from "@/lib/i18n";
 import type { PublicLot } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
+import { WhatsAppIcon } from "./app/parts";
 import { LotDetails, type LotSelling } from "./LotDetails";
 
 const COPY = {
@@ -71,6 +72,8 @@ export function LotSheet({
     if (askVisit) setVisitFor(askVisit.lotId);
   }, [askVisit]);
   const showVisit = Boolean(lot && visitFor === lot.id && actions?.visit);
+  // No visit button in the row (form shown, or lot sold): the other actions get their names.
+  const wideActions = !actions?.visit || showVisit;
   const visitRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!showVisit) return;
@@ -108,38 +111,50 @@ export function LotSheet({
             ) : null}
 
             {actions ? (
-              <div className="sticky bottom-0 flex flex-wrap gap-2 border-t border-white/10 bg-[#0d0d0d]/95 p-4 backdrop-blur">
+              <div className="sticky bottom-0 flex items-center gap-1.5 border-t border-white/10 bg-[#0d0d0d]/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur">
                 {actions.visit && !showVisit ? (
                   <button
                     type="button"
                     onClick={() => setVisitFor(lot.id)}
-                    className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[color:var(--brand)] px-5 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                    className="inline-flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-[10px] bg-[color:var(--brand)] px-4 text-[15px] font-medium text-[color:var(--brand-contrast)] transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                   >
-                    <CalendarCheck className="size-4" aria-hidden />
-                    {copy.visit}
+                    <CalendarCheck
+                      className="hidden size-[18px] shrink-0 min-[420px]:block"
+                      aria-hidden
+                    />
+                    <span className="truncate">{copy.visit}</span>
                   </button>
                 ) : null}
+                {/* With the visit button: three squares; without it, the three share the row, named. */}
                 <button
                   type="button"
                   onClick={actions.onToggleCompare}
                   aria-pressed={actions.compared}
+                  aria-label={actions.compared ? copy.compared : copy.compare}
+                  title={actions.compared ? copy.compared : copy.compare}
                   className={cn(
-                    "inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full border px-4 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                    "inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-[10px] border text-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                    wideActions ? "flex-1 px-3" : "w-11",
                     actions.compared
                       ? "border-[color:var(--brand)] bg-[color:var(--brand)]/15 text-[color:var(--brand)]"
-                      : "border-white/15 text-white/85 hover:border-white/35",
+                      : "border-white/15 text-white/85 hover:border-white/40",
                   )}
                 >
-                  <GitCompareArrows className="size-4" aria-hidden />
-                  {actions.compared ? copy.compared : copy.compare}
+                  <GitCompareArrows className="size-[18px]" aria-hidden />
+                  {wideActions ? (actions.compared ? copy.compared : copy.compare) : null}
                 </button>
                 <button
                   type="button"
                   onClick={actions.onShare}
-                  className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full border border-white/15 px-4 text-sm text-white/85 transition-colors hover:border-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                  aria-label={copy.share}
+                  title={copy.share}
+                  className={cn(
+                    "inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-[10px] border border-white/15 text-sm text-white/85 transition-colors duration-200 hover:border-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                    wideActions ? "flex-1 px-3" : "w-11",
+                  )}
                 >
-                  <Share2 className="size-4" aria-hidden />
-                  {copy.share}
+                  <Share2 className="size-[18px]" aria-hidden />
+                  {wideActions ? copy.share : null}
                 </button>
                 <a
                   href={actions.whatsappUrl}
@@ -147,9 +162,14 @@ export function LotSheet({
                   rel="noopener"
                   onClick={actions.onWhatsApp}
                   aria-label={copy.whatsapp(lot.numero)}
-                  className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full border border-[#25D366]/50 px-4 text-sm text-[#5fe08f] transition-colors hover:border-[#25D366] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                  title={copy.whatsapp(lot.numero)}
+                  className={cn(
+                    "inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-[10px] bg-[#25D366] text-sm font-medium text-black transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                    wideActions ? "flex-1 px-3" : "w-11",
+                  )}
                 >
-                  WhatsApp
+                  <WhatsAppIcon className="size-[22px]" />
+                  {wideActions ? "WhatsApp" : null}
                 </a>
               </div>
             ) : null}

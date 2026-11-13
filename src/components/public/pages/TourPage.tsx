@@ -88,7 +88,7 @@ function Tour({ data, tour, slug }: { data: PublicData; tour: PublicTour; slug: 
   // The programme page opens in a new tab: from an iframe, the promoter's site stays open.
   const pageUrl = `${window.location.origin}${locale === "en" ? "/en" : ""}/p/${slug}`;
   const control =
-    "inline-flex h-11 items-center gap-2 rounded-full bg-black/55 px-3 text-sm text-white/90 backdrop-blur transition-colors hover:bg-black/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:px-4";
+    "inline-flex h-11 items-center gap-2 rounded-[10px] bg-black/55 px-3 text-sm text-white/90 backdrop-blur transition-colors hover:bg-black/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:px-4";
 
   return (
     <Suspense fallback={<Loading label={copy.loading} />}>

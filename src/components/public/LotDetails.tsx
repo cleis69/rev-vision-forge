@@ -218,7 +218,7 @@ export function LotDetails({
           />
         ) : null}
 
-        <dl className="grid grid-cols-3 gap-3">
+        <dl className="divide-y divide-white/[0.07] border-y border-white/[0.07]">
           {lot.surface_habitable !== null ? (
             <Fact
               large={large}
@@ -279,7 +279,7 @@ export function LotDetails({
                 <li
                   key={f}
                   className={cn(
-                    "rounded-full border border-white/10 bg-white/5 text-white/85",
+                    "rounded-[8px] border border-white/10 bg-white/5 text-white/85",
                     large ? "px-4 py-1.5 text-base" : "px-3 py-1 text-sm",
                   )}
                 >
@@ -306,14 +306,12 @@ function Fact({
   children: ReactNode;
 }) {
   return (
-    <div className={cn("rounded-xl border border-white/10 bg-white/[0.03]", large ? "p-4" : "p-3")}>
-      <dt
-        className={cn("flex items-center gap-1.5 text-white/50", large ? "text-sm" : "text-[11px]")}
-      >
+    <div className={cn("flex items-center justify-between gap-4", large ? "py-3.5" : "py-2.5")}>
+      <dt className={cn("flex items-center gap-2 text-white/60", large ? "text-base" : "text-sm")}>
         <span className="text-[color:var(--brand)]">{icon}</span>
         {label}
       </dt>
-      <dd className={cn("mt-1.5 font-medium text-white", large ? "text-xl" : "text-sm")}>
+      <dd className={cn("font-medium tabular-nums text-white", large ? "text-xl" : "text-sm")}>
         {children}
       </dd>
     </div>

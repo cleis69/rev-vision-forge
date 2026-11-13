@@ -46,14 +46,14 @@ export function PaymentPlan({
   const first = plan[0] as PaymentStep;
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03]">
+    <div className="rounded-[10px] border border-white/10 bg-white/[0.03]">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-controls={id}
         className={cn(
-          "flex w-full items-center gap-3 rounded-2xl text-left transition-colors hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+          "flex w-full items-center gap-3 rounded-[10px] text-left transition-colors hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
           large ? "px-5 py-4 text-base" : "px-4 py-3 text-sm",
         )}
       >

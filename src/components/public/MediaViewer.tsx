@@ -100,7 +100,7 @@ export function MediaViewer({
             type="button"
             onClick={() => onIndexChange(null)}
             aria-label={copy.close}
-            className="grid size-10 place-items-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            className="grid size-10 place-items-center rounded-[10px] text-white/80 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >
             <X className="size-5" aria-hidden />
           </button>
@@ -176,7 +176,7 @@ function Arrow({ side, onClick }: { side: "left" | "right"; onClick: () => void 
       onClick={onClick}
       aria-label={side === "left" ? copy.previous : copy.next}
       className={cn(
-        "absolute top-1/2 hidden size-12 -translate-y-1/2 place-items-center rounded-full bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:grid",
+        "absolute top-1/2 hidden size-12 -translate-y-1/2 place-items-center rounded-[10px] bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:grid",
         side === "left" ? "left-3" : "right-3",
       )}
     >

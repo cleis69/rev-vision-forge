@@ -52,7 +52,7 @@ export function LotUnavailable({
     <div className="space-y-4">
       {alertForm ? (
         asking ? (
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+          <div className="rounded-[10px] border border-white/10 bg-white/[0.03] p-4">
             <p className="mb-4 flex items-center gap-2 text-sm font-medium">
               <BellRing className="size-4 text-[color:var(--brand)]" aria-hidden />
               {copy.notifyTitle(lot.numero)}
@@ -64,7 +64,7 @@ export function LotUnavailable({
             type="button"
             onClick={() => setAsking(true)}
             className={cn(
-              "inline-flex w-full items-center justify-center gap-2 rounded-full border border-[color:var(--brand)] font-medium text-[color:var(--brand)] transition-colors hover:bg-[color:var(--brand)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+              "inline-flex w-full items-center justify-center gap-2 rounded-[10px] border border-[color:var(--brand)] font-medium text-[color:var(--brand)] transition-colors hover:bg-[color:var(--brand)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
               large ? "h-14 text-base" : "h-11 text-sm",
             )}
           >
@@ -113,12 +113,12 @@ export function LotUnavailable({
                       type="button"
                       onClick={() => onPick(other)}
                       aria-label={copy.open(other.numero)}
-                      className="flex w-full items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-left transition-colors hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                      className="flex w-full items-center gap-3 rounded-[10px] border border-white/10 bg-white/[0.03] px-4 py-3 text-left transition-colors hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                     >
                       {body}
                     </button>
                   ) : (
-                    <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+                    <div className="flex items-center gap-3 rounded-[10px] border border-white/10 bg-white/[0.03] px-4 py-3">
                       {body}
                     </div>
                   )}

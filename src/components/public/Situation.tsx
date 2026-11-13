@@ -50,7 +50,7 @@ export function Situation({ programme }: { programme: PublicProgramme }) {
   const where = address ?? city;
   const route = directions({ position, address: where });
   const button =
-    "inline-flex h-12 items-center gap-2 rounded-full px-6 text-sm font-medium transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";
+    "inline-flex h-12 items-center gap-2 rounded-[10px] px-6 text-sm font-medium transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_1.35fr]">

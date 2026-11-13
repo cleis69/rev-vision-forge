@@ -63,7 +63,7 @@ export function LotSearchButton({
       onClick={onToggle}
       aria-expanded={open}
       className={cn(
-        "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-3 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+        "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-[10px] border px-3 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
         active || open
           ? "border-[color:var(--brand)] text-[color:var(--brand)]"
           : "border-white/15 text-white/75 hover:border-white/35 hover:text-white",
@@ -160,7 +160,7 @@ export function LotSearchFields({
                   aria-pressed={active}
                   onClick={() => onSearch({ ...search, minBedrooms: n })}
                   className={cn(
-                    "h-8 min-w-12 rounded-full border px-3 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                    "h-8 min-w-12 rounded-[10px] border px-3 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
                     active
                       ? "border-white bg-white text-black"
                       : "border-white/15 text-white/75 hover:border-white/35",
@@ -179,7 +179,7 @@ export function LotSearchFields({
           <button
             type="button"
             onClick={() => onSearch(NO_SEARCH)}
-            className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-white/60 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            className="inline-flex items-center gap-1 rounded-[10px] px-2 py-1 text-white/60 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >
             <X className="size-3.5" aria-hidden />
             {copy.clear}

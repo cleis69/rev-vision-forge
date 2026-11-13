@@ -114,7 +114,7 @@ export function ProgrammeViews({
     : undefined;
   const button = (active: boolean) =>
     cn(
-      "inline-flex shrink-0 items-center gap-2 rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+      "inline-flex shrink-0 items-center gap-2 rounded-[10px] border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
       large ? "h-12 px-5 text-base" : "h-9 px-4 text-sm",
       active
         ? "border-[color:var(--brand)] bg-[color:var(--brand)] text-[color:var(--brand-contrast)]"
@@ -200,7 +200,7 @@ export function ProgrammeViews({
                   onClick={() => pick(v.id)}
                   className={cn(
                     "group shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
-                    "inline-flex h-9 items-center rounded-full border px-4 text-sm backdrop-blur-md",
+                    "inline-flex h-9 items-center rounded-[10px] border px-4 text-sm backdrop-blur-md",
                     active
                       ? "border-[color:var(--brand)] bg-[color:var(--brand)] text-[color:var(--brand-contrast)]"
                       : "border-white/15 bg-black/55 text-white/85",

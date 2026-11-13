@@ -244,7 +244,7 @@ export default function AerialViewer({
               type="button"
               onClick={toggleFull}
               aria-label={full ? copy.exitFullscreen : copy.fullscreen}
-              className="grid size-9 place-items-center rounded-full transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+              className="grid size-9 place-items-center rounded-[10px] transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
             >
               {full ? (
                 <Minimize className="size-4" aria-hidden />

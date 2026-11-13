@@ -46,7 +46,7 @@ export function useCameraMove({
   enabled: boolean;
   /** Where the Skip button sits, clear of the buttons laid over the view. */
   skipClassName?: string;
-  /** How the view under it sits in the box: the video ends on exactly the same picture. */
+  /** Where the view under it draws its image: the video takes the same place, and ends on the same picture. */
   fit?: ViewFit | null;
 }) {
   const copy = useCopy(COPY);
@@ -129,9 +129,9 @@ export function useCameraMove({
       // A tap on the video skips it too.
       onClick={end}
       className={cn(
-        "absolute inset-0 z-[5] transition-opacity ease-out",
-        // A view shown whole has blurred bands of its own: the video lets them show.
-        fit && !fit.cover ? "bg-transparent" : "bg-black",
+        "absolute inset-0 z-[5] overflow-hidden transition-opacity ease-out",
+        // Over the image of the view only: what the view shows around it stays in sight.
+        fit ? "bg-transparent" : "bg-black",
         leaving && "pointer-events-none opacity-0",
       )}
       style={{ transitionDuration: `${FADE_MS}ms` }}
@@ -148,12 +148,14 @@ export function useCameraMove({
         onPlaying={() => window.clearTimeout(guard.current)}
         onEnded={end}
         onError={end}
-        className={cn("h-full w-full", fit && !fit.cover ? "object-contain" : "object-cover")}
+        className={cn("object-cover", fit ? "absolute left-0 top-0 max-w-none" : "h-full w-full")}
         style={
-          fit?.cover
+          fit
             ? {
-                objectPosition: `${fit.x * 100}% ${fit.y * 100}%`,
-                transition: "object-position 500ms ease-out",
+                width: fit.width,
+                height: fit.height,
+                transform: `translate(${fit.left}px, ${fit.top}px)`,
+                transition: "transform 500ms ease-out",
               }
             : undefined
         }
@@ -162,7 +164,7 @@ export function useCameraMove({
         type="button"
         onClick={end}
         className={cn(
-          "absolute inline-flex h-9 items-center gap-1.5 rounded-full border border-white/15 bg-black/55 px-3.5 text-xs font-medium text-white/85 backdrop-blur transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+          "absolute inline-flex h-9 items-center gap-1.5 rounded-[10px] border border-white/15 bg-black/55 px-3.5 text-xs font-medium text-white/85 backdrop-blur transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
           skipClassName ?? "right-4 top-4",
         )}
       >

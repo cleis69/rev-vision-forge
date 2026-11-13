@@ -261,7 +261,7 @@ export function VisitForm({
       {failure ? (
         <p
           role="alert"
-          className="rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+          className="rounded-[10px] border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
         >
           {failure}
         </p>
@@ -270,7 +270,7 @@ export function VisitForm({
       <button
         type="submit"
         disabled={state === "sending" || preview}
-        className="inline-flex h-12 w-full items-center justify-center rounded-full bg-[color:var(--brand)] px-6 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+        className="inline-flex h-12 w-full items-center justify-center rounded-[10px] bg-[color:var(--brand)] px-6 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
       >
         {state === "sending" ? copy.sending : (submitLabel ?? copy.submit)}
       </button>
@@ -308,7 +308,7 @@ export function VisitForm({
 }
 
 const inputClass =
-  "h-12 w-full rounded-xl border border-white/15 bg-white/[0.04] px-4 text-base text-white placeholder:text-white/30 focus:border-white/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 aria-[invalid]:border-red-400/70";
+  "h-12 w-full rounded-[10px] border border-white/15 bg-white/[0.04] px-4 text-base text-white placeholder:text-white/30 focus:border-white/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 aria-[invalid]:border-red-400/70";
 
 function Field({
   id,

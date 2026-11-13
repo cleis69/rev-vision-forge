@@ -107,7 +107,7 @@ export function PublicLoading({ className }: { className?: string }) {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/40 to-[#080808]/60" />
           <div className="absolute inset-x-0 bottom-10 grid place-items-center">
-            <span className="inline-flex items-center gap-3 rounded-full bg-black/55 px-4 py-2 text-xs text-white/80 backdrop-blur">
+            <span className="inline-flex items-center gap-3 rounded-[10px] bg-black/55 px-4 py-2 text-xs text-white/80 backdrop-blur">
               <span className="size-3.5 animate-spin rounded-full border-2 border-white/25 border-t-white motion-reduce:animate-none" />
               {locale === "fr" ? "Chargement du programme…" : "Loading the programme…"}
             </span>
@@ -208,7 +208,7 @@ export function StatusFilters({
             aria-pressed={active}
             onClick={() => onChange(o.status)}
             className={cn(
-              "inline-flex shrink-0 items-center gap-2 rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+              "inline-flex shrink-0 items-center gap-2 rounded-[10px] border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
               large
                 ? "h-12 px-5 text-base"
                 : small
@@ -254,7 +254,7 @@ export function LanguageSwitch({
       role="group"
       aria-label={locale === "fr" ? "Langue" : "Language"}
       className={cn(
-        "inline-flex shrink-0 items-center rounded-full border border-white/15 p-0.5",
+        "inline-flex shrink-0 items-center rounded-[10px] border border-white/15 p-0.5",
         className,
       )}
     >
@@ -275,7 +275,7 @@ export function LanguageSwitch({
               if (!active) void navigate({ href, replace: true, resetScroll: false });
             }}
             className={cn(
-              "grid place-items-center rounded-full font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+              "grid place-items-center rounded-[9px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
               large ? "h-10 min-w-12 px-3 text-sm" : "h-7 min-w-9 px-2 text-xs",
               active ? "bg-white text-black" : "text-white/65 hover:text-white",
             )}

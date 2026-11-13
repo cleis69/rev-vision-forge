@@ -174,7 +174,7 @@ function EmbeddedPlan({ data, slug }: { data: PublicData; slug: string }) {
   const shown = filter ? lots.filter((l) => l.statut === filter) : lots;
   const followers = useLotFollowers(programme.id, !preview);
   const button =
-    "inline-flex h-11 items-center justify-center gap-2 rounded-full border border-white/15 px-4 text-sm text-white/85 transition-colors hover:border-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";
+    "inline-flex h-11 items-center justify-center gap-2 rounded-[10px] border border-white/15 px-4 text-sm text-white/85 transition-colors hover:border-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";
 
   return (
     <div className="space-y-4 p-3 sm:p-4">
@@ -227,7 +227,7 @@ function EmbeddedPlan({ data, slug }: { data: PublicData; slug: string }) {
             type="button"
             onClick={() => setSelectedId(null)}
             aria-label={copy.closeLot(lot.numero)}
-            className="absolute right-3 top-3 z-10 grid size-10 place-items-center rounded-full bg-black/60 text-white/85 backdrop-blur transition-colors hover:bg-black/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            className="absolute right-3 top-3 z-10 grid size-10 place-items-center rounded-[10px] bg-black/60 text-white/85 backdrop-blur transition-colors hover:bg-black/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >
             <X className="size-5" aria-hidden />
           </button>
@@ -299,7 +299,7 @@ function EmbeddedPlan({ data, slug }: { data: PublicData; slug: string }) {
               <button
                 type="button"
                 onClick={() => setVisitFor(lot.id)}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[color:var(--brand)] px-5 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-[10px] bg-[color:var(--brand)] px-5 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
               >
                 <CalendarCheck className="size-4" aria-hidden />
                 {copy.visit}

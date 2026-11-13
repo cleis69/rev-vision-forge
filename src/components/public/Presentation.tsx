@@ -163,7 +163,7 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
           <button
             type="button"
             onClick={() => setPanel({ kind: "contact" })}
-            className="inline-flex h-12 items-center gap-2 rounded-full border border-white/20 px-5 text-base text-white transition-colors hover:border-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            className="inline-flex h-12 items-center gap-2 rounded-[10px] border border-white/20 px-5 text-base text-white transition-colors hover:border-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >
             <ClipboardList className="size-5" aria-hidden />
             {copy.takeDetails}
@@ -174,7 +174,7 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
               onClick={fullscreen.toggle}
               aria-label={fullscreen.active ? copy.exitFullscreen : copy.fullscreen}
               title={fullscreen.active ? copy.exitFullscreen : copy.fullscreen}
-              className="grid size-12 place-items-center rounded-full border border-white/20 text-white/85 transition-colors hover:border-white/50 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+              className="grid size-12 place-items-center rounded-[10px] border border-white/20 text-white/85 transition-colors hover:border-white/50 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
             >
               {fullscreen.active ? (
                 <Minimize className="size-5" aria-hidden />
@@ -189,7 +189,7 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
             search={{}}
             aria-label={copy.exit}
             title={copy.exit}
-            className="grid size-12 place-items-center rounded-full text-white/50 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            className="grid size-12 place-items-center rounded-[10px] text-white/50 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >
             <X className="size-5" aria-hidden />
           </Link>
@@ -240,7 +240,7 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
                 <button
                   type="button"
                   onClick={() => setPanel({ ...panel, contact: true })}
-                  className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-full bg-[color:var(--brand)] px-6 text-lg font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                  className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-[10px] bg-[color:var(--brand)] px-6 text-lg font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                 >
                   <ClipboardList className="size-5" aria-hidden />
                   {copy.takeDetails}
@@ -352,7 +352,7 @@ function SidePanel({
           ref={close}
           type="button"
           onClick={onClose}
-          className="inline-flex h-12 items-center gap-2 rounded-full border border-white/15 px-5 text-base text-white/85 transition-colors hover:border-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+          className="inline-flex h-12 items-center gap-2 rounded-[10px] border border-white/15 px-5 text-base text-white/85 transition-colors hover:border-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
         >
           <X className="size-5" aria-hidden />
           {copy.close}

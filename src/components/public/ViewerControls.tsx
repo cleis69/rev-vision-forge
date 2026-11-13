@@ -29,7 +29,7 @@ export function ViewerControls({
 }) {
   const copy = useCopy(COPY);
   const button = cn(
-    "grid place-items-center rounded-full transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+    "grid place-items-center rounded-[9px] transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
     large ? "size-11" : "size-9",
   );
   return (
@@ -37,7 +37,7 @@ export function ViewerControls({
       role="group"
       aria-label="Zoom"
       className={cn(
-        "flex items-center gap-0.5 rounded-full border border-white/15 bg-black/65 p-1 text-white shadow-lg backdrop-blur",
+        "flex items-center gap-0.5 rounded-[12px] border border-white/15 bg-black/65 p-1 text-white shadow-lg backdrop-blur",
         className,
       )}
     >

@@ -79,6 +79,7 @@ export function CompareBar({
   onClear,
   onCompare,
   onShare,
+  className,
 }: {
   lots: PublicLot[];
   onRemove: (lot: PublicLot) => void;
@@ -86,6 +87,8 @@ export function CompareBar({
   onCompare: () => void;
   /** Sends the comparison as a link (to the family, on WhatsApp…). */
   onShare?: () => void;
+  /** Where the bar sits when the page has a bar of its own at the foot. */
+  className?: string;
 }) {
   const copy = useCopy(COPY);
   if (lots.length === 0) return null;
@@ -93,7 +96,10 @@ export function CompareBar({
     <div
       role="region"
       aria-label={copy.region}
-      className="fixed inset-x-3 bottom-3 z-40 mx-auto flex max-w-2xl flex-wrap items-center gap-2 rounded-2xl border border-white/15 bg-[#111]/95 p-2.5 pl-4 text-white shadow-2xl backdrop-blur-xl sm:bottom-5"
+      className={cn(
+        "fixed inset-x-3 bottom-3 z-40 mx-auto flex max-w-2xl flex-wrap items-center gap-2 rounded-2xl border border-white/15 bg-[#111]/95 p-2.5 pl-4 text-white shadow-2xl backdrop-blur-xl sm:bottom-5",
+        className,
+      )}
     >
       <span className="mr-1 text-xs text-white/55">
         {copy.picked} · {lots.length}/{MAX_COMPARE}
@@ -105,7 +111,7 @@ export function CompareBar({
               type="button"
               onClick={() => onRemove(lot)}
               aria-label={copy.remove(lot.numero)}
-              className="inline-flex h-8 items-center gap-1 rounded-full border border-white/15 bg-white/5 pl-3 pr-2 text-sm hover:border-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+              className="inline-flex h-8 items-center gap-1 rounded-[10px] border border-white/15 bg-white/5 pl-3 pr-2 text-sm hover:border-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
             >
               Lot {lot.numero}
               <X className="size-3.5 text-white/60" aria-hidden />
@@ -117,7 +123,7 @@ export function CompareBar({
         <button
           type="button"
           onClick={onClear}
-          className="h-9 rounded-full px-3 text-sm text-white/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+          className="h-9 rounded-[10px] px-3 text-sm text-white/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
         >
           {copy.clear}
         </button>
@@ -127,7 +133,7 @@ export function CompareBar({
             onClick={onShare}
             aria-label={copy.share}
             title={copy.share}
-            className="grid size-9 place-items-center rounded-full border border-white/15 text-white/80 transition-colors hover:border-white/40 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            className="grid size-9 place-items-center rounded-[10px] border border-white/15 text-white/80 transition-colors hover:border-white/40 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >
             <Share2 className="size-4" aria-hidden />
           </button>
@@ -137,7 +143,7 @@ export function CompareBar({
           onClick={onCompare}
           disabled={lots.length < 2}
           title={lots.length < 2 ? copy.atLeastTwo : undefined}
-          className="h-9 rounded-full bg-[color:var(--brand)] px-4 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+          className="h-9 rounded-[10px] bg-[color:var(--brand)] px-4 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity hover:opacity-90 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
         >
           {lots.length < 2 ? copy.addSecond : copy.compare(lots.length)}
         </button>

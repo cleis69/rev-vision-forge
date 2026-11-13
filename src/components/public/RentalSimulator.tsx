@@ -61,14 +61,14 @@ export function RentalSimulator({
   const rate = (r: number) => text.number(r);
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03]">
+    <div className="rounded-[10px] border border-white/10 bg-white/[0.03]">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-controls={id}
         className={cn(
-          "flex w-full items-center gap-3 rounded-2xl text-left transition-colors hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+          "flex w-full items-center gap-3 rounded-[10px] text-left transition-colors hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
           large ? "px-5 py-4 text-base" : "px-4 py-3 text-sm",
         )}
       >
@@ -99,7 +99,7 @@ export function RentalSimulator({
                   const value = Number(e.target.value.replace(",", "."));
                   if (Number.isFinite(value) && value >= 0) setNightly(Math.min(1e7, value));
                 }}
-                className="h-8 w-28 rounded-full border border-white/15 bg-transparent px-3 text-right text-sm tabular-nums text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                className="h-8 w-28 rounded-[10px] border border-white/15 bg-transparent px-3 text-right text-sm tabular-nums text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
               />
               {currency}
             </span>
@@ -138,7 +138,7 @@ export function RentalSimulator({
               className="mt-2 w-full accent-[color:var(--brand)]"
             />
           </label>
-          <div className="rounded-xl bg-white/[0.05] p-4">
+          <div className="rounded-[10px] bg-white/[0.05] p-4">
             <p className="text-xs text-white/60">{copy.netYield}</p>
             <p className="mt-1 font-brand text-2xl font-medium tabular-nums tracking-tight">
               {rate(result.netYield)} %

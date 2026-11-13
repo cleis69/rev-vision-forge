@@ -151,7 +151,7 @@ export function LotCards({
                 aria-pressed={compared}
                 aria-label={copy.toggle(compared, lot.numero)}
                 className={cn(
-                  "absolute bottom-3.5 right-3.5 inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:bottom-4 sm:right-4",
+                  "absolute bottom-3.5 right-3.5 inline-flex h-8 items-center gap-1.5 rounded-[10px] border px-3 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:bottom-4 sm:right-4",
                   compared
                     ? "border-[color:var(--brand)] bg-[color:var(--brand)]/15 text-[color:var(--brand)]"
                     : "border-white/15 bg-[#0b0b0b]/60 text-white/60 hover:border-white/35 hover:text-white",

@@ -88,7 +88,7 @@ export function Gallery({ items, name }: { items: MediaItem[]; name: string }) {
                   setAll(false);
                 }}
                 className={cn(
-                  "inline-flex h-9 shrink-0 items-center gap-2 rounded-full border px-4 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                  "inline-flex h-9 shrink-0 items-center gap-2 rounded-[10px] border px-4 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
                   active
                     ? "border-white bg-white text-black"
                     : "border-white/15 text-white/75 hover:border-white/35 hover:text-white",
@@ -140,7 +140,7 @@ export function Gallery({ items, name }: { items: MediaItem[]; name: string }) {
           <button
             type="button"
             onClick={() => setAll(true)}
-            className="inline-flex h-11 items-center rounded-full border border-white/20 px-6 text-sm font-medium text-white transition-colors hover:border-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            className="inline-flex h-11 items-center rounded-[10px] border border-white/20 px-6 text-sm font-medium text-white transition-colors hover:border-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >
             {copy.all(shown.length)}
           </button>

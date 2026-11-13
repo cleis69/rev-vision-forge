@@ -115,12 +115,15 @@ export function LotDetails({
     <article className={cn(split && photos.length > 0 && "md:grid md:grid-cols-2")}>
       {photos.length > 0 ? (
         <div
-          className={cn("flex snap-x snap-mandatory overflow-x-auto", split && "md:self-start")}
+          className={cn(
+            "flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none]",
+            split && "md:self-start",
+          )}
           aria-label={copy.photos(lot.numero)}
           role="region"
           tabIndex={0}
         >
-          {photos.map((photo) => {
+          {photos.map((photo, i) => {
             const image = mediaImage(photo);
             return (
               <figure
@@ -140,6 +143,11 @@ export function LotDetails({
                   loading="lazy"
                   className="absolute inset-0 h-full w-full object-cover"
                 />
+                {photos.length > 1 ? (
+                  <span className="absolute left-3 top-3 rounded-md bg-black/65 px-2 py-1 text-[11px] font-medium tabular-nums text-white backdrop-blur">
+                    {i + 1} / {photos.length}
+                  </span>
+                ) : null}
                 {image.caption ? (
                   <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-4 pb-3 pt-8 text-xs text-white/85">
                     {image.caption}
@@ -188,36 +196,6 @@ export function LotDetails({
           ) : null}
         </div>
 
-        {extra}
-
-        {lot.statut !== "disponible" && selling?.unavailable ? selling.unavailable : null}
-
-        {lot.prix !== null && lot.statut !== "vendue" ? (
-          <LoanSimulator price={lot.prix} currency={currency} large={large} />
-        ) : null}
-
-        {selling && lot.statut !== "vendue" ? (
-          <PaymentPlan
-            plan={selling.paymentPlan}
-            note={selling.paymentNote}
-            price={lot.prix}
-            currency={currency}
-            large={large}
-          />
-        ) : null}
-
-        {selling &&
-        selling.rental.nightly !== null &&
-        lot.prix !== null &&
-        lot.statut !== "vendue" ? (
-          <RentalSimulator
-            price={lot.prix}
-            currency={currency}
-            rental={{ ...selling.rental, nightly: selling.rental.nightly }}
-            large={large}
-          />
-        ) : null}
-
         <dl className="divide-y divide-white/[0.07] border-y border-white/[0.07]">
           {lot.surface_habitable !== null ? (
             <Fact
@@ -257,6 +235,36 @@ export function LotDetails({
             </Fact>
           ) : null}
         </dl>
+
+        {extra}
+
+        {lot.statut !== "disponible" && selling?.unavailable ? selling.unavailable : null}
+
+        {lot.prix !== null && lot.statut !== "vendue" ? (
+          <LoanSimulator price={lot.prix} currency={currency} large={large} />
+        ) : null}
+
+        {selling && lot.statut !== "vendue" ? (
+          <PaymentPlan
+            plan={selling.paymentPlan}
+            note={selling.paymentNote}
+            price={lot.prix}
+            currency={currency}
+            large={large}
+          />
+        ) : null}
+
+        {selling &&
+        selling.rental.nightly !== null &&
+        lot.prix !== null &&
+        lot.statut !== "vendue" ? (
+          <RentalSimulator
+            price={lot.prix}
+            currency={currency}
+            rental={{ ...selling.rental, nightly: selling.rental.nightly }}
+            large={large}
+          />
+        ) : null}
 
         {lot.description ? (
           <p
@@ -308,7 +316,7 @@ function Fact({
   return (
     <div className={cn("flex items-center justify-between gap-4", large ? "py-3.5" : "py-2.5")}>
       <dt className={cn("flex items-center gap-2 text-white/60", large ? "text-base" : "text-sm")}>
-        <span className="text-[color:var(--brand)]">{icon}</span>
+        <span className="text-white/40">{icon}</span>
         {label}
       </dt>
       <dd className={cn("font-medium tabular-nums text-white", large ? "text-xl" : "text-sm")}>

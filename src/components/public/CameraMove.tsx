@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { SkipForward } from "lucide-react";
 
 import { mediaVideo, type MediaItem } from "@/lib/app/media";
-import type { ViewFit } from "./OrbitViewer";
+import { edgeFade, type ViewFit } from "./OrbitViewer";
 import { useCopy } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -156,6 +156,7 @@ export function useCameraMove({
                 height: fit.height,
                 transform: `translate(${fit.left}px, ${fit.top}px)`,
                 transition: "transform 500ms ease-out",
+                ...edgeFade(fit),
               }
             : undefined
         }

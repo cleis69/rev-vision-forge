@@ -394,10 +394,11 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
   useFollowLot(data, lot, setViewKey);
   const currentView = data.views.find((v) => v.id === viewKey) ?? null;
   const firstFrame = currentView?.orbit?.frames[0];
-  // Phones: the view at the format of its images, with room for the buttons of the other views.
+  // Phones: the view at the format of its images (with room for the buttons of the other views),
+  // never more than 46 % of the height: wider screens crop it on the lots and keep lines in sight.
   const stageHeight =
     !wide && firstFrame
-      ? `calc(100vw * ${(firstFrame.height / firstFrame.width).toFixed(4)}${data.views.length > 1 ? " + 4rem" : ""})`
+      ? `min(calc(100vw * ${(firstFrame.height / firstFrame.width).toFixed(4)}${data.views.length > 1 ? " + 4rem" : ""}), 46svh)`
       : null;
 
   /* ----- filters, shared by the list beside the view and the Lots tab */
@@ -560,9 +561,16 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
             <h1 className="truncate font-brand text-base font-medium leading-tight tracking-tight sm:text-lg">
               {programme.name}
             </h1>
-            {programme.city || !programme.organization.logo ? (
+            {programme.city ||
+            (!programme.organization.logo && programme.organization.slug !== "rev") ? (
               <p className="truncate text-[11px] leading-tight text-white/50">
-                {[programme.city, programme.organization.logo ? null : programme.organization.name]
+                {[
+                  programme.city,
+                  // REV's mark is in the bar already.
+                  programme.organization.logo || programme.organization.slug === "rev"
+                    ? null
+                    : programme.organization.name,
+                ]
                   .filter(Boolean)
                   .join(" · ")}
               </p>
@@ -580,7 +588,7 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
         <div className="ml-auto flex shrink-0 items-center gap-2 lg:ml-0">
           {/* REV's own programmes carry its logo already, when they have one. */}
           {programme.organization.slug !== "rev" || !programme.organization.logo ? (
-            <RevBadge size="sm" className="hidden sm:inline-flex" />
+            <RevBadge size="sm" />
           ) : null}
           <LanguageSwitch />
           <button
@@ -588,10 +596,10 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
             onClick={() => setVisitOpen(true)}
             aria-label={copy.bookVisit}
             title={copy.bookVisit}
-            className="hidden h-10 items-center gap-2 rounded-[10px] border border-white/20 px-3 text-sm text-white transition-colors hover:border-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 lg:inline-flex 2xl:px-4"
+            className="hidden h-10 items-center gap-2 rounded-[10px] bg-[color:var(--brand)] px-3 text-sm font-medium text-[color:var(--brand-contrast)] transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 lg:inline-flex xl:px-4"
           >
             <CalendarCheck className="size-4" aria-hidden />
-            <span className="hidden 2xl:inline">{copy.bookVisit}</span>
+            <span className="hidden xl:inline">{copy.bookVisit}</span>
           </button>
           {phone ? (
             <a
@@ -600,10 +608,10 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
               rel="noopener"
               aria-label={copy.writeWhatsapp}
               title={copy.writeWhatsapp}
-              className="hidden h-10 items-center gap-2 rounded-[10px] bg-[#25D366] px-3 text-sm font-medium text-black transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 lg:inline-flex xl:px-4"
+              className="hidden h-10 items-center gap-2 rounded-[10px] bg-[#25D366] px-3 text-sm font-medium text-black transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 lg:inline-flex 2xl:px-4"
             >
               <WhatsAppIcon className="size-5" />
-              <span className="hidden xl:inline">WhatsApp</span>
+              <span className="hidden 2xl:inline">WhatsApp</span>
             </a>
           ) : null}
           {tabs.length > 1 ? (
@@ -669,7 +677,6 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
                 highlight={highlight}
                 activeId={lot?.id ?? null}
                 compareIds={compareIds}
-                onToggleCompare={toggleCompare}
                 onHover={setHovered}
                 onOpen={(l) => open(l, "list")}
                 onToggleScope={() => setAllLots((v) => !v)}

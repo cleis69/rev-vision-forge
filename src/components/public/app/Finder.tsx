@@ -1,5 +1,5 @@
 import { useId, useState, type ReactNode } from "react";
-import { ArrowDownUp, GitCompareArrows, Plus, X } from "lucide-react";
+import { ArrowDownUp, ChevronRight, GitCompareArrows, Plus, X } from "lucide-react";
 
 import { priceLabel } from "@/components/public/status";
 import { LOT_STATUSES, type LotStatus } from "@/lib/app/lot-fields";
@@ -7,6 +7,7 @@ import { useCopy } from "@/lib/i18n";
 import { aLot, countLots, lotNoun, roundStep, shortType } from "@/lib/public/finder";
 import { usePublicText } from "@/lib/public/i18n";
 import {
+  filterLots,
   isSearching,
   LOT_SORTS,
   NO_SEARCH,
@@ -65,8 +66,7 @@ const COPY = {
     showAll: (n: number) => `Voir les ${n} lots du programme`,
     onlyView: "Seulement ceux de cette vue",
     bedroomsShort: (n: number) => `${n} ch.`,
-    compare: (numero: string, on: boolean) =>
-      `${on ? "Retirer du" : "Ajouter au"} comparateur : lot ${numero}`,
+    compared: "Dans votre comparaison",
     onRequestShort: "Sur demande",
   },
   en: {
@@ -107,8 +107,7 @@ const COPY = {
     showAll: (n: number) => `See all ${n} lots of the programme`,
     onlyView: "Only those of this view",
     bedroomsShort: (n: number) => `${n} bed.`,
-    compare: (numero: string, on: boolean) =>
-      `${on ? "Remove from" : "Add to"} comparison: lot ${numero}`,
+    compared: "In your comparison",
     onRequestShort: "On request",
   },
 };
@@ -148,7 +147,6 @@ export function Finder({
   highlight,
   activeId,
   compareIds,
-  onToggleCompare,
   onHover,
   onOpen,
   onToggleScope,
@@ -176,8 +174,8 @@ export function Finder({
   currency: string;
   highlight: ReadonlySet<string>;
   activeId: string | null;
+  /** Lots of the comparison: marked on their line (the sheet of a lot adds and removes them). */
   compareIds: string[];
-  onToggleCompare: (lot: PublicLot) => void;
   onHover: (lotId: string | null) => void;
   onOpen: (lot: PublicLot) => void;
   onToggleScope: () => void;
@@ -211,12 +209,15 @@ export function Finder({
   };
   const narrowed = set.type || isSearching(search) || status !== null;
 
+  // The statuses count what the sentence keeps (not the status chosen itself): they add up to it.
+  const kept = filterLots(lots, { status: null, type, search });
   const counts = Object.fromEntries(
-    LOT_STATUSES.map((s) => [s, lots.filter((l) => l.statut === s).length]),
+    LOT_STATUSES.map((s) => [s, kept.filter((l) => l.statut === s).length]),
   ) as Record<LotStatus, number>;
-  const present = LOT_STATUSES.filter((s) => counts[s] > 0);
+  const present = LOT_STATUSES.filter((s) => counts[s] > 0 || status === s);
   // Prices on request for every lot still for sale: said once, not on each line.
   const priced = lots.some((l) => l.statut !== "vendue" && l.prix !== null);
+  const onRequest = !priced && lots.some((l) => l.statut !== "vendue");
 
   const clause: Record<Word, string | null> = {
     type: offers.type ? (type === null ? copy.anyType : copy.ofType(shortType(type, noun))) : null,
@@ -392,8 +393,8 @@ export function Finder({
         <div className="flex items-center justify-between gap-3">
           <p className="flex min-w-0 items-baseline gap-2 text-sm font-medium" aria-live="polite">
             <span className="relative flex size-2 shrink-0 translate-y-[-1px]" title={copy.live}>
-              <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400/60 motion-reduce:animate-none" />
-              <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-[color:var(--brand)]/60 motion-reduce:animate-none" />
+              <span className="relative inline-flex size-2 rounded-full bg-[color:var(--brand)]" />
               <span className="sr-only">{copy.live}</span>
             </span>
             <span
@@ -409,9 +410,6 @@ export function Finder({
                   )
                 : countLots(noun, lots.length, locale)}
               {viewName ? <span className="font-normal text-white/55"> · {viewName}</span> : null}
-              {!priced && lots.some((l) => l.statut !== "vendue") ? (
-                <span className="font-normal text-white/55"> · {text.onRequest}</span>
-              ) : null}
             </span>
           </p>
           <div className="flex shrink-0 items-center gap-1">
@@ -438,8 +436,8 @@ export function Finder({
           </div>
         </div>
 
-        {present.length > 1 || narrowed ? (
-          <div className="mt-1.5 flex items-center justify-between gap-3">
+        {present.length > 1 || narrowed || onRequest ? (
+          <div className="mt-1.5 flex min-h-8 items-center justify-between gap-3">
             {present.length > 1 ? (
               <div
                 role="group"
@@ -465,7 +463,7 @@ export function Finder({
                 ))}
               </div>
             ) : (
-              <span />
+              <span className="text-xs text-white/55">{onRequest ? text.onRequest : null}</span>
             )}
             {narrowed ? (
               <button
@@ -509,11 +507,11 @@ export function Finder({
                   onMouseEnter={() => onHover(lot.id)}
                   onFocus={() => onHover(lot.id)}
                   onBlur={() => onHover(null)}
-                  className="flex min-h-[68px] min-w-0 flex-1 items-center gap-3 py-3 pl-5 pr-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/60 lg:pl-6"
+                  className="flex min-h-[68px] min-w-0 flex-1 items-center gap-3 py-3 pl-5 pr-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/60 lg:pl-6 lg:pr-5"
                 >
                   <span
                     className={cn(
-                      "w-14 shrink-0 font-brand text-[26px] font-medium leading-none tabular-nums tracking-tight",
+                      "w-14 shrink-0 font-brand text-[26px] font-medium lining-nums leading-none tabular-nums tracking-tight",
                       lot.statut === "vendue" && "text-white/45",
                     )}
                   >
@@ -535,6 +533,15 @@ export function Finder({
                           aria-hidden
                         />
                         {text.status[lot.statut]}
+                        {compared ? (
+                          <>
+                            <GitCompareArrows
+                              className="ml-1.5 size-3.5 text-white/60"
+                              aria-hidden
+                            />
+                            <span className="sr-only">{copy.compared}</span>
+                          </>
+                        ) : null}
                       </span>
                       {priced && lot.statut !== "vendue" ? (
                         <span className="whitespace-nowrap text-sm font-medium tabular-nums text-white">
@@ -545,21 +552,7 @@ export function Finder({
                       ) : null}
                     </span>
                   </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onToggleCompare(lot)}
-                  aria-pressed={compared}
-                  aria-label={copy.compare(lot.numero, compared)}
-                  title={copy.compare(lot.numero, compared)}
-                  className={cn(
-                    "mr-3 grid size-10 shrink-0 place-items-center rounded-[10px] border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 lg:mr-4",
-                    compared
-                      ? "border-[color:var(--brand)] bg-[color:var(--brand)] text-[color:var(--brand-contrast)]"
-                      : "border-transparent text-white/40 hover:border-white/25 hover:text-white",
-                  )}
-                >
-                  <GitCompareArrows className="size-4" aria-hidden />
+                  <ChevronRight className="size-4 shrink-0 text-white/35" aria-hidden />
                 </button>
               </li>
             );

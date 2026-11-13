@@ -105,6 +105,14 @@ type LabelView = LabelData & { centers: (LabelCenter | null)[]; bounds: Bounds |
 
 /** Where the app draws the image of the view in its box, in pixels (larger than the box when cropped). */
 export type ViewFit = { width: number; height: number; left: number; top: number };
+/** An image smaller than its box dissolves into what is around it, rather than ending on a hard edge. */
+export function edgeFade(fit: ViewFit): { maskImage?: string; WebkitMaskImage?: string } {
+  const to = fit.top > 4 ? "to bottom" : fit.left > 4 ? "to right" : null;
+  if (!to) return {};
+  const mask = `linear-gradient(${to}, transparent, #000 7%, #000 93%, transparent)`;
+  return { maskImage: mask, WebkitMaskImage: mask };
+}
+
 /** Air kept around the lots when the view is cropped on them, as a share of the image. */
 const AIR = 0.03;
 
@@ -546,10 +554,12 @@ export function OrbitViewer({
         [rgb[0] ?? 0, rgb[1] ?? 0, rgb[2] ?? 0, Math.round(a * dim)] as const;
       if (activeIds.has(lot.id))
         return { rgba: [255, 255, 255, Math.round(150 * dim)], edge: edge([255, 255, 255], 255) };
+      // Left out by the search or the status chosen: pushed back under a dark wash.
+      if (dim < 1) return { rgba: [8, 8, 8, 120], edge: [255, 255, 255, 46] as const };
       // Available: the contour only, so the render shows as it is; lit when it fits the search.
       if (lot.statut === "disponible") {
-        const lit = focus !== null && focus.has(lot.id);
-        return { rgba: [...brand, lit ? 60 : 0], edge: edge(brand, lit ? 255 : 235) };
+        const lit = focus !== null;
+        return { rgba: [...brand, lit ? 92 : 0], edge: edge(brand, lit ? 255 : 235) };
       }
       if (lot.statut === "reservee")
         return {
@@ -860,6 +870,7 @@ export function OrbitViewer({
                   height: size.h,
                   transform: `translate(${viewFit.left}px, ${viewFit.top}px)`,
                   transition: "transform 500ms ease-out",
+                  ...edgeFade(viewFit),
                 }
               : size
                 ? { width: size.w, height: size.h }
@@ -896,8 +907,8 @@ export function OrbitViewer({
                   large
                     ? "px-2 py-1 text-xs"
                     : size && size.w < 480
-                      ? "px-1 py-0.5 text-[9px]"
-                      : "px-1.5 py-0.5 text-[10px]",
+                      ? "px-1 py-0.5 text-[11px]"
+                      : "px-1.5 py-0.5 text-[11px]",
                   lot.statut === "disponible"
                     ? "bg-[color:var(--brand)] text-[color:var(--brand-contrast)]"
                     : lot.statut === "reservee"

@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { CalendarCheck, GitCompareArrows, Share2 } from "lucide-react";
+import { CalendarCheck, GitCompareArrows, Share2, X } from "lucide-react";
 
-import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import type { MediaItem } from "@/lib/app/media";
 import { useCopy } from "@/lib/i18n";
 import type { PublicLot } from "@/lib/public/programme";
@@ -15,6 +21,7 @@ const COPY = {
     compare: "Comparer",
     compared: "Dans le comparateur",
     share: "Partager",
+    close: "Fermer la fiche",
     whatsapp: (numero: string) => `Partager le lot ${numero} sur WhatsApp`,
   },
   en: {
@@ -22,6 +29,7 @@ const COPY = {
     compare: "Compare",
     compared: "In comparison",
     share: "Share",
+    close: "Close the sheet",
     whatsapp: (numero: string) => `Share lot ${numero} on WhatsApp`,
   },
 };
@@ -85,7 +93,8 @@ export function LotSheet({
     <Sheet open={open} onOpenChange={onOpenChange} modal={modal}>
       <SheetContent
         className={cn(
-          "w-full overflow-y-auto border-white/10 bg-[#0d0d0d] p-0 sm:max-w-md",
+          // Its own close button (below) replaces the small default one.
+          "w-full overflow-y-auto border-white/10 bg-[#0d0d0d] p-0 [scrollbar-color:rgba(255,255,255,0.18)_transparent] [scrollbar-width:thin] sm:max-w-md [&>button:first-child]:hidden",
           className,
         )}
         // Beside the view, a click on it picks another lot rather than closing the sheet.
@@ -93,6 +102,15 @@ export function LotSheet({
       >
         {lot ? (
           <>
+            <div className="pointer-events-none sticky top-0 z-20 h-0">
+              <SheetClose
+                aria-label={copy.close}
+                title={copy.close}
+                className="pointer-events-auto absolute right-3 top-3 grid size-10 place-items-center rounded-[10px] bg-black/65 text-white backdrop-blur transition-colors duration-200 hover:bg-black/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+              >
+                <X className="size-5" aria-hidden />
+              </SheetClose>
+            </div>
             <LotDetails
               lot={lot}
               photos={photos}

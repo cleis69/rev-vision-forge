@@ -1,0 +1,377 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-13T18:30:00Z",
+  "title": "Design System: REV — public programme page",
+  "extensions": {
+    "colorMeta": {
+      "brand": {
+        "role": "primary",
+        "displayName": "Brand (champagne by default)",
+        "canonical": "var(--brand, #c9a35b)",
+        "tonalRamp": [
+          "#2b2210",
+          "#4a3b1d",
+          "#6b562b",
+          "#8d723b",
+          "#ae8d4b",
+          "#c9a35b",
+          "#dcc08d",
+          "#f0e2c8"
+        ]
+      },
+      "brand-contrast": {
+        "role": "primary",
+        "displayName": "Brand contrast",
+        "canonical": "var(--brand-contrast, #0a0a0a)"
+      },
+      "page": {
+        "role": "neutral",
+        "displayName": "Page black",
+        "canonical": "#080808",
+        "tonalRamp": [
+          "#080808",
+          "#0d0d0d",
+          "#111111",
+          "#151515",
+          "#1c1c1c",
+          "#262626",
+          "#3a3a3a",
+          "#5e5e5e"
+        ]
+      },
+      "sheet": {
+        "role": "neutral",
+        "displayName": "Sheet black",
+        "canonical": "#0d0d0d"
+      },
+      "surface-raised": {
+        "role": "neutral",
+        "displayName": "Raised surface",
+        "canonical": "rgb(255 255 255 / 0.03)"
+      },
+      "surface-open": {
+        "role": "neutral",
+        "displayName": "Open surface",
+        "canonical": "rgb(255 255 255 / 0.04)"
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "rgb(255 255 255 / 0.10)"
+      },
+      "rule-list": {
+        "role": "neutral",
+        "displayName": "List hairline",
+        "canonical": "rgb(255 255 255 / 0.07)"
+      },
+      "rule-control": {
+        "role": "neutral",
+        "displayName": "Control border",
+        "canonical": "rgb(255 255 255 / 0.15)"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#ffffff"
+      },
+      "ink-strong": {
+        "role": "neutral",
+        "displayName": "Strong ink",
+        "canonical": "rgb(255 255 255 / 0.85)"
+      },
+      "ink-secondary": {
+        "role": "neutral",
+        "displayName": "Secondary ink",
+        "canonical": "rgb(255 255 255 / 0.60)"
+      },
+      "ink-quiet": {
+        "role": "neutral",
+        "displayName": "Quiet ink (floor for text)",
+        "canonical": "rgb(255 255 255 / 0.50)"
+      },
+      "selected": {
+        "role": "neutral",
+        "displayName": "Chosen white",
+        "canonical": "#ffffff"
+      },
+      "on-selected": {
+        "role": "neutral",
+        "displayName": "On chosen",
+        "canonical": "#000000"
+      },
+      "status-reserved": {
+        "role": "secondary",
+        "displayName": "Reserved amber",
+        "canonical": "#fbbf24",
+        "tonalRamp": [
+          "#2e2203",
+          "#553f06",
+          "#7d5d0a",
+          "#a67c0f",
+          "#d09b16",
+          "#fbbf24",
+          "#fcd34d",
+          "#fef0c2"
+        ]
+      },
+      "status-reserved-ink": {
+        "role": "secondary",
+        "displayName": "Reserved amber, text",
+        "canonical": "#fcd34d"
+      },
+      "status-sold": {
+        "role": "neutral",
+        "displayName": "Sold graphite",
+        "canonical": "rgb(255 255 255 / 0.35)"
+      },
+      "whatsapp": {
+        "role": "secondary",
+        "displayName": "WhatsApp green",
+        "canonical": "#25D366"
+      },
+      "error-ink": {
+        "role": "tertiary",
+        "displayName": "Error",
+        "canonical": "#fca5a5"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display (the sentence)",
+        "purpose": "The sentence « Je cherche… », in the promoter's font; 26px / 1.36 from 1024px."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section titles and sheet titles, in the promoter's font; 30px from 640px for section titles, 20px and 18px steps inside sheets."
+      },
+      "numeral": {
+        "displayName": "Lot numeral",
+        "purpose": "The lot number opening a register line; lining, tabular figures."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Main action label, menu rows."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Control labels, values, descriptions; 16px in inputs, 13px for the facts line."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Status text, counts, helper lines."
+      },
+      "note": {
+        "displayName": "Note",
+        "purpose": "Legal notes, status pill, lot tags on the view."
+      }
+    },
+    "shadows": [
+      {
+        "name": "on-image-control",
+        "value": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+        "purpose": "Control rails floating on a view or a photo, with backdrop-filter: blur(8px)."
+      },
+      {
+        "name": "lot-tag",
+        "value": "0 2px 8px rgba(0,0,0,0.45)",
+        "purpose": "Number tags placed on the lots of the 3D view."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state",
+        "value": "200ms",
+        "purpose": "Colour and opacity changes of controls; the count fading to its new value; the choice sliding in from 4px above."
+      },
+      {
+        "name": "lit-in",
+        "value": "150ms",
+        "purpose": "A register line lit from the view."
+      },
+      {
+        "name": "lit-out",
+        "value": "700ms",
+        "purpose": "The same line fading back."
+      },
+      {
+        "name": "camera",
+        "value": "500ms ease-out",
+        "purpose": "Camera transform of the 3D view."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "none",
+        "purpose": "All of the above are removed under prefers-reduced-motion. No scroll-driven effects."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px (view left, 440px column right; bottom bar hidden)"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "« Planifier une visite »: one per bar, in the promoter's colour.",
+      "html": "<button class=\"ds-btn-primary\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M8 2v4M16 2v4\"/><rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\"/><path d=\"M3 10h18\"/><path d=\"m9 16 2 2 4-4\"/></svg>Planifier une visite</button>",
+      "css": ".ds-btn-primary { display:inline-flex; align-items:center; justify-content:center; gap:8px; height:48px; padding:0 20px; border:0; border-radius:10px; background:var(--brand, #c9a35b); color:var(--brand-contrast, #0a0a0a); font:500 15px/1 'Inter Variable', Inter, system-ui, sans-serif; cursor:pointer; transition:opacity 200ms; } .ds-btn-primary:hover { opacity:0.9; } .ds-btn-primary:focus-visible { outline:2px solid rgb(255 255 255 / 0.7); outline-offset:0; }"
+    },
+    {
+      "name": "WhatsApp action",
+      "kind": "button",
+      "refersTo": "button-whatsapp",
+      "description": "A 48px green square beside the primary action.",
+      "html": "<a class=\"ds-btn-wa\" href=\"#\" aria-label=\"WhatsApp\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.2h.01c5.46 0 9.9-4.45 9.9-9.91A9.85 9.85 0 0 0 12.04 2Zm0 18.15h-.01a8.23 8.23 0 0 1-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.23 8.25-8.23a8.2 8.2 0 0 1 8.23 8.24c0 4.54-3.7 8.23-8.22 8.23Z\"/></svg></a>",
+      "css": ".ds-btn-wa { display:grid; place-items:center; width:48px; height:48px; border-radius:10px; background:#25D366; color:#000; transition:opacity 200ms; } .ds-btn-wa:hover { opacity:0.9; } .ds-btn-wa:focus-visible { outline:2px solid rgb(255 255 255 / 0.7); }"
+    },
+    {
+      "name": "Outline button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary actions: show all lots, share, compare.",
+      "html": "<button class=\"ds-btn-outline\">Voir les 14 lots du programme</button>",
+      "css": ".ds-btn-outline { display:inline-flex; align-items:center; justify-content:center; height:44px; padding:0 16px; border:1px solid rgb(255 255 255 / 0.15); border-radius:10px; background:transparent; color:rgb(255 255 255 / 0.75); font:400 13px/1 'Inter Variable', Inter, system-ui, sans-serif; cursor:pointer; transition:color 200ms, border-color 200ms; } .ds-btn-outline:hover { border-color:rgb(255 255 255 / 0.4); color:#fff; } .ds-btn-outline:focus-visible { outline:2px solid rgb(255 255 255 / 0.7); }"
+    },
+    {
+      "name": "The sentence",
+      "kind": "custom",
+      "refersTo": "choice",
+      "description": "Signature: a sentence whose underlined clauses open a choice; clauses not yet said wait as dashed buttons.",
+      "html": "<div class=\"ds-sentence\"><h2 class=\"ds-sentence-h\">Je cherche une villa <button class=\"ds-sentence-word\">de type A</button>.</h2><div class=\"ds-sentence-add\"><button class=\"ds-add\">+ Chambres</button><button class=\"ds-add\">+ Surface</button><button class=\"ds-add\">+ Budget</button></div><div class=\"ds-sentence-panel\"><p>Type</p><div><button class=\"ds-choice\">Tous les types</button><button class=\"ds-choice ds-choice-on\">Villa A</button><button class=\"ds-choice\">Villa B</button></div></div></div>",
+      "css": ".ds-sentence { background:#080808; color:#fff; padding:20px; font-family:'Inter Variable', Inter, system-ui, sans-serif; } .ds-sentence-h { margin:0; font:500 22px/1.42 var(--brand-font, 'Space Grotesk Variable', system-ui, sans-serif); letter-spacing:-0.01em; } .ds-sentence-word { margin:0 -4px; padding:0 4px; border:0; border-radius:6px; background:none; font:inherit; letter-spacing:inherit; color:var(--brand, #c9a35b); text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:6px; text-decoration-color:color-mix(in srgb, var(--brand, #c9a35b) 45%, transparent); cursor:pointer; transition:text-decoration-color 200ms, background-color 200ms; } .ds-sentence-word:hover { text-decoration-color:var(--brand, #c9a35b); } .ds-sentence-word:focus-visible { outline:2px solid rgb(255 255 255 / 0.7); } .ds-sentence-add { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; } .ds-add { height:36px; padding:0 12px; border:1px dashed rgb(255 255 255 / 0.25); border-radius:10px; background:none; color:rgb(255 255 255 / 0.7); font-size:13px; cursor:pointer; transition:color 200ms, border-color 200ms; } .ds-add:hover { border-color:rgb(255 255 255 / 0.5); color:#fff; } .ds-add:focus-visible { outline:2px solid rgb(255 255 255 / 0.7); } .ds-sentence-panel { margin-top:16px; padding:14px; border:1px solid rgb(255 255 255 / 0.1); border-radius:10px; background:rgb(255 255 255 / 0.04); } .ds-sentence-panel p { margin:0 0 8px; font-size:12px; color:rgb(255 255 255 / 0.6); } .ds-sentence-panel div { display:flex; flex-wrap:wrap; gap:8px; } .ds-choice { height:40px; padding:0 14px; border:1px solid rgb(255 255 255 / 0.15); border-radius:10px; background:none; color:rgb(255 255 255 / 0.8); font-size:14px; cursor:pointer; transition:color 200ms, border-color 200ms; } .ds-choice:hover { border-color:rgb(255 255 255 / 0.4); color:#fff; } .ds-choice:focus-visible { outline:2px solid rgb(255 255 255 / 0.7); } .ds-choice-on, .ds-choice-on:hover { border-color:#fff; background:#fff; color:#000; font-weight:500; }"
+    },
+    {
+      "name": "Register line",
+      "kind": "custom",
+      "refersTo": "register-line",
+      "description": "Signature: one lot per line — number, facts, status, price at the right.",
+      "html": "<ul class=\"ds-reg\"><li><button class=\"ds-reg-line\"><span class=\"ds-reg-num\">A1</span><span class=\"ds-reg-mid\"><span class=\"ds-reg-facts\">Villa A · 585 m² · 5 ch.</span><span class=\"ds-reg-row\"><span class=\"ds-reg-status\"><i></i>Disponible</span><span class=\"ds-reg-price\">8 000 000 MAD</span></span></span><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m9 18 6-6-6-6\"/></svg></button></li><li><button class=\"ds-reg-line\"><span class=\"ds-reg-num\">A3</span><span class=\"ds-reg-mid\"><span class=\"ds-reg-facts\">Villa A · 585 m² · 5 ch.</span><span class=\"ds-reg-row\"><span class=\"ds-reg-status ds-reg-reserved\"><i></i>Réservé</span><span class=\"ds-reg-price\">8 000 000 MAD</span></span></span><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m9 18 6-6-6-6\"/></svg></button></li></ul>",
+      "css": ".ds-reg { list-style:none; margin:0; padding:0; background:#080808; color:#fff; font-family:'Inter Variable', Inter, system-ui, sans-serif; } .ds-reg li + li { border-top:1px solid rgb(255 255 255 / 0.07); } .ds-reg-line { display:flex; align-items:center; gap:12px; width:100%; min-height:68px; padding:12px 16px 12px 20px; border:0; background:none; color:inherit; text-align:left; cursor:pointer; transition:background-color 200ms; } .ds-reg-line:hover { background:rgb(255 255 255 / 0.04); } .ds-reg-line:focus-visible { outline:2px solid rgb(255 255 255 / 0.6); outline-offset:-2px; } .ds-reg-line svg { color:rgb(255 255 255 / 0.35); flex:none; } .ds-reg-num { width:56px; flex:none; font:500 26px/1 var(--brand-font, 'Space Grotesk Variable', system-ui, sans-serif); letter-spacing:-0.025em; font-variant-numeric:lining-nums tabular-nums; } .ds-reg-mid { flex:1; min-width:0; } .ds-reg-facts { display:block; font-size:13px; color:rgb(255 255 255 / 0.7); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .ds-reg-row { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-top:4px; } .ds-reg-status { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--brand, #c9a35b); } .ds-reg-status i { width:6px; height:6px; border-radius:9999px; background:var(--brand, #c9a35b); } .ds-reg-reserved { color:#fcd34d; } .ds-reg-reserved i { background:#fbbf24; } .ds-reg-price { font-size:14px; font-weight:500; font-variant-numeric:tabular-nums; white-space:nowrap; }"
+    },
+    {
+      "name": "Status pill",
+      "kind": "chip",
+      "refersTo": "status-pill-available",
+      "description": "The only fully rounded shape: available, reserved, sold.",
+      "html": "<span class=\"ds-pill\"><i></i>Disponible</span> <span class=\"ds-pill ds-pill-reserved\"><i></i>Réservé</span> <span class=\"ds-pill ds-pill-sold\"><i></i>Vendu</span>",
+      "css": ".ds-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:9999px; background:color-mix(in srgb, var(--brand, #c9a35b) 15%, transparent); color:var(--brand, #c9a35b); font:500 11px/1.45 'Inter Variable', Inter, system-ui, sans-serif; } .ds-pill i { width:6px; height:6px; border-radius:9999px; background:currentColor; } .ds-pill-reserved { background:rgb(251 191 36 / 0.15); color:#fcd34d; } .ds-pill-reserved i { background:#fbbf24; } .ds-pill-sold { background:rgb(255 255 255 / 0.1); color:rgb(255 255 255 / 0.6); } .ds-pill-sold i { background:rgb(255 255 255 / 0.5); }"
+    },
+    {
+      "name": "Rail (language, sections)",
+      "kind": "nav",
+      "refersTo": "rail",
+      "description": "A 12px rail wrapping 9px items; the chosen item is white.",
+      "html": "<div class=\"ds-rail\" role=\"group\"><a class=\"ds-rail-item ds-rail-on\" href=\"#\">Lots</a><a class=\"ds-rail-item\" href=\"#\">Programme</a><a class=\"ds-rail-item\" href=\"#\">Galerie</a><a class=\"ds-rail-item\" href=\"#\">Quartier</a></div>",
+      "css": ".ds-rail { display:inline-flex; align-items:center; gap:2px; padding:4px; border:1px solid rgb(255 255 255 / 0.1); border-radius:12px; background:rgb(255 255 255 / 0.03); font-family:'Inter Variable', Inter, system-ui, sans-serif; } .ds-rail-item { display:inline-flex; align-items:center; height:36px; padding:0 10px; border-radius:9px; color:rgb(255 255 255 / 0.7); font-size:13px; font-weight:500; text-decoration:none; transition:color 200ms, background-color 200ms; } .ds-rail-item:hover { background:rgb(255 255 255 / 0.05); color:#fff; } .ds-rail-item:focus-visible { outline:2px solid rgb(255 255 255 / 0.7); } .ds-rail-on, .ds-rail-on:hover { background:#fff; color:#000; }"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Visit form field: 48px, 16px text, label above.",
+      "html": "<label class=\"ds-field\"><span>Téléphone</span><input class=\"ds-input\" type=\"tel\" placeholder=\"06 12 34 56 78\"></label>",
+      "css": ".ds-field { display:grid; gap:8px; font:400 14px/1.4 'Inter Variable', Inter, system-ui, sans-serif; color:rgb(255 255 255 / 0.8); } .ds-input { height:48px; padding:0 16px; border:1px solid rgb(255 255 255 / 0.15); border-radius:10px; background:rgb(255 255 255 / 0.04); color:#fff; font:inherit; font-size:16px; } .ds-input::placeholder { color:rgb(255 255 255 / 0.3); } .ds-input:focus { outline:none; border-color:rgb(255 255 255 / 0.4); } .ds-input:focus-visible { box-shadow:0 0 0 2px rgb(255 255 255 / 0.3); } .ds-input[aria-invalid] { border-color:rgb(248 113 113 / 0.7); }"
+    },
+    {
+      "name": "Block",
+      "kind": "card",
+      "refersTo": "block",
+      "description": "Disclosure block of a lot sheet (payment plan, simulators).",
+      "html": "<div class=\"ds-block\"><button class=\"ds-block-head\"><span><b>Échéancier de paiement</b><small>10 % à la réservation · 800 000 MAD</small></span><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m6 9 6 6 6-6\"/></svg></button></div>",
+      "css": ".ds-block { border:1px solid rgb(255 255 255 / 0.1); border-radius:10px; background:rgb(255 255 255 / 0.03); color:#fff; font-family:'Inter Variable', Inter, system-ui, sans-serif; } .ds-block-head { display:flex; align-items:center; gap:12px; width:100%; padding:12px 16px; border:0; border-radius:10px; background:none; color:inherit; text-align:left; font-size:14px; cursor:pointer; transition:background-color 200ms; } .ds-block-head:hover { background:rgb(255 255 255 / 0.03); } .ds-block-head:focus-visible { outline:2px solid rgb(255 255 255 / 0.7); } .ds-block-head span { flex:1; min-width:0; } .ds-block-head b { display:block; font-weight:500; } .ds-block-head small { display:block; margin-top:2px; font-size:12px; color:rgb(255 255 255 / 0.55); } .ds-block-head svg { color:rgb(255 255 255 / 0.5); }"
+    },
+    {
+      "name": "On-view controls",
+      "kind": "custom",
+      "refersTo": "rail",
+      "description": "Zoom rail floating on the 3D view: the only place for blur and shadow.",
+      "html": "<div class=\"ds-view\"><div class=\"ds-view-rail\" role=\"group\" aria-label=\"Zoom\"><button aria-label=\"Dézoomer\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/></svg></button><button aria-label=\"Zoomer\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M12 5v14\"/></svg></button></div></div>",
+      "css": ".ds-view { display:flex; justify-content:flex-end; padding:16px; background:linear-gradient(135deg, #6b5a44, #3d3327); } .ds-view-rail { display:flex; align-items:center; gap:2px; padding:4px; border:1px solid rgb(255 255 255 / 0.15); border-radius:12px; background:rgb(0 0 0 / 0.65); color:#fff; backdrop-filter:blur(8px); box-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); } .ds-view-rail button { display:grid; place-items:center; width:36px; height:36px; border:0; border-radius:9px; background:none; color:inherit; cursor:pointer; transition:background-color 200ms; } .ds-view-rail button:hover { background:rgb(255 255 255 / 0.15); } .ds-view-rail button:focus-visible { outline:2px solid rgb(255 255 255 / 0.7); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The sales plan that answers",
+    "overview": "The page is a sentence the buyer completes, « Je cherche une villa… », and the residence answers: the lots that fit stay lit on the 3D view and the list keeps only them. Everything else steps back. The ground is near-black, surfaces are raised by a few percent of white, and structure is drawn with white hairlines. The only colour that speaks is the promoter's (champagne when none is set), and it comes from data, not from the stylesheet.\n\nIt is an app, not a brochure: a fixed frame (top bar, stage, bottom action bar) with one scrolling column inside, built for a phone opened from a WhatsApp link. Density is compact; a lot is a register line, not a card. The image is never dressed up: no rounded frame, no margin, no overlay beyond the controls it needs.",
+    "keyCharacteristics": [
+      "Near-black ground, white hairlines, one data-driven brand colour.",
+      "The promoter's font carries names, the sentence and lot numbers; Inter carries the interface.",
+      "One corner (10px) for buttons and blocks; pills only say a status.",
+      "Phone first: a 52px top bar, the 3D view full width, a fixed action bar at the bottom.",
+      "Lots as register lines: number, facts, status, price at the right.",
+      "French and English everywhere. No scroll-driven effects; movement lasts 150 to 300 ms."
+    ],
+    "rules": [
+      {
+        "name": "The Borrowed Colour Rule",
+        "body": "The colour belongs to the promoter. Always write `var(--brand)` and `var(--brand-contrast)`; never a champagne hex, never a Tailwind `primary`.",
+        "section": "colors"
+      },
+      {
+        "name": "The Three Statuses Rule",
+        "body": "Brand is available, amber is reserved, graphite is sold, identically on the view, in the list, on the sheet and in the legend. No fourth meaning borrows one of these colours.",
+        "section": "colors"
+      },
+      {
+        "name": "The White Means Chosen Rule",
+        "body": "In a rail or a group of choices, the chosen item is white with black text. The brand colour is not a selection colour.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Voices Rule",
+        "body": "The brand font says names, the sentence, lot numbers and key figures. Every control, value, price and label is Inter. A price is never in the brand font.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Rule",
+        "body": "Every number that can change or stack (lot numbers, prices, counts, percentages) uses tabular figures.",
+        "section": "typography"
+      },
+      {
+        "name": "The Blur Belongs To Images Rule",
+        "body": "Background blur and shadow appear only on a control that sits on a photo, a render or a viewer. On the page's own black, a surface is flat with a hairline.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Pill Is A Status Rule",
+        "body": "If it is fully rounded, it states available, reserved or sold. Buttons, filters and tabs are never pills.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do take the colour and the display font from `var(--brand)`, `var(--brand-contrast)` and `font-brand`; check a new surface with a second brand colour and a serif brand font.",
+      "Do design at 390 wide first: 52px top bar, full-width view, fixed bottom bar with the main action.",
+      "Do use the 10px corner for buttons and blocks, 12px for a rail around 9 to 10px controls, full rounding for statuses only.",
+      "Do say a status the same way everywhere: brand, amber, graphite, each with its word.",
+      "Do write every text in French and English, and give every number tabular figures.",
+      "Do keep images edge to edge and untouched; put only translucent controls on them.",
+      "Do keep « Propulsé par » and the REV logo on every public page.",
+      "Do respect reduced motion; keep movement between 150 and 300ms on colour, opacity or a few pixels."
+    ],
+    "donts": [
+      "Don't hard-code champagne or use the stylesheet's `primary`: the colour is the promoter's.",
+      "Don't use the brand colour for a selected tab or choice; white says chosen.",
+      "Don't make buttons, filters or tabs into pills.",
+      "Don't put a lot in a card; a lot is a line.",
+      "Don't set prices, labels or controls in the brand font.",
+      "Don't tie any effect to scrolling, and don't bring the marketing site's reveals, gradient text or glass surfaces here.",
+      "Don't add shadow or blur to a surface that sits on the page's black.",
+      "Don't set text below 50% white."
+    ]
+  }
+}

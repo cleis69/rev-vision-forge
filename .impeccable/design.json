@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-13T18:30:00Z",
+  "generatedAt": "2026-11-13T20:00:00Z",
   "title": "Design System: REV — public programme page",
   "extensions": {
     "colorMeta": {
@@ -133,6 +133,66 @@
         "role": "tertiary",
         "displayName": "Error",
         "canonical": "#fca5a5"
+      },
+      "site-ground": {
+        "role": "neutral",
+        "displayName": "Site ground (marketing)",
+        "canonical": "oklch(0.146 0 0)"
+      },
+      "site-card": {
+        "role": "neutral",
+        "displayName": "Site card (product mock only)",
+        "canonical": "oklch(0.178 0 0)"
+      },
+      "site-ink": {
+        "role": "neutral",
+        "displayName": "Site ink",
+        "canonical": "oklch(0.965 0.003 106)"
+      },
+      "site-ink-muted": {
+        "role": "neutral",
+        "displayName": "Site muted ink",
+        "canonical": "oklch(0.625 0 0)"
+      },
+      "site-rule": {
+        "role": "neutral",
+        "displayName": "Site rule (above a list)",
+        "canonical": "oklch(0.269 0 0)"
+      },
+      "site-rule-soft": {
+        "role": "neutral",
+        "displayName": "Site rule at 70% (between lines, top of a part)",
+        "canonical": "oklch(0.269 0 0 / 0.7)"
+      },
+      "site-champagne": {
+        "role": "primary",
+        "displayName": "Champagne (marketing primary)",
+        "canonical": "oklch(0.745 0.062 78)",
+        "tonalRamp": [
+          "#2a2314",
+          "#4a3e26",
+          "#6d5c39",
+          "#937c4f",
+          "#b39762",
+          "#c8a96a",
+          "#d9bd85",
+          "#efe3c9"
+        ]
+      },
+      "site-champagne-hover": {
+        "role": "primary",
+        "displayName": "Champagne hover",
+        "canonical": "oklch(0.812 0.052 80)"
+      },
+      "site-on-champagne": {
+        "role": "primary",
+        "displayName": "Text on champagne",
+        "canonical": "oklch(0.16 0 0)"
+      },
+      "site-bezel": {
+        "role": "neutral",
+        "displayName": "Phone bezel",
+        "canonical": "#161616"
       }
     },
     "typographyMeta": {
@@ -163,6 +223,50 @@
       "note": {
         "displayName": "Note",
         "purpose": "Legal notes, status pill, lot tags on the view."
+      },
+      "site-display": {
+        "displayName": "Site display",
+        "purpose": "Marketing h1, three lines at 1440 wide, one champagne phrase, balanced wrap."
+      },
+      "site-headline": {
+        "displayName": "Site headline",
+        "purpose": "h2 of each part of a marketing page; no label above, one champagne phrase."
+      },
+      "site-function": {
+        "displayName": "Function name",
+        "purpose": "Name of a function opening a register line or comparison row, from 640px."
+      },
+      "site-function-compact": {
+        "displayName": "Function name, phones",
+        "purpose": "The same below 640px."
+      },
+      "site-question": {
+        "displayName": "FAQ question",
+        "purpose": "FAQ question, 18px from 768px, 16px below."
+      },
+      "site-numeral": {
+        "displayName": "Step numeral",
+        "purpose": "Champagne onboarding step numbers, tabular."
+      },
+      "site-lead": {
+        "displayName": "Lead",
+        "purpose": "Description under a heading; 15px on phones, 16px from 768px; max 62ch."
+      },
+      "site-item": {
+        "displayName": "Item",
+        "purpose": "Onboarding column heads and item titles."
+      },
+      "site-body": {
+        "displayName": "Site body",
+        "purpose": "Function bodies (max 60ch), FAQ answers."
+      },
+      "site-action": {
+        "displayName": "Action",
+        "purpose": "CTA labels."
+      },
+      "site-small": {
+        "displayName": "Small",
+        "purpose": "Hero facts, text links, comparison cells and heads, details, notes."
       }
     },
     "shadows": [
@@ -175,6 +279,11 @@
         "name": "lot-tag",
         "value": "0 2px 8px rgba(0,0,0,0.45)",
         "purpose": "Number tags placed on the lots of the 3D view."
+      },
+      {
+        "name": "site-phone",
+        "value": "0 40px 80px -32px rgb(0 0 0 / 0.9)",
+        "purpose": "Marketing world: the phone frame only, with a 1px white ring at 10%."
       }
     ],
     "motion": [
@@ -202,6 +311,26 @@
         "name": "reduced-motion",
         "value": "none",
         "purpose": "All of the above are removed under prefers-reduced-motion. No scroll-driven effects."
+      },
+      {
+        "name": "site-entrance",
+        "value": "rev-fade-up 800ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Marketing world: hero text and phone (120ms later) fade up 14px on load, CSS only. No scroll reveals on the offer page."
+      },
+      {
+        "name": "site-cta",
+        "value": "300ms; active scale 0.98",
+        "purpose": "Marketing world: CTA background change and press."
+      },
+      {
+        "name": "site-ghost-sweep",
+        "value": "350ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Marketing world: the ghost CTA's white-at-10% fill sweeping in from the left."
+      },
+      {
+        "name": "site-disclosure",
+        "value": "300ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Marketing world: a FAQ answer opening by grid rows, its plus turning 45 degrees."
       }
     ],
     "breakpoints": [
@@ -303,6 +432,46 @@
       "description": "Zoom rail floating on the 3D view: the only place for blur and shadow.",
       "html": "<div class=\"ds-view\"><div class=\"ds-view-rail\" role=\"group\" aria-label=\"Zoom\"><button aria-label=\"Dézoomer\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/></svg></button><button aria-label=\"Zoomer\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M12 5v14\"/></svg></button></div></div>",
       "css": ".ds-view { display:flex; justify-content:flex-end; padding:16px; background:linear-gradient(135deg, #6b5a44, #3d3327); } .ds-view-rail { display:flex; align-items:center; gap:2px; padding:4px; border:1px solid rgb(255 255 255 / 0.15); border-radius:12px; background:rgb(0 0 0 / 0.65); color:#fff; backdrop-filter:blur(8px); box-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); } .ds-view-rail button { display:grid; place-items:center; width:36px; height:36px; border:0; border-radius:9px; background:none; color:inherit; cursor:pointer; transition:background-color 200ms; } .ds-view-rail button:hover { background:rgb(255 255 255 / 0.15); } .ds-view-rail button:focus-visible { outline:2px solid rgb(255 255 255 / 0.7); }"
+    },
+    {
+      "name": "Site primary CTA",
+      "kind": "button",
+      "refersTo": "site-cta-primary",
+      "description": "Marketing world: « Prendre rendez-vous », champagne, 48px, 10px corner, arrow after the label.",
+      "html": "<a class=\"ds-site-cta\" href=\"#\">Prendre rendez-vous<svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 7h10v10\"/><path d=\"M7 17 17 7\"/></svg></a>",
+      "css": ".ds-site-cta { display:inline-flex; align-items:center; justify-content:center; gap:8px; height:48px; padding:0 24px; border-radius:10px; background:#c8a96a; color:#0b0b0b; font:500 14px/1 'Inter Variable', Inter, system-ui, sans-serif; text-decoration:none; transition:background-color 300ms, transform 300ms; } .ds-site-cta:hover { background:#d9bd85; } .ds-site-cta:active { transform:scale(0.98); } .ds-site-cta:focus-visible { outline:2px solid rgb(255 255 255 / 0.7); outline-offset:2px; }"
+    },
+    {
+      "name": "Site ghost CTA",
+      "kind": "button",
+      "refersTo": "site-cta-ghost",
+      "description": "Marketing world: secondary action, 48px, rule border, fill sweeping in on hover.",
+      "html": "<a class=\"ds-site-ghost\" href=\"#\"><span aria-hidden=\"true\"></span>Essayer la démo</a>",
+      "css": ".ds-site-ghost { position:relative; isolation:isolate; overflow:hidden; display:inline-flex; align-items:center; justify-content:center; height:48px; padding:0 24px; border:1px solid #262626; border-radius:10px; background:#090909; color:#f5f5f3; font:500 14px/1 'Inter Variable', Inter, system-ui, sans-serif; text-decoration:none; transition:transform 300ms; } .ds-site-ghost span { position:absolute; inset:0; z-index:-1; background:rgb(245 245 243 / 0.1); transform:scaleX(0); transform-origin:left; transition:transform 350ms cubic-bezier(0.16,1,0.3,1); } .ds-site-ghost:hover span { transform:scaleX(1); } .ds-site-ghost:active { transform:scale(0.98); } .ds-site-ghost:focus-visible { outline:2px solid rgb(255 255 255 / 0.7); outline-offset:2px; }"
+    },
+    {
+      "name": "Site register lines",
+      "kind": "custom",
+      "refersTo": "site-register-line",
+      "description": "Marketing world signature: a heading with one champagne phrase, then functions on register lines.",
+      "html": "<section class=\"ds-site-part\"><h2>Votre équipe pilote <span>en un clic.</span></h2><p class=\"ds-site-lead\">Les statuts, les demandes et les exports, depuis un seul tableau.</p><ul class=\"ds-site-lines\"><li><h3>Statuts en direct</h3><p>Disponible, réservé, vendu : la page se met à jour pour tous les acheteurs.</p></li><li><h3>Demandes qualifiées</h3><p>Chaque message cite le lot, son prix et son statut.</p></li></ul></section>",
+      "css": ".ds-site-part { background:#090909; color:#f5f5f3; padding:48px 20px; border-top:1px solid rgb(38 38 38 / 0.7); font-family:'Inter Variable', Inter, system-ui, sans-serif; } .ds-site-part h2 { margin:0; max-width:768px; font:500 clamp(1.6rem, 3vw, 2.5rem)/1.1 'Space Grotesk Variable', 'Space Grotesk', system-ui, sans-serif; letter-spacing:-0.03em; text-wrap:balance; } .ds-site-part h2 span { color:#c8a96a; } .ds-site-lead { margin:16px 0 0; max-width:62ch; font-size:16px; line-height:1.625; color:#8a8a8a; } .ds-site-lines { list-style:none; margin:40px 0 0; padding:0; border-top:1px solid #262626; } .ds-site-lines li { display:grid; grid-template-columns:15rem minmax(0,1fr); gap:24px; align-items:baseline; padding:20px 0; border-bottom:1px solid rgb(38 38 38 / 0.7); } .ds-site-lines h3 { margin:0; font:500 17px/1.375 'Space Grotesk Variable', 'Space Grotesk', system-ui, sans-serif; letter-spacing:-0.025em; } .ds-site-lines p { margin:0; max-width:60ch; font-size:14px; line-height:1.625; color:#8a8a8a; } @media (max-width:639px) { .ds-site-lines li { grid-template-columns:1fr; gap:4px; padding:16px 0; } .ds-site-lines h3 { font-size:16px; } }"
+    },
+    {
+      "name": "Site phone frame",
+      "kind": "custom",
+      "refersTo": "site-phone",
+      "description": "Marketing world signature: the real demo in a phone; capture first, launch button over a bottom gradient.",
+      "html": "<div class=\"ds-site-phone\"><div class=\"ds-site-screen\"><div class=\"ds-site-capture\"></div><div class=\"ds-site-veil\"></div><div class=\"ds-site-launch-wrap\"><button class=\"ds-site-launch\">Essayer comme un acheteur</button><p>Programme fictif · sans inscription</p></div></div></div>",
+      "css": ".ds-site-phone { display:inline-block; border:10px solid #161616; border-radius:3rem; background:#000; box-shadow:0 40px 80px -32px rgb(0 0 0 / 0.9), 0 0 0 1px rgb(255 255 255 / 0.1); font-family:'Inter Variable', Inter, system-ui, sans-serif; } .ds-site-screen { position:relative; overflow:hidden; width:320px; height:692px; border-radius:2.35rem; } .ds-site-capture { position:absolute; inset:0; background:linear-gradient(180deg, #1a1712 0%, #3d3327 30%, #0d0d0d 60%); } .ds-site-veil { position:absolute; inset:auto 0 0 0; height:256px; background:linear-gradient(to top, #000 25%, rgb(0 0 0 / 0.8), transparent); } .ds-site-launch-wrap { position:absolute; inset:auto 0 0 0; display:flex; flex-direction:column; align-items:center; padding:0 20px 24px; } .ds-site-launch { width:100%; height:48px; border:1px solid rgb(255 255 255 / 0.2); border-radius:10px; background:rgb(0 0 0 / 0.6); color:#fff; font:500 14px/1 'Inter Variable', Inter, system-ui, sans-serif; backdrop-filter:blur(12px); cursor:pointer; transition:border-color 200ms, background-color 200ms; } .ds-site-launch:hover { border-color:rgb(255 255 255 / 0.4); background:rgb(0 0 0 / 0.75); } .ds-site-launch:focus-visible { outline:2px solid rgb(255 255 255 / 0.7); } .ds-site-launch-wrap p { margin:10px 0 0; font-size:12px; color:rgb(255 255 255 / 0.6); }"
+    },
+    {
+      "name": "Site text link",
+      "kind": "custom",
+      "refersTo": "site-text-link",
+      "description": "Marketing world: 32px text-level link, 13px, underline at 25%.",
+      "html": "<a class=\"ds-site-link\" href=\"#\">Plein écran</a>",
+      "css": ".ds-site-link { display:inline-flex; align-items:center; gap:6px; height:32px; border-radius:6px; color:rgb(245 245 243 / 0.8); font:400 13px/1 'Inter Variable', Inter, system-ui, sans-serif; text-decoration:underline; text-decoration-color:rgb(245 245 243 / 0.25); text-underline-offset:4px; transition:color 200ms, text-decoration-color 200ms; } .ds-site-link:hover { color:#f5f5f3; text-decoration-color:rgb(245 245 243 / 0.6); } .ds-site-link:focus-visible { outline:2px solid rgb(255 255 255 / 0.7); }"
     }
   ],
   "narrative": {
@@ -351,6 +520,26 @@
         "name": "The Pill Is A Status Rule",
         "body": "If it is fully rounded, it states available, reserved or sold. Buttons, filters and tabs are never pills.",
         "section": "shapes"
+      },
+      {
+        "name": "The Three Champagnes Rule (marketing site)",
+        "body": "Champagne marks the primary action, one phrase per heading, and what REV does. What the model and the brochure do stays muted grey.",
+        "section": "colors"
+      },
+      {
+        "name": "The Spec Sheet Voice Rule (marketing site)",
+        "body": "Space Grotesk names things (headings, functions, questions, step numbers); Inter explains them. Ramp: 13 / 14 / 15 / 16 / 17 / 18 / 22px plus the two clamps.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Lit Object Rule (marketing site)",
+        "body": "Only the phone casts a shadow. Everything else is ground, rule and type.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Dot Is Not A Pill Rule (marketing site)",
+        "body": "Nothing on the marketing page is a pill; full rounding is for dots.",
+        "section": "shapes"
       }
     ],
     "dos": [
@@ -361,7 +550,9 @@
       "Do write every text in French and English, and give every number tabular figures.",
       "Do keep images edge to edge and untouched; put only translucent controls on them.",
       "Do keep « Propulsé par » and the REV logo on every public page.",
-      "Do respect reduced motion; keep movement between 150 and 300ms on colour, opacity or a few pixels."
+      "Do respect reduced motion; keep movement between 150 and 300ms on colour, opacity or a few pixels.",
+      "Marketing site: do open each part with a 70% rule and let the heading speak, with one champagne phrase.",
+      "Marketing site: do put functions on register lines, and show the real product in the phone frame."
     ],
     "donts": [
       "Don't hard-code champagne or use the stylesheet's `primary`: the colour is the promoter's.",
@@ -371,7 +562,10 @@
       "Don't set prices, labels or controls in the brand font.",
       "Don't tie any effect to scrolling, and don't bring the marketing site's reveals, gradient text or glass surfaces here.",
       "Don't add shadow or blur to a surface that sits on the page's black.",
-      "Don't set text below 50% white."
+      "Don't set text below 50% white.",
+      "Marketing site: don't put an eyebrow or kicker above a heading, and don't use gradient text (the older AccentHeading / SectionHeading / PageHero style is drift).",
+      "Marketing site: don't lay functions out as icon cards; the only card surface is a product mock.",
+      "Marketing site: don't add scroll reveals or split-text entrances."
     ]
   }
 }

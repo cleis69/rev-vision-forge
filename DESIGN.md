@@ -22,6 +22,17 @@ colors:
   status-sold: "rgb(255 255 255 / 0.35)"
   whatsapp: "#25D366"
   error-ink: "#fca5a5"
+  # Marketing-site world (site-*): see « Marketing site world » below. Not for src/components/public/**.
+  site-ground: "#090909"
+  site-card: "#111111"
+  site-ink: "#f5f5f3"
+  site-ink-muted: "#8a8a8a"
+  site-rule: "#262626"
+  site-rule-soft: "rgb(38 38 38 / 0.70)"
+  site-champagne: "#c8a96a"
+  site-champagne-hover: "#d9bd85"
+  site-on-champagne: "#0b0b0b"
+  site-bezel: "#161616"
 typography:
   display:
     fontFamily: "var(--brand-font, 'Space Grotesk Variable', ui-sans-serif, system-ui, sans-serif)"
@@ -63,12 +74,77 @@ typography:
     fontSize: "11px"
     fontWeight: 400
     lineHeight: 1.6
+  site-display:
+    fontFamily: "'Space Grotesk Variable', 'Space Grotesk', ui-sans-serif, system-ui, sans-serif"
+    fontSize: "clamp(2.15rem, 4.4vw, 3.75rem)"
+    fontWeight: 500
+    lineHeight: 1.04
+    letterSpacing: "-0.035em"
+  site-headline:
+    fontFamily: "'Space Grotesk Variable', 'Space Grotesk', ui-sans-serif, system-ui, sans-serif"
+    fontSize: "clamp(1.6rem, 3vw, 2.5rem)"
+    fontWeight: 500
+    lineHeight: 1.1
+    letterSpacing: "-0.03em"
+  site-numeral:
+    fontFamily: "'Space Grotesk Variable', 'Space Grotesk', ui-sans-serif, system-ui, sans-serif"
+    fontSize: "22px"
+    fontWeight: 500
+    lineHeight: 1
+    fontFeature: "'tnum'"
+  site-question:
+    fontFamily: "'Space Grotesk Variable', 'Space Grotesk', ui-sans-serif, system-ui, sans-serif"
+    fontSize: "18px"
+    fontWeight: 500
+    lineHeight: 1.5
+    letterSpacing: "-0.025em"
+  site-function:
+    fontFamily: "'Space Grotesk Variable', 'Space Grotesk', ui-sans-serif, system-ui, sans-serif"
+    fontSize: "17px"
+    fontWeight: 500
+    lineHeight: 1.375
+    letterSpacing: "-0.025em"
+  site-function-compact:
+    fontFamily: "'Space Grotesk Variable', 'Space Grotesk', ui-sans-serif, system-ui, sans-serif"
+    fontSize: "16px"
+    fontWeight: 500
+    lineHeight: 1.375
+    letterSpacing: "-0.025em"
+  site-lead:
+    fontFamily: "'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "16px"
+    fontWeight: 400
+    lineHeight: 1.625
+  site-item:
+    fontFamily: "'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "15px"
+    fontWeight: 500
+    lineHeight: 1.375
+  site-body:
+    fontFamily: "'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "14px"
+    fontWeight: 400
+    lineHeight: 1.625
+  site-action:
+    fontFamily: "'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "14px"
+    fontWeight: 500
+    lineHeight: 1
+  site-small:
+    fontFamily: "'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "13px"
+    fontWeight: 400
+    lineHeight: 1.625
 rounded:
   text: "6px"
   inner: "9px"
   block: "10px"
   rail: "12px"
   status: "9999px"
+  site-inner: "8px"
+  phone-screen: "2.35rem"
+  phone-compact: "2rem"
+  phone: "3rem"
 spacing:
   hair: "6px"
   xs: "8px"
@@ -76,6 +152,12 @@ spacing:
   md: "16px"
   gutter: "20px"
   gutter-wide: "24px"
+  site-gutter: "20px"
+  site-gutter-wide: "40px"
+  site-line: "16px"
+  site-line-wide: "20px"
+  site-part: "48px"
+  site-part-wide: "80px"
 components:
   button-primary:
     backgroundColor: "{colors.brand}"
@@ -145,11 +227,57 @@ components:
     backgroundColor: "{colors.page}"
     height: "52px"
     padding: "0 16px"
+  site-cta-primary:
+    backgroundColor: "{colors.site-champagne}"
+    textColor: "{colors.site-on-champagne}"
+    typography: "{typography.site-action}"
+    rounded: "{rounded.block}"
+    height: "48px"
+    padding: "0 24px"
+  site-cta-primary-hover:
+    backgroundColor: "{colors.site-champagne-hover}"
+    textColor: "{colors.site-on-champagne}"
+    rounded: "{rounded.block}"
+    height: "48px"
+  site-cta-ghost:
+    textColor: "{colors.site-ink}"
+    typography: "{typography.site-action}"
+    rounded: "{rounded.block}"
+    height: "48px"
+    padding: "0 24px"
+  site-text-link:
+    textColor: "{colors.site-ink}"
+    typography: "{typography.site-small}"
+    rounded: "{rounded.text}"
+    height: "32px"
+  site-register-line:
+    textColor: "{colors.site-ink}"
+    typography: "{typography.site-function}"
+    padding: "{spacing.site-line-wide} 0"
+  site-faq-row:
+    textColor: "{colors.site-ink}"
+    typography: "{typography.site-question}"
+    rounded: "{rounded.text}"
+    padding: "{spacing.site-line-wide} 0"
+  site-phone:
+    backgroundColor: "{colors.site-bezel}"
+    rounded: "{rounded.phone}"
+    width: "340px"
+    height: "712px"
+    padding: "10px"
+  site-phone-launch:
+    textColor: "{colors.site-ink}"
+    typography: "{typography.site-action}"
+    rounded: "{rounded.block}"
+    height: "48px"
+  site-product-mock:
+    backgroundColor: "{colors.site-card}"
+    rounded: "{rounded.block}"
 ---
 
 # Design System: REV — public programme page
 
-Scope: the public page of a programme (`src/components/public/**`, shell in `src/components/public/app/ProgrammeApp.tsx`). The marketing site of REV (`src/components/pages/**`, `src/components/rev/**`) is a different, older surface (Space Grotesk and Inter, rounded pills, scroll reveals) and does not follow this file. Nor do the shadcn theme tokens of `src/styles.css` (`--background`, `--primary`…): the public page writes its own values.
+Scope: two worlds, kept apart. The sections from Overview to Do's and Don'ts describe the public page of a programme (`src/components/public/**`, shell in `src/components/public/app/ProgrammeApp.tsx`); it does not use the shadcn theme tokens of `src/styles.css` (`--background`, `--primary`…) and writes its own values. The marketing site of REV (`src/components/pages/**`, `src/components/rev/**`) is the second world, documented in « Marketing site world » at the end of this file, derived from the shipped offer page (`SalesPlanPage.tsx`); its tokens all start with `site-` (plus `phone*`) and never apply to the public page, as the public tokens never apply to it.
 
 ## Overview
 
@@ -314,3 +442,118 @@ A dark translucent rail (12px corner, black at 65%, blur, 15% border) holding 36
 - **Don't** tie any effect to scrolling, and don't bring the marketing site's reveals, gradient text or glass surfaces here.
 - **Don't** add shadow or blur to a surface that sits on the page's black.
 - **Don't** set text below 50% white.
+
+---
+
+## Marketing site world
+
+Scope: REV's own marketing site (`src/components/pages/**`, `src/components/rev/**`, routes `/` and `/en`), recorded from the shipped offer page (`src/components/pages/SalesPlanPage.tsx` with `src/components/rev/SalesPlanDemo.tsx`, routes `/plan-de-vente-3d` and `/en/3d-sales-plan`) and the shared primitives of `src/components/rev/ui.tsx` (`Container`, `Cta`). It uses the shadcn theme of `src/styles.css`, so in code these tokens are written as theme utilities (`bg-background`, `text-primary`, `border-border/70`, `font-display`), not as literals; the `site-*` tokens are their recorded values. Nothing here applies to the public programme page above, and nothing above applies here. Subsections follow the canonical order.
+
+### Overview
+
+**Creative North Star: "La fiche technique"**
+
+The page is the product's spec sheet, set beside the product itself: the real demo of a programme page inside a phone, then each function on a register line, grouped by who uses it (buyers, the developer's team, the studio, onboarding). Near-black ground, hairline rules, no cards, no labels above headings. Champagne is spent on three things only. The page is quiet so the phone can be the one lively object.
+
+**Key Characteristics:**
+- Near-black ground, rules at 70% of the border grey between lines, full-strength border above a list.
+- Space Grotesk for headings, function names and step numerals; Inter for everything else.
+- A heading says itself, with one phrase in champagne; no eyebrow, no gradient text.
+- Functions on register lines, not in icon cards.
+- The real demo in a phone frame: a capture first, the live page loaded into the same frame on launch.
+- 10px corners; full rounding only for dots.
+
+### Colors
+
+#### Primary
+- **Champagne** (`site-champagne`, theme `--primary`; hover `site-champagne-hover`, text on it `site-on-champagne`): the primary action, the accented phrase of a heading, and what REV does (the « REV » column head of the comparison, the « Nouveau » marker, step numerals, check marks and the « Ce que vous recevez » heading, the « live » dot and available status in the team mock). The hero's three facts carry 4px champagne dots at 70%. A FAQ question turns champagne on hover and its plus turns champagne when open.
+
+#### Neutral
+- **Ground** (`site-ground`): every part of the page. **Card** (`site-card`): only the team dashboard mock.
+- **Ink** (`site-ink`): headings, function names, CTA labels; text links at 80%, the empty « — » cell at 30%, « · » separators at 25%.
+- **Muted ink** (`site-ink-muted`): descriptions, function bodies, what the physical model and the PDF brochure do, notes.
+- **Rules**: `site-rule` at full strength above a list, under a table head and under each FAQ row; `site-rule-soft` (the same grey at 70%) between register lines and at the top of each part.
+- **Bezel** (`site-bezel`): the phone frame only, with a 1px white ring at 10%.
+
+**The Three Champagnes Rule.** Champagne marks the primary action, one phrase per heading, and what REV does. What the competition (model, brochure) does stays muted grey; a neutral fact never borrows champagne.
+
+### Typography
+
+**Display Font:** Space Grotesk Variable (`--font-display`), weight 500 only, tight tracking.
+**Body Font:** Inter Variable (`--font-sans`).
+
+- **Display** (`site-display`): the h1, three lines at 1440 wide, balanced wrap.
+- **Headline** (`site-headline`): each part's h2, balanced wrap, at most 768px wide.
+- **Function** (`site-function`, 17px from 640px; `site-function-compact`, 16px below): the name of a function opening a register line or a comparison row; also, at 15px, the programme name in the team mock.
+- **Question** (`site-question`, 18px from 768px, 16px below): FAQ questions.
+- **Numeral** (`site-numeral`, tabular, champagne): onboarding step numbers.
+- **Lead** (`site-lead`, 15px on phones, 16px from 768px, max 62ch): the description under a heading.
+- **Item** (`site-item`, 15px 500): onboarding column heads and item titles.
+- **Body** (`site-body`): function bodies (max 60ch) and FAQ answers.
+- **Action** (`site-action`, 14px 500): CTA labels.
+- **Small** (`site-small`, 13px): the hero facts and text links, comparison cells and table heads, onboarding details, final notes, the phone's close control.
+- 12px and 11px reuse the `label` and `note` steps: the « Nouveau » marker (12px 500 champagne), the powered-by line, the team mock's small print.
+
+**The Spec Sheet Voice Rule.** Space Grotesk names things (headings, functions, questions, step numbers); Inter explains them. The step ramp is 13 / 14 / 15 / 16 / 17 / 18 / 22 px plus the two clamps; a new step needs a reason.
+
+### Layout
+
+- **Container**: 1240px wide, gutters `site-gutter` on phones, 24px from 640px, `site-gutter-wide` from 768px.
+- **Parts**: each part opens with a rule at 70% and runs `site-part` above and below (56px from 640px, `site-part-wide` from 1024px; 96px for the closing part). Heading, then the list 32px below (40px from 640px).
+- **Register line**: a three-column grid. Function name in a 13rem column from 640px (15rem from 1024px), what it does beside it, an optional aside at the right from 1024px, baseline-aligned. `site-line` above and below on phones, `site-line-wide` from 640px. A rule at 70% under each line; the list carries a full-strength rule on top. On phones the name sits over its body with 4px between.
+- **Comparison table** (buyers): the REV column takes the width; model and brochure columns 176px (208px from 1024px), 24px apart. On phones the table becomes lines and both answers fold into one 13px line under the function: « Maquette : … · Brochure : … ».
+- **Hero**: text left, phone right (`1fr auto`, gaps 40 / 64 / 96px), vertically centred, top padding 112px (128px from 768px). Actions: full-width stacked with 10px between on phones, inline with 12px from 640px. Facts line 24px under the actions, text links 8px under that.
+- **Two-column parts**: team lines beside a 22rem mock from 1024px (64px gap); onboarding « what you send / what you receive » in two equal columns from 1024px; FAQ heading 0.8fr beside the list 1.2fr; studio and final parts put the CTA at the right, bottom-aligned.
+- **Motion**: the hero fades up 14px over 800ms (`cubic-bezier(0.16, 1, 0.3, 1)`), the phone 120ms after the text, by CSS on load. No scroll reveals and no split text on this page. CTA background 300ms with a 0.98 press; the ghost CTA's white-at-10% fill sweeps in from the left in 350ms; a FAQ answer opens by grid rows in 300ms on the same curve while its plus turns 45°; links and rows change colour in 200ms. Reduced motion collapses all of it.
+
+### Elevation & Depth
+
+Flat. The one object with depth is the phone: `0 40px 80px -32px rgb(0 0 0 / 0.9)` under a 1px white ring at 10%. The team mock is a bordered card surface with no shadow. On the capture inside the phone, a black gradient rises from the bottom (black from 25%, 80% midway) so the launch button reads on any render; that button is black at 60% with a background blur, as on-image controls are in the public world.
+
+**The One Lit Object Rule.** Only the phone casts a shadow. Everything else on the page is ground, rule and type.
+
+### Shapes
+
+One corner, 10px (`block`), for CTAs, the launch button, the team mock and the status rail inside it; 8px (`site-inner`) for the segments and small buttons inside that mock. Text-level targets (text links, FAQ rows) take the 6px `text` corner for their focus shape. The phone: `phone` outside with a 10px bezel and `phone-screen` for the screen on desktop; `phone-compact` with an 8px bezel on phones and tablets. Full rounding only for 4 to 6px dots. Focus is a 2px white ring at 70%.
+
+**The Dot Is Not A Pill Rule.** Nothing on the marketing page is a pill. Full rounding is for dots; statuses inside the mock are 8px segments.
+
+### Components
+
+- **Primary CTA** (`site-cta-primary`): « Prendre rendez-vous », champagne, 48px, 24px sides, 10px corner, an up-right arrow (16px) after the label. One per action group.
+- **Ghost CTA** (`site-cta-ghost`): 48px, 1px `site-rule` border, transparent, ink label; « Essayer la démo », « Planifier un appel », the studio's contact link.
+- **Text link** (`site-text-link`): 32px, 13px, ink at 80%, underline at 25% with a 4px offset (60% on hover), a 13px icon before: « Plein écran », « Mode présentation ».
+- **Heading**: the h1 or h2 with one champagne phrase in the line, optional lead under it. No label above.
+- **Register line** (`site-register-line`, signature): name, what it does, optional aside; the « Propulsé par » line with the compact REV logo (24px high) sits in the aside of the team's last line.
+- **Comparison table**: a register list with two muted columns for the model and the brochure; the head row in 13px, « REV » in champagne.
+- **Numbered and checked lists** (onboarding): 24px lead column holding the champagne numeral or an 18px champagne check, 15px 500 title, 13px muted detail, a 70% rule under each item.
+- **FAQ row** (`site-faq-row`): the question and a plus (18px) on one row; first item open by default.
+- **Phone with the real demo** (`site-phone`, signature): on desktop a 340 × 712 frame holding a 320 × 692 screen; the capture of the real demo page sits under a bottom gradient with the launch button (`site-phone-launch`, « Essayer comme un acheteur ») and a 12px note at 60% under it. Launching loads the real page (390 × 844, scaled to 0.8205) into the same screen, without a jump; a 36px text-level control under the phone closes it. On phones the frame is at most 360px wide and the whole capture is one link to the demo page.
+- **Product mock** (`site-product-mock`): a picture of the team dashboard (`role="img"`), the only bordered card surface on the page, because it depicts the product's own UI: a header row, lots with a three-state status rail (champagne, amber at 80%, zinc), a notification row, CSV buttons.
+
+### Do's and Don'ts
+
+#### Do:
+- **Do** open every part with a 70% rule and let the heading speak for itself, with one champagne phrase.
+- **Do** put functions on register lines, name in Space Grotesk, explanation in Inter.
+- **Do** show the real product in the phone frame rather than an illustration of it.
+- **Do** use the 10px corner for every action; 48px for CTAs, 32px for text links.
+- **Do** write every text in French and English and keep « Propulsé par » with the REV logo on the page.
+
+#### Don't:
+- **Don't** put a label, eyebrow or kicker above a heading, and don't set headings in gradient text.
+- **Don't** lay functions out as a grid of icon cards; the only card surface is a product mock.
+- **Don't** spend champagne on neutral facts or on what the model and brochure do.
+- **Don't** make any button, filter or tab a pill.
+- **Don't** add scroll-driven reveals or split-text entrances; the hero's CSS fade on load is the only entrance.
+- **Don't** bring these `site-*` tokens or the theme `primary` into `src/components/public/**`.
+
+### Drift (recorded, not canonized, not repaired)
+
+The rest of the marketing site still speaks the older dialect. These are defects the build carries, not rules to inherit:
+- **Eyebrow headings.** `AccentHeading` (`src/components/rev/AccentHeading.tsx`: an uppercase 11px tracked label with a champagne dot above a `text-gradient` heading at `clamp(1.75rem, 3.6vw, 3rem)`, h1 `clamp(2.1rem, 4.6vw, 3.9rem)`) is used by `AgentIA.tsx` and `AgentTeaser.tsx`. `SectionHeading` in `ui.tsx` (same eyebrow, split text, gradient) is used by `AboutPage`, `BrandingProgram`, `Ecosystem`, `Faq`, `Portfolio`, `ProcessSteps`, `Services`, `WhyRev`. `PageHero` in `ui.tsx` (eyebrow, split-text gradient h1 over a veiled photo) heads About, Contact, Insights, Portfolio, Pricing and Services.
+- **Gradient text** beyond those primitives: the home hero (`Hero.tsx`, with a pill-shaped uppercase label and a 760px blurred glow behind), `AgentIA.tsx`, `FinalCta.tsx`.
+- **Uppercase tracked micro-labels** (9 to 11px) in seventeen marketing files, including the home hero, `AgentIA`, `Portfolio`, `ProcessSteps`, `PricingPage`, `ServicesPage`.
+- **Scroll reveals** (`Reveal`) in fifteen marketing files.
+- **Pills as controls**: the portfolio filter tabs are fully rounded uppercase pills.
+- **On the offer page itself**: the ghost CTA carries a background blur (`backdrop-blur-md`) from `Cta` that has nothing to blur on the page black; it is not part of the world.

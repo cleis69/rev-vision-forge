@@ -172,7 +172,7 @@ function EmbeddedPlan({ data, slug }: { data: PublicData; slug: string }) {
   };
 
   const shown = filter ? lots.filter((l) => l.statut === filter) : lots;
-  const followers = useLotFollowers(programme.id, !preview);
+  const followers = useLotFollowers(programme.id, !preview && programme.alerts);
   const button =
     "inline-flex h-11 items-center justify-center gap-2 rounded-[10px] border border-white/15 px-4 text-sm text-white/85 transition-colors hover:border-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";
 
@@ -250,17 +250,19 @@ function EmbeddedPlan({ data, slug }: { data: PublicData; slug: string }) {
                     currency={programme.currency}
                     onPick={(other) => open(other, "list")}
                     alertForm={
-                      <VisitForm
-                        projectId={programme.id}
-                        slug={programme.slug}
-                        owner={programme.organization.name}
-                        lot={lot}
-                        preview={preview}
-                        source="embed"
-                        privacyInNewTab
-                        kind="alerte"
-                        submitLabel={copy.notifyMe}
-                      />
+                      programme.alerts ? (
+                        <VisitForm
+                          projectId={programme.id}
+                          slug={programme.slug}
+                          owner={programme.organization.name}
+                          lot={lot}
+                          preview={preview}
+                          source="embed"
+                          privacyInNewTab
+                          kind="alerte"
+                          submitLabel={copy.notifyMe}
+                        />
+                      ) : null
                     }
                   />
                 ),

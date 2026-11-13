@@ -22,21 +22,28 @@ export const SOURCE_LABELS: Record<string, string> = {
   presentation: "Bureau de vente",
 };
 
-const COLUMNS =
-  "id, created_at, project_id, lot_id, nom, telephone, email, message, source, status, notified_at, kind";
+const BASE_COLUMNS =
+  "id, created_at, project_id, lot_id, nom, telephone, email, message, source, status, notified_at";
+const COLUMNS = `${BASE_COLUMNS}, kind`;
 const leadsKey = (projectId: string) => ["leads", projectId] as const;
 
 export function useLeads(projectId: string) {
   return useQuery({
     queryKey: leadsKey(projectId),
     queryFn: async () => {
-      const { data, error } = await getSupabase()
-        .from("leads")
-        .select(COLUMNS)
-        .eq("project_id", projectId)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data as Lead[];
+      const read = (columns: string) =>
+        getSupabase()
+          .from("leads")
+          .select(columns)
+          .eq("project_id", projectId)
+          .order("created_at", { ascending: false });
+      const full = await read(COLUMNS);
+      if (!full.error) return full.data as unknown as Lead[];
+      // Before the migration that adds the alerts: every request is a visit request.
+      if (full.error.code !== "42703") throw full.error;
+      const base = await read(BASE_COLUMNS);
+      if (base.error) throw base.error;
+      return (base.data as unknown as Omit<Lead, "kind">[]).map((l) => ({ ...l, kind: "visite" }));
     },
   });
 }

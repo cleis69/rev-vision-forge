@@ -42,3 +42,4 @@ deploy/media-sizes.json
 .impeccable/decision/
 .impeccable/build/
 .impeccable/mocks/
+.impeccable/questions/

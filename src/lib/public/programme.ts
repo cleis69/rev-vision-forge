@@ -122,6 +122,8 @@ export type PublicProgramme = {
   paymentNote: string | null;
   /** Starting values of the yield simulator (shown when a rate per night is set). */
   rental: Rental;
+  /** The database takes alerts on a lot and counts its followers (false until its migration is applied). */
+  alerts: boolean;
 };
 
 export type PublicData = {
@@ -321,6 +323,8 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
       paymentPlan: parsePaymentPlan(source.payment_plan),
       paymentNote: source.payment_note?.trim() || null,
       rental: parseRental(source.rental),
+      // The payment plan and the alerts arrived together: one tells whether the other is there.
+      alerts: source.payment_plan !== undefined,
     },
     lots: lots.data
       .flatMap((l) =>

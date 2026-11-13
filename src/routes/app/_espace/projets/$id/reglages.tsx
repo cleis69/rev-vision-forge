@@ -114,7 +114,10 @@ function ProjectSettingsPage() {
       <ProjectSettingsForm key={project.id} project={project} />
       <SituationSettings key={`situation-${project.id}`} project={project} />
       <AmenitiesSettings key={`prestations-${project.id}`} project={project} />
-      <PaymentSettings key={`paiement-${project.id}`} project={project} />
+      {/* Shown once the database has these columns. */}
+      {"payment_plan" in project ? (
+        <PaymentSettings key={`paiement-${project.id}`} project={project} />
+      ) : null}
       {role === "owner" ? (
         <DeleteProjectSection project={project} />
       ) : (

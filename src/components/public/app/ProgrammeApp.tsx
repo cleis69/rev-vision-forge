@@ -486,7 +486,7 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
   const shown = lot ?? shownLot;
   const lotTour = lot ? tourOfLot(tours, lot) : null;
   // Visitors following each lot (a count), said on its sheet.
-  const followers = useLotFollowers(programme.id, !preview);
+  const followers = useLotFollowers(programme.id, !preview && programme.alerts);
   const shownMedia = shown ? lotMedia(data, shown) : null;
   const typeTour = (type: string) => {
     const tour = tours.find((t) => sameType(t.lotType, type));
@@ -1106,15 +1106,17 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
                       currency={programme.currency}
                       onPick={(other) => open(other, "list")}
                       alertForm={
-                        <VisitForm
-                          projectId={programme.id}
-                          slug={programme.slug}
-                          owner={programme.organization.name}
-                          lot={shown}
-                          preview={preview}
-                          kind="alerte"
-                          submitLabel={copy.notifyMe}
-                        />
+                        programme.alerts ? (
+                          <VisitForm
+                            projectId={programme.id}
+                            slug={programme.slug}
+                            owner={programme.organization.name}
+                            lot={shown}
+                            preview={preview}
+                            kind="alerte"
+                            submitLabel={copy.notifyMe}
+                          />
+                        ) : null
                       }
                     />
                   ),

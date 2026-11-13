@@ -438,7 +438,8 @@ export function OrbitViewer({
     if (span) {
       // As large as the lots allow: every lot of the turn in sight, with a little air around.
       const across = Math.min(1, span.x1 - span.x0 + 2 * AIR);
-      const down = Math.min(1, span.y1 - span.y0 + 2 * AIR);
+      // Half the air above and below: a short box keeps more of its width.
+      const down = Math.min(1, span.y1 - span.y0 + AIR);
       width = Math.min(cover, Math.max(contain, Math.min(w / across, (h / down) * ratio)));
     } else {
       // Before the masks: filling the box as long as 70 % of the image stays in sight.

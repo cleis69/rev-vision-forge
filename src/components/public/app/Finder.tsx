@@ -53,6 +53,7 @@ const COPY = {
         ? `${feminine ? "Aucune" : "Aucun"} ${bare} ne correspond`
         : `${count} ${n > 1 ? "correspondent" : "correspond"}`,
     live: "Disponibilités en direct",
+    liveShort: "En direct",
     sortBy: "Trier",
     sorts: {
       numero: "Numéro",
@@ -94,6 +95,7 @@ const COPY = {
     match: (count: string, n: number, _feminine: boolean, bare: string) =>
       n === 0 ? `No ${bare} matches` : `${count} ${n > 1 ? "match" : "matches"}`,
     live: "Live availability",
+    liveShort: "Live",
     sortBy: "Sort",
     sorts: {
       numero: "Lot number",
@@ -218,6 +220,8 @@ export function Finder({
   // Prices on request for every lot still for sale: said once, not on each line.
   const priced = lots.some((l) => l.statut !== "vendue" && l.prix !== null);
   const onRequest = !priced && lots.some((l) => l.statut !== "vendue");
+  // Under the count: the statuses (from two on) and "clear".
+  const secondRow = present.length > 1 || narrowed;
 
   const clause: Record<Word, string | null> = {
     type: offers.type ? (type === null ? copy.anyType : copy.ofType(shortType(type, noun))) : null,
@@ -392,11 +396,6 @@ export function Finder({
       <div className="border-y border-white/10 px-5 py-3 lg:px-6">
         <div className="flex items-center justify-between gap-3">
           <p className="flex min-w-0 items-baseline gap-2 text-sm font-medium" aria-live="polite">
-            <span className="relative flex size-2 shrink-0 translate-y-[-1px]" title={copy.live}>
-              <span className="absolute inline-flex size-full animate-ping rounded-full bg-[color:var(--brand)]/60 motion-reduce:animate-none" />
-              <span className="relative inline-flex size-2 rounded-full bg-[color:var(--brand)]" />
-              <span className="sr-only">{copy.live}</span>
-            </span>
             <span
               key={`${shown.length}-${narrowed}`}
               className="duration-200 animate-in fade-in motion-reduce:animate-none"
@@ -410,6 +409,15 @@ export function Finder({
                   )
                 : countLots(noun, lots.length, locale)}
               {viewName ? <span className="font-normal text-white/55"> · {viewName}</span> : null}
+              {/* Alone on its row it would cost a line of lots: beside the count when nothing else is there. */}
+              {onRequest && !secondRow ? (
+                <span className="font-normal text-white/55"> · {text.onRequest}</span>
+              ) : null}
+              <span className="sr-only"> · {copy.live}</span>
+              <span className="hidden font-normal text-white/50 lg:inline" aria-hidden>
+                {" "}
+                · {copy.liveShort}
+              </span>
             </span>
           </p>
           <div className="flex shrink-0 items-center gap-1">
@@ -436,7 +444,7 @@ export function Finder({
           </div>
         </div>
 
-        {present.length > 1 || narrowed || onRequest ? (
+        {secondRow ? (
           <div className="mt-1.5 flex min-h-8 items-center justify-between gap-3">
             {present.length > 1 ? (
               <div

@@ -395,10 +395,10 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
   const currentView = data.views.find((v) => v.id === viewKey) ?? null;
   const firstFrame = currentView?.orbit?.frames[0];
   // Phones: the view at the format of its images (with room for the buttons of the other views),
-  // never more than 46 % of the height: wider screens crop it on the lots and keep lines in sight.
+  // never more than 42 % of the height: wider screens crop it on the lots and keep lines in sight.
   const stageHeight =
     !wide && firstFrame
-      ? `min(calc(100vw * ${(firstFrame.height / firstFrame.width).toFixed(4)}${data.views.length > 1 ? " + 4rem" : ""}), 46svh)`
+      ? `min(calc(100vw * ${(firstFrame.height / firstFrame.width).toFixed(4)}${data.views.length > 1 ? " + 4rem" : ""}), 42svh)`
       : null;
 
   /* ----- filters, shared by the list beside the view and the Lots tab */

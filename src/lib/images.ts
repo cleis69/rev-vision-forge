@@ -10,6 +10,7 @@ const FILES = import.meta.glob<string>("../assets/*-*.webp", {
 });
 
 export type PhotoName =
+  | "demo-phone"
   | "hero-villa"
   | "work-architecture"
   | "work-branding"

@@ -1,167 +1,139 @@
-import { useState, type ComponentType } from "react";
+import { useState, type ReactNode } from "react";
 import {
-  ArrowRight,
   ArrowUpRight,
-  CalendarCheck,
-  ChartColumn,
   Check,
-  CircleDot,
-  Clapperboard,
-  CodeXml,
   FileText,
-  Film,
-  GitCompareArrows,
-  Image,
   Inbox,
-  MapPin,
-  MessageCircle,
-  Minus,
-  MonitorSmartphone,
-  MousePointerClick,
-  Palette,
-  Phone,
+  Maximize2,
   Plus,
   Presentation,
-  QrCode,
-  Rotate3d,
-  SlidersHorizontal,
   Upload,
-  View,
-  type LucideProps,
 } from "lucide-react";
 
-import { AccentHeading } from "@/components/rev/AccentHeading";
 import { RevLogo } from "@/components/rev/Logo";
-import { Reveal } from "@/components/rev/Reveal";
-import { SalesPlanDemo } from "@/components/rev/SalesPlanDemo";
-import { Container, Cta, Section, fadeUp } from "@/components/rev/ui";
+import { SalesPlanDemo, demoPath } from "@/components/rev/SalesPlanDemo";
+import { Container, Cta, fadeUp } from "@/components/rev/ui";
 import { salesPlanDemoUrl } from "@/lib/contact";
 import { SALES_PLAN_FAQ } from "@/lib/faq";
 import { href, useLocale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 /*
- * Offer page of the 3D sales plan (SaaS for property developers). The live
- * demo is a fictional programme: no client is named anywhere on this page.
+ * Offer page of the 3D sales plan (SaaS for property developers): the
+ * product's spec sheet, set beside the product itself. The live demo is a
+ * fictional programme: no client is named anywhere on this page.
  */
 
-type Icon = ComponentType<LucideProps>;
-type Mark = "yes" | "part" | "no";
-type Cell = Mark | [Mark, string];
+/** What a physical model or a PDF brochure does for the same need (null: nothing). */
+type Other = string | null;
+
+type BuyerLine = {
+  title: string;
+  body: string;
+  model: Other;
+  brochure: Other;
+  isNew?: boolean;
+};
 
 const FR = {
-  demoCta: "Réserver une démo",
+  demoCta: "Prendre rendez-vous",
   callCta: "Planifier un appel",
   hero: {
-    eyebrow: "Plan de vente 3D · Promoteurs",
     before: "Vendez sur plan",
     accent: "en 3D,",
     after: "avec les disponibilités en direct.",
     description:
       "Une page par programme. Vos acheteurs tournent la résidence du bout du doigt, voient chaque lot disponible, réservé ou vendu, ouvrent sa fiche et vous écrivent en le citant. Votre équipe met les statuts à jour en un clic.",
-    live: "Voir la démo en direct",
+    tryDemo: "Essayer la démo",
     points: ["Téléphone, tablette, ordinateur", "Rien à installer", "Français et anglais"],
-    cards: [
-      { title: "Villa 6 · Réservée", note: "Mise à jour par votre équipe · à l'instant" },
-      { title: "Nouvelle demande", note: "Villa 7 · demande de visite" },
-      { title: "Comparaison envoyée", note: "Villas 2, 4 et 8 · par lien" },
-      { title: "Recherche : 5 chambres", note: "Résultats allumés sur la 3D" },
-    ],
-  },
-  demo: {
-    eyebrow: "Démo en direct",
-    before: "Essayez-la",
-    accent: "comme un acheteur.",
-    description:
-      "Un programme fictif de 14 villas à Marrakech, ouvert à tous : vues 3D, fiches des lots, visite 360°, quartier, comparateur et simulateur de crédit.",
-  },
-  compare: {
-    eyebrow: "Ce que l'acheteur peut faire",
-    before: "Plus qu'une maquette,",
-    accent: "plus qu'une brochure.",
-    description:
-      "La maquette reste au bureau de vente et la brochure est figée le jour de son envoi. Le plan de vente 3D suit l'acheteur partout, toujours à jour.",
-    caption: "Ce que l'acheteur peut faire avec une maquette physique, une brochure PDF et REV",
-    feature: "Fonction",
-    columns: ["Maquette physique", "Brochure PDF", "REV"],
-    marks: { yes: "Oui", part: "En partie", no: "Non" } as Record<Mark, string>,
-    rows: [
-      {
-        label: "Voir le programme sous tous les angles",
-        cells: [["part", "Au bureau de vente"], ["part", "Quelques images"], "yes"],
-      },
-      { label: "Ouvrir un étage, une villa", cells: ["no", ["part", "Plans par niveau"], "yes"] },
-      { label: "Disponibilités en direct", cells: ["no", ["no", "Figée à l'envoi"], "yes"] },
-      {
-        label: "Fiche et plan de chaque lot",
-        cells: ["no", ["part", "Par typologie"], "yes"],
-      },
-      { label: "Visite 360°", cells: ["no", "no", "yes"] },
-      { label: "Quartier et temps de trajet", cells: ["no", ["part", "Carte figée"], "yes"] },
-      { label: "Comparer des lots et envoyer la comparaison", cells: ["no", "no", "yes"] },
-      { label: "Recherche par budget, surface, chambres", cells: ["no", "no", "yes"] },
-      { label: "Simulateur de crédit", cells: ["no", "no", "yes"] },
-      { label: "Contact qui cite le lot", cells: [["part", "Sur place"], "no", "yes"] },
-      {
-        label: "Français et anglais",
-        cells: [["part", "Selon l'équipe"], ["part", "Un PDF par langue"], "yes"],
-      },
-    ] as { label: string; cells: Cell[] }[],
+    fullScreen: "Plein écran",
+    presentation: "Mode présentation",
+    presentationHint: "plein écran pour la tablette du bureau de vente",
+    newTab: "(nouvel onglet)",
   },
   buyers: {
-    eyebrow: "Pour vos acheteurs",
     before: "Tout pour choisir son lot",
     accent: "avant le premier rendez-vous.",
+    description:
+      "La maquette reste au bureau de vente et la brochure est figée le jour de son envoi. Le plan de vente 3D suit l'acheteur partout, toujours à jour.",
+    caption:
+      "Ce que l'acheteur peut faire avec REV, avec une maquette physique et avec une brochure PDF",
+    columns: { rev: "Avec REV", model: "Maquette physique", brochure: "Brochure PDF" },
+    short: { model: "Maquette", brochure: "Brochure" },
+    no: "non",
+    colon: " : ",
     isNew: "Nouveau",
-    items: [
+    lines: [
       {
         title: "La résidence en 3D, au doigt",
         body: "Vue aérienne, toiture, étages, vue piéton : l'acheteur tourne, zoome et touche un lot.",
+        model: "Au bureau de vente",
+        brochure: "Quelques images",
       },
       {
         title: "Mouvements de caméra filmés",
         body: "Quand l'acheteur change de vue, un plan filmé l'y emmène.",
+        model: null,
+        brochure: null,
         isNew: true,
       },
       {
         title: "Statuts en direct",
         body: "Chaque lot en couleur : disponible, réservé ou vendu, mis à jour par votre équipe.",
+        model: null,
+        brochure: "Figée à l'envoi",
       },
       {
         title: "Fiche, plan et crédit",
         body: "Surface, chambres, prix ou prix sur demande, plan du lot et simulateur de crédit.",
+        model: null,
+        brochure: "Par typologie",
       },
       {
         title: "Visite 360°",
         body: "Les pièces en panorama, sur ordinateur ou avec le gyroscope du téléphone.",
+        model: null,
+        brochure: null,
       },
       {
         title: "Quartier et trajets",
         body: "Écoles, golf, aéroport : ce qu'il y a autour, et à combien de minutes.",
+        model: null,
+        brochure: "Carte figée",
       },
       {
         title: "Recherche qui éclaire la 3D",
         body: "Budget, surface, chambres : les lots qui correspondent restent allumés, les autres s'estompent.",
+        model: null,
+        brochure: null,
       },
       {
         title: "Comparateur à partager",
         body: "Jusqu'à 3 lots côte à côte, envoyés par lien à un proche ou à son banquier.",
+        model: null,
+        brochure: null,
       },
-    ] as { title: string; body: string; isNew?: boolean }[],
-    contact: {
-      title: "L'acheteur vous écrit, le lot déjà nommé.",
-      body: "Depuis la fiche, il vous contacte sur WhatsApp, vous appelle ou demande une visite : votre commercial sait tout de suite de quel lot on parle.",
-      chips: ["WhatsApp", "Appel", "Demande de visite"],
-    },
+      {
+        title: "Un contact qui cite le lot",
+        body: "Depuis la fiche, l'acheteur vous écrit sur WhatsApp, vous appelle ou demande une visite : votre commercial sait tout de suite de quel lot on parle.",
+        model: "Sur place",
+        brochure: null,
+      },
+      {
+        title: "Français et anglais",
+        body: "Chaque page existe dans les deux langues, et l'acheteur passe de l'une à l'autre en un geste.",
+        model: "Selon l'équipe",
+        brochure: "Un PDF par langue",
+      },
+    ] as BuyerLine[],
   },
   teams: {
-    eyebrow: "Pour vos équipes",
     before: "Votre espace promoteur :",
     accent: "un clic,",
     after: "et la page est à jour.",
     description:
       "Passer un lot en vendu ne demande ni e-mail ni délai : votre équipe le fait elle-même, et tous les acheteurs le voient aussitôt.",
-    items: [
+    lines: [
       {
         title: "Statuts en un clic",
         body: "Disponible, réservé, vendu. Import et export CSV de toute la liste des lots.",
@@ -179,8 +151,8 @@ const FR = {
         body: "Un lien pour le programme et pour chaque lot, à glisser dans vos annonces et brochures.",
       },
       {
-        title: "Sur votre site",
-        body: "Le plan de vente dans une iframe, qui prend toute seule la bonne hauteur.",
+        title: "Intégré à votre site",
+        body: "Une ligne à coller dans votre site : le plan de vente y apparaît et prend tout seul la bonne hauteur.",
       },
       {
         title: "Mode présentation",
@@ -215,13 +187,12 @@ const FR = {
     },
   },
   studio: {
-    eyebrow: "Studio 3D",
     before: "Pas encore de 3D ?",
     accent: "Notre studio la produit.",
     description:
       "À partir de vos plans, notre studio crée les images et les films de votre programme, puis les relie à votre plan de vente.",
     cta: "Demander un devis 3D",
-    items: [
+    lines: [
       {
         title: "Rendus photoréalistes",
         body: "Extérieurs et intérieurs, de jour comme de nuit, pour la page, les annonces et la brochure.",
@@ -230,10 +201,7 @@ const FR = {
         title: "Films",
         body: "Le film du programme, pour vos réseaux, vos salons et le bureau de vente.",
       },
-      {
-        title: "Visites 360°",
-        body: "Les intérieurs en panorama, reliés pièce par pièce.",
-      },
+      { title: "Visites 360°", body: "Les intérieurs en panorama, reliés pièce par pièce." },
       {
         title: "Vues orbitales",
         body: "La résidence qui tourne sur elle-même, chaque lot repéré pour être cliquable.",
@@ -242,10 +210,9 @@ const FR = {
         title: "Mouvements de caméra",
         body: "Des plans filmés qui emmènent l'acheteur d'une vue à l'autre.",
       },
-    ] as { title: string; body: string }[],
+    ],
   },
   onboarding: {
-    eyebrow: "Mise en route",
     before: "Vous envoyez",
     accent: "trois choses.",
     after: "Nous faisons le reste.",
@@ -261,7 +228,7 @@ const FR = {
         detail: "Excel ou CSV : numéro, surface, chambres, prix, statut.",
       },
       { title: "Un plan par lot", detail: "En PDF." },
-    ] as { title: string; detail?: string; chips?: string[] }[],
+    ],
     receiveItems: [
       {
         title: "Votre lien, et son QR code",
@@ -279,7 +246,6 @@ const FR = {
     ],
   },
   faq: {
-    eyebrow: "FAQ",
     before: "Les réponses",
     accent: "avant de vous lancer.",
     description: "Une autre question ? Posez-la pendant la démo.",
@@ -293,115 +259,103 @@ const FR = {
 };
 
 const EN: typeof FR = {
-  demoCta: "Book a demo",
+  demoCta: "Book a meeting",
   callCta: "Book a call",
   hero: {
-    eyebrow: "3D sales plan · Developers",
     before: "Sell off-plan",
     accent: "in 3D,",
     after: "with live availability.",
     description:
       "One page per development. Buyers turn the residence with a finger, see every unit as available, reserved or sold, open its sheet and contact you naming it. Your team updates statuses in one click.",
-    live: "See the live demo",
+    tryDemo: "Try the demo",
     points: ["Phone, tablet, computer", "Nothing to install", "French and English"],
-    cards: [
-      { title: "Villa 6 · Reserved", note: "Updated by your team · just now" },
-      { title: "New enquiry", note: "Villa 7 · viewing request" },
-      { title: "Comparison sent", note: "Villas 2, 4 and 8 · by link" },
-      { title: "Search: 5 bedrooms", note: "Matches lit up in 3D" },
-    ],
-  },
-  demo: {
-    eyebrow: "Live demo",
-    before: "Try it",
-    accent: "as a buyer would.",
-    description:
-      "A fictional development of 14 villas in Marrakech, open to everyone: 3D views, unit sheets, 360° tour, neighbourhood, comparison and mortgage simulator.",
-  },
-  compare: {
-    eyebrow: "What buyers can do",
-    before: "More than a model,",
-    accent: "more than a brochure.",
-    description:
-      "The model stays at the sales office and the brochure is frozen the day it's sent. The 3D sales plan goes wherever the buyer is, always up to date.",
-    caption: "What buyers can do with a physical model, a PDF brochure and REV",
-    feature: "Feature",
-    columns: ["Physical model", "PDF brochure", "REV"],
-    marks: { yes: "Yes", part: "Partly", no: "No" },
-    rows: [
-      {
-        label: "See the development from every angle",
-        cells: [["part", "At the sales office"], ["part", "A few images"], "yes"],
-      },
-      { label: "Open a floor or a villa", cells: ["no", ["part", "Floor plans"], "yes"] },
-      { label: "Live availability", cells: ["no", ["no", "Frozen when sent"], "yes"] },
-      { label: "Each unit's sheet and plan", cells: ["no", ["part", "By unit type"], "yes"] },
-      { label: "360° tour", cells: ["no", "no", "yes"] },
-      { label: "Neighbourhood and travel times", cells: ["no", ["part", "Static map"], "yes"] },
-      { label: "Compare units and send the comparison", cells: ["no", "no", "yes"] },
-      { label: "Search by budget, area, bedrooms", cells: ["no", "no", "yes"] },
-      { label: "Mortgage simulator", cells: ["no", "no", "yes"] },
-      { label: "Contact that names the unit", cells: [["part", "On site"], "no", "yes"] },
-      {
-        label: "French and English",
-        cells: [["part", "Depends on staff"], ["part", "One PDF per language"], "yes"],
-      },
-    ],
+    fullScreen: "Full screen",
+    presentation: "Presentation mode",
+    presentationHint: "full screen for the sales office tablet",
+    newTab: "(new tab)",
   },
   buyers: {
-    eyebrow: "For your buyers",
     before: "Everything to choose a unit",
     accent: "before the first meeting.",
+    description:
+      "The model stays at the sales office and the brochure is frozen the day it's sent. The 3D sales plan goes wherever the buyer is, always up to date.",
+    caption: "What buyers can do with REV, with a physical model and with a PDF brochure",
+    columns: { rev: "With REV", model: "Physical model", brochure: "PDF brochure" },
+    short: { model: "Model", brochure: "Brochure" },
+    no: "no",
+    colon: ": ",
     isNew: "New",
-    items: [
+    lines: [
       {
         title: "The residence in 3D, by touch",
         body: "Aerial, roof, floors, street view: buyers turn, zoom and tap a unit.",
+        model: "At the sales office",
+        brochure: "A few images",
       },
       {
         title: "Filmed camera moves",
         body: "When a buyer picks a view, a filmed shot takes them there.",
+        model: null,
+        brochure: null,
         isNew: true,
       },
       {
         title: "Live status",
         body: "Every unit in colour: available, reserved or sold, updated by your team.",
+        model: null,
+        brochure: "Frozen when sent",
       },
       {
         title: "Sheet, plan and mortgage",
         body: "Area, bedrooms, price or price on request, the unit's plan and a mortgage simulator.",
+        model: null,
+        brochure: "By unit type",
       },
       {
         title: "360° tour",
         body: "Rooms in panorama, on a computer or with the phone's gyroscope.",
+        model: null,
+        brochure: null,
       },
       {
         title: "Neighbourhood and journeys",
         body: "Schools, golf, airport: what's nearby, and how many minutes away.",
+        model: null,
+        brochure: "Static map",
       },
       {
         title: "Search that lights up the 3D",
         body: "Budget, area, bedrooms: matching units stay lit, the others fade.",
+        model: null,
+        brochure: null,
       },
       {
         title: "Comparison to share",
         body: "Up to 3 units side by side, sent by link to family or the bank.",
+        model: null,
+        brochure: null,
+      },
+      {
+        title: "Contact that names the unit",
+        body: "From the unit sheet, buyers message you on WhatsApp, call you or request a viewing: your sales team knows straight away which unit it's about.",
+        model: "On site",
+        brochure: null,
+      },
+      {
+        title: "French and English",
+        body: "Every page exists in both languages, and buyers switch from one to the other in a tap.",
+        model: "Depends on staff",
+        brochure: "One PDF per language",
       },
     ],
-    contact: {
-      title: "Buyers contact you with the unit already named.",
-      body: "From the unit sheet, they message you on WhatsApp, call you or request a viewing: your sales team knows straight away which unit it's about.",
-      chips: ["WhatsApp", "Call", "Viewing request"],
-    },
   },
   teams: {
-    eyebrow: "For your teams",
     before: "Your developer space:",
     accent: "one click,",
     after: "and the page is up to date.",
     description:
       "Marking a unit as sold takes no email and no waiting: your team does it itself, and every buyer sees it straight away.",
-    items: [
+    lines: [
       {
         title: "Status in one click",
         body: "Available, reserved, sold. CSV import and export of the whole unit list.",
@@ -410,17 +364,14 @@ const EN: typeof FR = {
         title: "Real-time enquiries",
         body: "Each enquiry arrives with the unit named, and you reply on WhatsApp in one tap.",
       },
-      {
-        title: "Statistics",
-        body: "Page visits, most viewed units, where enquiries come from.",
-      },
+      { title: "Statistics", body: "Page visits, most viewed units, where enquiries come from." },
       {
         title: "Links and QR codes",
         body: "One link for the development and one for each unit, for your ads and brochures.",
       },
       {
-        title: "On your website",
-        body: "The sales plan in an iframe that sizes itself to fit.",
+        title: "Built into your website",
+        body: "One line to paste into your site: the sales plan appears there and sizes itself to fit.",
       },
       {
         title: "Presentation mode",
@@ -447,13 +398,12 @@ const EN: typeof FR = {
     },
   },
   studio: {
-    eyebrow: "3D studio",
     before: "No 3D yet?",
     accent: "Our studio makes it.",
     description:
       "From your plans, our studio creates your development's images and films, then connects them to your sales plan.",
     cta: "Request a 3D quote",
-    items: [
+    lines: [
       {
         title: "Photoreal renders",
         body: "Exteriors and interiors, by day or by night, for the page, your ads and the brochure.",
@@ -462,10 +412,7 @@ const EN: typeof FR = {
         title: "Films",
         body: "The development's film, for social media, property fairs and the sales office.",
       },
-      {
-        title: "360° tours",
-        body: "Interiors in panorama, linked room by room.",
-      },
+      { title: "360° tours", body: "Interiors in panorama, linked room by room." },
       {
         title: "Orbital views",
         body: "The residence turning on itself, every unit mapped so it can be clicked.",
@@ -477,7 +424,6 @@ const EN: typeof FR = {
     ],
   },
   onboarding: {
-    eyebrow: "Getting started",
     before: "You send",
     accent: "three things.",
     after: "We do the rest.",
@@ -508,7 +454,6 @@ const EN: typeof FR = {
     ],
   },
   faq: {
-    eyebrow: "FAQ",
     before: "Answers",
     accent: "before you start.",
     description: "Another question? Ask it during the demo.",
@@ -524,33 +469,8 @@ const EN: typeof FR = {
 const COPY = { fr: FR, en: EN };
 type Copy = typeof FR;
 
-const HERO_POINT_ICONS: Icon[] = [MonitorSmartphone, Check, MessageCircle];
-const HERO_CARD_ICONS: Icon[] = [CircleDot, Inbox, GitCompareArrows, SlidersHorizontal];
-const BUYER_ICONS: Icon[] = [
-  Rotate3d,
-  Clapperboard,
-  CircleDot,
-  FileText,
-  View,
-  MapPin,
-  SlidersHorizontal,
-  GitCompareArrows,
-];
-const CONTACT_ICONS: Icon[] = [MessageCircle, Phone, CalendarCheck];
-const TEAM_ICONS: Icon[] = [
-  MousePointerClick,
-  Inbox,
-  ChartColumn,
-  QrCode,
-  CodeXml,
-  Presentation,
-  Palette,
-];
-const STUDIO_ICONS: Icon[] = [Image, Film, View, Rotate3d, Clapperboard];
-
-/** Snap carousel on phones and tablets, a grid from `lg` (few items fill the width). */
-const CAROUSEL =
-  "-mx-5 flex snap-x snap-mandatory scroll-px-5 gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:-mx-6 sm:scroll-px-6 sm:px-6 md:-mx-10 md:scroll-px-10 md:px-10 lg:mx-0 lg:grid lg:snap-none lg:overflow-visible lg:px-0 lg:pb-0 [&::-webkit-scrollbar]:hidden";
+/** Lower-cases the first letter, for a note read after a colon. */
+const lower = (text: string) => text.charAt(0).toLowerCase() + text.slice(1);
 
 export function SalesPlanPage() {
   const locale = useLocale();
@@ -559,27 +479,12 @@ export function SalesPlanPage() {
 
   return (
     <>
-      <Hero copy={copy} onLive={() => setLaunched(true)} />
-
-      <Section id="demo" className="pt-8 sm:pt-10 lg:pt-12">
-        <Container>
-          <SalesPlanDemo
-            heading={
-              <AccentHeading
-                eyebrow={copy.demo.eyebrow}
-                before={copy.demo.before}
-                accent={copy.demo.accent}
-                description={copy.demo.description}
-              />
-            }
-            launched={launched}
-            onLaunch={() => setLaunched(true)}
-            onClose={() => setLaunched(false)}
-          />
-        </Container>
-      </Section>
-
-      <Comparison copy={copy} />
+      <Hero
+        copy={copy}
+        launched={launched}
+        onLaunch={() => setLaunched(true)}
+        onClose={() => setLaunched(false)}
+      />
       <Buyers copy={copy} />
       <Teams copy={copy} />
       <Studio copy={copy} />
@@ -590,94 +495,160 @@ export function SalesPlanPage() {
   );
 }
 
+/* -------------------------------------------------------------- pieces */
+
+/** A part of the sheet: a hairline above, a compact rhythm. */
+function Part({
+  id,
+  children,
+  className,
+}: {
+  id: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <section
+      id={id}
+      className={cn("scroll-mt-20 border-t border-border/70 py-12 sm:py-14 lg:py-20", className)}
+    >
+      <Container>{children}</Container>
+    </section>
+  );
+}
+
+/** A title that speaks for itself: no label above it, one phrase in champagne. */
+function Heading({
+  as: Tag = "h2",
+  before,
+  accent,
+  after,
+  description,
+  className,
+}: {
+  as?: "h1" | "h2";
+  before: string;
+  accent: string;
+  after?: string;
+  description?: string;
+  className?: string;
+}) {
+  return (
+    <div className={cn("max-w-3xl", className)}>
+      <Tag
+        className={cn(
+          "font-display font-medium text-foreground [text-wrap:balance]",
+          Tag === "h1"
+            ? "text-[clamp(2.15rem,4.4vw,3.75rem)] leading-[1.04] tracking-[-0.035em]"
+            : "text-[clamp(1.6rem,3vw,2.5rem)] leading-[1.1] tracking-[-0.03em]",
+        )}
+      >
+        {before} <span className="text-primary">{accent}</span>
+        {after ? ` ${after}` : ""}
+      </Tag>
+      {description ? (
+        <p className="mt-4 max-w-[62ch] text-[15px] leading-relaxed text-muted-foreground md:text-base">
+          {description}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+/** One line of the sheet: the function's name, then what it does. */
+function Line({ title, body, aside }: { title: string; body: string; aside?: ReactNode }) {
+  return (
+    <li className="grid gap-1 border-b border-border/70 py-4 sm:grid-cols-[13rem_minmax(0,1fr)] sm:gap-6 sm:py-5 lg:grid-cols-[15rem_minmax(0,1fr)_auto] lg:items-baseline">
+      <h3 className="font-display text-[16px] font-medium leading-snug tracking-tight text-foreground sm:text-[17px]">
+        {title}
+      </h3>
+      <p className="max-w-[60ch] text-sm leading-relaxed text-muted-foreground">{body}</p>
+      {aside ? <div className="max-lg:mt-2 sm:col-start-2 lg:col-start-auto">{aside}</div> : null}
+    </li>
+  );
+}
+
+const TEXT_LINK =
+  "inline-flex h-8 items-center gap-1.5 rounded-[6px] text-foreground/80 underline decoration-foreground/25 underline-offset-4 transition-colors duration-200 hover:text-foreground hover:decoration-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";
+
 /* ----------------------------------------------------------------- hero */
 
-function Hero({ copy, onLive }: { copy: Copy; onLive: () => void }) {
+function Hero({
+  copy,
+  launched,
+  onLaunch,
+  onClose,
+}: {
+  copy: Copy;
+  launched: boolean;
+  onLaunch: () => void;
+  onClose: () => void;
+}) {
   const locale = useLocale();
   const h = copy.hero;
+  const path = demoPath(locale);
   return (
-    <section className="relative overflow-hidden border-b border-border/70 pb-10 pt-28 md:pb-14 md:pt-36">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute right-[-10%] top-0 -z-10 h-[620px] w-[620px] rounded-full opacity-25 blur-3xl"
-        style={{
-          background:
-            "radial-gradient(closest-side, color-mix(in oklab, var(--primary) 45%, transparent), transparent)",
-        }}
-      />
+    <section className="pb-12 pt-28 md:pt-32 lg:pb-16">
       <Container>
-        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.1fr)_auto] lg:gap-16">
-          <div>
-            <AccentHeading
+        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16 xl:gap-24">
+          <div className="min-w-0" style={fadeUp(0)}>
+            <Heading
               as="h1"
-              eyebrow={h.eyebrow}
               before={h.before}
               accent={h.accent}
               after={h.after}
               description={h.description}
             />
-            <div
-              className="mt-7 grid grid-cols-1 gap-2.5 sm:flex sm:flex-wrap sm:gap-3"
-              style={fadeUp(0.15)}
-            >
-              <Cta href="#demo" onClick={onLive}>
-                {h.live}
-                <ArrowRight size={16} aria-hidden />
-              </Cta>
-              <Cta href={salesPlanDemoUrl(locale)} variant="ghost">
+            <div className="mt-7 grid grid-cols-1 gap-2.5 sm:flex sm:flex-wrap sm:gap-3">
+              <Cta href={salesPlanDemoUrl(locale)} className="rounded-[10px]">
                 {copy.demoCta}
                 <ArrowUpRight size={16} aria-hidden />
               </Cta>
+              {/* On a computer the demo opens in the phone beside; on a phone, the page itself. */}
+              <Cta
+                href="#demo"
+                onClick={onLaunch}
+                variant="ghost"
+                className="rounded-[10px] max-lg:hidden"
+              >
+                {h.tryDemo}
+              </Cta>
+              <Cta href={path} variant="ghost" className="rounded-[10px] lg:hidden">
+                {h.tryDemo}
+              </Cta>
             </div>
-            <ul
-              className="mt-7 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-x-6"
-              style={fadeUp(0.22)}
-            >
-              {h.points.map((label, i) => {
-                const PointIcon = HERO_POINT_ICONS[i] ?? Check;
-                return (
-                  <li
-                    key={label}
-                    className="flex items-center gap-2.5 text-sm text-muted-foreground"
-                  >
-                    <PointIcon size={15} className="shrink-0 text-primary" aria-hidden />
-                    {label}
-                  </li>
-                );
-              })}
+            <ul className="mt-6 flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-muted-foreground">
+              {h.points.map((point) => (
+                <li key={point} className="flex items-center gap-2 whitespace-nowrap">
+                  <span aria-hidden className="size-1 rounded-full bg-primary/70" />
+                  {point}
+                </li>
+              ))}
             </ul>
+            <p className="mt-2 flex flex-wrap gap-x-5 text-[13px]">
+              <a href={path} target="_blank" rel="noopener" className={TEXT_LINK}>
+                <Maximize2 size={13} aria-hidden />
+                {h.fullScreen}
+                <span className="sr-only"> {h.newTab}</span>
+              </a>
+              <a
+                href={`${path}?mode=presentation`}
+                target="_blank"
+                rel="noopener"
+                className={TEXT_LINK}
+              >
+                <Presentation size={13} aria-hidden />
+                {h.presentation}
+                <span className="sr-only">
+                  {" "}
+                  : {h.presentationHint} {h.newTab}
+                </span>
+              </a>
+            </p>
           </div>
 
-          {/* Illustrative events of a live sales plan (decorative). */}
-          <div aria-hidden className="relative mx-auto hidden lg:block" style={fadeUp(0.12)}>
-            <div className="flex w-[310px] flex-col gap-3">
-              {h.cards.map(({ title, note }, i) => {
-                const CardIcon = HERO_CARD_ICONS[i] ?? Check;
-                return (
-                  <div
-                    key={title}
-                    className="flex items-center gap-3 rounded-2xl border border-border bg-card/80 px-4 py-3 shadow-[var(--shadow-soft)] backdrop-blur-xl"
-                    style={{
-                      marginLeft: `${(i % 2) * 28}px`,
-                      animation: `rev-float ${6 + i}s ease-in-out ${-i}s infinite`,
-                    }}
-                  >
-                    <span
-                      className={cn(
-                        "grid h-9 w-9 shrink-0 place-items-center rounded-xl",
-                        i === 1 ? "bg-primary text-primary-foreground" : "bg-elevated text-primary",
-                      )}
-                    >
-                      <CardIcon size={16} />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block text-sm font-medium">{title}</span>
-                      <span className="block truncate text-xs text-muted-foreground">{note}</span>
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+          <div className="min-w-0" style={fadeUp(0.12)}>
+            <SalesPlanDemo launched={launched} onLaunch={onLaunch} onClose={onClose} />
           </div>
         </div>
       </Container>
@@ -685,213 +656,91 @@ function Hero({ copy, onLive }: { copy: Copy; onLive: () => void }) {
   );
 }
 
-/* ----------------------------------------------------------- comparison */
+/* --------------------------------------------------------------- buyers */
 
-function MarkView({
-  cell,
-  labels,
-  rev,
-}: {
-  cell: Cell;
-  labels: Record<Mark, string>;
-  rev: boolean;
-}) {
-  const [mark, note] = typeof cell === "string" ? [cell, undefined] : cell;
-  return (
-    <span className="flex flex-col items-center">
-      {mark === "yes" ? (
-        <span
-          aria-hidden
-          className={cn(
-            "grid size-6 place-items-center rounded-full",
-            rev ? "bg-primary text-primary-foreground" : "bg-foreground/15 text-foreground",
-          )}
-        >
-          <Check size={13} strokeWidth={3} />
-        </span>
-      ) : mark === "part" ? (
-        <span
-          aria-hidden
-          className="block size-[18px] rounded-full border-[1.5px] border-muted-foreground/70"
-          style={{
-            background:
-              "linear-gradient(90deg, color-mix(in oklab, var(--muted-foreground) 70%, transparent) 50%, transparent 50%)",
-          }}
-        />
-      ) : (
-        <Minus size={16} aria-hidden className="text-muted-foreground/50" />
-      )}
-      <span className="sr-only">{labels[mark]}</span>
-      {note ? (
-        <span className="mt-1 block text-[10.5px] leading-tight text-muted-foreground sm:text-xs">
-          {note}
-        </span>
-      ) : null}
+function OtherCell({ value, no }: { value: Other; no: string }) {
+  return value ? (
+    <span className="text-[13px] leading-snug text-muted-foreground">{value}</span>
+  ) : (
+    <span className="text-[13px] text-foreground/30">
+      <span aria-hidden>—</span>
+      <span className="sr-only">{no}</span>
     </span>
   );
 }
 
-function Comparison({ copy }: { copy: Copy }) {
-  const c = copy.compare;
-  return (
-    <Section id="comparatif" className="border-t border-border/70">
-      <Container>
-        <AccentHeading
-          eyebrow={c.eyebrow}
-          before={c.before}
-          accent={c.accent}
-          description={c.description}
-        />
-
-        <Reveal className="mt-8 sm:mt-10">
-          <div className="overflow-hidden rounded-2xl border border-border bg-card">
-            <table className="w-full table-fixed border-collapse text-left">
-              <caption className="sr-only">{c.caption}</caption>
-              <colgroup>
-                <col />
-                <col className="w-16 sm:w-32 lg:w-44" />
-                <col className="w-16 sm:w-32 lg:w-44" />
-                <col className="w-16 sm:w-32 lg:w-44" />
-              </colgroup>
-              <thead>
-                <tr className="border-b border-border">
-                  <th
-                    scope="col"
-                    className="px-3 py-3 text-[11px] font-normal uppercase tracking-[0.16em] text-muted-foreground sm:px-6 sm:py-4"
-                  >
-                    {c.feature}
-                  </th>
-                  {c.columns.map((label, i) => (
-                    <th
-                      key={label}
-                      scope="col"
-                      className={cn(
-                        "px-1 py-3 text-center align-middle sm:px-3 sm:py-4",
-                        i === 2
-                          ? "bg-primary/10 font-display text-sm font-medium text-primary sm:text-base"
-                          : "text-[11px] font-medium leading-tight text-muted-foreground sm:text-[13px]",
-                      )}
-                    >
-                      {label}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {c.rows.map((row) => (
-                  <tr key={row.label} className="border-b border-border/60 last:border-0">
-                    <th
-                      scope="row"
-                      className="px-3 py-3 text-[13px] font-normal leading-snug text-foreground/90 sm:px-6 sm:py-3.5 sm:text-sm"
-                    >
-                      {row.label}
-                    </th>
-                    {row.cells.map((cell, i) => (
-                      <td
-                        key={i}
-                        className={cn(
-                          "px-1 py-3 text-center align-middle sm:px-3",
-                          i === 2 && "bg-primary/10",
-                        )}
-                      >
-                        <MarkView cell={cell} labels={c.marks} rev={i === 2} />
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <ul
-            className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-muted-foreground"
-            aria-hidden
-          >
-            {(["yes", "part", "no"] as const).map((mark) => (
-              <li key={mark} className="flex items-center gap-2">
-                <span className="inline-flex scale-[0.8]">
-                  <MarkView cell={mark} labels={c.marks} rev />
-                </span>
-                {c.marks[mark]}
-              </li>
-            ))}
-          </ul>
-        </Reveal>
-      </Container>
-    </Section>
-  );
-}
-
-/* --------------------------------------------------------------- buyers */
-
 function Buyers({ copy }: { copy: Copy }) {
   const b = copy.buyers;
   return (
-    <Section id="acheteurs" className="border-t border-border/70">
-      <Container>
-        <AccentHeading eyebrow={b.eyebrow} before={b.before} accent={b.accent} />
+    <Part id="acheteurs">
+      <Heading before={b.before} accent={b.accent} description={b.description} />
 
-        {/* Compact rows on phones, cards from `sm`. */}
-        <ul className="mt-8 grid gap-2.5 sm:mt-10 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-          {b.items.map((item, i) => {
-            const ItemIcon = BUYER_ICONS[i] ?? Check;
-            return (
-              <Reveal as="li" key={item.title} delay={(i % 4) * 70}>
-                <article className="surface relative flex h-full gap-3.5 p-4 sm:block sm:p-6">
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border bg-background/60 text-primary sm:h-10 sm:w-10">
-                    <ItemIcon size={17} aria-hidden />
+      <table className="mt-8 w-full border-collapse text-left sm:mt-10">
+        <caption className="sr-only">{b.caption}</caption>
+        <thead className="max-md:sr-only">
+          <tr className="border-b border-border">
+            <th scope="col" className="pb-3 text-[13px] font-medium text-primary">
+              {b.columns.rev}
+            </th>
+            <th
+              scope="col"
+              className="w-44 pb-3 pl-6 text-[13px] font-normal text-muted-foreground lg:w-52"
+            >
+              {b.columns.model}
+            </th>
+            <th
+              scope="col"
+              className="w-44 pb-3 pl-6 text-[13px] font-normal text-muted-foreground lg:w-52"
+            >
+              {b.columns.brochure}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {b.lines.map((line) => (
+            <tr
+              key={line.title}
+              className="border-b border-border/70 align-baseline max-md:block max-md:py-4"
+            >
+              <th scope="row" className="py-5 pr-6 text-left font-normal max-md:block max-md:p-0">
+                <span className="grid gap-1 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-6">
+                  <span className="font-display text-[16px] font-medium leading-snug tracking-tight text-foreground sm:text-[17px]">
+                    {line.title}
+                    {line.isNew ? " " : null}
+                    {line.isNew ? (
+                      <span className="whitespace-nowrap font-sans text-[12px] font-medium text-primary">
+                        {b.isNew}
+                      </span>
+                    ) : null}
                   </span>
-                  <div className="min-w-0 sm:mt-4">
-                    <h3 className="font-display text-[15px] font-medium leading-snug tracking-tight sm:text-lg">
-                      {item.title}
-                      {item.isNew ? (
-                        <span className="ml-2 inline-block rounded-md bg-primary px-2 py-0.5 align-[2px] font-sans text-[10px] font-medium uppercase tracking-[0.14em] text-primary-foreground sm:absolute sm:right-4 sm:top-4 sm:ml-0">
-                          {b.isNew}
-                        </span>
-                      ) : null}
-                    </h3>
-                    <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground sm:mt-1.5 sm:text-sm">
-                      {item.body}
-                    </p>
-                  </div>
-                </article>
-              </Reveal>
-            );
-          })}
-        </ul>
-
-        <Reveal className="mt-3 sm:mt-4">
-          <div className="flex flex-col gap-4 rounded-2xl border border-primary/35 bg-primary/5 p-5 sm:p-6 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
-            <div className="flex gap-4">
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground">
-                <MessageCircle size={19} aria-hidden />
-              </span>
-              <div>
-                <h3 className="font-display text-base font-medium tracking-tight sm:text-lg">
-                  {b.contact.title}
-                </h3>
-                <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                  {b.contact.body}
-                </p>
-              </div>
-            </div>
-            <ul className="flex shrink-0 flex-wrap gap-2">
-              {b.contact.chips.map((chip, i) => {
-                const ChipIcon = CONTACT_ICONS[i] ?? Check;
-                return (
-                  <li
-                    key={chip}
-                    className="inline-flex items-center gap-2 rounded-lg border border-border bg-background/60 px-3 py-2 text-[13px] text-foreground/85"
-                  >
-                    <ChipIcon size={14} className="text-primary" aria-hidden />
-                    {chip}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </Reveal>
-      </Container>
-    </Section>
+                  <span className="block max-w-[60ch] text-sm leading-relaxed text-muted-foreground">
+                    {line.body}
+                  </span>
+                </span>
+              </th>
+              <td className="py-5 pl-6 max-md:hidden">
+                <OtherCell value={line.model} no={b.no} />
+              </td>
+              <td className="py-5 pl-6 max-md:hidden">
+                <OtherCell value={line.brochure} no={b.no} />
+              </td>
+              {/* Phones: both answers on one line under the function. */}
+              <td className="mt-2 block text-[13px] text-muted-foreground md:hidden">
+                {b.short.model}
+                {b.colon}
+                {line.model ? lower(line.model) : b.no}
+                <span aria-hidden className="mx-2 text-foreground/25">
+                  ·
+                </span>
+                {b.short.brochure}
+                {b.colon}
+                {line.brochure ? lower(line.brochure) : b.no}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </Part>
   );
 }
 
@@ -899,25 +748,27 @@ function Buyers({ copy }: { copy: Copy }) {
 
 const MOCK_STATUS = [
   "bg-primary text-primary-foreground",
-  "bg-amber-400/75 text-black",
-  "bg-zinc-500 text-white",
+  "bg-amber-400/80 text-black",
+  "bg-zinc-600 text-white",
 ];
 
 function TeamsMock({ copy }: { copy: Copy }) {
   const m = copy.teams.mock;
   return (
-    <div role="img" aria-label={m.label} className="surface flex h-full flex-col overflow-hidden">
-      <div aria-hidden className="flex h-full flex-col">
+    <div
+      role="img"
+      aria-label={m.label}
+      className="overflow-hidden rounded-[10px] border border-border bg-card"
+    >
+      <div aria-hidden>
         <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 sm:px-5">
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              {m.title}
-            </p>
+            <p className="text-xs text-muted-foreground">{m.title}</p>
             <p className="mt-0.5 truncate font-display text-[15px] font-medium tracking-tight">
               {m.programme}
             </p>
           </div>
-          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-primary/40 px-2.5 py-1 text-[11px] text-primary">
+          <span className="inline-flex shrink-0 items-center gap-1.5 text-[11px] text-primary">
             <span className="size-1.5 rounded-full bg-primary" />
             {m.live}
           </span>
@@ -932,13 +783,13 @@ function TeamsMock({ copy }: { copy: Copy }) {
                 i >= 4 && "hidden lg:flex",
               )}
             >
-              <span className="text-[13px] font-medium">{row.lot}</span>
-              <span className="flex rounded-lg border border-border bg-background/60 p-0.5">
+              <span className="text-[13px] font-medium tabular-nums">{row.lot}</span>
+              <span className="flex rounded-[10px] border border-border bg-background/60 p-0.5">
                 {m.statuses.map((label, s) => (
                   <span
                     key={label}
                     className={cn(
-                      "rounded-md px-2 py-1 text-[11px] sm:px-2.5",
+                      "rounded-[8px] px-2 py-1 text-[11px] sm:px-2.5",
                       s === row.status ? MOCK_STATUS[s] : "text-muted-foreground",
                     )}
                   >
@@ -950,9 +801,9 @@ function TeamsMock({ copy }: { copy: Copy }) {
           ))}
         </ul>
 
-        <div className="mt-auto space-y-3 p-4 sm:p-5">
-          <div className="flex items-center gap-3 rounded-xl border border-border bg-elevated/70 px-3.5 py-3">
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground">
+        <div className="space-y-3 border-t border-border p-4 sm:p-5">
+          <div className="flex items-center gap-3">
+            <span className="grid size-8 shrink-0 place-items-center rounded-[8px] bg-primary text-primary-foreground">
               <Inbox size={15} />
             </span>
             <span className="min-w-0 flex-1">
@@ -962,11 +813,11 @@ function TeamsMock({ copy }: { copy: Copy }) {
             <span className="shrink-0 text-[11px] text-muted-foreground">{m.now}</span>
           </div>
           <div className="flex gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-[11px] text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5 rounded-[8px] border border-border px-3 py-1.5 text-[11px] text-muted-foreground">
               <Upload size={12} />
               {m.importCsv}
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-[11px] text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5 rounded-[8px] border border-border px-3 py-1.5 text-[11px] text-muted-foreground">
               <FileText size={12} />
               {m.exportCsv}
             </span>
@@ -979,66 +830,40 @@ function TeamsMock({ copy }: { copy: Copy }) {
 
 function Teams({ copy }: { copy: Copy }) {
   const t = copy.teams;
+  const last = t.lines.length - 1;
   return (
-    <Section id="equipes" className="border-t border-border/70">
-      <Container>
-        <AccentHeading
-          eyebrow={t.eyebrow}
-          before={t.before}
-          accent={t.accent}
-          after={t.after}
-          description={t.description}
-        />
-
-        <div className="mt-8 grid gap-3 sm:mt-10 sm:gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
-          <Reveal className="h-full">
-            <TeamsMock copy={copy} />
-          </Reveal>
-
-          <ul className="grid gap-2.5 sm:grid-cols-2 sm:gap-3">
-            {t.items.map((item, i) => {
-              const ItemIcon = TEAM_ICONS[i] ?? Check;
-              const last = i === t.items.length - 1;
-              return (
-                <Reveal
-                  as="li"
-                  key={item.title}
-                  delay={(i % 2) * 60}
-                  className={cn(last && "sm:col-span-2")}
-                >
-                  <div
-                    className={cn(
-                      "flex h-full gap-3.5 rounded-2xl border border-border bg-card p-3.5 sm:p-5",
-                      last && "sm:items-center sm:justify-between",
-                    )}
-                  >
-                    <div className="flex gap-3.5">
-                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border bg-background/60 text-primary">
-                        <ItemIcon size={16} aria-hidden />
-                      </span>
-                      <div className="min-w-0">
-                        <h3 className="font-display text-[15px] font-medium tracking-tight">
-                          {item.title}
-                        </h3>
-                        <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-                          {item.body}
-                        </p>
-                      </div>
-                    </div>
-                    {last ? (
-                      <span className="hidden shrink-0 items-center gap-2.5 rounded-xl border border-border bg-background/60 px-3.5 py-2 text-xs text-muted-foreground sm:inline-flex">
-                        {t.poweredBy}
-                        <RevLogo variant="compact" lazy className="h-6 w-auto" />
-                      </span>
-                    ) : null}
-                  </div>
-                </Reveal>
-              );
-            })}
+    <Part id="equipes">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:gap-16">
+        <div>
+          <Heading
+            before={t.before}
+            accent={t.accent}
+            after={t.after}
+            description={t.description}
+          />
+          <ul className="mt-8 border-t border-border sm:mt-10">
+            {t.lines.map((line, i) => (
+              <Line
+                key={line.title}
+                title={line.title}
+                body={line.body}
+                aside={
+                  i === last ? (
+                    <span className="inline-flex items-center gap-2.5 whitespace-nowrap text-xs text-muted-foreground">
+                      {t.poweredBy}
+                      <RevLogo variant="compact" lazy className="h-6 w-auto" />
+                    </span>
+                  ) : undefined
+                }
+              />
+            ))}
           </ul>
         </div>
-      </Container>
-    </Section>
+        <div className="lg:pt-2">
+          <TeamsMock copy={copy} />
+        </div>
+      </div>
+    </Part>
   );
 }
 
@@ -1048,50 +873,24 @@ function Studio({ copy }: { copy: Copy }) {
   const locale = useLocale();
   const s = copy.studio;
   return (
-    <Section id="studio" className="border-t border-border/70">
-      <Container>
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
-          <AccentHeading
-            eyebrow={s.eyebrow}
-            before={s.before}
-            accent={s.accent}
-            description={s.description}
-          />
-          <Reveal className="shrink-0">
-            <Cta href={href("contact", locale)} variant="ghost">
-              {s.cta}
-              <ArrowUpRight size={16} aria-hidden />
-            </Cta>
-          </Reveal>
-        </div>
-
-        <ul className={cn("mt-8 sm:mt-10 lg:grid-cols-5 lg:gap-4", CAROUSEL)}>
-          {s.items.map((item, i) => {
-            const ItemIcon = STUDIO_ICONS[i] ?? Check;
-            return (
-              <Reveal
-                as="li"
-                key={item.title}
-                delay={i * 60}
-                className="w-[72%] shrink-0 snap-start sm:w-[42%] md:w-[31%] lg:w-auto"
-              >
-                <article className="surface flex h-full flex-col p-5">
-                  <span className="grid h-10 w-10 place-items-center rounded-xl border border-border bg-background/60 text-primary">
-                    <ItemIcon size={17} aria-hidden />
-                  </span>
-                  <h3 className="mt-4 font-display text-base font-medium tracking-tight sm:text-[17px]">
-                    {item.title}
-                  </h3>
-                  <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
-                    {item.body}
-                  </p>
-                </article>
-              </Reveal>
-            );
-          })}
-        </ul>
-      </Container>
-    </Section>
+    <Part id="studio">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
+        <Heading before={s.before} accent={s.accent} description={s.description} />
+        <Cta
+          href={href("contact", locale)}
+          variant="ghost"
+          className="shrink-0 self-start rounded-[10px] lg:self-auto"
+        >
+          {s.cta}
+          <ArrowUpRight size={16} aria-hidden />
+        </Cta>
+      </div>
+      <ul className="mt-8 border-t border-border sm:mt-10">
+        {s.lines.map((line) => (
+          <Line key={line.title} title={line.title} body={line.body} />
+        ))}
+      </ul>
+    </Part>
   );
 }
 
@@ -1100,78 +899,54 @@ function Studio({ copy }: { copy: Copy }) {
 function Onboarding({ copy }: { copy: Copy }) {
   const o = copy.onboarding;
   return (
-    <Section id="mise-en-route" className="border-t border-border/70">
-      <Container>
-        <AccentHeading eyebrow={o.eyebrow} before={o.before} accent={o.accent} after={o.after} />
-
-        <div className="mt-8 grid items-stretch gap-3 sm:mt-10 sm:gap-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
-          <Reveal className="surface p-5 sm:p-6">
-            <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-              {o.send}
-            </h3>
-            <ol className="mt-4 space-y-4">
-              {o.sendItems.map((item, i) => (
-                <li key={item.title} className="flex gap-4">
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-primary/50 font-display text-xs font-medium text-primary">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <div className="min-w-0 pt-1">
-                    <p className="text-[15px] font-medium leading-snug">{item.title}</p>
-                    {item.detail ? (
-                      <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-                        {item.detail}
-                      </p>
-                    ) : null}
-                    {item.chips ? (
-                      <p className="mt-2 flex flex-wrap gap-1.5">
-                        {item.chips.map((chip) => (
-                          <span
-                            key={chip}
-                            className="rounded-md border border-border bg-background/60 px-2 py-0.5 text-[11px] text-muted-foreground"
-                          >
-                            {chip}
-                          </span>
-                        ))}
-                      </p>
-                    ) : null}
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </Reveal>
-
-          <div aria-hidden className="hidden items-center justify-center lg:flex">
-            <span className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-primary">
-              <ArrowRight size={16} />
-            </span>
-          </div>
-
-          <Reveal
-            delay={80}
-            className="rounded-2xl border border-primary/40 bg-primary/5 p-5 sm:p-6"
-          >
-            <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-primary">
-              {o.receive}
-            </h3>
-            <ul className="mt-4 space-y-3.5">
-              {o.receiveItems.map((item) => (
-                <li key={item.title} className="flex gap-3.5">
-                  <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
-                    <Check size={13} strokeWidth={3} aria-hidden />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-[15px] font-medium leading-snug">{item.title}</p>
-                    <p className="mt-0.5 text-[13px] leading-relaxed text-muted-foreground">
-                      {item.detail}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </Reveal>
+    <Part id="mise-en-route">
+      <Heading before={o.before} accent={o.accent} after={o.after} />
+      <div className="mt-8 grid gap-10 sm:mt-10 lg:grid-cols-2 lg:gap-16">
+        <div>
+          <h3 className="border-b border-border pb-3 text-[15px] font-medium text-foreground">
+            {o.send}
+          </h3>
+          <ol>
+            {o.sendItems.map((item, i) => (
+              <li key={item.title} className="flex gap-4 border-b border-border/70 py-4">
+                <span className="w-6 shrink-0 font-display text-[22px] font-medium leading-none tabular-nums text-primary">
+                  {i + 1}
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[15px] font-medium leading-snug">{item.title}</p>
+                  <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+                    {item.detail}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
-      </Container>
-    </Section>
+        <div>
+          <h3 className="border-b border-border pb-3 text-[15px] font-medium text-primary">
+            {o.receive}
+          </h3>
+          <ul>
+            {o.receiveItems.map((item) => (
+              <li key={item.title} className="flex gap-4 border-b border-border/70 py-4">
+                <Check
+                  size={18}
+                  strokeWidth={2.5}
+                  className="mt-0.5 w-6 shrink-0 text-primary"
+                  aria-hidden
+                />
+                <div className="min-w-0">
+                  <p className="text-[15px] font-medium leading-snug">{item.title}</p>
+                  <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+                    {item.detail}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </Part>
   );
 }
 
@@ -1182,62 +957,53 @@ function SalesPlanFaq({ copy }: { copy: Copy }) {
   const f = copy.faq;
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <Section id="faq" className="border-t border-border/70">
-      <Container>
-        <div className="grid gap-6 sm:gap-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-14">
-          <AccentHeading
-            eyebrow={f.eyebrow}
-            before={f.before}
-            accent={f.accent}
-            description={f.description}
-          />
-          <Reveal>
-            <ul className="border-t border-border">
-              {SALES_PLAN_FAQ[locale].map((item, i) => {
-                const isOpen = open === i;
-                const id = `faq-${i}`;
-                return (
-                  <li key={item.q} className="border-b border-border">
-                    <h3>
-                      <button
-                        type="button"
-                        onClick={() => setOpen(isOpen ? null : i)}
-                        aria-expanded={isOpen}
-                        aria-controls={id}
-                        className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-4 py-4 text-left transition-colors duration-300 hover:text-primary sm:gap-6 sm:py-5"
-                      >
-                        <span className="font-display text-base font-medium tracking-tight md:text-lg">
-                          {item.q}
-                        </span>
-                        <Plus
-                          size={18}
-                          aria-hidden
-                          className={cn(
-                            "shrink-0 text-muted-foreground transition-transform duration-500",
-                            isOpen && "rotate-45 text-primary",
-                          )}
-                        />
-                      </button>
-                    </h3>
-                    <div
-                      id={id}
-                      className="grid transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                      style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
-                    >
-                      <div className="overflow-hidden" inert={!isOpen}>
-                        <p className="max-w-2xl pb-5 text-sm leading-relaxed text-muted-foreground">
-                          {item.a}
-                        </p>
-                      </div>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </Reveal>
-        </div>
-      </Container>
-    </Section>
+    <Part id="faq">
+      <div className="grid gap-6 sm:gap-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-14">
+        <Heading before={f.before} accent={f.accent} description={f.description} />
+        <ul className="border-t border-border">
+          {SALES_PLAN_FAQ[locale].map((item, i) => {
+            const isOpen = open === i;
+            const id = `faq-${i}`;
+            return (
+              <li key={item.q} className="border-b border-border">
+                <h3>
+                  <button
+                    type="button"
+                    onClick={() => setOpen(isOpen ? null : i)}
+                    aria-expanded={isOpen}
+                    aria-controls={id}
+                    className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-[6px] py-4 text-left transition-colors duration-200 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:gap-6 sm:py-5"
+                  >
+                    <span className="font-display text-base font-medium tracking-tight md:text-lg">
+                      {item.q}
+                    </span>
+                    <Plus
+                      size={18}
+                      aria-hidden
+                      className={cn(
+                        "shrink-0 text-muted-foreground transition-transform duration-300",
+                        isOpen && "rotate-45 text-primary",
+                      )}
+                    />
+                  </button>
+                </h3>
+                <div
+                  id={id}
+                  className="grid transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                  style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
+                >
+                  <div className="overflow-hidden" inert={!isOpen}>
+                    <p className="max-w-2xl pb-5 text-sm leading-relaxed text-muted-foreground">
+                      {item.a}
+                    </p>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </Part>
   );
 }
 
@@ -1247,42 +1013,28 @@ function FinalCta({ copy }: { copy: Copy }) {
   const locale = useLocale();
   const f = copy.final;
   return (
-    <section className="scroll-mt-20 border-t border-border/70 py-14 sm:py-16 lg:py-24">
-      <Container>
-        <Reveal className="relative overflow-hidden rounded-3xl border border-border bg-card px-5 py-10 text-center sm:px-10 sm:py-14">
-          <div
-            className="pointer-events-none absolute inset-x-0 -top-40 h-80 opacity-40 blur-3xl"
-            style={{
-              background:
-                "radial-gradient(closest-side, color-mix(in oklab, var(--primary) 45%, transparent), transparent)",
-            }}
-            aria-hidden
-          />
-          <h2 className="relative mx-auto max-w-3xl font-display text-[clamp(1.75rem,4vw,3rem)] font-medium leading-[1.06] tracking-[-0.03em] text-gradient [text-wrap:balance]">
-            {f.before} <span className="text-primary">{f.accent}</span>
-          </h2>
-          <p className="relative mx-auto mt-4 max-w-xl text-[15px] text-muted-foreground sm:text-base">
-            {f.body}
-          </p>
-          <div className="relative mt-7 flex flex-wrap justify-center gap-3">
-            <Cta href={salesPlanDemoUrl(locale)}>
-              {copy.demoCta}
-              <ArrowUpRight size={16} aria-hidden />
-            </Cta>
-            <Cta href={href("contact", locale)} variant="ghost">
-              {copy.callCta}
-            </Cta>
-          </div>
-          <p className="relative mt-5 flex flex-wrap justify-center gap-x-5 gap-y-1 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5">
-              <CalendarCheck size={13} className="text-primary" aria-hidden /> {f.notes[0]}
+    <Part id="rendez-vous" className="lg:py-24">
+      <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
+        <div>
+          <Heading before={f.before} accent={f.accent} description={f.body} />
+          <p className="mt-4 text-[13px] text-muted-foreground">
+            {f.notes[0]}
+            <span aria-hidden className="mx-2 text-foreground/25">
+              ·
             </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Check size={13} className="text-primary" aria-hidden /> {f.notes[1]}
-            </span>
+            {f.notes[1]}
           </p>
-        </Reveal>
-      </Container>
-    </section>
+        </div>
+        <div className="grid shrink-0 grid-cols-1 gap-2.5 sm:flex sm:gap-3">
+          <Cta href={salesPlanDemoUrl(locale)} className="rounded-[10px]">
+            {copy.demoCta}
+            <ArrowUpRight size={16} aria-hidden />
+          </Cta>
+          <Cta href={href("contact", locale)} variant="ghost" className="rounded-[10px]">
+            {copy.callCta}
+          </Cta>
+        </div>
+      </div>
+    </Part>
   );
 }

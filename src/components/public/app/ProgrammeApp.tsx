@@ -620,10 +620,13 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
               onClick={() => setMenuOpen(true)}
               aria-haspopup="dialog"
               aria-expanded={menuOpen}
-              className="inline-flex h-9 items-center gap-2 rounded-[10px] border border-white/15 px-3 text-[13px] text-white/85 transition-colors hover:border-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 lg:hidden"
+              // Small phones: the icon alone, so the programme's name keeps its room.
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-[10px] border border-white/15 px-3 text-[13px] text-white/85 transition-colors hover:border-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 max-[379px]:w-9 max-[379px]:px-0 lg:hidden"
             >
               <Menu className="size-4" aria-hidden />
-              {activeTab === "plan" ? copy.menu : copy.tabs[activeTab]}
+              <span className="max-[379px]:sr-only">
+                {activeTab === "plan" ? copy.menu : copy.tabs[activeTab]}
+              </span>
             </button>
           ) : null}
         </div>

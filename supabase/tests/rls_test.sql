@@ -917,6 +917,60 @@ begin
   exception when check_violation then ok := true; end;
   total := total + 1; if not ok then failed := failed + 1; report := report || 'traduction vide acceptée'::text; end if;
 
+  -- Lot sheet: payment plan, rental values, alerts and followers.
+  update public.projects
+  set payment_plan = '[{"label":"À la réservation","percent":30},{"label":"Remise des clés","percent":70}]',
+      payment_note = 'Selon les travaux.',
+      rental = '{"nightly":3500,"occupancy":55}'
+  where id = p_pub;
+  set local role anon;
+  select count(*) into n from public.public_projects
+  where id = p_pub and jsonb_array_length(payment_plan) = 2 and rental->>'nightly' = '3500'
+    and payment_note = 'Selon les travaux.';
+  reset role;
+  total := total + 1; if n <> 1 then failed := failed + 1; report := report || 'échéancier ou rentabilité absents de la page publique'::text; end if;
+
+  begin
+    update public.projects set payment_plan = '[{"label":"Rien","percent":0}]' where id = p_pub;
+    ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'étape de paiement à 0 % acceptée'::text; end if;
+
+  begin
+    update public.projects set rental = '{"nightly":3500,"marge":20}' where id = p_pub;
+    ok := false;
+  exception when check_violation then ok := true; end;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'valeur de rentabilité inconnue acceptée'::text; end if;
+
+  set local role anon;
+  begin perform public.submit_lead(p_pub, 'Visiteur', '+212600000003', 'session-alerte', null, null, null, 'page', 'alerte'); ok := false;
+  exception when others then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'alerte acceptée sans lot'::text; end if;
+
+  set local role anon;
+  begin perform public.submit_lead(p_pub, 'Visiteur', '+212600000003', 'session-alerte', lot_pub, null, null, 'page', 'pirate'); ok := false;
+  exception when others then ok := true; end;
+  reset role;
+  total := total + 1; if not ok then failed := failed + 1; report := report || 'type de demande inconnu accepté'::text; end if;
+
+  set local role anon;
+  begin perform public.submit_lead(p_pub, 'Visiteur', '+212600000003', 'session-alerte', lot_pub, null, null, 'page', 'alerte'); ok := true;
+  exception when others then ok := false; end;
+  reset role;
+  select count(*) into n from public.leads where session_id = 'session-alerte' and kind = 'alerte' and lot_id = lot_pub;
+  total := total + 1; if not ok or n <> 1 then failed := failed + 1; report := report || 'alerte sur un lot refusée'::text; end if;
+
+  set local role anon;
+  select coalesce(max(followers), 0) into n from public.lot_followers(p_pub) where lot_id = lot_pub;
+  reset role;
+  total := total + 1; if n < 2 then failed := failed + 1; report := report || 'visiteur : nombre de personnes qui suivent un lot absent'::text; end if;
+
+  set local role anon;
+  select count(*) into n from public.lot_followers(p_draft);
+  reset role;
+  total := total + 1; if n <> 0 then failed := failed + 1; report := report || 'visiteur : suiveurs d''un brouillon visibles'::text; end if;
+
   ---------------------------------------------------------------- report
   if failed = 0 then
     raise exception 'RLS TESTS PASSED %/%', total, total;

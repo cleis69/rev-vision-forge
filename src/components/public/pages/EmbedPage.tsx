@@ -4,6 +4,7 @@ import { CalendarCheck, ExternalLink, Eye, Share2, X } from "lucide-react";
 import { PoweredBy, PublicMessage, RevBadge, StatusFilters } from "@/components/public/Common";
 import { LotCards } from "@/components/public/LotCards";
 import { LotDetails } from "@/components/public/LotDetails";
+import { LotUnavailable } from "@/components/public/LotUnavailable";
 import { ProgrammeViews } from "@/components/public/ProgrammeViews";
 import { TourButton, TourOverlay, type OpenTour } from "@/components/public/Tours";
 import { useFollowLot, useViewKey } from "@/lib/public/use-views";
@@ -21,6 +22,8 @@ import {
   type PublicData,
   type PublicLot,
 } from "@/lib/public/programme";
+import { useLotFollowers } from "@/lib/public/followers";
+import { similarLots } from "@/lib/public/lot-list";
 import { lotUrl, shareLot } from "@/lib/public/share";
 import { useBrandTheme } from "@/lib/public/theme";
 import { lotMedia } from "@/lib/public/typologies";
@@ -32,6 +35,7 @@ const COPY = {
     preview:
       "Aperçu : ce programme n'est pas publié, le plan n'apparaîtra sur votre site qu'après sa publication.",
     noLots: "Les lots seront bientôt présentés.",
+    notifyMe: "Me prévenir",
     noMatch: "Aucun lot avec ce statut.",
     closeLot: (numero: string) => `Fermer la fiche du lot ${numero}`,
     visit: "Planifier une visite",
@@ -45,6 +49,7 @@ const COPY = {
     preview:
       "Preview: this programme is not published; the plan will only appear on your site once it is published.",
     noLots: "The lots will be listed soon.",
+    notifyMe: "Tell me",
     noMatch: "No lots with this status.",
     closeLot: (numero: string) => `Close the details of Lot ${numero}`,
     visit: "Book a visit",
@@ -167,6 +172,7 @@ function EmbeddedPlan({ data, slug }: { data: PublicData; slug: string }) {
   };
 
   const shown = filter ? lots.filter((l) => l.statut === filter) : lots;
+  const followers = useLotFollowers(programme.id, !preview);
   const button =
     "inline-flex h-11 items-center justify-center gap-2 rounded-full border border-white/15 px-4 text-sm text-white/85 transition-colors hover:border-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";
 
@@ -231,6 +237,34 @@ function EmbeddedPlan({ data, slug }: { data: PublicData; slug: string }) {
             currency={programme.currency}
             split
             Title="h2"
+            selling={{
+              paymentPlan: programme.paymentPlan,
+              paymentNote: programme.paymentNote,
+              rental: programme.rental,
+              followers: followers.data?.get(lot.id) ?? 0,
+              unavailable:
+                lot.statut === "disponible" ? null : (
+                  <LotUnavailable
+                    lot={lot}
+                    alternatives={similarLots(lots, lot)}
+                    currency={programme.currency}
+                    onPick={(other) => open(other, "list")}
+                    alertForm={
+                      <VisitForm
+                        projectId={programme.id}
+                        slug={programme.slug}
+                        owner={programme.organization.name}
+                        lot={lot}
+                        preview={preview}
+                        source="embed"
+                        privacyInNewTab
+                        kind="alerte"
+                        submitLabel={copy.notifyMe}
+                      />
+                    }
+                  />
+                ),
+            }}
             extra={(() => {
               const tour = tourOfLot(data.tours, lot);
               return tour ? (

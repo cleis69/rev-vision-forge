@@ -80,6 +80,8 @@ describe("page en anglais", () => {
       amenities: [{ icon: "pool", label: "Piscine" }],
       lotTypes: [{ name: "Villa A", description: "Plain-pied." }],
       places: [{ name: "Aéroport", minutes: 25, mode: "voiture" }],
+      paymentPlan: [{ label: "À la réservation", percent: 30 }],
+      paymentNote: "Selon les travaux.",
       translations: {
         Résidence: "Residence",
         Piscine: "Swimming pool",
@@ -88,6 +90,7 @@ describe("page en anglais", () => {
         Salon: "Living room",
         Façade: "Front",
         "Vue aérienne": "Aerial view",
+        "À la réservation": "On reservation",
       },
     },
     lots: [{ type: "Villa A", description: null, features: ["Piscine"] }],
@@ -112,6 +115,8 @@ describe("page en anglais", () => {
     expect(en.views[0]?.name).toBe("Aerial view");
     expect(en.media.map((m) => m.meta.caption)).toEqual(["Front", "Cuisine"]);
     expect(en.tours[0]?.rooms[0]?.name).toBe("Living room");
+    expect(en.programme.paymentPlan).toEqual([{ label: "On reservation", percent: 30 }]);
+    expect(en.programme.paymentNote).toBe("Selon les travaux.");
   });
 
   test("sans traduction : les données telles quelles", () => {

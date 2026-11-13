@@ -1,4 +1,5 @@
 import { parseAmenities } from "./amenities";
+import { parsePaymentPlan } from "./payment-plan";
 import { parseLotTypes } from "./lot-types";
 import { parsePlaces } from "./location";
 
@@ -44,6 +45,7 @@ export function withTranslation(
 export type TextGroup =
   | "presentation"
   | "prestations"
+  | "paiement"
   | "typologies"
   | "situation"
   | "vues"
@@ -54,6 +56,7 @@ export type TextGroup =
 export const GROUP_LABELS: Record<TextGroup, string> = {
   presentation: "Présentation",
   prestations: "Prestations",
+  paiement: "Paiement",
   typologies: "Typologies",
   situation: "Situation",
   vues: "Vues",
@@ -82,6 +85,8 @@ export function sourceTexts({
     amenities: unknown;
     lot_types: unknown;
     places: unknown;
+    payment_plan?: unknown;
+    payment_note?: string | null;
   };
   lots: readonly { description: string | null; features?: unknown }[];
   media: readonly { kind: string; meta: { caption?: string | undefined } }[];
@@ -99,6 +104,8 @@ export function sourceTexts({
   add("presentation", project.description);
   add("presentation", project.city);
   for (const a of parseAmenities(project.amenities)) add("prestations", a.label);
+  for (const s of parsePaymentPlan(project.payment_plan)) add("paiement", s.label);
+  add("paiement", project.payment_note);
   for (const t of parseLotTypes(project.lot_types)) add("typologies", t.description);
   for (const p of parsePlaces(project.places)) add("situation", p.name);
   for (const v of views) add("vues", v.name);

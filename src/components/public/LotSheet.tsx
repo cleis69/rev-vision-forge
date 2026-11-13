@@ -6,7 +6,7 @@ import type { MediaItem } from "@/lib/app/media";
 import { useCopy } from "@/lib/i18n";
 import type { PublicLot } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
-import { LotDetails } from "./LotDetails";
+import { LotDetails, type LotSelling } from "./LotDetails";
 
 const COPY = {
   fr: {
@@ -48,6 +48,7 @@ export function LotSheet({
   askVisit = null,
   modal = true,
   className,
+  selling,
 }: {
   lot: PublicLot | null;
   photos: MediaItem[];
@@ -60,6 +61,8 @@ export function LotSheet({
   /** false: beside the 3D view of a computer, which stays usable (another lot replaces this one). */
   modal?: boolean;
   className?: string | undefined;
+  /** How to pay, the yield, followers, alternatives (see LotSelling). */
+  selling?: LotSelling | undefined;
 }) {
   const copy = useCopy(COPY);
   // The form shows under the details of the lot it was opened for.
@@ -94,6 +97,7 @@ export function LotSheet({
               Title={SheetTitle}
               Description={SheetDescription}
               extra={actions?.tour}
+              selling={selling}
             />
 
             {showVisit && actions?.visit ? (

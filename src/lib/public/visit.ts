@@ -61,6 +61,8 @@ export function checkVisit(values: VisitValues, locale: Locale = "fr"): VisitErr
 }
 
 export type VisitSource = "page" | "embed" | "presentation";
+/** A visit request, or an alert on a lot that is not available (told when it is free again). */
+export type VisitKind = "visite" | "alerte";
 
 export class VisitError extends Error {}
 
@@ -76,6 +78,7 @@ export async function sendVisit(
   source: VisitSource = "page",
   session: string = sessionId(),
   locale: Locale = "fr",
+  kind: VisitKind = "visite",
 ): Promise<void> {
   const { error } = await getSupabase().rpc("submit_lead", {
     p_project_id: projectId,
@@ -86,6 +89,7 @@ export async function sendVisit(
     ...(values.email.trim() ? { p_email: values.email.trim() } : {}),
     ...(values.message.trim() ? { p_message: values.message.trim() } : {}),
     p_source: source,
+    ...(kind === "alerte" ? { p_kind: kind } : {}),
   });
   if (error) {
     const text = MESSAGES[locale];

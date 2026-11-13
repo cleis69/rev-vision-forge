@@ -17,6 +17,7 @@ import { getSupabase } from "@/lib/supabase/client";
 import { DEFAULT_BRAND } from "@/lib/brand";
 import { isPosition, parsePlaces, type Place, type Position } from "@/lib/location";
 import { parseTranslations, type TranslationMap } from "@/lib/translations";
+import { parsePaymentPlan, parseRental, type PaymentStep, type Rental } from "@/lib/payment-plan";
 import { localizeData } from "./localize";
 
 /* Public page of a programme (/p/$slug). Visitors read the public views
@@ -116,6 +117,11 @@ export type PublicProgramme = {
   coverId: string | null;
   /** English version of the promoter's texts (see localizeData). */
   translations: TranslationMap;
+  /** How a buyer pays, step by step (lot sheets); empty when not given. */
+  paymentPlan: PaymentStep[];
+  paymentNote: string | null;
+  /** Starting values of the yield simulator (shown when a rate per night is set). */
+  rental: Rental;
 };
 
 export type PublicData = {
@@ -160,6 +166,9 @@ type Source = {
   lot_types: unknown;
   cover_media_id: string | null;
   translations: unknown;
+  payment_plan?: unknown;
+  payment_note?: string | null;
+  rental?: unknown;
 };
 
 const features = (value: unknown) =>
@@ -309,6 +318,9 @@ async function load(source: Source, preview: boolean): Promise<PublicData> {
       lotTypes: parseLotTypes(source.lot_types),
       coverId: source.cover_media_id ?? null,
       translations: parseTranslations(source.translations),
+      paymentPlan: parsePaymentPlan(source.payment_plan),
+      paymentNote: source.payment_note?.trim() || null,
+      rental: parseRental(source.rental),
     },
     lots: lots.data
       .flatMap((l) =>

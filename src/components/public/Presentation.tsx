@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import type { LotStatus } from "@/lib/app/lot-fields";
 import { useCopy } from "@/lib/i18n";
 import { useLiveLots } from "@/lib/public/live";
+import { similarLots } from "@/lib/public/lot-list";
 import { countByStatus, tourOfLot, type PublicData, type PublicLot } from "@/lib/public/programme";
 import { lotMedia } from "@/lib/public/typologies";
 import { usePublicRoutes } from "@/lib/public/i18n";
@@ -14,6 +15,7 @@ import { firstView } from "@/lib/views";
 import { LanguageSwitch, PoweredBy, RevBadge, StatusFilters } from "./Common";
 import { LotCards } from "./LotCards";
 import { LotDetails } from "./LotDetails";
+import { LotUnavailable } from "./LotUnavailable";
 import { useFollowLot, useViewKey } from "@/lib/public/use-views";
 import { ProgrammeViews } from "./ProgrammeViews";
 import { TourButton, TourOverlay, type OpenTour } from "./Tours";
@@ -252,6 +254,23 @@ export function Presentation({ data, slug }: { data: PublicData; slug: string })
                 photos={lotMedia(data, lot).photos}
                 currency={programme.currency}
                 large
+                selling={{
+                  paymentPlan: programme.paymentPlan,
+                  paymentNote: programme.paymentNote,
+                  rental: programme.rental,
+                  followers: 0,
+                  unavailable:
+                    lot.statut === "disponible" ? null : (
+                      <LotUnavailable
+                        lot={lot}
+                        alternatives={similarLots(lots, lot)}
+                        currency={programme.currency}
+                        onPick={open}
+                        alertForm={null}
+                        large
+                      />
+                    ),
+                }}
                 extra={(() => {
                   const tour = tourOfLot(data.tours, lot);
                   return tour ? (

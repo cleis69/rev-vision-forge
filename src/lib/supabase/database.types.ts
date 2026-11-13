@@ -17,6 +17,7 @@ export type Database = {
           email: string | null;
           id: string;
           ip_hash: string | null;
+          kind: string;
           lot_id: string | null;
           message: string | null;
           nom: string;
@@ -33,6 +34,7 @@ export type Database = {
           email?: string | null;
           id?: string;
           ip_hash?: string | null;
+          kind?: string;
           lot_id?: string | null;
           message?: string | null;
           nom: string;
@@ -49,6 +51,7 @@ export type Database = {
           email?: string | null;
           id?: string;
           ip_hash?: string | null;
+          kind?: string;
           lot_id?: string | null;
           message?: string | null;
           nom?: string;
@@ -589,8 +592,11 @@ export type Database = {
           lot_types: Json;
           name: string;
           organization_id: string;
+          payment_note: string | null;
+          payment_plan: Json;
           places: Json;
           price_from: number | null;
+          rental: Json;
           show_prices: boolean;
           slug: string;
           status: Database["public"]["Enums"]["project_status"];
@@ -613,8 +619,11 @@ export type Database = {
           lot_types?: Json;
           name: string;
           organization_id: string;
+          payment_note?: string | null;
+          payment_plan?: Json;
           places?: Json;
           price_from?: number | null;
+          rental?: Json;
           show_prices?: boolean;
           slug: string;
           status?: Database["public"]["Enums"]["project_status"];
@@ -637,8 +646,11 @@ export type Database = {
           lot_types?: Json;
           name?: string;
           organization_id?: string;
+          payment_note?: string | null;
+          payment_plan?: Json;
           places?: Json;
           price_from?: number | null;
+          rental?: Json;
           show_prices?: boolean;
           slug?: string;
           status?: Database["public"]["Enums"]["project_status"];
@@ -748,8 +760,11 @@ export type Database = {
           organization_logo_path: string | null;
           organization_name: string | null;
           organization_slug: string | null;
+          payment_note: string | null;
+          payment_plan: Json | null;
           places: Json | null;
           price_from: number | null;
+          rental: Json | null;
           show_prices: boolean | null;
           slug: string | null;
           translations: Json | null;
@@ -779,8 +794,14 @@ export type Database = {
       };
       is_valid_amenities: { Args: { amenities: Json }; Returns: boolean };
       is_valid_lot_types: { Args: { lot_types: Json }; Returns: boolean };
+      is_valid_payment_plan: { Args: { plan: Json }; Returns: boolean };
       is_valid_places: { Args: { places: Json }; Returns: boolean };
+      is_valid_rental: { Args: { rental: Json }; Returns: boolean };
       is_valid_translations: { Args: { translations: Json }; Returns: boolean };
+      lot_followers: {
+        Args: { p_project_id: string };
+        Returns: { followers: number; lot_id: string }[];
+      };
       project_stats: {
         Args: { p_days: number; p_project_id: string; p_tz?: string };
         Returns: Json;
@@ -788,6 +809,7 @@ export type Database = {
       submit_lead: {
         Args: {
           p_email?: string;
+          p_kind?: string;
           p_lot_id?: string;
           p_message?: string;
           p_nom: string;

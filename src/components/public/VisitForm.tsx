@@ -8,6 +8,7 @@ import {
   checkVisit,
   sendVisit,
   type VisitErrors,
+  type VisitKind,
   type VisitSource,
   type VisitValues,
 } from "@/lib/public/visit";
@@ -26,6 +27,9 @@ const COPY = {
     sentTitle: "Demande envoyée.",
     sentText: (owner: string) =>
       `${owner ? `${owner} vous recontactera` : "Vous serez recontacté"} rapidement, par téléphone ou sur WhatsApp.`,
+    alertTitle: "C'est noté.",
+    alertText: (numero: string) =>
+      `Vous serez prévenu par téléphone ou sur WhatsApp dès que le lot ${numero} se libère.`,
     lot: "Lot qui vous intéresse",
     programme: "Le programme en général",
     name: "Nom",
@@ -48,6 +52,9 @@ const COPY = {
     sentTitle: "Request sent.",
     sentText: (owner: string) =>
       `${owner ? `${owner} will get back to you` : "You will be contacted"} shortly, by phone or on WhatsApp.`,
+    alertTitle: "Noted.",
+    alertText: (numero: string) =>
+      `You will be told by phone or on WhatsApp as soon as lot ${numero} is free again.`,
     lot: "Lot you are interested in",
     programme: "The programme in general",
     name: "Name",
@@ -77,6 +84,7 @@ export function VisitForm({
   privacyInNewTab = false,
   submitLabel,
   onSent,
+  kind = "visite",
 }: {
   projectId: string;
   slug: string;
@@ -94,6 +102,8 @@ export function VisitForm({
   /** "Planifier une visite" / "Book a visit" by default. */
   submitLabel?: string;
   onSent?: () => void;
+  /** "alerte": to be told when the lot (given) is free again; no message field. */
+  kind?: VisitKind;
 }) {
   const routes = usePublicRoutes();
   const locale = useLocale();
@@ -124,7 +134,15 @@ export function VisitForm({
     try {
       // A robot that filled the invisible field gets the same answer, and nothing is sent.
       if (!trap)
-        await sendVisit(projectId, lot?.id ?? (lotId || null), values, source, session, locale);
+        await sendVisit(
+          projectId,
+          lot?.id ?? (lotId || null),
+          values,
+          source,
+          session,
+          locale,
+          kind,
+        );
       setState("sent");
       onSent?.();
     } catch (error) {
@@ -140,8 +158,12 @@ export function VisitForm({
         role="status"
       >
         <CheckCircle2 className="size-7 text-[color:var(--brand)]" aria-hidden />
-        <p className="font-brand text-xl font-medium tracking-tight">{copy.sentTitle}</p>
-        <p className="text-sm leading-relaxed text-white/65">{copy.sentText(owner)}</p>
+        <p className="font-brand text-xl font-medium tracking-tight">
+          {kind === "alerte" ? copy.alertTitle : copy.sentTitle}
+        </p>
+        <p className="text-sm leading-relaxed text-white/65">
+          {kind === "alerte" && lot ? copy.alertText(lot.numero) : copy.sentText(owner)}
+        </p>
       </div>
     );
   }
@@ -209,18 +231,20 @@ export function VisitForm({
           className={inputClass}
         />
       </Field>
-      <Field id={`${id}-message`} label={copy.message} optional error={errors.message}>
-        <textarea
-          id={`${id}-message`}
-          rows={3}
-          value={values.message}
-          onChange={(e) => set("message")(e.target.value)}
-          placeholder={copy.messagePlaceholder}
-          aria-invalid={errors.message ? true : undefined}
-          aria-describedby={errors.message ? `${id}-message-error` : undefined}
-          className={cn(inputClass, "h-auto py-3")}
-        />
-      </Field>
+      {kind === "alerte" ? null : (
+        <Field id={`${id}-message`} label={copy.message} optional error={errors.message}>
+          <textarea
+            id={`${id}-message`}
+            rows={3}
+            value={values.message}
+            onChange={(e) => set("message")(e.target.value)}
+            placeholder={copy.messagePlaceholder}
+            aria-invalid={errors.message ? true : undefined}
+            aria-describedby={errors.message ? `${id}-message-error` : undefined}
+            className={cn(inputClass, "h-auto py-3")}
+          />
+        </Field>
+      )}
 
       {/* Invisible to people; robots that fill every field give themselves away. */}
       <div aria-hidden className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden">

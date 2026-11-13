@@ -22,6 +22,8 @@ export function localizeData(data: PublicData): PublicData {
       amenities: programme.amenities.map((a) => ({ ...a, label: t(a.label) })),
       lotTypes: programme.lotTypes.map((n) => ({ ...n, description: t(n.description) })),
       places: programme.places.map((p) => ({ ...p, name: t(p.name) })),
+      paymentPlan: programme.paymentPlan.map((s) => ({ ...s, label: t(s.label) })),
+      paymentNote: t(programme.paymentNote),
     },
     lots: data.lots.map((l) => ({
       ...l,

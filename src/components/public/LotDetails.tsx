@@ -1,13 +1,17 @@
 import type { ElementType, ReactNode } from "react";
-import { Bath, BedDouble, Layers, Maximize2, Trees } from "lucide-react";
+import { Bath, BedDouble, Eye, Layers, Maximize2, Trees } from "lucide-react";
 
 import type { LotStatus } from "@/lib/app/lot-fields";
 import { mediaImage, type MediaItem } from "@/lib/app/media";
 import { useCopy } from "@/lib/i18n";
+import type { PaymentStep, Rental } from "@/lib/payment-plan";
+import { FOLLOWERS_SHOWN_FROM } from "@/lib/public/followers";
 import { NUMBER_LOCALE, usePublicText, type Locale } from "@/lib/public/i18n";
 import type { PublicLot } from "@/lib/public/programme";
 import { cn } from "@/lib/utils";
 import { LoanSimulator } from "./LoanSimulator";
+import { PaymentPlan } from "./PaymentPlan";
+import { RentalSimulator } from "./RentalSimulator";
 import { priceLabel } from "./status";
 
 const AREA: Record<Locale, Intl.NumberFormat> = {
@@ -24,6 +28,7 @@ const COPY = {
     bathrooms: "Salles de bains",
     floor: "Niveau",
     features: "Caractéristiques",
+    followers: (n: number) => `${n} personnes suivent ce lot`,
   },
   en: {
     photos: (numero: string) => `Photos of lot ${numero}`,
@@ -33,7 +38,19 @@ const COPY = {
     bathrooms: "Bathrooms",
     floor: "Floor",
     features: "Features",
+    followers: (n: number) => `${n} people are following this lot`,
   },
+};
+
+/** What helps sell a lot on its sheet: how to pay, the yield, who follows it, and what to do when it is taken. */
+export type LotSelling = {
+  paymentPlan: PaymentStep[];
+  paymentNote: string | null;
+  rental: Rental;
+  /** Visitors following the lot (said from FOLLOWERS_SHOWN_FROM on). */
+  followers: number;
+  /** Reserved or sold lot: the alert and the lots close to it (see LotUnavailable). */
+  unavailable: ReactNode | null;
 };
 
 export function StatusChip({ status, className }: { status: LotStatus; className?: string }) {
@@ -76,6 +93,7 @@ export function LotDetails({
   Title = "h2",
   Description = "p",
   extra,
+  selling,
 }: {
   lot: PublicLot;
   photos: MediaItem[];
@@ -88,6 +106,7 @@ export function LotDetails({
   Description?: ElementType;
   /** Under the price: the 360° tour of the lot. */
   extra?: ReactNode;
+  selling?: LotSelling | undefined;
 }) {
   const copy = useCopy(COPY);
   const text = usePublicText();
@@ -156,12 +175,47 @@ export function LotDetails({
           >
             {priceLabel(lot, currency, text.locale)}
           </Description>
+          {selling && selling.followers >= FOLLOWERS_SHOWN_FROM ? (
+            <p
+              className={cn(
+                "flex items-center gap-1.5 text-white/60",
+                large ? "text-base" : "text-xs",
+              )}
+            >
+              <Eye className="size-3.5 text-[color:var(--brand)]" aria-hidden />
+              {copy.followers(selling.followers)}
+            </p>
+          ) : null}
         </div>
 
         {extra}
 
+        {lot.statut !== "disponible" && selling?.unavailable ? selling.unavailable : null}
+
         {lot.prix !== null && lot.statut !== "vendue" ? (
           <LoanSimulator price={lot.prix} currency={currency} large={large} />
+        ) : null}
+
+        {selling && lot.statut !== "vendue" ? (
+          <PaymentPlan
+            plan={selling.paymentPlan}
+            note={selling.paymentNote}
+            price={lot.prix}
+            currency={currency}
+            large={large}
+          />
+        ) : null}
+
+        {selling &&
+        selling.rental.nightly !== null &&
+        lot.prix !== null &&
+        lot.statut !== "vendue" ? (
+          <RentalSimulator
+            price={lot.prix}
+            currency={currency}
+            rental={{ ...selling.rental, nightly: selling.rental.nightly }}
+            large={large}
+          />
         ) : null}
 
         <dl className="grid grid-cols-3 gap-3">

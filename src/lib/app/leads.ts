@@ -5,7 +5,8 @@ import { getSupabase } from "@/lib/supabase/client";
 import type { Enums, Tables } from "@/lib/supabase/database.types";
 import type { Lot } from "./lot-fields";
 
-/* Visit requests of a programme. Members read them and change their status
+/* Visit requests of a programme, and alerts (a visitor waits for a reserved
+   or sold lot to be free again). Members read them and change their status
    (RLS: update of the status column only); new ones arrive live. */
 
 export type Lead = Omit<Tables<"leads">, "ip_hash" | "session_id">;
@@ -22,7 +23,7 @@ export const SOURCE_LABELS: Record<string, string> = {
 };
 
 const COLUMNS =
-  "id, created_at, project_id, lot_id, nom, telephone, email, message, source, status, notified_at";
+  "id, created_at, project_id, lot_id, nom, telephone, email, message, source, status, notified_at, kind";
 const leadsKey = (projectId: string) => ["leads", projectId] as const;
 
 export function useLeads(projectId: string) {
@@ -93,9 +94,18 @@ export const whatsappDigits = (phone: string) =>
     .replace(/^\+/, "")
     .replace(/^00/, "");
 
+/** An alert whose lot is available again: the visitor is waiting to hear it. */
+export const toTell = (lead: Pick<Lead, "kind">, lot: Pick<Lot, "statut"> | undefined) =>
+  lead.kind === "alerte" && lot?.statut === "disponible";
+
 export function whatsappReply(lead: Lead, lot: Lot | undefined, programme: string): string {
   const about = lot ? `du lot ${lot.numero}${lot.type ? ` (${lot.type})` : ""} ` : "";
-  const text = `Bonjour ${lead.nom}, suite à votre demande de visite ${about}pour le programme ${programme}, je vous propose d'en parler.`;
+  const text =
+    lot && toTell(lead, lot)
+      ? `Bonjour ${lead.nom}, bonne nouvelle : le lot ${lot.numero} du programme ${programme} est de nouveau disponible. Souhaitez-vous en parler ?`
+      : lead.kind === "alerte" && lot
+        ? `Bonjour ${lead.nom}, vous attendez le lot ${lot.numero} du programme ${programme} : je vous propose d'en parler, et de vous montrer ceux qui lui ressemblent.`
+        : `Bonjour ${lead.nom}, suite à votre demande de visite ${about}pour le programme ${programme}, je vous propose d'en parler.`;
   return `https://wa.me/${whatsappDigits(lead.telephone)}?text=${encodeURIComponent(text)}`;
 }
 
@@ -105,9 +115,10 @@ const stamp = new Intl.DateTimeFormat("fr-FR", { dateStyle: "short", timeStyle: 
 export function leadsToCsv(leads: Lead[], lots: Lot[]): string[][] {
   const byId = new Map(lots.map((l) => [l.id, l]));
   return [
-    ["date", "nom", "telephone", "email", "lot", "message", "source", "statut"],
+    ["date", "type", "nom", "telephone", "email", "lot", "message", "source", "statut"],
     ...leads.map((lead) => [
       stamp.format(new Date(lead.created_at)),
+      lead.kind === "alerte" ? "alerte" : "visite",
       lead.nom,
       lead.telephone,
       lead.email ?? "",

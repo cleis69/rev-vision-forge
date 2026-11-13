@@ -1,7 +1,7 @@
 // Unit tests of the visit requests: form checks, WhatsApp link, CSV export. Run with `bun test`.
 import { describe, expect, test } from "bun:test";
 
-import { leadsToCsv, whatsappDigits, whatsappReply, type Lead } from "../src/lib/app/leads";
+import { leadsToCsv, toTell, whatsappDigits, whatsappReply, type Lead } from "../src/lib/app/leads";
 import type { Lot } from "../src/lib/app/lot-fields";
 import { checkVisit } from "../src/lib/public/visit";
 
@@ -38,6 +38,7 @@ const lead: Lead = {
   source: "page",
   status: "nouveau",
   notified_at: null,
+  kind: "visite",
 };
 const lot = { id: "lot7", numero: "7", type: "Villa" } as Lot;
 
@@ -62,6 +63,7 @@ describe("réponse et export", () => {
     );
     expect(rows[0]).toEqual([
       "date",
+      "type",
       "nom",
       "telephone",
       "email",
@@ -71,6 +73,7 @@ describe("réponse et export", () => {
       "statut",
     ]);
     expect(rows[1]?.slice(1)).toEqual([
+      "visite",
       "Sara Benali",
       "+212 6 12 34 56 78",
       "sara@example.com",
@@ -79,7 +82,19 @@ describe("réponse et export", () => {
       "Page du programme",
       "Nouvelle",
     ]);
-    expect(rows[2]?.slice(3, 5)).toEqual(["", ""]);
-    expect(rows[2]?.[7]).toBe("Traitée");
+    expect(rows[2]?.slice(4, 6)).toEqual(["", ""]);
+    expect(rows[2]?.[8]).toBe("Traitée");
+  });
+
+  test("alerte sur un lot libéré : à prévenir, avec le bon message", () => {
+    const alert = { ...lead, kind: "alerte" };
+    expect(toTell(alert, { statut: "reservee" })).toBe(false);
+    expect(toTell(alert, { statut: "disponible" })).toBe(true);
+    expect(toTell(lead, { statut: "disponible" })).toBe(false);
+    const url = whatsappReply(alert, { ...lot, statut: "disponible" }, "City Star");
+    expect(decodeURIComponent(url.split("text=")[1] ?? "")).toBe(
+      "Bonjour Sara Benali, bonne nouvelle : le lot 7 du programme City Star est de nouveau disponible. Souhaitez-vous en parler ?",
+    );
+    expect(leadsToCsv([alert], [lot])[1]?.[1]).toBe("alerte");
   });
 });

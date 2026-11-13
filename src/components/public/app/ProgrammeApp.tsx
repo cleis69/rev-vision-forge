@@ -22,6 +22,7 @@ import { Gallery } from "@/components/public/Gallery";
 import { LotCards } from "@/components/public/LotCards";
 import { LotFiles } from "@/components/public/LotFiles";
 import { LotSheet } from "@/components/public/LotSheet";
+import { LotUnavailable } from "@/components/public/LotUnavailable";
 import { MediaViewer } from "@/components/public/MediaViewer";
 import { ProgrammeViews } from "@/components/public/ProgrammeViews";
 import { Situation } from "@/components/public/Situation";
@@ -37,6 +38,7 @@ import { firstTab, tabOfHash, type AppTab } from "@/lib/public/app-tabs";
 import { MAX_COMPARE, toggleCompared } from "@/lib/public/compare";
 import { whatsappHref } from "@/lib/public/contact";
 import { track } from "@/lib/public/events";
+import { useLotFollowers } from "@/lib/public/followers";
 import { usePublicRoutes, usePublicText } from "@/lib/public/i18n";
 import { useLiveLots } from "@/lib/public/live";
 import {
@@ -49,6 +51,7 @@ import {
   type LotSearch,
   lotsOfView,
   sortLots,
+  similarLots,
   LOT_SORTS,
   type LotSort,
 } from "@/lib/public/lot-list";
@@ -126,6 +129,7 @@ const COPY = {
       "Aperçu : ce programme n'est pas encore publié, seuls les membres de votre organisation le voient.",
     promoterSpace: "Espace promoteur",
     bookVisit: "Planifier une visite",
+    notifyMe: "Me prévenir",
     lots: "Lots",
     available: "Disponibles",
     types: "Typologies",
@@ -174,6 +178,7 @@ const COPY = {
       "Preview: this programme is not published yet; only members of your organisation can see it.",
     promoterSpace: "Developer area",
     bookVisit: "Book a visit",
+    notifyMe: "Tell me",
     lots: "Lots",
     available: "Available",
     types: "Property types",
@@ -472,6 +477,8 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
   };
   const shown = lot ?? shownLot;
   const lotTour = lot ? tourOfLot(tours, lot) : null;
+  // Visitors following each lot (a count), said on its sheet.
+  const followers = useLotFollowers(programme.id, !preview);
   const shownMedia = shown ? lotMedia(data, shown) : null;
   const typeTour = (type: string) => {
     const tour = tours.find((t) => sameType(t.lotType, type));
@@ -958,6 +965,36 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
         onOpenChange={(o) => !o && close()}
         askVisit={askVisit}
         modal={!wide}
+        selling={
+          shown
+            ? {
+                paymentPlan: programme.paymentPlan,
+                paymentNote: programme.paymentNote,
+                rental: programme.rental,
+                followers: followers.data?.get(shown.id) ?? 0,
+                unavailable:
+                  shown.statut === "disponible" ? null : (
+                    <LotUnavailable
+                      lot={shown}
+                      alternatives={similarLots(lots, shown)}
+                      currency={programme.currency}
+                      onPick={(other) => open(other, "list")}
+                      alertForm={
+                        <VisitForm
+                          projectId={programme.id}
+                          slug={programme.slug}
+                          owner={programme.organization.name}
+                          lot={shown}
+                          preview={preview}
+                          kind="alerte"
+                          submitLabel={copy.notifyMe}
+                        />
+                      }
+                    />
+                  ),
+              }
+            : undefined
+        }
         // Under the bar of the page, over the list of the lots.
         className={wide && !preview ? "top-16 h-[calc(100%-4rem)]" : undefined}
         actions={

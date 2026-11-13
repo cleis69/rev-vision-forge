@@ -15,6 +15,7 @@ import {
   leadsToCsv,
   useLeads,
   useSetLeadStatus,
+  toTell,
   whatsappReply,
   type Lead,
   type LeadStatus,
@@ -79,8 +80,23 @@ function LeadsPage() {
     { status: "traite", label: "Traitées", n: count("traite") },
   ];
 
+  // Alerts on a lot free again, not handled yet: the people to call first.
+  const waiting = all.filter(
+    (l) => l.status === "nouveau" && toTell(l, lotById.get(l.lot_id ?? "")),
+  );
+
   return (
     <div className="space-y-4">
+      {waiting.length > 0 ? (
+        <p
+          role="status"
+          className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200"
+        >
+          {waiting.length === 1
+            ? "1 personne attend un lot qui s'est libéré : prévenez-la en premier."
+            : `${waiting.length} personnes attendent un lot qui s'est libéré : prévenez-les en premier.`}
+        </p>
+      ) : null}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div role="group" aria-label="Filtrer les demandes" className="flex flex-wrap gap-2">
           {options.map((o) => (
@@ -115,7 +131,7 @@ function LeadsPage() {
       {all.length === 0 ? (
         <EmptyState
           title="Aucune demande pour l'instant"
-          text="Les demandes de visite arrivent ici, en direct, dès qu'un visiteur remplit le formulaire de la page publique."
+          text="Les demandes de visite et les alertes (un visiteur attend qu'un lot se libère) arrivent ici, en direct, depuis la page publique."
         />
       ) : shown.length === 0 ? (
         <p className="text-sm text-muted-foreground">Aucune demande avec ce statut.</p>
@@ -148,6 +164,17 @@ function LeadsPage() {
                       >
                         {LEAD_STATUS_LABELS[lead.status]}
                       </span>
+                      {lead.kind === "alerte" ? (
+                        toTell(lead, lot) ? (
+                          <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[11px] font-medium text-emerald-300">
+                            Lot libéré : à prévenir
+                          </span>
+                        ) : (
+                          <span className="rounded-full bg-amber-400/15 px-2.5 py-0.5 text-[11px] font-medium text-amber-300">
+                            Attend que le lot se libère
+                          </span>
+                        )
+                      ) : null}
                       {lot ? (
                         <span className="rounded-full border border-border px-2.5 py-0.5 text-[11px] text-muted-foreground">
                           Lot {lot.numero}

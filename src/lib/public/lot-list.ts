@@ -1,4 +1,4 @@
-import type { LotStatus } from "@/lib/app/lot-fields";
+import { compareNumeros, type LotStatus } from "@/lib/app/lot-fields";
 import { sameType } from "@/lib/lot-types";
 import type { PublicLot } from "./programme";
 
@@ -101,3 +101,29 @@ export const comparedFromLink = (value: string, lots: readonly PublicLot[], max:
 /** Whether the lots differ enough for a search (budget, size or bedrooms). */
 export const canSearch = (range: ReturnType<typeof searchRange>) =>
   Boolean(range.price || range.surface || range.bedrooms.length > 1);
+
+/**
+ * Available lots closest to one a visitor cannot have (reserved or sold): the
+ * same type first, then the nearest price, then the nearest living area.
+ */
+export function similarLots(lots: readonly PublicLot[], lot: PublicLot, count = 3): PublicLot[] {
+  const gap = (a: number | null, b: number | null) =>
+    a === null || b === null ? Number.POSITIVE_INFINITY : Math.abs(a - b) / Math.max(1, b);
+  return lots
+    .filter((l) => l.id !== lot.id && l.statut === "disponible")
+    .map((l) => ({
+      l,
+      type: lot.type !== null && sameType(l.type, lot.type) ? 0 : 1,
+      price: gap(l.prix, lot.prix),
+      area: gap(l.surface_habitable, lot.surface_habitable),
+    }))
+    .sort(
+      (a, b) =>
+        a.type - b.type ||
+        (a.price === b.price ? 0 : a.price < b.price ? -1 : 1) ||
+        (a.area === b.area ? 0 : a.area < b.area ? -1 : 1) ||
+        compareNumeros(a.l.numero, b.l.numero),
+    )
+    .slice(0, count)
+    .map((x) => x.l);
+}

@@ -8,6 +8,7 @@ import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { AmenitiesSettings } from "@/components/app/AmenitiesSettings";
+import { PaymentSettings } from "@/components/app/PaymentSettings";
 import { FormMessage as Notice } from "@/components/app/AuthCard";
 import { SettingsSection } from "@/components/app/Blocks";
 import { ConfirmDelete } from "@/components/app/ConfirmDelete";
@@ -113,6 +114,7 @@ function ProjectSettingsPage() {
       <ProjectSettingsForm key={project.id} project={project} />
       <SituationSettings key={`situation-${project.id}`} project={project} />
       <AmenitiesSettings key={`prestations-${project.id}`} project={project} />
+      <PaymentSettings key={`paiement-${project.id}`} project={project} />
       {role === "owner" ? (
         <DeleteProjectSection project={project} />
       ) : (

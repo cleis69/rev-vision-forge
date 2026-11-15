@@ -184,7 +184,7 @@ function Tile({
           sizes={large ? "(min-width: 1024px) 50vw, 100vw" : "(min-width: 1024px) 25vw, 50vw"}
           alt=""
           loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03] motion-reduce:transition-none"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 motion-reduce:transition-none"
         />
       ) : null}
       {video ? (

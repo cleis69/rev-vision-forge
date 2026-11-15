@@ -88,9 +88,7 @@ export function PageHeading({
   return (
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
-        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-primary">
-          {eyebrow}
-        </p>
+        <p className="text-xs font-medium text-primary">{eyebrow}</p>
         <h1 className="mt-1.5 font-display text-2xl font-medium tracking-tight sm:text-3xl">
           {title}
         </h1>

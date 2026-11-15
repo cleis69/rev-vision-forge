@@ -31,7 +31,7 @@ export function NotFoundPage() {
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-4 pt-24">
       <div className="max-w-md text-center">
-        <p className="text-[11px] uppercase tracking-[0.22em] text-primary">{copy.eyebrow}</p>
+        <p className="text-xs text-primary">{copy.eyebrow}</p>
         <h1 className="mt-5 font-display text-4xl font-medium tracking-[-0.03em] md:text-5xl">
           {copy.heading}
         </h1>

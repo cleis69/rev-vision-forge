@@ -568,7 +568,7 @@ export function AgentProblem() {
           <div className="surface overflow-hidden">
             <div className="grid gap-8 p-5 sm:p-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-12 lg:p-10">
               <div>
-                <p className="text-[11px] uppercase tracking-[0.2em] text-primary">{p.audience}</p>
+                <p className="text-xs text-primary">{p.audience}</p>
                 <h3 className="mt-3 font-display text-xl font-medium leading-snug tracking-tight sm:text-2xl">
                   {p.title}
                 </h3>
@@ -654,9 +654,7 @@ export function AgentSpecs() {
                 <span className="grid h-9 w-9 place-items-center rounded-xl border border-border bg-background/60 text-primary">
                   <Icon size={17} />
                 </span>
-                <p className="mt-4 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                  {label}
-                </p>
+                <p className="mt-4 text-xs text-muted-foreground">{label}</p>
                 <p className="mt-1 font-display text-[clamp(1.7rem,3vw,2.4rem)] font-medium leading-none tracking-[-0.03em] text-primary">
                   {value}
                 </p>
@@ -732,7 +730,7 @@ export function AgentOffers() {
                 )}
               >
                 {offer.featured ? (
-                  <span className="absolute -top-3 right-6 rounded-lg bg-primary px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-primary-foreground">
+                  <span className="absolute -top-3 right-6 rounded-lg bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
                     {o.featured}
                   </span>
                 ) : null}
@@ -765,9 +763,7 @@ export function AgentOffers() {
 
                 {offer.groups?.map((g) => (
                   <div key={g.title} className="mt-5 border-t border-border pt-4">
-                    <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                      {g.title}
-                    </p>
+                    <p className="text-xs text-muted-foreground">{g.title}</p>
                     <ul className="mt-3 space-y-2">
                       {g.items.map((item) => (
                         <li
@@ -822,7 +818,7 @@ export function AgentProcess() {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <div className="surface min-w-0 flex-1 p-5 sm:p-6">
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-primary">
+                  <p className="text-xs text-primary">
                     {p.step} {i + 1}
                   </p>
                   <h3 className="mt-2 font-display text-lg font-medium tracking-tight">
@@ -887,7 +883,7 @@ export function AgentFaq() {
                       />
                     </button>
                     <div
-                      className="grid transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                      className="grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
                       style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
                     >
                       <div className="overflow-hidden">
@@ -917,15 +913,7 @@ export function AgentFinalCta() {
     <section className="scroll-mt-20 border-t border-border/70 py-14 sm:py-16 lg:py-24">
       <Container>
         <Reveal className="relative overflow-hidden rounded-3xl border border-border bg-card px-5 py-10 text-center sm:px-10 sm:py-14">
-          <div
-            className="pointer-events-none absolute inset-x-0 -top-40 h-80 opacity-40 blur-3xl"
-            style={{
-              background:
-                "radial-gradient(closest-side, color-mix(in oklab, var(--primary) 45%, transparent), transparent)",
-            }}
-            aria-hidden
-          />
-          <h2 className="relative mx-auto max-w-3xl font-display text-[clamp(1.75rem,4vw,3rem)] font-medium leading-[1.06] tracking-[-0.03em] text-gradient [text-wrap:balance]">
+          <h2 className="relative mx-auto max-w-3xl font-display text-[clamp(1.75rem,4vw,3rem)] font-medium leading-[1.06] tracking-[-0.03em] text-foreground [text-wrap:balance]">
             {f.before} <span className="text-primary">{f.accent}</span>
             {f.after}
           </h2>
@@ -964,14 +952,6 @@ export function AgentHero() {
   const h = copy.hero;
   return (
     <section className="relative overflow-hidden border-b border-border/70 pb-12 pt-28 md:pb-16 md:pt-36">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute right-[-10%] top-0 -z-10 h-[620px] w-[620px] rounded-full opacity-25 blur-3xl"
-        style={{
-          background:
-            "radial-gradient(closest-side, color-mix(in oklab, var(--primary) 45%, transparent), transparent)",
-        }}
-      />
       <Container>
         <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.1fr)_auto] lg:gap-16">
           <div>
@@ -1020,11 +1000,8 @@ export function AgentHero() {
                 return (
                   <div
                     key={title}
-                    className="flex items-center gap-3 rounded-2xl border border-border bg-card/80 px-4 py-3 shadow-[var(--shadow-soft)] backdrop-blur-xl"
-                    style={{
-                      marginLeft: `${(i % 2) * 28}px`,
-                      animation: `rev-float ${6 + i}s ease-in-out ${-i}s infinite`,
-                    }}
+                    className="flex items-center gap-3 rounded-2xl border border-border bg-card/80 px-4 py-3 "
+                    style={{ marginLeft: `${(i % 2) * 28}px` }}
                   >
                     <span
                       className={cn(

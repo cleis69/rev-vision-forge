@@ -133,36 +133,33 @@ export function Services() {
           )}
         />
 
-        <div className="mt-8 grid gap-3 sm:mt-10 sm:gap-4 md:grid-cols-2 lg:mt-12">
+        <ul className="mt-8 border-t border-border sm:mt-10 lg:mt-12">
           {GROUPS.map((group, gi) => (
-            <Reveal key={group.title} delay={gi * 90}>
-              <article className="surface group h-full p-5 transition-all duration-500 hover:-translate-y-1 hover:border-primary/25 hover:shadow-[var(--shadow-lift)] sm:p-6 md:p-8">
-                <div className="flex items-baseline gap-3">
-                  <span className="font-display text-xs tracking-[0.2em] text-primary">
-                    {group.index}
-                  </span>
-                  <h3 className="font-display text-xl font-medium tracking-tight md:text-2xl">
-                    {tr(group.title)}
-                  </h3>
-                </div>
-                <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-                  {tr(group.summary)}
-                </p>
-                <ul className="mt-5 flex flex-wrap gap-2">
-                  {group.items.map(({ label, icon: Icon }) => (
-                    <li
-                      key={label}
-                      className="inline-flex items-center gap-2 rounded-lg border border-border bg-background/60 px-3 py-1.5 text-[13px] text-muted-foreground transition-colors duration-300 hover:border-primary/30 hover:text-foreground"
-                    >
-                      <Icon size={14} className="shrink-0 text-primary" />
-                      {tr(label)}
-                    </li>
-                  ))}
-                </ul>
-              </article>
+            <Reveal
+              as="li"
+              key={group.title}
+              delay={gi * 60}
+              className="grid gap-x-10 gap-y-2 border-b border-border/70 py-6 lg:grid-cols-[minmax(0,17rem)_minmax(0,1fr)_minmax(0,1.1fr)] lg:items-baseline lg:py-7"
+            >
+              <h3 className="font-display text-[22px] font-medium leading-tight tracking-tight md:text-[26px]">
+                {tr(group.title)}
+              </h3>
+              <p className="max-w-md text-sm leading-relaxed text-muted-foreground md:text-[15px]">
+                {tr(group.summary)}
+              </p>
+              <ul className="flex flex-wrap gap-x-2.5 gap-y-1 text-sm text-foreground/90 max-lg:mt-1">
+                {group.items.map(({ label }, i) => (
+                  <li key={label} className="flex items-center gap-2.5 whitespace-nowrap">
+                    {i > 0 ? (
+                      <span aria-hidden className="size-1 rounded-full bg-primary/70" />
+                    ) : null}
+                    {tr(label)}
+                  </li>
+                ))}
+              </ul>
             </Reveal>
           ))}
-        </div>
+        </ul>
       </Container>
     </Section>
   );

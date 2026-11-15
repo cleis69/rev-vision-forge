@@ -19,9 +19,7 @@ export function AuthCard({
         <RevLogo className="h-11 w-auto" />
       </Link>
       <main className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-soft)] sm:p-8">
-        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-primary">
-          Espace promoteur
-        </p>
+        <p className="text-xs font-medium text-primary">Espace promoteur</p>
         <h1 className="mt-3 font-display text-2xl font-medium tracking-tight">{title}</h1>
         {description ? (
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{description}</p>

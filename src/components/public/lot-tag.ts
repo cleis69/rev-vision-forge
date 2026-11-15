@@ -32,7 +32,7 @@ export function lotTagElement(
 
   const tag = document.createElement("div");
   tag.className = [
-    "whitespace-nowrap rounded-md font-semibold tabular-nums leading-none shadow-[0_4px_14px_rgba(0,0,0,0.5)] ring-2 transition-transform duration-150 group-hover:scale-110",
+    "whitespace-nowrap rounded-md font-semibold tabular-nums leading-none shadow-[0_4px_14px_rgba(0,0,0,0.5)] ring-2 transition-transform duration-150",
     large ? "px-3 py-1.5 text-base" : "px-2 py-1 text-xs",
     lot.statut === "disponible"
       ? "bg-[color:var(--brand)] text-[color:var(--brand-contrast)]"

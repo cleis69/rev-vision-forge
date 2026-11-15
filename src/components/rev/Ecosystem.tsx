@@ -1,5 +1,3 @@
-import { ArrowRight } from "lucide-react";
-
 import { useCopy } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Container, Section, SectionHeading } from "./ui";
@@ -49,34 +47,40 @@ const COPY = {
 export function Ecosystem() {
   const copy = useCopy(COPY);
   const STEPS = copy.steps;
+  const half = Math.ceil(STEPS.length / 2);
   return (
     <Section id="about" className="border-t border-border/70">
       <Container>
         <SectionHeading eyebrow={copy.eyebrow} title={copy.title} description={copy.description} />
 
-        <ol className="mt-8 grid grid-cols-2 gap-2.5 sm:mt-10 sm:grid-cols-3 sm:gap-3 lg:mt-12 lg:grid-cols-4">
+        {/* The order is the point: each step feeds the next, down one column then the other. */}
+        <ol
+          className="mt-8 grid border-t border-border sm:mt-10 lg:mt-12 lg:grid-flow-col lg:grid-cols-2 lg:gap-x-14"
+          style={{ gridTemplateRows: `repeat(${half}, auto)` }}
+        >
           {STEPS.map((step, i) => {
             const last = i === STEPS.length - 1;
             return (
               <Reveal
                 as="li"
                 key={step.label}
-                delay={(i % 4) * 60}
-                className={cn(
-                  "surface relative flex flex-col p-4 sm:p-5",
-                  last && "col-span-2 border-primary/40 sm:col-span-1",
-                )}
+                delay={(i % half) * 40}
+                className="grid grid-cols-[2.25rem_minmax(0,1fr)] items-baseline gap-x-3 border-b border-border/70 py-3.5 sm:grid-cols-[2.25rem_13rem_minmax(0,1fr)] sm:py-4"
               >
-                <span className="flex items-center justify-between text-[11px] font-medium tracking-[0.2em] text-primary">
+                <span className="font-display text-sm tabular-nums text-primary">
                   {String(i + 1).padStart(2, "0")}
-                  {!last ? (
-                    <ArrowRight size={14} aria-hidden className="text-muted-foreground/60" />
-                  ) : null}
                 </span>
-                <h3 className="mt-3 font-display text-[15px] font-medium leading-snug tracking-tight sm:text-base">
+                <h3
+                  className={cn(
+                    "font-display text-[16px] font-medium leading-snug tracking-tight sm:text-[17px]",
+                    last && "text-primary",
+                  )}
+                >
                   {step.label}
                 </h3>
-                <p className="mt-1 text-[13px] leading-snug text-muted-foreground">{step.note}</p>
+                <p className="col-start-2 text-[13px] leading-snug text-muted-foreground sm:col-start-3 sm:text-sm">
+                  {step.note}
+                </p>
               </Reveal>
             );
           })}

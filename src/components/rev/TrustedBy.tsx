@@ -6,56 +6,48 @@ const COPY = {
   fr: {
     label: "Ce que nous produisons",
     items: [
-      "ADS VERTICALES",
-      "ROOM TOURS",
-      "PERSONAL BRANDING",
-      "DRONE",
-      "VISITE VIRTUELLE 3D",
-      "FILMS DE LANCEMENT",
-      "META ADS",
-      "HUBSPOT CRM",
+      "Ads verticales",
+      "Room tours",
+      "Personal branding",
+      "Drone",
+      "Visite virtuelle 3D",
+      "Films de lancement",
+      "Meta Ads",
+      "HubSpot CRM",
     ],
   },
   en: {
     label: "What we produce",
     items: [
-      "VERTICAL ADS",
-      "ROOM TOURS",
-      "PERSONAL BRANDING",
-      "DRONE",
-      "3D VIRTUAL TOURS",
-      "LAUNCH FILMS",
-      "META ADS",
-      "HUBSPOT CRM",
+      "Vertical ads",
+      "Room tours",
+      "Personal branding",
+      "Drone",
+      "3D virtual tours",
+      "Launch films",
+      "Meta Ads",
+      "HubSpot CRM",
     ],
   },
 };
 
 export function TrustedBy() {
   const copy = useCopy(COPY);
-  const LOGOS = copy.items;
   return (
-    <section className="border-y border-border/70 py-7 sm:py-9">
+    <section className="border-y border-border/70 py-6 sm:py-7">
       <Container>
-        <p className="text-center text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-          {copy.label}
-        </p>
-      </Container>
-      <div className="relative mt-5 overflow-hidden sm:mt-7 [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]">
-        <div
-          className="flex w-max gap-14 pr-14"
-          style={{ animation: "rev-marquee 38s linear infinite" }}
-        >
-          {[...LOGOS, ...LOGOS].map((logo, i) => (
-            <span
-              key={`${logo}-${i}`}
-              className="font-display text-sm font-medium tracking-[0.24em] text-muted-foreground/60 sm:text-lg"
-            >
-              {logo}
-            </span>
-          ))}
+        <div className="flex flex-col gap-x-8 gap-y-3 lg:flex-row lg:items-baseline">
+          <p className="shrink-0 text-sm text-muted-foreground">{copy.label}</p>
+          <ul className="flex flex-wrap gap-x-5 gap-y-1.5 font-display text-[15px] font-medium tracking-tight text-foreground/90 sm:text-base">
+            {copy.items.map((item, i) => (
+              <li key={item} className="flex items-center gap-5 whitespace-nowrap">
+                {i > 0 ? <span aria-hidden className="size-1 rounded-full bg-primary/70" /> : null}
+                {item}
+              </li>
+            ))}
+          </ul>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

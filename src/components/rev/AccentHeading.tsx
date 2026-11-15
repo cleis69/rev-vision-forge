@@ -1,10 +1,13 @@
 import { cn } from "@/lib/utils";
-import { Eyebrow, fadeUp } from "./ui";
+import { fadeUp, headline } from "./ui";
 import { Reveal } from "./Reveal";
+
+/** The last part of a title, without its period when the whole title is one sentence. */
+export const closing = (lead: string, last: string) =>
+  headline(`${lead} ${last}`).slice(lead.length + 1);
 
 /** Section title with one word set in champagne. */
 export function AccentHeading({
-  eyebrow,
   before,
   accent,
   after,
@@ -13,7 +16,8 @@ export function AccentHeading({
   align = "left",
   className,
 }: {
-  eyebrow: string;
+  /** The section's name: kept at call sites, never shown above the title. */
+  eyebrow?: string;
   before: string;
   accent: string;
   after?: string;
@@ -25,17 +29,16 @@ export function AccentHeading({
   const box = cn("max-w-3xl", align === "center" && "mx-auto text-center", className);
   const content = (
     <>
-      <Eyebrow>{eyebrow}</Eyebrow>
       <Tag
         className={cn(
-          "mt-4 font-display font-medium tracking-[-0.03em] text-gradient [text-wrap:balance]",
+          "font-display font-medium tracking-[-0.03em] text-foreground [text-wrap:balance]",
           Tag === "h1"
             ? "text-[clamp(2.1rem,4.6vw,3.9rem)] leading-[1.03]"
             : "text-[clamp(1.75rem,3.6vw,3rem)] leading-[1.08]",
         )}
       >
-        {before} <span className="text-primary">{accent}</span>
-        {after ? ` ${after}` : ""}
+        {before} <span className="text-primary">{after ? accent : closing(before, accent)}</span>
+        {after ? ` ${closing(`${before} ${accent}`, after)}` : ""}
       </Tag>
       {description ? (
         <p

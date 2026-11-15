@@ -13,7 +13,7 @@ export function arrowElement(name: string, { selected = false } = {}): HTMLEleme
 
   const button = document.createElement("div");
   button.className = [
-    "grid size-12 place-items-center rounded-full border-2 text-white shadow-[0_6px_24px_rgba(0,0,0,0.45)] backdrop-blur-sm transition-transform duration-200 group-hover:scale-110",
+    "grid size-12 place-items-center rounded-full border-2 text-white shadow-[0_6px_24px_rgba(0,0,0,0.45)] backdrop-blur-sm transition-transform duration-200",
     selected
       ? "border-[color:var(--brand,#c8a24a)] bg-[color:var(--brand,#c8a24a)]/80"
       : "border-white/90 bg-black/45",

@@ -241,7 +241,7 @@ export function ProgrammeViews({
               "md:inset-x-auto md:bottom-auto md:left-4 md:top-1/2 md:max-h-[calc(100%-9rem)] md:w-36 md:-translate-y-1/2 md:flex-col md:overflow-y-auto md:rounded-2xl md:border md:border-white/10 md:bg-black/55 md:p-2 md:shadow-2xl md:backdrop-blur-md",
             )}
           >
-            <p className="hidden px-2 pb-1 pt-1 text-[10px] font-medium uppercase tracking-[0.22em] text-white/45 md:block">
+            <p className="hidden px-2 pb-1 pt-1 text-xs font-medium text-white/45 md:block">
               {copy.floors}
             </p>
             {floors.map((v) => {

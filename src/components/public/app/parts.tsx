@@ -108,7 +108,7 @@ export function WhatsAppIcon({ className }: { className?: string }) {
 export function Stat({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div>
-      <dt className="text-[11px] uppercase tracking-[0.2em] text-white/50">{label}</dt>
+      <dt className="text-xs text-white/50">{label}</dt>
       <dd className="mt-1 font-brand text-xl font-medium tracking-tight sm:text-2xl">{children}</dd>
     </div>
   );

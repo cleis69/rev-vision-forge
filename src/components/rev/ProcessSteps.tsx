@@ -16,10 +16,22 @@ const COPY = {
     cta: "Voir nos packs",
     step: "Étape",
     steps: [
-      { title: "Réservez votre tournage", body: "En ligne, par téléphone ou sur WhatsApp, en quelques minutes." },
-      { title: "Choisissez votre pack", body: "Les formats et les options dont votre bien ou votre marque a besoin." },
-      { title: "Jour de tournage", body: "Notre équipe arrive sur place avec le script et les hooks prêts à tourner." },
-      { title: "Livraison des contenus", body: "Vos vidéos montées, sous-titrées et prêtes à publier, sous 3 à 7 jours." },
+      {
+        title: "Réservez votre tournage",
+        body: "En ligne, par téléphone ou sur WhatsApp, en quelques minutes.",
+      },
+      {
+        title: "Choisissez votre pack",
+        body: "Les formats et les options dont votre bien ou votre marque a besoin.",
+      },
+      {
+        title: "Jour de tournage",
+        body: "Notre équipe arrive sur place avec le script et les hooks prêts à tourner.",
+      },
+      {
+        title: "Livraison des contenus",
+        body: "Vos vidéos montées, sous-titrées et prêtes à publier, sous 3 à 7 jours.",
+      },
     ],
   },
   en: {
@@ -30,9 +42,18 @@ const COPY = {
     step: "Step",
     steps: [
       { title: "Book your shoot", body: "Online, by phone or on WhatsApp, in a few minutes." },
-      { title: "Choose your package", body: "The formats and options your property or your brand needs." },
-      { title: "Shoot day", body: "Our team arrives on site with the script and hooks ready to film." },
-      { title: "Content delivery", body: "Your videos edited, subtitled and ready to post, within 3 to 7 days." },
+      {
+        title: "Choose your package",
+        body: "The formats and options your property or your brand needs.",
+      },
+      {
+        title: "Shoot day",
+        body: "Our team arrives on site with the script and hooks ready to film.",
+      },
+      {
+        title: "Content delivery",
+        body: "Your videos edited, subtitled and ready to post, within 3 to 7 days.",
+      },
     ],
   },
 } as const;
@@ -52,7 +73,11 @@ export function ProcessSteps() {
     <Section id="process" className="border-t border-border/70">
       <Container>
         <div className="flex flex-wrap items-end justify-between gap-8">
-          <SectionHeading eyebrow={copy.eyebrow} title={copy.title} description={copy.description} />
+          <SectionHeading
+            eyebrow={copy.eyebrow}
+            title={copy.title}
+            description={copy.description}
+          />
           <Reveal>
             <Cta href={href("pricing", locale)} variant="ghost">
               {copy.cta}
@@ -63,11 +88,16 @@ export function ProcessSteps() {
 
         <ol className="-mx-5 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:mx-0 sm:mt-10 sm:grid sm:snap-none sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:mt-12 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
           {STEPS.map((step, i) => (
-            <Reveal as="li" key={step.title} delay={i * 90} className="w-[80%] shrink-0 snap-start sm:w-auto">
+            <Reveal
+              as="li"
+              key={step.title}
+              delay={i * 90}
+              className="w-[80%] shrink-0 snap-start sm:w-auto"
+            >
               <article className="surface group h-full overflow-hidden p-3">
                 <div className="relative aspect-[5/4] overflow-hidden rounded-[calc(var(--radius-xl)-6px)] border border-border/60 bg-background sm:aspect-square">
                   {step.visual}
-                  <span className="absolute left-3 top-3 z-10 rounded-full bg-black/60 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-primary backdrop-blur-md">
+                  <span className="absolute left-3 top-3 z-10 rounded-[6px] bg-black/60 px-3 py-1 text-xs font-medium text-primary backdrop-blur-md">
                     {copy.step} {i + 1}
                   </span>
                 </div>
@@ -97,7 +127,9 @@ function BookingVisual({ locale }: { locale: Locale }) {
   return (
     <div className="flex h-full flex-col justify-center px-4 pb-4 pt-11">
       <div className="flex items-center justify-between text-xs">
-        <span className="font-display font-medium">{locale === "fr" ? "Votre créneau" : "Your slot"}</span>
+        <span className="font-display font-medium">
+          {locale === "fr" ? "Votre créneau" : "Your slot"}
+        </span>
         <CalendarCheck size={15} className="text-primary" />
       </div>
       <div className="mt-3 grid grid-cols-7 gap-1 text-center text-[10px] text-muted-foreground">
@@ -172,7 +204,9 @@ function PackVisual({ locale }: { locale: Locale }) {
             </span>
             <span className={p.active ? "text-foreground" : "text-muted-foreground"}>{p.name}</span>
           </span>
-          <span className="shrink-0 font-display font-medium tabular-nums text-primary">{p.price}</span>
+          <span className="shrink-0 font-display font-medium tabular-nums text-primary">
+            {p.price}
+          </span>
         </div>
       ))}
     </div>
@@ -192,17 +226,19 @@ function ShootVisual() {
       <span className="absolute inset-x-5 top-[62%] h-px bg-foreground/10" />
       <span className="absolute inset-y-12 left-[36%] w-px bg-foreground/10" />
       <span className="absolute inset-y-12 left-[64%] w-px bg-foreground/10" />
-      <Focus size={30} strokeWidth={1.4} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-primary" />
-      <span className="absolute right-5 top-4 flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em]">
+      <Focus
+        size={30}
+        strokeWidth={1.4}
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-primary"
+      />
+      <span className="absolute right-5 top-4 flex items-center gap-1.5 text-xs font-medium">
         <span className="h-2 w-2 animate-pulse rounded-full bg-[#e5484d]" />
         Rec
       </span>
       <span className="absolute bottom-4 left-5 text-[10px] tabular-nums text-muted-foreground">
         00:12:48
       </span>
-      <span className="absolute bottom-4 right-5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-        4K · 9:16
-      </span>
+      <span className="absolute bottom-4 right-5 text-xs text-muted-foreground">4K · 9:16</span>
     </div>
   );
 }
@@ -214,7 +250,7 @@ function DeliveryVisual() {
       src={media.preview}
       still={{ src: media.stillSrc, srcSet: media.stillSrcSet }}
       sizes="(min-width: 1024px) 270px, 80vw"
-      className="h-full w-full transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+      className="h-full w-full transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
     />
   );
 }

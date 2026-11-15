@@ -317,9 +317,7 @@ export function ServicesPage() {
 
                 <div className="space-y-3 sm:space-y-4">
                   <Reveal className="surface p-5 sm:p-6">
-                    <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                      {copy.deliverables}
-                    </p>
+                    <p className="text-xs text-muted-foreground">{copy.deliverables}</p>
                     <ul className="mt-4 grid gap-2.5 sm:grid-cols-2">
                       {service.deliverables.map((d) => (
                         <li key={d} className="flex items-start gap-3 text-sm text-foreground/85">
@@ -331,9 +329,7 @@ export function ServicesPage() {
                   </Reveal>
 
                   <Reveal className="surface p-5 sm:p-6" delay={80}>
-                    <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                      {copy.benefits}
-                    </p>
+                    <p className="text-xs text-muted-foreground">{copy.benefits}</p>
                     <ul className="mt-4 space-y-2">
                       {service.benefits.map((b) => (
                         <li key={b} className="text-sm leading-relaxed text-foreground/85">
@@ -344,9 +340,7 @@ export function ServicesPage() {
                   </Reveal>
 
                   <Reveal className="surface p-5 sm:p-6" delay={160}>
-                    <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                      {copy.process}
-                    </p>
+                    <p className="text-xs text-muted-foreground">{copy.process}</p>
                     <ol className="mt-4 space-y-2.5">
                       {service.process.map((step, idx) => (
                         <li key={step} className="flex gap-4">

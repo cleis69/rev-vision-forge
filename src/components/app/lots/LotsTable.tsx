@@ -196,7 +196,7 @@ export function LotsTable({
           type="button"
           onClick={() => setSort({ key, dir: active ? (sort.dir === 1 ? -1 : 1) : 1 })}
           className={cn(
-            "inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-md px-2 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            "inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-md px-2 text-xs r text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             active && "text-foreground",
             numeric && "flex-row-reverse",
           )}

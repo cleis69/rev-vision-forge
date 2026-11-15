@@ -8,8 +8,24 @@ import { cn } from "@/lib/utils";
 import { IPhone, SCREEN_VIDEO_AREA, StatusBar, TabBar } from "./IPhone";
 
 const COPY = {
-  fr: { region: "carrousel", label: "Ads réalisées par REV", soundOn: "Activer le son", soundOff: "Couper le son", play: "Lire la vidéo", prev: "Ad précédente", next: "Ad suivante" },
-  en: { region: "carousel", label: "Ads produced by REV", soundOn: "Turn sound on", soundOff: "Mute", play: "Play video", prev: "Previous ad", next: "Next ad" },
+  fr: {
+    region: "carrousel",
+    label: "Ads réalisées par REV",
+    soundOn: "Activer le son",
+    soundOff: "Couper le son",
+    play: "Lire la vidéo",
+    prev: "Ad précédente",
+    next: "Ad suivante",
+  },
+  en: {
+    region: "carousel",
+    label: "Ads produced by REV",
+    soundOn: "Turn sound on",
+    soundOff: "Mute",
+    play: "Play video",
+    prev: "Previous ad",
+    next: "Next ad",
+  },
 } as const;
 
 /**
@@ -225,7 +241,7 @@ export function PhoneReel({
               );
             })}
 
-            <span className="absolute left-[3.5cqw] top-[3.5cqw] z-10 rounded-full bg-black/50 px-[3cqw] py-[1.4cqw] text-[3cqw] font-medium uppercase tracking-[0.12em] text-white backdrop-blur-md">
+            <span className="absolute left-[3.5cqw] top-[3.5cqw] z-10 rounded-[6px] bg-black/50 px-[3cqw] py-[1.4cqw] text-[3cqw] font-medium text-white backdrop-blur-md">
               {current ? AD_CATEGORY_LABELS[locale][current.category] : null}
               {current?.lang ? ` · ${current.lang}` : ""}
             </span>

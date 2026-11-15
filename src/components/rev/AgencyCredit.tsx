@@ -16,7 +16,7 @@ export function AgencyCredit({ className }: { className?: string }) {
   return (
     <p
       className={cn(
-        "flex items-center justify-center gap-3 text-[11px] uppercase tracking-[0.2em] text-muted-foreground",
+        "flex items-center justify-center gap-3 text-xs text-muted-foreground",
         className,
       )}
     >

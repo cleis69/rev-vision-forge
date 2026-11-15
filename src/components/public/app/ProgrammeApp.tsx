@@ -765,7 +765,7 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
                     )}
                   >
                     {programme.city ? (
-                      <p className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.24em] text-[color:var(--brand)]">
+                      <p className="inline-flex items-center gap-1.5 text-xs font-medium text-[color:var(--brand)]">
                         <MapPin className="size-3.5" aria-hidden />
                         {programme.city}
                       </p>
@@ -1074,9 +1074,7 @@ export function ProgrammeApp({ data, slug }: { data: PublicData; slug: string })
             </SheetDescription>
             {phone ? (
               <div className="mt-5 flex flex-col gap-2">
-                <p className="text-[11px] uppercase tracking-[0.2em] text-white/50">
-                  {copy.directly}
-                </p>
+                <p className="text-xs text-white/50">{copy.directly}</p>
                 <ContactLinks phone={phone} text={whatsappText} />
               </div>
             ) : null}

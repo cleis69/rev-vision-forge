@@ -33,14 +33,14 @@ export function AppTopBar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-xl">
-      <Container className="flex h-16 items-center gap-3">
+      <Container className="flex h-16 max-w-[1480px] items-center gap-3 md:px-8">
         <Link
           to="/app"
           className="flex shrink-0 items-center gap-3"
           aria-label="Espace promoteur, accueil"
         >
           <RevLogo className="h-9 w-auto" />
-          <span className="hidden text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground sm:inline">
+          <span className="hidden text-xs font-medium text-muted-foreground sm:inline">
             Espace promoteur
           </span>
         </Link>

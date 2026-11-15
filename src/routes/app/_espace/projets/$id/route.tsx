@@ -1,12 +1,29 @@
 import { useEffect, useRef } from "react";
-import { Link, Outlet, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, MapPin } from "lucide-react";
+import { Link, Outlet, createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
+import {
+  ArrowLeft,
+  Box,
+  ChartColumn,
+  Image,
+  Inbox,
+  Languages,
+  LayoutDashboard,
+  LayoutTemplate,
+  MapPin,
+  Palette,
+  Rows3,
+  Settings,
+  Share2,
+  View,
+  type LucideIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { EmptyState, StatusBadge } from "@/components/app/Blocks";
 import { useOrganizations } from "@/components/app/Organizations";
 import { ProjectProvider } from "@/components/app/ProjectContext";
 import { Container } from "@/components/rev/ui";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLeads, useLiveLeads } from "@/lib/app/leads";
@@ -16,21 +33,34 @@ export const Route = createFileRoute("/app/_espace/projets/$id")({
   component: ProjectLayout,
 });
 
-// Tabs of the programme: the overview, then the order of the spec.
-const TABS = [
-  { label: "Aperçu", to: "/app/projets/$id/apercu" },
-  { label: "Vues", to: "/app/projets/$id/plan" },
-  { label: "Lots", to: "/app/projets/$id/lots" },
-  { label: "Typologies", to: "/app/projets/$id/typologies" },
-  { label: "Médias", to: "/app/projets/$id/medias" },
-  { label: "Visite 360°", to: "/app/projets/$id/visite" },
-  { label: "Marque", to: "/app/projets/$id/marque" },
-  { label: "Anglais", to: "/app/projets/$id/anglais" },
-  { label: "Demandes", to: "/app/projets/$id/demandes" },
-  { label: "Statistiques", to: "/app/projets/$id/statistiques" },
-  { label: "Partage", to: "/app/projets/$id/partage" },
-  { label: "Réglages", to: "/app/projets/$id/reglages" },
-] as const;
+type Tab = { label: string; to: string; icon: LucideIcon };
+
+// The sections of a programme, in two groups: what the team does every day
+// (statuses, requests, figures, links), then what the public page is made of.
+const GROUPS: { label: string; tabs: Tab[] }[] = [
+  {
+    label: "Au quotidien",
+    tabs: [
+      { label: "Aperçu", to: "/app/projets/$id/apercu", icon: LayoutDashboard },
+      { label: "Lots", to: "/app/projets/$id/lots", icon: Rows3 },
+      { label: "Demandes", to: "/app/projets/$id/demandes", icon: Inbox },
+      { label: "Statistiques", to: "/app/projets/$id/statistiques", icon: ChartColumn },
+      { label: "Partage", to: "/app/projets/$id/partage", icon: Share2 },
+    ],
+  },
+  {
+    label: "Contenu de la page",
+    tabs: [
+      { label: "Vues", to: "/app/projets/$id/plan", icon: Box },
+      { label: "Typologies", to: "/app/projets/$id/typologies", icon: LayoutTemplate },
+      { label: "Médias", to: "/app/projets/$id/medias", icon: Image },
+      { label: "Visite 360°", to: "/app/projets/$id/visite", icon: View },
+      { label: "Marque", to: "/app/projets/$id/marque", icon: Palette },
+      { label: "Anglais", to: "/app/projets/$id/anglais", icon: Languages },
+      { label: "Réglages", to: "/app/projets/$id/reglages", icon: Settings },
+    ],
+  },
+];
 
 function ProjectLayout() {
   const { id } = Route.useParams();
@@ -49,6 +79,14 @@ function ProjectLayout() {
       },
     }),
   );
+  // On a phone the sections are a rail: the current one is brought into sight.
+  const rail = useRef<HTMLElement>(null);
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  useEffect(() => {
+    rail.current
+      ?.querySelector('[aria-current="page"]')
+      ?.scrollIntoView({ inline: "center", block: "nearest" });
+  }, [pathname]);
   const project = query.data;
   const membership = project
     ? memberships.find((m) => m.organization.id === project.organization_id)
@@ -102,61 +140,88 @@ function ProjectLayout() {
 
   return (
     <ProjectProvider value={{ project, role: membership.role }}>
-      <div className="border-b border-border/70">
-        <Container className="pt-4 sm:pt-5">
+      <div className="mx-auto w-full max-w-[1480px] px-5 sm:px-6 md:px-8 lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-10">
+        {/* The programme and its sections: a column on a computer, a rail on a phone. */}
+        <aside className="border-b border-border/70 pt-4 lg:sticky lg:top-16 lg:max-h-[calc(100svh-4rem)] lg:self-start lg:overflow-y-auto lg:border-b-0 lg:pb-8 lg:pt-6">
           <Link
             to="/app"
-            className="inline-flex items-center gap-1.5 rounded text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="inline-flex items-center gap-2 rounded text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <ArrowLeft className="size-4" aria-hidden />
             Vos programmes
           </Link>
-          <div className="mt-2.5 flex flex-wrap items-center gap-3">
-            <h1 className="min-w-0 break-words font-display text-xl font-medium tracking-tight sm:text-2xl">
-              {project.name}
-            </h1>
+          <h1 className="mt-3 min-w-0 break-words font-display text-xl font-medium leading-tight tracking-tight">
+            {project.name}
+          </h1>
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
             <StatusBadge status={project.status} />
+            {project.city ? (
+              <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <MapPin className="size-4" aria-hidden />
+                {project.city}
+              </p>
+            ) : null}
           </div>
-          {project.city ? (
-            <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-              <MapPin className="size-3.5" aria-hidden />
-              {project.city}
-            </p>
-          ) : null}
 
-          <nav aria-label="Sections du programme" className="-mb-px mt-3 overflow-x-auto">
-            <ul className="flex min-w-max gap-1">
-              {TABS.map((tab) => (
-                <li key={tab.label}>
-                  <Link
-                    to={tab.to}
-                    params={{ id }}
-                    className="relative inline-flex h-11 items-center rounded-t px-3 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    activeProps={{
-                      className:
-                        "text-foreground after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary",
-                      "aria-current": "page",
-                    }}
+          <nav
+            ref={rail}
+            aria-label="Sections du programme"
+            className="-mx-5 mt-4 overflow-x-auto px-5 pb-3 [scrollbar-width:none] sm:-mx-6 sm:px-6 md:-mx-8 md:px-8 lg:mx-0 lg:mt-6 lg:overflow-visible lg:px-0 lg:pb-0 [&::-webkit-scrollbar]:hidden"
+          >
+            <div className="flex min-w-max items-center gap-1 lg:block lg:min-w-0">
+              {GROUPS.map((group, g) => (
+                <div key={group.label} className="flex items-center gap-1 lg:block">
+                  {g > 0 ? (
+                    <span aria-hidden className="mx-2 h-5 w-px shrink-0 bg-border lg:hidden" />
+                  ) : null}
+                  <p
+                    id={`sections-${g}`}
+                    className={cn(
+                      "hidden px-2 pb-2 text-xs text-muted-foreground lg:block",
+                      g > 0 && "lg:pt-6",
+                    )}
                   >
-                    {tab.label}
-                    {tab.label === "Demandes" && fresh > 0 ? (
-                      <span
-                        className="ml-1.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold leading-none text-primary-foreground"
-                        aria-label={`${fresh} nouvelle${fresh > 1 ? "s" : ""}`}
-                      >
-                        {fresh}
-                      </span>
-                    ) : null}
-                  </Link>
-                </li>
+                    {group.label}
+                  </p>
+                  <ul
+                    aria-labelledby={`sections-${g}`}
+                    className="flex gap-1 lg:block lg:space-y-0.5"
+                  >
+                    {group.tabs.map((tab) => (
+                      <li key={tab.label}>
+                        <Link
+                          to={tab.to}
+                          params={{ id }}
+                          className="flex h-11 items-center gap-2 whitespace-nowrap rounded-lg px-3 text-sm text-muted-foreground transition-colors hover:bg-foreground/[0.05] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:h-9 lg:px-2"
+                          activeProps={{
+                            className: "bg-foreground/[0.08] text-foreground",
+                            "aria-current": "page",
+                          }}
+                        >
+                          <tab.icon className="size-4 shrink-0" aria-hidden />
+                          <span className="lg:flex-1">{tab.label}</span>
+                          {tab.label === "Demandes" && fresh > 0 ? (
+                            <span
+                              className="text-xs font-medium tabular-nums text-primary"
+                              aria-label={`${fresh} nouvelle${fresh > 1 ? "s" : ""}`}
+                            >
+                              {fresh}
+                            </span>
+                          ) : null}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
-            </ul>
+            </div>
           </nav>
-        </Container>
+        </aside>
+
+        <div className="min-w-0 pt-5 lg:border-l lg:border-border/70 lg:pl-10 lg:pt-6">
+          <Outlet />
+        </div>
       </div>
-      <Container className="pt-5">
-        <Outlet />
-      </Container>
     </ProjectProvider>
   );
 }

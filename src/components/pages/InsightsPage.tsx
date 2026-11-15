@@ -255,7 +255,7 @@ export function InsightsPage() {
                 onClick={() => setActive(c)}
                 aria-pressed={active === c}
                 className={cn(
-                  "h-9 shrink-0 whitespace-nowrap rounded-full border px-4 text-xs uppercase tracking-[0.14em] transition-all duration-300",
+                  "h-9 shrink-0 whitespace-nowrap rounded-full border px-4 text-xs transition-colors duration-300",
                   active === c
                     ? "border-primary/50 bg-primary/10 text-foreground"
                     : "border-border text-muted-foreground hover:border-foreground/25 hover:text-foreground",
@@ -281,11 +281,11 @@ export function InsightsPage() {
                         loading="lazy"
                         width={1024}
                         height={768}
-                        className="h-full w-full object-cover opacity-80 transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+                        className="h-full w-full object-cover opacity-80 transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
                       />
                     </div>
                     <div className="p-5 sm:p-6">
-                      <div className="flex items-center gap-3 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
                         <span className="text-primary">
                           {CATEGORY_LABELS[locale][post.category]}
                         </span>
@@ -300,7 +300,7 @@ export function InsightsPage() {
                       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                         {text.excerpt}
                       </p>
-                      <span className="mt-6 inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.16em] text-foreground/70 transition-colors group-hover:text-primary">
+                      <span className="mt-6 inline-flex items-center gap-1.5 text-xs text-foreground/70 transition-colors group-hover:text-primary">
                         {copy.read}
                         <ArrowUpRight size={14} />
                       </span>

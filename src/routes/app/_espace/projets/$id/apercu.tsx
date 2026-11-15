@@ -212,9 +212,7 @@ function Sales() {
 
           {summary.byType.length > 1 ? (
             <div className="mt-5 border-t border-border pt-4">
-              <h3 className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                Par typologie
-              </h3>
+              <h3 className="text-xs font-medium text-muted-foreground">Par typologie</h3>
               <ul className="mt-3 space-y-2.5">
                 {summary.byType.map((line) => (
                   <li
@@ -369,9 +367,7 @@ function Activity() {
           </div>
           {top.length > 0 ? (
             <div className="mt-4">
-              <h3 className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                Lots les plus regardés
-              </h3>
+              <h3 className="text-xs font-medium text-muted-foreground">Lots les plus regardés</h3>
               <ol className="mt-2 space-y-1.5 text-sm">
                 {top.map((row) => (
                   <li key={row.id} className="flex items-center gap-2">
@@ -423,7 +419,7 @@ function PublicPage() {
           <img
             src={image.thumb}
             alt=""
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500"
           />
         ) : null}
         <span className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-gradient-to-t from-black/75 to-transparent px-3 pb-2.5 pt-8 text-xs text-white">

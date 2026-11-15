@@ -9,17 +9,19 @@
 
 /*
  * REV — Real Estate Vision design system.
- * Dark-only. Black / white / grey with a disciplined blue accent.
+ * Dark-only: near-black and champagne. Champagne is a surface as well as an
+ * accent (the "stages" that carry the product), never a thin decoration only.
  */
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 8px);
   --radius-md: calc(var(--radius) - 4px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 8px);
-  --radius-2xl: calc(var(--radius) + 16px);
-  --radius-3xl: calc(var(--radius) + 24px);
-  --radius-4xl: calc(var(--radius) + 32px);
+  /* One family of corners, close to the 10px of buttons: nothing bubbly. */
+  --radius-xl: calc(var(--radius) + 2px);
+  --radius-2xl: calc(var(--radius) + 4px);
+  --radius-3xl: calc(var(--radius) + 8px);
+  --radius-4xl: calc(var(--radius) + 14px);
 
   --font-display: "Space Grotesk Variable", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -65,7 +67,7 @@
   --secondary: oklch(0.205 0 0);
   --secondary-foreground: oklch(0.965 0.003 106);
   --muted: oklch(0.205 0 0);
-  --muted-foreground: oklch(0.625 0 0); /* #8A8A8A */
+  --muted-foreground: oklch(0.74 0.004 90); /* #B0AFAC, 8.5:1 on the ground */
   --accent: oklch(0.24 0 0);
   --accent-foreground: oklch(0.965 0.003 106);
   --destructive: oklch(0.62 0.21 25);
@@ -88,11 +90,6 @@
     color-mix(in oklab, oklch(1 0 0) 5%, var(--card)) 0%,
     var(--card) 60%
   );
-  --gradient-text: linear-gradient(
-    180deg,
-    var(--foreground) 25%,
-    color-mix(in oklab, var(--foreground) 45%, transparent) 130%
-  );
 }
 
 @layer base {
@@ -111,6 +108,11 @@
     font-family: var(--font-sans);
     font-feature-settings: "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
+  }
+
+  /* One icon stroke across REV (the set draws at 2 by default). */
+  svg.lucide[stroke-width="2"] {
+    stroke-width: 1.5;
   }
 
   ::selection {
@@ -156,58 +158,11 @@
   color: rgb(255 255 255 / 0.8);
 }
 
-@utility text-gradient {
-  background: var(--gradient-text);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/*
- * Split headings animate each word on its own compositing layer, and Chrome
- * cannot clip a parent's background to text inside such layers (the words
- * vanish). Paint the gradient on each word instead.
- */
-.text-gradient:has([data-split-part]) {
-  background: none;
-  color: var(--color-foreground);
-}
-
-.text-gradient [data-split-part] {
-  background: var(--gradient-text);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
+/* A flat block on the ground: one step up in tone, a hairline, no glow. */
 @utility surface {
-  background: var(--gradient-surface);
+  background: var(--color-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-soft);
-}
-
-@utility glass {
-  background: color-mix(in oklab, var(--card) 55%, transparent);
-  backdrop-filter: blur(20px) saturate(140%);
-  border: 1px solid color-mix(in oklab, oklch(1 0 0) 8%, transparent);
-}
-
-@utility reveal {
-  opacity: 0;
-  transform: translateY(28px);
-  filter: blur(10px);
-  transition:
-    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
-
-  &.is-visible {
-    opacity: 1;
-    transform: none;
-    filter: blur(0);
-  }
 }
 
 /*
@@ -217,10 +172,10 @@
  */
 @utility reveal-init {
   opacity: 0;
-  transform: translate3d(0, var(--reveal-y, 28px), 0);
-  filter: blur(var(--reveal-blur, 10px));
+  transform: translate3d(0, min(var(--reveal-y, 16px), 16px), 0);
+  filter: blur(min(var(--reveal-blur, 4px), 4px));
   transition-property: opacity, transform, filter;
-  transition-duration: 1.05s;
+  transition-duration: 0.6s;
   transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
   transition-delay: var(--reveal-delay, 0ms);
   will-change: opacity, transform, filter;

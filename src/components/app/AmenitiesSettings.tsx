@@ -139,9 +139,7 @@ export function AmenitiesSettings({ project }: { project: Project }) {
 
       {rows.length < MAX_AMENITIES ? (
         <div className="mt-5">
-          <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-            Ajouter
-          </p>
+          <p className="text-xs font-medium text-muted-foreground">Ajouter</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {missing.map((a) => (
               <button

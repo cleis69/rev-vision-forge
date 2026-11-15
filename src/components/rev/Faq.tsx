@@ -46,7 +46,7 @@ export function Faq() {
                       />
                     </button>
                     <div
-                      className="grid transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                      className="grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
                       style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
                     >
                       <div className="overflow-hidden">

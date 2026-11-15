@@ -200,7 +200,7 @@ export default function ImportLotsDialog({
             </p>
             <div className="min-h-0 flex-1 overflow-auto rounded-xl border border-border">
               <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-card text-left text-xs uppercase tracking-wider text-muted-foreground">
+                <thead className="sticky top-0 bg-card text-left text-xs r text-muted-foreground">
                   <tr>
                     <th scope="col" className="px-3 py-2 font-medium">
                       Ligne

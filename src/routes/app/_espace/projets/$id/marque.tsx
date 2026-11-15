@@ -339,7 +339,7 @@ function Preview({
 }) {
   return (
     <section aria-label="Aperçu">
-      <p className="mb-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">Aperçu</p>
+      <p className="mb-2 text-xs text-muted-foreground">Aperçu</p>
       <div
         style={brandVars(color, font) as CSSProperties}
         className="overflow-hidden rounded-2xl border border-border bg-[#080808] text-white"
@@ -360,9 +360,7 @@ function Preview({
         </div>
         <div className="p-5">
           {sample.city ? (
-            <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-[color:var(--brand)]">
-              {sample.city}
-            </p>
+            <p className="text-xs font-medium text-[color:var(--brand)]">{sample.city}</p>
           ) : null}
           <p className="mt-2 font-brand text-3xl font-medium leading-tight tracking-tight">
             {sample.name}

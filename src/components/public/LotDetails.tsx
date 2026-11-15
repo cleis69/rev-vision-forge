@@ -279,9 +279,7 @@ export function LotDetails({
 
         {lot.features.length > 0 ? (
           <div>
-            <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/50">
-              {copy.features}
-            </h3>
+            <h3 className="text-xs font-medium text-white/50">{copy.features}</h3>
             <ul className="mt-3 flex flex-wrap gap-2">
               {lot.features.map((f) => (
                 <li

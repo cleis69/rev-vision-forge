@@ -6,6 +6,15 @@ import { cn } from "@/lib/utils";
 import { Reveal } from "./Reveal";
 import { SplitText } from "@/components/reactbits/SplitText";
 
+/**
+ * A headline of one sentence ends without a period; two sentences keep theirs,
+ * and a question keeps its mark.
+ */
+export function headline(text: string) {
+  const t = text.trimEnd();
+  return t.endsWith(".") && !/[.!?…]\s/.test(t) && !t.endsWith("...") ? t.slice(0, -1) : t;
+}
+
 /** Entrance played by CSS on load (above-the-fold content, no JavaScript needed). */
 export const fadeUp = (delay: number) => ({
   animation: `rev-fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s both`,
@@ -19,33 +28,23 @@ export function Container({ children, className }: { children: ReactNode; classN
   );
 }
 
-export function Eyebrow({ children }: { children: ReactNode }) {
-  return (
-    <span className="inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
-      <span className="h-1 w-1 rounded-full bg-primary" />
-      {children}
-    </span>
-  );
-}
-
 export function SectionHeading({
-  eyebrow,
   title,
   description,
   align = "left",
 }: {
-  eyebrow: string;
+  /** The section's name: kept at call sites, never shown above the title. */
+  eyebrow?: string;
   title: string;
   description?: string;
   align?: "left" | "center";
 }) {
   return (
     <Reveal className={cn("max-w-2xl", align === "center" && "mx-auto text-center")}>
-      <Eyebrow>{eyebrow}</Eyebrow>
       <SplitText
         as="h2"
-        text={title}
-        className="mt-4 block font-display text-[clamp(1.75rem,3.6vw,3rem)] font-medium leading-[1.08] tracking-[-0.03em] text-gradient"
+        text={headline(title)}
+        className="block font-display text-[clamp(1.75rem,3.6vw,3rem)] font-medium leading-[1.08] tracking-[-0.03em] text-foreground"
       />
       {description ? (
         <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground md:text-base lg:text-lg">
@@ -79,7 +78,8 @@ export function isInternalRoute(href: string) {
 type CtaProps = {
   children: ReactNode;
   href: string;
-  variant?: "primary" | "ghost";
+  /** `ink` and `inkGhost` sit on a champagne ground. */
+  variant?: "primary" | "ghost" | "ink" | "inkGhost";
   className?: string;
   onClick?: () => void;
   /** Opens in a new tab (always a plain link). */
@@ -97,9 +97,14 @@ export function Cta({
   const classes = cn(
     "group relative isolate inline-flex h-12 items-center justify-center gap-2 overflow-hidden rounded-lg px-6 text-sm font-medium",
     "transition-[background-color,border-color,transform] duration-300 active:scale-[0.98]",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
     variant === "primary"
-      ? "bg-primary text-primary-foreground hover:bg-primary-hover"
-      : "border border-border bg-transparent text-foreground backdrop-blur-md",
+      ? "bg-primary text-primary-foreground hover:bg-primary-hover focus-visible:ring-primary"
+      : variant === "ink"
+        ? "bg-primary-foreground text-primary hover:bg-black focus-visible:ring-black focus-visible:ring-offset-primary"
+        : variant === "inkGhost"
+          ? "border border-black/35 bg-transparent text-primary-foreground hover:border-black/70 focus-visible:ring-black focus-visible:ring-offset-primary"
+          : "border border-border bg-transparent text-foreground focus-visible:ring-foreground/70",
     className,
   );
 
@@ -136,13 +141,13 @@ export function Cta({
 }
 
 export function PageHero({
-  eyebrow,
   title,
   description,
   image,
   imageAlt,
 }: {
-  eyebrow: string;
+  /** The page's name: kept at call sites, never shown above the title. */
+  eyebrow?: string;
   title: string;
   description: string;
   image?: Photo;
@@ -168,15 +173,12 @@ export function PageHero({
       <Container>
         {/* CSS-only entrance: the page title shows before any JavaScript runs. */}
         <div className="max-w-4xl">
-          <div style={fadeUp(0)}>
-            <Eyebrow>{eyebrow}</Eyebrow>
-          </div>
           <SplitText
             as="h1"
-            text={title}
+            text={headline(title)}
             immediate
             delay={0.08}
-            className="mt-5 block font-display text-[clamp(2.1rem,5vw,4rem)] font-medium leading-[1.02] tracking-[-0.04em] text-gradient"
+            className="block font-display text-[clamp(2.1rem,5vw,4rem)] font-medium leading-[1.02] tracking-[-0.04em] text-foreground"
           />
           <p
             className="mt-5 max-w-2xl text-[15px] leading-relaxed text-muted-foreground md:text-lg"

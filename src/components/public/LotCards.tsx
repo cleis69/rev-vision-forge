@@ -80,7 +80,7 @@ export function LotCards({
                       alt=""
                       loading="lazy"
                       className={cn(
-                        "absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03] motion-reduce:transition-none",
+                        "absolute inset-0 h-full w-full object-cover transition-transform duration-700 motion-reduce:transition-none",
                         sold && "opacity-50 grayscale",
                       )}
                     />

@@ -176,8 +176,7 @@ export function CompareDialog({
   const photo = (lot: PublicLot) =>
     media.find((m) => m.lot_id === lot.id) ?? media.find((m) => !m.lot_id);
   const cell = "px-3 py-3 align-top";
-  const head =
-    "py-3 pr-3 text-left align-top text-[11px] font-medium uppercase tracking-[0.16em] text-white/45";
+  const head = "py-3 pr-3 text-left align-top text-xs font-medium text-white/45";
   const value = (v: number | null, unit: string) =>
     v === null ? <span className="text-white/35">—</span> : `${area.format(v)} ${unit}`;
 
@@ -214,7 +213,7 @@ export function CompareDialog({
                               src={mediaImage(p).thumb}
                               alt=""
                               loading="lazy"
-                              className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none"
+                              className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 motion-reduce:transition-none"
                             />
                           ) : null}
                         </span>

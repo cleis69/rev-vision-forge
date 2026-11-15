@@ -2,20 +2,23 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   ArrowUpRight,
   Check,
+  ChevronDown,
   FileText,
   Inbox,
-  Maximize2,
   Plus,
   Presentation,
   Upload,
 } from "lucide-react";
 
 import { RevLogo } from "@/components/rev/Logo";
-import { SalesPlanDemo, demoPath } from "@/components/rev/SalesPlanDemo";
-import { Container, Cta, fadeUp } from "@/components/rev/ui";
+import { DemoPhone, demoPath } from "@/components/rev/SalesPlanDemo";
+import { SalesPlanScenes, type SceneItem } from "@/components/rev/SalesPlanScenes";
+import { closing } from "@/components/rev/AccentHeading";
+import { Container, Cta, fadeUp, headline } from "@/components/rev/ui";
 import { salesPlanDemoUrl } from "@/lib/contact";
 import { SALES_PLAN_FAQ } from "@/lib/faq";
 import { href, useLocale } from "@/lib/i18n";
+import { photo } from "@/lib/images";
 import { cn } from "@/lib/utils";
 
 /*
@@ -36,19 +39,15 @@ type BuyerLine = {
 };
 
 const FR = {
-  demoCta: "Prendre rendez-vous",
-  callCta: "Planifier un appel",
+  demoCta: "Demander une démo sur WhatsApp",
   hero: {
     before: "Vendez sur plan",
     accent: "en 3D,",
     after: "avec les disponibilités en direct.",
     description:
       "Une page par programme. Vos acheteurs tournent la résidence du bout du doigt, voient chaque lot disponible, réservé ou vendu, ouvrent sa fiche et vous écrivent en le citant. Votre équipe met les statuts à jour en un clic.",
-    tryDemo: "Essayer la démo",
-    points: ["Téléphone, tablette, ordinateur", "Rien à installer", "Français et anglais"],
-    fullScreen: "Plein écran",
-    presentation: "Mode présentation",
-    presentationHint: "plein écran pour la tablette du bureau de vente",
+    openDemo: "Ouvrir la démo",
+    stageNote: "Programme fictif · ouvrir la démo",
     newTab: "(nouvel onglet)",
   },
   buyers: {
@@ -62,6 +61,43 @@ const FR = {
     short: { model: "Maquette", brochure: "Brochure" },
     no: "non",
     colon: " : ",
+    scenesLabel: "Ce que fait l'acheteur sur la page",
+    stageCaption: "Villas de démonstration · programme fictif",
+    play: "Lire la scène",
+    sceneAlt: "La page d'un programme : la résidence en 3D, la recherche et la liste des villas.",
+    tableTitle: "Toute la fiche, face à une maquette et à une brochure",
+    scenes: [
+      {
+        id: "chercher",
+        tab: "Chercher",
+        title: "Une recherche qui éclaire la 3D",
+        body: "L'acheteur choisit « 5 chambres ou plus » : quatre villas restent allumées, les autres s'estompent, et la liste suit.",
+      },
+      {
+        id: "fiche",
+        tab: "Fiche",
+        title: "Fiche, plan et crédit",
+        body: "Il ouvre la villa 7 : prix, surfaces, visite 360°, puis il simule son crédit sur 15 ou 20 ans.",
+      },
+      {
+        id: "vues",
+        tab: "Vues",
+        title: "La résidence sous tous les angles",
+        body: "Vue piéton, zoom, toiture, puis retour à la vue aérienne : les lots restent cliquables sous chaque angle.",
+      },
+      {
+        id: "comparer",
+        tab: "Comparer",
+        title: "Un comparateur à partager",
+        body: "Il ajoute les villas 4, 7 et 13 : statut, prix, prix au m², surfaces et équipements côte à côte.",
+      },
+      {
+        id: "contacter",
+        tab: "Contacter",
+        title: "Une demande qui cite le lot",
+        body: "Depuis la fiche de la villa 7, il demande une visite : son nom, son téléphone, et le lot est déjà cité.",
+      },
+    ] as SceneItem[],
     isNew: "Nouveau",
     lines: [
       {
@@ -164,26 +200,18 @@ const FR = {
       },
     ],
     poweredBy: "Propulsé par",
+    try: "Essayer",
+    presentationLine: "Mode présentation",
     mock: {
-      label: "Illustration de l'espace promoteur : le statut de chaque villa se change en un clic.",
-      title: "Espace promoteur",
+      label:
+        "Illustration de l'espace promoteur : dans la liste des lots, la villa 7 passe de disponible à réservé, puis une demande de visite arrive.",
       programme: "Villas de démonstration",
-      live: "Page en ligne",
-      statuses: ["Disponible", "Réservée", "Vendue"],
-      rows: [
-        { lot: "Villa 1", status: 0 },
-        { lot: "Villa 3", status: 1 },
-        { lot: "Villa 5", status: 2 },
-        { lot: "Villa 6", status: 1 },
-        { lot: "Villa 7", status: 0 },
-        { lot: "Villa 8", status: 0 },
-        { lot: "Villa 11", status: 2 },
-      ],
-      toast: "Nouvelle demande",
-      toastNote: "Villa 7 · demande de visite",
-      now: "à l'instant",
-      importCsv: "Importer CSV",
+      statuses: ["Disponible", "Réservé", "Vendu"],
+      type: "Villa",
+      importCsv: "Importer",
       exportCsv: "Exporter",
+      toast: "Nouvelle demande de visite : Karim B.",
+      see: "Voir",
     },
   },
   studio: {
@@ -259,19 +287,15 @@ const FR = {
 };
 
 const EN: typeof FR = {
-  demoCta: "Book a meeting",
-  callCta: "Book a call",
+  demoCta: "Request a demo on WhatsApp",
   hero: {
     before: "Sell off-plan",
     accent: "in 3D,",
     after: "with live availability.",
     description:
       "One page per development. Buyers turn the residence with a finger, see every unit as available, reserved or sold, open its sheet and contact you naming it. Your team updates statuses in one click.",
-    tryDemo: "Try the demo",
-    points: ["Phone, tablet, computer", "Nothing to install", "French and English"],
-    fullScreen: "Full screen",
-    presentation: "Presentation mode",
-    presentationHint: "full screen for the sales office tablet",
+    openDemo: "Open the demo",
+    stageNote: "Fictional development · open the demo",
     newTab: "(new tab)",
   },
   buyers: {
@@ -284,6 +308,43 @@ const EN: typeof FR = {
     short: { model: "Model", brochure: "Brochure" },
     no: "no",
     colon: ": ",
+    scenesLabel: "What buyers do on the page",
+    stageCaption: "Villas de démonstration · fictional development",
+    play: "Play the scene",
+    sceneAlt: "A development's page: the residence in 3D, the search and the list of villas.",
+    tableTitle: "The whole sheet, next to a model and a brochure",
+    scenes: [
+      {
+        id: "chercher",
+        tab: "Search",
+        title: "A search that lights up the 3D",
+        body: "The buyer picks “5 bedrooms or more”: four villas stay lit, the others fade, and the list follows.",
+      },
+      {
+        id: "fiche",
+        tab: "Sheet",
+        title: "Sheet, plan and mortgage",
+        body: "They open villa 7: price, areas, 360° tour, then simulate a mortgage over 15 or 20 years.",
+      },
+      {
+        id: "vues",
+        tab: "Views",
+        title: "The residence from every angle",
+        body: "Street view, zoom, roof, then back to the aerial view: units stay clickable from every angle.",
+      },
+      {
+        id: "comparer",
+        tab: "Compare",
+        title: "A comparison to share",
+        body: "They add villas 4, 7 and 13: status, price, price per m², areas and features side by side.",
+      },
+      {
+        id: "contacter",
+        tab: "Contact",
+        title: "An enquiry that names the unit",
+        body: "From villa 7's sheet, they request a viewing: their name, their phone, and the unit is already named.",
+      },
+    ],
     isNew: "New",
     lines: [
       {
@@ -383,18 +444,18 @@ const EN: typeof FR = {
       },
     ],
     poweredBy: "Powered by",
+    try: "Try it",
+    presentationLine: "Presentation mode",
     mock: {
-      label: "Illustration of the developer space: each villa's status changes in one click.",
-      title: "Developer space",
+      label:
+        "Illustration of the developer space: in the unit list, villa 7 goes from available to reserved, then a viewing request comes in.",
       programme: "Villas de démonstration",
-      live: "Page live",
       statuses: ["Available", "Reserved", "Sold"],
-      rows: FR.teams.mock.rows,
-      toast: "New enquiry",
-      toastNote: "Villa 7 · viewing request",
-      now: "just now",
-      importCsv: "Import CSV",
+      type: "Villa",
+      importCsv: "Import",
       exportCsv: "Export",
+      toast: "New viewing request: Karim B.",
+      see: "View",
     },
   },
   studio: {
@@ -475,16 +536,10 @@ const lower = (text: string) => text.charAt(0).toLowerCase() + text.slice(1);
 export function SalesPlanPage() {
   const locale = useLocale();
   const copy = COPY[locale];
-  const [launched, setLaunched] = useState(false);
 
   return (
     <>
-      <Hero
-        copy={copy}
-        launched={launched}
-        onLaunch={() => setLaunched(true)}
-        onClose={() => setLaunched(false)}
-      />
+      <Hero copy={copy} />
       <Buyers copy={copy} />
       <Teams copy={copy} />
       <Studio copy={copy} />
@@ -543,8 +598,8 @@ function Heading({
             : "text-[clamp(1.6rem,3vw,2.5rem)] leading-[1.1] tracking-[-0.03em]",
         )}
       >
-        {before} <span className="text-primary">{accent}</span>
-        {after ? ` ${after}` : ""}
+        {before} <span className="text-primary">{after ? accent : closing(before, accent)}</span>
+        {after ? ` ${closing(`${before} ${accent}`, after)}` : ""}
       </Tag>
       {description ? (
         <p className="mt-4 max-w-[62ch] text-[15px] leading-relaxed text-muted-foreground md:text-base">
@@ -569,28 +624,18 @@ function Line({ title, body, aside }: { title: string; body: string; aside?: Rea
 }
 
 const TEXT_LINK =
-  "inline-flex h-8 items-center gap-1.5 rounded-[6px] text-foreground/80 underline decoration-foreground/25 underline-offset-4 transition-colors duration-200 hover:text-foreground hover:decoration-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";
+  "inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-[6px] text-[13px] text-foreground/85 underline decoration-foreground/25 underline-offset-4 transition-colors duration-200 hover:text-foreground hover:decoration-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";
 
 /* ----------------------------------------------------------------- hero */
 
-function Hero({
-  copy,
-  launched,
-  onLaunch,
-  onClose,
-}: {
-  copy: Copy;
-  launched: boolean;
-  onLaunch: () => void;
-  onClose: () => void;
-}) {
+function Hero({ copy }: { copy: Copy }) {
   const locale = useLocale();
   const h = copy.hero;
   const path = demoPath(locale);
   return (
-    <section className="pb-12 pt-28 md:pt-32 lg:pb-16">
+    <section className="pb-12 pt-24 md:pt-28 lg:pb-16">
       <Container>
-        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16 xl:gap-24">
+        <div className="grid items-center gap-9 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-14 xl:gap-20">
           <div className="min-w-0" style={fadeUp(0)}>
             <Heading
               as="h1"
@@ -600,56 +645,36 @@ function Hero({
               description={h.description}
             />
             <div className="mt-7 grid grid-cols-1 gap-2.5 sm:flex sm:flex-wrap sm:gap-3">
-              <Cta href={salesPlanDemoUrl(locale)} className="rounded-[10px]">
+              <Cta href={salesPlanDemoUrl(locale)}>
                 {copy.demoCta}
                 <ArrowUpRight size={16} aria-hidden />
               </Cta>
-              {/* On a computer the demo opens in the phone beside; on a phone, the page itself. */}
-              <Cta
-                href="#demo"
-                onClick={onLaunch}
-                variant="ghost"
-                className="rounded-[10px] max-lg:hidden"
-              >
-                {h.tryDemo}
-              </Cta>
-              <Cta href={path} variant="ghost" className="rounded-[10px] lg:hidden">
-                {h.tryDemo}
+              <Cta href={path} newTab variant="ghost">
+                {h.openDemo}
+                <span className="sr-only"> {h.newTab}</span>
               </Cta>
             </div>
-            <ul className="mt-6 flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-muted-foreground">
-              {h.points.map((point) => (
-                <li key={point} className="flex items-center gap-2 whitespace-nowrap">
-                  <span aria-hidden className="size-1 rounded-full bg-primary/70" />
-                  {point}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-2 flex flex-wrap gap-x-5 text-[13px]">
-              <a href={path} target="_blank" rel="noopener" className={TEXT_LINK}>
-                <Maximize2 size={13} aria-hidden />
-                {h.fullScreen}
-                <span className="sr-only"> {h.newTab}</span>
-              </a>
-              <a
-                href={`${path}?mode=presentation`}
-                target="_blank"
-                rel="noopener"
-                className={TEXT_LINK}
-              >
-                <Presentation size={13} aria-hidden />
-                {h.presentation}
-                <span className="sr-only">
-                  {" "}
-                  : {h.presentationHint} {h.newTab}
-                </span>
-              </a>
-            </p>
           </div>
 
-          <div className="min-w-0" style={fadeUp(0.12)}>
-            <SalesPlanDemo launched={launched} onLaunch={onLaunch} onClose={onClose} />
-          </div>
+          {/* The product itself, on champagne: a film of the demo, and the door to it. */}
+          <a
+            href={path}
+            target="_blank"
+            rel="noopener"
+            style={fadeUp(0.12)}
+            className="group -mx-5 block bg-primary px-5 pb-6 pt-9 text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:mx-0 sm:rounded-[14px] lg:px-16 lg:pb-7 lg:pt-11"
+          >
+            <DemoPhone alt="" className="mx-auto w-[250px] lg:w-[280px]" />
+            <span className="mt-6 flex items-center justify-center gap-1.5 text-[13px] font-medium lg:mt-7">
+              {h.stageNote}
+              <ArrowUpRight
+                size={14}
+                aria-hidden
+                className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              />
+              <span className="sr-only"> {h.newTab}</span>
+            </span>
+          </a>
         </div>
       </Container>
     </section>
@@ -662,7 +687,7 @@ function OtherCell({ value, no }: { value: Other; no: string }) {
   return value ? (
     <span className="text-[13px] leading-snug text-muted-foreground">{value}</span>
   ) : (
-    <span className="text-[13px] text-foreground/30">
+    <span className="text-[13px] text-foreground/50">
       <span aria-hidden>—</span>
       <span className="sr-only">{no}</span>
     </span>
@@ -670,12 +695,26 @@ function OtherCell({ value, no }: { value: Other; no: string }) {
 }
 
 function Buyers({ copy }: { copy: Copy }) {
+  const locale = useLocale();
   const b = copy.buyers;
   return (
     <Part id="acheteurs">
       <Heading before={b.before} accent={b.accent} description={b.description} />
 
-      <table className="mt-8 w-full border-collapse text-left sm:mt-10">
+      <SalesPlanScenes
+        items={b.scenes}
+        label={b.scenesLabel}
+        caption={b.stageCaption}
+        demoHref={demoPath(locale)}
+        openDemo={copy.hero.openDemo}
+        play={b.play}
+        alt={b.sceneAlt}
+      />
+
+      <h3 className="mt-14 font-display text-[20px] font-medium leading-snug tracking-tight text-foreground sm:text-[22px] lg:mt-20">
+        {b.tableTitle}
+      </h3>
+      <table className="mt-5 w-full border-collapse text-left sm:mt-6">
         <caption className="sr-only">{b.caption}</caption>
         <thead className="max-md:sr-only">
           <tr className="border-b border-border">
@@ -746,11 +785,20 @@ function Buyers({ copy }: { copy: Copy }) {
 
 /* ---------------------------------------------------------------- teams */
 
-const MOCK_STATUS = [
-  "bg-primary text-primary-foreground",
-  "bg-amber-400/80 text-black",
-  "bg-zinc-600 text-white",
+/** Dot and text of each status, as in the promoter space and on the public page. */
+const MOCK_DOT = ["bg-primary", "bg-amber-400", "bg-zinc-500"];
+const MOCK_TEXT = ["text-primary", "text-amber-300", "text-muted-foreground"];
+
+/** Lots of the fictional programme shown in the mock: number, area, price, status. */
+const MOCK_ROWS = [
+  { n: "4", area: "275 m²", price: "1 180 000 €", status: 0 },
+  { n: "5", area: "248 m²", price: "1 040 000 €", status: 2 },
+  { n: "6", area: "248 m²", price: "1 040 000 €", status: 1 },
+  { n: "7", area: "312 m²", price: "1 380 000 €", status: 0 },
+  { n: "8", area: "240 m²", price: "980 000 €", status: 0 },
 ];
+/** The lot whose status changes in the scene. */
+const MOCK_TARGET = 3;
 
 /** Beats of the little scene the mock plays, 900 ms each, then again. */
 const BEATS = 13;
@@ -789,151 +837,170 @@ function TeamsMock({ copy }: { copy: Copy }) {
   const m = copy.teams.mock;
   const { ref, beat } = useScene();
   const playing = beat !== null;
-  const at = beat ?? 0;
-  // Row 0 gets reserved at beat 2, row 3 sold at beat 7; all back at the last beat.
-  const statusOf = (i: number, base: number) =>
-    !playing
-      ? base
-      : i === 0
-        ? at >= 2 && at < 12
-          ? 1
-          : 0
-        : i === 3
-          ? at >= 7 && at < 12
-            ? 2
-            : 1
-          : base;
-  const pressed = (i: number, s: number) =>
-    playing && ((i === 0 && s === 1 && at === 1) || (i === 3 && s === 2 && at === 6));
-  const toast = !playing || (at >= 4 && at < 12);
-  const justSaved = playing && (at === 2 || at === 7);
+  const at = beat ?? BEATS - 1;
+  // Beats: 2 press the status, 3-4 the menu is open (4: the choice is pressed),
+  // 5 the lot is reserved, 7 a request comes in, the last beat puts all back.
+  const reserved = !playing || (at >= 5 && at < BEATS - 1);
+  const menu = playing && (at === 3 || at === 4);
+  const toast = !playing || (at >= 7 && at < BEATS - 1);
+  const statusOf = (i: number, base: number) => (i === MOCK_TARGET && reserved ? 1 : base);
+  const count = (status: number) =>
+    MOCK_ROWS.filter((r, i) => statusOf(i, r.status) === status).length;
   return (
-    <div
-      ref={ref}
-      role="img"
-      aria-label={m.label}
-      className="overflow-hidden rounded-[10px] border border-border bg-card"
-    >
-      <div aria-hidden>
-        <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 sm:px-5">
+    <div ref={ref} role="img" aria-label={m.label} className="relative">
+      <div
+        aria-hidden
+        className="overflow-hidden rounded-[10px] bg-card text-foreground shadow-[0_30px_60px_-24px_rgb(0_0_0/0.7)]"
+      >
+        <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">{m.title}</p>
-            <p className="mt-0.5 truncate font-display text-[15px] font-medium tracking-tight">
+            <p className="truncate font-display text-[15px] font-medium tracking-tight">
               {m.programme}
             </p>
+            <p className="mt-1 flex flex-wrap gap-x-3 text-xs text-muted-foreground">
+              {m.statuses.map((label, s) => (
+                <span key={label} className="inline-flex items-center gap-1.5">
+                  <span className={cn("size-1.5 rounded-full", MOCK_DOT[s])} />
+                  {label}
+                  <span className="tabular-nums text-foreground">{count(s)}</span>
+                </span>
+              ))}
+            </p>
           </div>
-          <span className="inline-flex shrink-0 items-center gap-1.5 text-[11px] text-primary">
-            <span className="relative grid size-1.5 place-items-center">
-              {justSaved ? (
-                <span className="absolute size-1.5 animate-ping rounded-full bg-primary" />
-              ) : null}
-              <span className="size-1.5 rounded-full bg-primary" />
-            </span>
-            {m.live}
-          </span>
-        </div>
-
-        <ul className="divide-y divide-border/70 px-4 sm:px-5">
-          {m.rows.map((row, i) => (
-            <li
-              key={row.lot}
-              className={cn(
-                "flex items-center justify-between gap-3 py-2.5",
-                i >= 4 && "hidden lg:flex",
-              )}
-            >
-              <span className="text-[13px] font-medium tabular-nums">{row.lot}</span>
-              <span className="flex rounded-[10px] border border-border bg-background/60 p-0.5">
-                {m.statuses.map((label, s) => (
-                  <span
-                    key={label}
-                    className={cn(
-                      "rounded-[8px] px-2 py-1 text-[11px] transition-[background-color,color,box-shadow,transform] duration-300 ease-out sm:px-2.5",
-                      s === statusOf(i, row.status) ? MOCK_STATUS[s] : "text-muted-foreground",
-                      pressed(i, s) &&
-                        "scale-95 text-foreground shadow-[0_0_0_1.5px_rgb(255_255_255/0.55)]",
-                    )}
-                  >
-                    {label}
-                  </span>
-                ))}
-              </span>
-            </li>
-          ))}
-        </ul>
-
-        <div className="space-y-3 border-t border-border p-4 sm:p-5">
-          <div
-            className={cn(
-              "flex items-center gap-3 transition-[opacity,transform,filter] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
-              !toast && "translate-y-1.5 opacity-0 blur-[2px]",
-            )}
-          >
-            <span className="grid size-8 shrink-0 place-items-center rounded-[8px] bg-primary text-primary-foreground">
-              <Inbox size={15} />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-[13px] font-medium">{m.toast}</span>
-              <span className="block truncate text-xs text-muted-foreground">{m.toastNote}</span>
-            </span>
-            <span className="shrink-0 text-[11px] text-muted-foreground">{m.now}</span>
-          </div>
-          <div className="flex gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-[8px] border border-border px-3 py-1.5 text-[11px] text-muted-foreground">
+          <div className="flex shrink-0 gap-2 max-sm:hidden">
+            <span className="inline-flex h-8 items-center gap-1.5 rounded-[8px] border border-border px-2 text-xs text-muted-foreground">
               <Upload size={12} />
               {m.importCsv}
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-[8px] border border-border px-3 py-1.5 text-[11px] text-muted-foreground">
+            <span className="inline-flex h-8 items-center gap-1.5 rounded-[8px] border border-border px-2 text-xs text-muted-foreground">
               <FileText size={12} />
               {m.exportCsv}
             </span>
           </div>
         </div>
+
+        <ul className="divide-y divide-border/70 px-4 pb-14">
+          {MOCK_ROWS.map((row, i) => {
+            const status = statusOf(i, row.status);
+            const target = i === MOCK_TARGET;
+            return (
+              <li
+                key={row.n}
+                className={cn(
+                  "relative grid h-11 grid-cols-[1.5rem_minmax(0,1fr)_7.5rem] items-center gap-3 text-[13px] transition-colors duration-500 sm:grid-cols-[1.5rem_minmax(0,1fr)_auto_7.5rem]",
+                  target && playing && at === 5 && "bg-foreground/[0.06]",
+                )}
+              >
+                <span className="font-medium tabular-nums">{row.n}</span>
+                <span className="truncate text-muted-foreground">
+                  {m.type} · {row.area}
+                </span>
+                <span className="tabular-nums max-sm:hidden">{row.price}</span>
+                <span
+                  className={cn(
+                    "flex h-8 items-center gap-2 rounded-[8px] border border-transparent px-2 transition-[border-color,transform] duration-200",
+                    target && playing && at >= 2 && at <= 4 && "border-foreground/40",
+                    target && playing && at === 2 && "scale-[0.98]",
+                  )}
+                >
+                  <span className={cn("size-1.5 shrink-0 rounded-full", MOCK_DOT[status])} />
+                  <span className={cn("flex-1", MOCK_TEXT[status])}>{m.statuses[status]}</span>
+                  <ChevronDown size={12} className="text-muted-foreground" />
+                </span>
+                {target ? (
+                  <span
+                    className={cn(
+                      "absolute right-0 top-10 z-10 w-[7.5rem] rounded-[10px] border border-border bg-elevated p-1 shadow-[0_12px_24px_-8px_rgb(0_0_0/0.6)] transition-[opacity,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                      menu ? "opacity-100" : "pointer-events-none -translate-y-1 opacity-0",
+                    )}
+                  >
+                    {m.statuses.map((label, s) => (
+                      <span
+                        key={label}
+                        className={cn(
+                          "flex h-8 items-center gap-2 rounded-[6px] px-2 transition-colors duration-200",
+                          s === 1 && at === 4 && "bg-foreground/10",
+                        )}
+                      >
+                        <span className={cn("size-1.5 rounded-full", MOCK_DOT[s])} />
+                        {label}
+                      </span>
+                    ))}
+                  </span>
+                ) : null}
+              </li>
+            );
+          })}
+        </ul>
       </div>
+
+      {/* A request comes in, as the space announces it. */}
+      <p
+        aria-hidden
+        className={cn(
+          "absolute bottom-3 right-3 flex max-w-[calc(100%-1.5rem)] items-center gap-3 rounded-[10px] border border-border bg-elevated py-2 pl-3 pr-2 text-[13px] text-foreground shadow-[0_12px_24px_-8px_rgb(0_0_0/0.6)] transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          !toast && "translate-y-2 opacity-0",
+        )}
+      >
+        <Inbox size={14} className="shrink-0 text-primary" />
+        <span className="min-w-0 truncate">{m.toast}</span>
+        <span className="shrink-0 rounded-[6px] bg-foreground px-2 py-1 text-xs font-medium text-background">
+          {m.see}
+        </span>
+      </p>
     </div>
   );
 }
 
 function Teams({ copy }: { copy: Copy }) {
+  const locale = useLocale();
   const t = copy.teams;
   const last = t.lines.length - 1;
   return (
     <Part id="equipes">
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:gap-16">
-        <div>
-          <Heading
-            before={t.before}
-            accent={t.accent}
-            after={t.after}
-            description={t.description}
-          />
-          <ul className="mt-8 border-t border-border sm:mt-10">
-            {t.lines.map((line, i) => (
-              <Line
-                key={line.title}
-                title={line.title}
-                body={line.body}
-                aside={
-                  i === last ? (
-                    <span className="inline-flex items-center gap-2.5 whitespace-nowrap text-xs text-muted-foreground">
-                      {t.poweredBy}
-                      <RevLogo variant="compact" lazy className="h-6 w-auto" />
-                    </span>
-                  ) : undefined
-                }
-              />
-            ))}
-          </ul>
-        </div>
-        <div className="lg:pt-2">
+      <div className="grid gap-x-14 gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,29rem)]">
+        <Heading before={t.before} accent={t.accent} after={t.after} description={t.description} />
+        {/* The promoter space at work, on champagne. */}
+        <div className="-mx-5 bg-primary p-5 sm:mx-0 sm:rounded-[14px] sm:p-7 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-start">
           <TeamsMock copy={copy} />
         </div>
+        <ul className="border-t border-border lg:col-start-1">
+          {t.lines.map((line, i) => (
+            <Line
+              key={line.title}
+              title={line.title}
+              body={line.body}
+              aside={
+                i === last ? (
+                  <span className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-muted-foreground">
+                    {t.poweredBy}
+                    <RevLogo variant="compact" lazy className="h-6 w-auto" />
+                  </span>
+                ) : line.title === t.presentationLine ? (
+                  <a
+                    href={`${demoPath(locale)}?mode=presentation`}
+                    target="_blank"
+                    rel="noopener"
+                    className={TEXT_LINK}
+                  >
+                    <Presentation size={13} aria-hidden />
+                    {t.try}
+                    <span className="sr-only"> {copy.hero.newTab}</span>
+                  </a>
+                ) : undefined
+              }
+            />
+          ))}
+        </ul>
       </div>
     </Part>
   );
 }
 
 /* --------------------------------------------------------------- studio */
+
+/** What the studio makes: an interior render, a 3D model, an aerial film. */
+const STUDIO_PHOTOS = [photo("work-interior"), photo("work-matterport"), photo("work-drone")];
 
 function Studio({ copy }: { copy: Copy }) {
   const locale = useLocale();
@@ -945,13 +1012,28 @@ function Studio({ copy }: { copy: Copy }) {
         <Cta
           href={href("contact", locale)}
           variant="ghost"
-          className="shrink-0 self-start rounded-[10px] lg:self-auto"
+          className="shrink-0 self-start lg:self-auto"
         >
           {s.cta}
           <ArrowUpRight size={16} aria-hidden />
         </Cta>
       </div>
-      <ul className="mt-8 border-t border-border sm:mt-10">
+      <ul aria-hidden className="mt-8 grid grid-cols-3 gap-2 sm:mt-10 sm:gap-3">
+        {STUDIO_PHOTOS.map((picture, i) => (
+          <li key={i}>
+            <img
+              src={picture.src}
+              srcSet={picture.srcSet}
+              sizes="(min-width: 1240px) 380px, 33vw"
+              alt=""
+              loading="lazy"
+              decoding="async"
+              className="aspect-[4/3] w-full rounded-[10px] object-cover"
+            />
+          </li>
+        ))}
+      </ul>
+      <ul className="mt-6 border-t border-border sm:mt-8">
         {s.lines.map((line) => (
           <Line key={line.title} title={line.title} body={line.body} />
         ))}
@@ -1055,7 +1137,7 @@ function SalesPlanFaq({ copy }: { copy: Copy }) {
                 </h3>
                 <div
                   id={id}
-                  className="grid transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                  className="grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
                   style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
                 >
                   <div className="overflow-hidden" inert={!isOpen}>
@@ -1079,28 +1161,36 @@ function FinalCta({ copy }: { copy: Copy }) {
   const locale = useLocale();
   const f = copy.final;
   return (
-    <Part id="rendez-vous" className="lg:py-24">
-      <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
-        <div>
-          <Heading before={f.before} accent={f.accent} description={f.body} />
-          <p className="mt-4 text-[13px] text-muted-foreground">
-            {f.notes[0]}
-            <span aria-hidden className="mx-2 text-foreground/25">
-              ·
-            </span>
-            {f.notes[1]}
-          </p>
+    <section id="rendez-vous" className="scroll-mt-20 bg-primary text-primary-foreground">
+      <Container className="py-14 sm:py-16 lg:py-20">
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
+          <div className="max-w-3xl">
+            <h2 className="font-display text-[clamp(1.9rem,3.6vw,3rem)] font-medium leading-[1.06] tracking-[-0.03em] [text-wrap:balance]">
+              {headline(`${f.before} ${f.accent}`)}
+            </h2>
+            <p className="mt-4 max-w-[58ch] text-[15px] leading-relaxed text-black/75 md:text-base">
+              {f.body}
+            </p>
+            <p className="mt-4 text-[13px] text-black/70">
+              {f.notes[0]}
+              <span aria-hidden className="mx-2 text-black/40">
+                ·
+              </span>
+              {f.notes[1]}
+            </p>
+          </div>
+          <div className="grid shrink-0 grid-cols-1 gap-2.5 sm:flex sm:gap-3">
+            <Cta href={salesPlanDemoUrl(locale)} variant="ink">
+              {copy.demoCta}
+              <ArrowUpRight size={16} aria-hidden />
+            </Cta>
+            <Cta href={demoPath(locale)} newTab variant="inkGhost">
+              {copy.hero.openDemo}
+              <span className="sr-only"> {copy.hero.newTab}</span>
+            </Cta>
+          </div>
         </div>
-        <div className="grid shrink-0 grid-cols-1 gap-2.5 sm:flex sm:gap-3">
-          <Cta href={salesPlanDemoUrl(locale)} className="rounded-[10px]">
-            {copy.demoCta}
-            <ArrowUpRight size={16} aria-hidden />
-          </Cta>
-          <Cta href={href("contact", locale)} variant="ghost" className="rounded-[10px]">
-            {copy.callCta}
-          </Cta>
-        </div>
-      </div>
-    </Part>
+      </Container>
+    </section>
   );
 }

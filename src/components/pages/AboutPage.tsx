@@ -168,7 +168,7 @@ export function AboutPage() {
               ] as const
             ).map(([label, block], i) => (
               <Reveal key={label} className="surface p-6 sm:p-8" delay={i * 80}>
-                <p className="text-[11px] uppercase tracking-[0.2em] text-primary">{label}</p>
+                <p className="text-xs text-primary">{label}</p>
                 <p className="mt-4 font-display text-xl leading-snug tracking-tight sm:text-2xl">
                   {block.title}
                 </p>
@@ -214,9 +214,7 @@ export function AboutPage() {
       <Section className="border-t border-border/70">
         <Container>
           <Reveal>
-            <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-              {copy.gearLabel}
-            </p>
+            <p className="text-xs text-muted-foreground">{copy.gearLabel}</p>
             <ul className="mt-5 grid gap-x-14 gap-y-2.5 md:grid-cols-2">
               {copy.gear.map((g) => (
                 <li key={g} className="border-b border-border pb-3 text-sm text-foreground/85">

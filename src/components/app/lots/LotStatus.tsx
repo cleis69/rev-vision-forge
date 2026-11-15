@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { STATUS_BG } from "./status-colors";
 
 const TEXT: Record<LotStatus, string> = {
-  disponible: "text-emerald-300",
+  disponible: "text-primary",
   reservee: "text-amber-300",
   vendue: "text-muted-foreground",
 };

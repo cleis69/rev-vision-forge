@@ -1,7 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Play, X } from "lucide-react";
 
-import { AD_CATEGORIES, AD_CATEGORY_LABELS, ADS, adMedia, formatDuration, type Ad, type AdCategory } from "@/lib/ads";
+import {
+  AD_CATEGORIES,
+  AD_CATEGORY_LABELS,
+  ADS,
+  adMedia,
+  formatDuration,
+  type Ad,
+  type AdCategory,
+} from "@/lib/ads";
 import { href, useLocale, type Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Container, Cta, Section, SectionHeading } from "./ui";
@@ -39,7 +47,13 @@ const COPY = {
 const SCROLL_ROW =
   "-mx-5 flex snap-x snap-mandatory overflow-x-auto px-5 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden";
 
-export function Portfolio({ limit, showHeading = true }: { limit?: number; showHeading?: boolean }) {
+export function Portfolio({
+  limit,
+  showHeading = true,
+}: {
+  limit?: number;
+  showHeading?: boolean;
+}) {
   const locale = useLocale();
   const copy = COPY[locale];
   const [active, setActive] = useState<Filter>("all");
@@ -52,7 +66,13 @@ export function Portfolio({ limit, showHeading = true }: { limit?: number; showH
   const items = limit ? filtered.slice(0, limit) : filtered;
 
   return (
-    <Section id="portfolio" className={cn("border-t border-border/70", !showHeading && "border-t-0 pt-8 sm:pt-10 lg:pt-12")}>
+    <Section
+      id="portfolio"
+      className={cn(
+        "border-t border-border/70",
+        !showHeading && "border-t-0 pt-8 sm:pt-10 lg:pt-12",
+      )}
+    >
       <Container>
         {showHeading ? (
           <SectionHeading
@@ -62,7 +82,9 @@ export function Portfolio({ limit, showHeading = true }: { limit?: number; showH
           />
         ) : null}
 
-        <Reveal className={cn(SCROLL_ROW, "gap-2 pb-1 sm:flex-wrap", showHeading && "mt-8 sm:mt-10")}>
+        <Reveal
+          className={cn(SCROLL_ROW, "gap-2 pb-1 sm:flex-wrap", showHeading && "mt-8 sm:mt-10")}
+        >
           {(["all", ...AD_CATEGORIES] as Filter[]).map((f) => {
             const count = f === "all" ? ADS.length : ADS.filter((a) => a.category === f).length;
             return (
@@ -72,7 +94,7 @@ export function Portfolio({ limit, showHeading = true }: { limit?: number; showH
                 onClick={() => setActive(f)}
                 aria-pressed={active === f}
                 className={cn(
-                  "h-9 shrink-0 snap-start whitespace-nowrap rounded-full border px-4 text-xs uppercase tracking-[0.14em] transition-all duration-300",
+                  "h-9 shrink-0 snap-start whitespace-nowrap rounded-full border px-4 text-xs transition-colors duration-300",
                   active === f
                     ? "border-primary/50 bg-primary/10 text-foreground"
                     : "border-border text-muted-foreground hover:border-foreground/25 hover:text-foreground",
@@ -89,7 +111,10 @@ export function Portfolio({ limit, showHeading = true }: { limit?: number; showH
           className={cn(
             "mt-6 sm:mt-8",
             limit
-              ? cn(SCROLL_ROW, "gap-3 pb-2 sm:grid sm:grid-cols-3 sm:gap-x-4 sm:gap-y-7 lg:grid-cols-4")
+              ? cn(
+                  SCROLL_ROW,
+                  "gap-3 pb-2 sm:grid sm:grid-cols-3 sm:gap-x-4 sm:gap-y-7 lg:grid-cols-4",
+                )
               : "grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-7 lg:grid-cols-4",
           )}
         >
@@ -111,7 +136,13 @@ export function Portfolio({ limit, showHeading = true }: { limit?: number; showH
       </Container>
 
       {open !== null ? (
-        <AdLightbox ads={items} index={open} locale={locale} onIndexChange={setOpen} onClose={() => setOpen(null)} />
+        <AdLightbox
+          ads={items}
+          index={open}
+          locale={locale}
+          onIndexChange={setOpen}
+          onClose={() => setOpen(null)}
+        />
       ) : null}
     </Section>
   );
@@ -154,7 +185,7 @@ function AdTile({ ad, locale, onOpen }: { ad: Ad; locale: Locale; onOpen: () => 
             className="absolute inset-0 h-full w-full object-cover"
           />
         ) : null}
-        <span className="absolute left-3 top-3 rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-medium tabular-nums text-white/90 backdrop-blur-md">
+        <span className="absolute left-3 top-3 rounded-[6px] bg-black/55 px-2.5 py-1 text-[10px] font-medium tabular-nums text-white/90 backdrop-blur-md">
           {formatDuration(ad.duration)}
           {ad.lang ? ` · ${ad.lang}` : ""}
         </span>
@@ -164,7 +195,7 @@ function AdTile({ ad, locale, onOpen }: { ad: Ad; locale: Locale; onOpen: () => 
           </span>
         </span>
       </span>
-      <span className="mt-3 block text-[10px] uppercase tracking-[0.18em] text-primary">
+      <span className="mt-3 block text-xs text-primary">
         {AD_CATEGORY_LABELS[locale][ad.category]}
       </span>
       <span className="mt-1.5 block font-display text-sm font-medium leading-snug tracking-tight">
@@ -257,7 +288,7 @@ export function AdLightbox({
             style={{ aspectRatio: "9 / 16" }}
           />
           <div className="w-full max-w-xs text-center md:pb-4 md:text-left">
-            <p className="text-[10px] uppercase tracking-[0.18em] text-primary">
+            <p className="text-xs text-primary">
               {AD_CATEGORY_LABELS[locale][ad.category]}
               {ad.lang ? ` · ${ad.lang}` : ""}
             </p>

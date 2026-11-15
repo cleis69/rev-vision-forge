@@ -144,7 +144,7 @@ function TypeCard({
             sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
             alt=""
             loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03] motion-reduce:transition-none"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 motion-reduce:transition-none"
           />
         ) : null}
         <span className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-gradient-to-t from-black/80 via-black/30 to-transparent px-5 pb-4 pt-16 text-left">
@@ -203,9 +203,7 @@ function TypeCard({
 
         {type.plans.length > 0 ? (
           <div>
-            <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/50">
-              {copy.plans}
-            </h3>
+            <h3 className="text-xs font-medium text-white/50">{copy.plans}</h3>
             <ul className="mt-3 flex gap-2 overflow-x-auto [scrollbar-width:none]">
               {type.plans.map((plan, i) => {
                 const image = mediaImage(plan);

@@ -11,42 +11,104 @@ type Message =
   | { from: "system"; text: string };
 
 const COPY = {
-  fr: { agency: "Votre agence", typing: "écrit…", online: "en ligne", today: "Aujourd'hui", typingLabel: "En train d'écrire" },
-  en: { agency: "Your agency", typing: "typing…", online: "online", today: "Today", typingLabel: "Typing" },
+  fr: {
+    agency: "Votre agence",
+    typing: "écrit…",
+    online: "en ligne",
+    today: "Aujourd'hui",
+    typingLabel: "En train d'écrire",
+  },
+  en: {
+    agency: "Your agency",
+    typing: "typing…",
+    online: "online",
+    today: "Today",
+    typingLabel: "Typing",
+  },
 } as const;
 
 /** Demo conversation: a buyer lead from an Instagram ad, qualified on WhatsApp. */
 const SCRIPTS: Record<Locale, Message[]> = {
   fr: [
-    { from: "agent", time: "09:14", text: "Bonjour Karim 👋 Ici Inès, l'assistante IA de l'agence. Vous avez demandé la brochure de la résidence depuis Instagram : je vous l'envoie ici ?" },
+    {
+      from: "agent",
+      time: "09:14",
+      text: "Bonjour Karim 👋 Ici Inès, l'assistante IA de l'agence. Vous avez demandé la brochure de la résidence depuis Instagram : je vous l'envoie ici ?",
+    },
     { from: "lead", time: "09:14", text: "Oui avec plaisir" },
-    { from: "agent", time: "09:15", text: "Voilà ! Vous cherchez plutôt pour y vivre ou pour investir ?", file: "Brochure-residence.pdf" },
+    {
+      from: "agent",
+      time: "09:15",
+      text: "Voilà ! Vous cherchez plutôt pour y vivre ou pour investir ?",
+      file: "Brochure-residence.pdf",
+    },
     { from: "lead", time: "09:15", text: "Pour investir, en location courte durée" },
-    { from: "agent", time: "09:15", text: "Très bon choix sur ce secteur. Quel budget envisagez-vous ?" },
+    {
+      from: "agent",
+      time: "09:15",
+      text: "Très bon choix sur ce secteur. Quel budget envisagez-vous ?",
+    },
     { from: "lead", time: "09:16", text: "Autour de 250 000 €" },
-    { from: "agent", time: "09:16", text: "Parfait, c'est pile la fourchette des T2. Votre financement est déjà validé ?" },
+    {
+      from: "agent",
+      time: "09:16",
+      text: "Parfait, c'est pile la fourchette des T2. Votre financement est déjà validé ?",
+    },
     { from: "lead", time: "09:17", text: "J'ai un accord de principe de ma banque" },
     { from: "agent", time: "09:17", text: "Super 🙌 Et vous visez un achat dans quel délai ?" },
     { from: "lead", time: "09:17", text: "D'ici 3 mois" },
-    { from: "agent", time: "09:18", text: "Je vous propose un appel avec Yassine, notre conseiller : jeudi 11h ou vendredi 16h ?" },
+    {
+      from: "agent",
+      time: "09:18",
+      text: "Je vous propose un appel avec Yassine, notre conseiller : jeudi 11h ou vendredi 16h ?",
+    },
     { from: "lead", time: "09:18", text: "Jeudi 11h" },
-    { from: "agent", time: "09:18", text: "C'est réservé ✅ Vous recevez la confirmation par e-mail. À jeudi !" },
+    {
+      from: "agent",
+      time: "09:18",
+      text: "C'est réservé ✅ Vous recevez la confirmation par e-mail. À jeudi !",
+    },
     { from: "system", text: "Lead qualifié · RDV dans l'agenda · CRM mis à jour" },
   ],
   en: [
-    { from: "agent", time: "09:14", text: "Hi Karim 👋 This is Inès, the agency's AI assistant. You asked for the development brochure on Instagram — shall I send it here?" },
+    {
+      from: "agent",
+      time: "09:14",
+      text: "Hi Karim 👋 This is Inès, the agency's AI assistant. You asked for the development brochure on Instagram — shall I send it here?",
+    },
     { from: "lead", time: "09:14", text: "Yes please" },
-    { from: "agent", time: "09:15", text: "Here you go! Are you looking to live there or to invest?", file: "Development-brochure.pdf" },
+    {
+      from: "agent",
+      time: "09:15",
+      text: "Here you go! Are you looking to live there or to invest?",
+      file: "Development-brochure.pdf",
+    },
     { from: "lead", time: "09:15", text: "To invest, as a short-term rental" },
-    { from: "agent", time: "09:15", text: "Great choice for this area. What budget do you have in mind?" },
+    {
+      from: "agent",
+      time: "09:15",
+      text: "Great choice for this area. What budget do you have in mind?",
+    },
     { from: "lead", time: "09:16", text: "Around €250,000" },
-    { from: "agent", time: "09:16", text: "Perfect, that's right in the range of our one-bedroom flats. Is your financing already approved?" },
+    {
+      from: "agent",
+      time: "09:16",
+      text: "Perfect, that's right in the range of our one-bedroom flats. Is your financing already approved?",
+    },
     { from: "lead", time: "09:17", text: "I have an agreement in principle from my bank" },
     { from: "agent", time: "09:17", text: "Brilliant 🙌 And when are you hoping to buy?" },
     { from: "lead", time: "09:17", text: "Within 3 months" },
-    { from: "agent", time: "09:18", text: "Let me set up a call with Yassine, our adviser: Thursday 11am or Friday 4pm?" },
+    {
+      from: "agent",
+      time: "09:18",
+      text: "Let me set up a call with Yassine, our adviser: Thursday 11am or Friday 4pm?",
+    },
     { from: "lead", time: "09:18", text: "Thursday 11am" },
-    { from: "agent", time: "09:18", text: "All booked ✅ You'll get a confirmation by email. See you Thursday!" },
+    {
+      from: "agent",
+      time: "09:18",
+      text: "All booked ✅ You'll get a confirmation by email. See you Thursday!",
+    },
     { from: "system", text: "Lead qualified · Appointment booked · CRM updated" },
   ],
 };
@@ -127,7 +189,9 @@ export function WhatsAppChat({ className }: { className?: string }) {
               A
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-[3.8cqw] font-medium leading-tight">{copy.agency}</span>
+              <span className="block truncate text-[3.8cqw] font-medium leading-tight">
+                {copy.agency}
+              </span>
               <span className="block text-[2.9cqw] leading-tight text-emerald-400">
                 {typing === "agent" ? copy.typing : copy.online}
               </span>
@@ -141,7 +205,7 @@ export function WhatsAppChat({ className }: { className?: string }) {
             className="flex min-h-0 flex-1 flex-col justify-end gap-[1.6cqw] overflow-hidden px-[3cqw] pb-[2.5cqw] pt-[3cqw]"
             aria-live="polite"
           >
-            <span className="mx-auto mb-[1cqw] shrink-0 rounded-full bg-[#1f2c34] px-[3cqw] py-[1cqw] text-[2.7cqw] uppercase tracking-wide text-white/60">
+            <span className="mx-auto mb-[1cqw] shrink-0 rounded-full bg-[#1f2c34] px-[3cqw] py-[1cqw] text-[2.7cqw] text-white/60">
               {copy.today}
             </span>
             {shown.map((m, i) =>
@@ -157,7 +221,9 @@ export function WhatsAppChat({ className }: { className?: string }) {
                   key={i}
                   className={cn(
                     "max-w-[80%] shrink-0 rounded-[2.6cqw] px-[2.8cqw] pb-[1.4cqw] pt-[1.8cqw] text-[3.35cqw] leading-[1.35] text-white animate-in fade-in-0 slide-in-from-bottom-1 duration-300",
-                    m.from === "agent" ? "self-start rounded-tl-none bg-[#1f2c34]" : "self-end rounded-tr-none bg-[#005c4b]",
+                    m.from === "agent"
+                      ? "self-start rounded-tl-none bg-[#1f2c34]"
+                      : "self-end rounded-tr-none bg-[#005c4b]",
                   )}
                 >
                   {m.file ? (
@@ -169,7 +235,9 @@ export function WhatsAppChat({ className }: { className?: string }) {
                   {m.text}
                   <span className="ml-[2cqw] inline-flex translate-y-[0.6cqw] items-center gap-[0.6cqw] align-bottom text-[2.5cqw] text-white/50">
                     {m.time}
-                    {m.from === "lead" ? <CheckCheck className="h-[3.2cqw] w-[3.2cqw] text-sky-400" /> : null}
+                    {m.from === "lead" ? (
+                      <CheckCheck className="h-[3.2cqw] w-[3.2cqw] text-sky-400" />
+                    ) : null}
                   </span>
                 </div>
               ),
@@ -178,7 +246,9 @@ export function WhatsAppChat({ className }: { className?: string }) {
               <div
                 className={cn(
                   "flex shrink-0 gap-[1.2cqw] rounded-[2.6cqw] px-[3cqw] py-[2.6cqw]",
-                  typing === "agent" ? "self-start rounded-tl-none bg-[#1f2c34]" : "self-end rounded-tr-none bg-[#005c4b]",
+                  typing === "agent"
+                    ? "self-start rounded-tl-none bg-[#1f2c34]"
+                    : "self-end rounded-tr-none bg-[#005c4b]",
                 )}
                 aria-label={copy.typingLabel}
               >

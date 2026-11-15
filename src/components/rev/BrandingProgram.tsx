@@ -63,11 +63,15 @@ export function BrandingProgram() {
       <Container>
         <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-16">
           <div>
-            <SectionHeading eyebrow={copy.eyebrow} title={copy.title} description={copy.description} />
+            <SectionHeading
+              eyebrow={copy.eyebrow}
+              title={copy.title}
+              description={copy.description}
+            />
 
             <Reveal delay={120} className="mt-8 sm:mt-10">
               <article className="relative rounded-2xl border border-primary bg-card p-5 sm:p-7 md:p-8">
-                <span className="absolute -top-3 right-6 rounded-lg bg-primary px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-primary-foreground">
+                <span className="absolute -top-3 right-6 rounded-lg bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
                   {copy.badge}
                 </span>
                 <div className="flex flex-wrap items-end justify-between gap-6">

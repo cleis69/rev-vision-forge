@@ -3,7 +3,13 @@ import { Mail, MessageCircle, Phone, ArrowUpRight } from "lucide-react";
 
 import { Container, PageHero, Section } from "@/components/rev/ui";
 import { Reveal } from "@/components/rev/Reveal";
-import { CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_HREF, whatsappLink, whatsappUrl } from "@/lib/contact";
+import {
+  CONTACT_EMAIL,
+  CONTACT_PHONE,
+  CONTACT_PHONE_HREF,
+  whatsappLink,
+  whatsappUrl,
+} from "@/lib/contact";
 import { useLocale } from "@/lib/i18n";
 import { photo } from "@/lib/images";
 
@@ -118,15 +124,18 @@ export function ContactPage() {
               <form className="mt-6 space-y-5" onSubmit={onSubmit}>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field label={copy.name} name="nom" type="text" autoComplete="name" required />
-                  <Field label={copy.company} name="societe" type="text" autoComplete="organization" />
+                  <Field
+                    label={copy.company}
+                    name="societe"
+                    type="text"
+                    autoComplete="organization"
+                  />
                   <Field label={copy.email} name="email" type="email" autoComplete="email" />
                   <Field label={copy.phone} name="telephone" type="tel" autoComplete="tel" />
                 </div>
 
                 <div>
-                  <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                    {copy.needLabel}
-                  </span>
+                  <span className="text-xs text-muted-foreground">{copy.needLabel}</span>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {copy.needs.map((n, i) => (
                       <button
@@ -147,9 +156,7 @@ export function ContactPage() {
                 </div>
 
                 <label className="block">
-                  <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                    {copy.message}
-                  </span>
+                  <span className="text-xs text-muted-foreground">{copy.message}</span>
                   <textarea
                     name="message"
                     rows={5}
@@ -161,7 +168,7 @@ export function ContactPage() {
 
                 <button
                   type="submit"
-                  className="group inline-flex h-12 items-center gap-2 rounded-lg bg-primary px-6 text-sm font-medium text-primary-foreground transition-all duration-300 hover:bg-primary-hover active:scale-[0.98]"
+                  className="group inline-flex h-12 items-center gap-2 rounded-lg bg-primary px-6 text-sm font-medium text-primary-foreground transition-[background-color,transform] duration-300 hover:bg-primary-hover active:scale-[0.98]"
                 >
                   {copy.submit}
                   <ArrowUpRight size={16} />
@@ -188,7 +195,7 @@ export function ContactPage() {
               </Reveal>
 
               <Reveal className="surface p-5 sm:p-6" delay={80}>
-                <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">{copy.details}</p>
+                <p className="text-xs text-muted-foreground">{copy.details}</p>
                 <ul className="mt-6 space-y-4 text-sm">
                   <li>
                     <a
@@ -233,7 +240,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{label}</span>
+      <span className="text-xs text-muted-foreground">{label}</span>
       <input
         type={type}
         name={name}

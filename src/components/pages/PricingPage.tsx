@@ -509,7 +509,7 @@ function OfferCard({
         )}
       >
         {offer.featured ? (
-          <span className="absolute -top-3 right-6 rounded-lg bg-primary px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-primary-foreground">
+          <span className="absolute -top-3 right-6 rounded-lg bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
             {copy.featured}
           </span>
         ) : null}
@@ -578,7 +578,7 @@ export function PricingPage() {
                   aria-pressed={index === active}
                   onClick={() => setActive(index)}
                   className={cn(
-                    "shrink-0 whitespace-nowrap rounded-lg border px-4 py-2.5 text-[13px] font-medium transition-all duration-300 active:scale-[0.98]",
+                    "shrink-0 whitespace-nowrap rounded-lg border px-4 py-2.5 text-[13px] font-medium transition-colors duration-300 active:scale-[0.98]",
                     index === active
                       ? "border-primary bg-primary text-primary-foreground"
                       : "border-border text-muted-foreground hover:border-foreground/25 hover:text-foreground",
@@ -611,9 +611,7 @@ export function PricingPage() {
           {segment.volume ? (
             <div className="mt-10">
               <Reveal>
-                <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-primary">
-                  {segment.volume.title}
-                </p>
+                <p className="text-xs font-medium text-primary">{segment.volume.title}</p>
               </Reveal>
               <div className="mt-6 grid gap-4 sm:grid-cols-3">
                 {segment.volume.rows.map((row, index) => (

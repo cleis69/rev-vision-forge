@@ -4,7 +4,6 @@ import { Link } from "@tanstack/react-router";
 import { Container, Cta } from "./ui";
 import { WHATSAPP_DISPLAY, whatsappUrl } from "@/lib/contact";
 import { href, isPublic, useLocale, type Locale, type PageKey } from "@/lib/i18n";
-import { Reveal } from "./Reveal";
 import { RevLogo } from "./Logo";
 import { AgencyCredit } from "./AgencyCredit";
 
@@ -52,39 +51,30 @@ export function FinalCta() {
   const locale = useLocale();
   const copy = COPY[locale];
   return (
-    <section
-      id="contact"
-      className="scroll-mt-20 border-t border-border/70 py-14 sm:py-16 lg:py-24"
-    >
-      <Container>
-        <Reveal className="relative overflow-hidden rounded-3xl border border-border bg-card px-5 py-10 text-center sm:px-10 sm:py-14 md:px-16">
-          <div
-            className="pointer-events-none absolute inset-x-0 -top-40 h-80 opacity-40 blur-3xl"
-            style={{
-              background:
-                "radial-gradient(closest-side, color-mix(in oklab, var(--primary) 45%, transparent), transparent)",
-            }}
-            aria-hidden
-          />
-          <h2 className="relative mx-auto max-w-3xl font-display text-[clamp(1.75rem,4vw,3rem)] font-medium leading-[1.06] tracking-[-0.03em] text-gradient [text-wrap:balance]">
-            {copy.title}
-          </h2>
-          <p className="relative mx-auto mt-4 max-w-xl text-[15px] text-muted-foreground sm:text-base">
-            {copy.body}
-          </p>
-          <div className="relative mt-7 flex flex-wrap justify-center gap-3">
-            <Cta href={href("contact", locale)}>
+    <section id="contact" className="scroll-mt-20 bg-primary text-primary-foreground">
+      <Container className="py-14 sm:py-16 lg:py-20">
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
+          <div className="max-w-3xl">
+            <h2 className="font-display text-[clamp(1.9rem,3.6vw,3rem)] font-medium leading-[1.06] tracking-[-0.03em] [text-wrap:balance]">
+              {copy.title}
+            </h2>
+            <p className="mt-4 max-w-[58ch] text-[15px] leading-relaxed text-black/75 md:text-base">
+              {copy.body}
+            </p>
+          </div>
+          <div className="grid shrink-0 grid-cols-1 gap-2.5 sm:flex sm:gap-3">
+            <Cta href={href("contact", locale)} variant="ink">
               {copy.primary}
               <ArrowUpRight
                 size={16}
                 className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
               />
             </Cta>
-            <Cta href={href("portfolio", locale)} variant="ghost">
+            <Cta href={href("portfolio", locale)} variant="inkGhost">
               {copy.secondary}
             </Cta>
           </div>
-        </Reveal>
+        </div>
       </Container>
     </section>
   );
@@ -94,7 +84,7 @@ export function Footer() {
   const locale = useLocale();
   const copy = COPY[locale];
   return (
-    <footer className="border-t border-border/70 pb-10 pt-12 lg:pt-16">
+    <footer className="pb-10 pt-12 lg:pt-16">
       <Container>
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
           <div className="col-span-2 lg:col-span-1">
@@ -105,9 +95,7 @@ export function Footer() {
           </div>
 
           <nav aria-label={copy.navLabel} className="col-span-2 sm:col-span-1">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-              {copy.navTitle}
-            </p>
+            <p className="text-xs text-muted-foreground">{copy.navTitle}</p>
             <ul className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2.5 sm:grid-cols-1">
               {NAV.map((item) => (
                 <li key={item.page}>
@@ -123,9 +111,7 @@ export function Footer() {
           </nav>
 
           <div className="col-span-2 sm:col-span-1">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-              {copy.contact}
-            </p>
+            <p className="text-xs text-muted-foreground">{copy.contact}</p>
             <ul className="mt-4 space-y-3 text-sm">
               <li>
                 <a

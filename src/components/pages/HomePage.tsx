@@ -8,6 +8,7 @@ import { Faq } from "@/components/rev/Faq";
 import { ProcessSteps } from "@/components/rev/ProcessSteps";
 import { BrandingProgram } from "@/components/rev/BrandingProgram";
 import { AgentTeaser } from "@/components/rev/AgentTeaser";
+import { SalesPlanTeaser } from "@/components/rev/SalesPlanTeaser";
 import { FinalCta } from "@/components/rev/FinalCta";
 import { isPublic } from "@/lib/i18n";
 
@@ -19,6 +20,7 @@ export function HomePage() {
       <ProcessSteps />
       <Portfolio limit={8} />
       <BrandingProgram />
+      <SalesPlanTeaser />
       {isPublic("agent") ? <AgentTeaser /> : null}
       <Ecosystem />
       <Services />

@@ -63,7 +63,7 @@ export function LanguageSwitch({ className }: { className?: string }) {
           lang={l}
           aria-current={l === locale ? "true" : undefined}
           className={cn(
-            "rounded-md px-2.5 py-1.5 uppercase tracking-[0.08em] transition-colors",
+            "rounded-md px-2.5 py-1.5 uppercase transition-colors",
             l === locale
               ? "bg-primary text-primary-foreground"
               : "text-muted-foreground hover:text-foreground",
@@ -97,8 +97,10 @@ export function Header() {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-500",
-        scrolled ? "glass border-b border-border/70 py-2" : "border-b border-transparent py-4",
+        "fixed inset-x-0 top-0 z-50 transition-[padding,background-color,border-color] duration-300",
+        scrolled
+          ? "border-b border-border/70 bg-background py-2"
+          : "border-b border-transparent py-4",
       )}
     >
       <Container className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 lg:flex lg:justify-between lg:gap-4">

@@ -191,7 +191,7 @@ export function ToursSection({
                 <img
                   src={tour.rooms[0]?.image.thumb}
                   alt=""
-                  className="aspect-[2/1] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  className="aspect-[2/1] w-full object-cover transition-transform duration-500"
                   loading="lazy"
                 />
                 <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-[10px] bg-black/65 px-3 py-1 text-xs font-medium text-white backdrop-blur">

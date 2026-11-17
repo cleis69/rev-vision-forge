@@ -12,7 +12,15 @@ import { PAGES, type Locale } from "./i18n";
  * only for display.
  */
 
-export type CaseSlug = "citystar" | "mars-cabin" | "shah" | "shams" | "emara" | "peninsula" | "bm";
+export type CaseSlug =
+  | "citystar"
+  | "mars-cabin"
+  | "shah"
+  | "shams"
+  | "allinkech"
+  | "emara"
+  | "peninsula"
+  | "bm";
 
 type Text = Record<Locale, string>;
 
@@ -641,6 +649,92 @@ export const CASES: CaseStudy[] = [
         seoTitle: "Shams Immo: ads to camera in French and Darija | REV",
         seoDescription:
           "Case study: for Shams Immo, a new-build agency in Marrakech, REV wrote, shot, edited and dressed with motion design eight ads to camera, in French and Darija.",
+      },
+    },
+    galleries: [],
+  },
+  {
+    slug: "allinkech",
+    client: "allinkech",
+    name: "All In Kech",
+    year: "2026",
+    hero: { phone: "ad-58" },
+    copy: {
+      fr: {
+        title: "All In Kech : des visites face caméra et le projet SERA à Guéliz, en motion design",
+        summary:
+          "All In Kech est une agence immobilière à Marrakech. Nous avons tourné ses visites face caméra — un triplex, un appartement rénové —, présenté le projet SERA à Guéliz avec la carte de ses trajets à pied, puis habillé ce film en motion design et en trois versions testées sur Instagram.",
+        card: "Des visites face caméra, le projet SERA à Guéliz, et sa version en motion design testée en trois habillages.",
+        facts: [
+          { label: "Lieu", value: "Marrakech" },
+          { label: "Projet", value: "SERA, à Guéliz" },
+          { label: "Films", value: "4" },
+          { label: "Année", value: "2026" },
+        ],
+        delivered: [
+          {
+            title: "Les visites",
+            body: "Un triplex et un appartement rénové, présentés face caméra et filmés sur place, en vertical, avec et sans le prix à l'écran.",
+          },
+          {
+            title: "Le projet SERA",
+            body: "La présentation du projet à Guéliz, avec la carte du quartier et les trajets à pied jusqu'au Jardin Majorelle, au Carré Eden et à la Plaza.",
+          },
+          {
+            title: "Le motion design",
+            body: "Le même film habillé image par image aux couleurs de l'agence, or et terracotta : sous-titres calés sur la voix, cartes, chiffres et plans redessinés.",
+          },
+          {
+            title: "Les trial reels",
+            body: "Trois habillages du même film, publiés pour voir lequel retient le mieux sur Instagram avant de pousser le gagnant.",
+          },
+          {
+            title: "Les scripts",
+            body: "Pour un riad à Bab Debbagh : l'accroche sur le rooftop, les trajets jusqu'à la médina, Majorelle et Guéliz, puis le riad rénové et meublé.",
+          },
+        ],
+        filmsNote: "visites, présentation du projet SERA et sa version en motion design.",
+        seoTitle: "All In Kech : visites face caméra et projet SERA à Guéliz | REV",
+        seoDescription:
+          "Étude de cas : pour All In Kech, agence immobilière à Marrakech, REV a tourné des visites face caméra, présenté le projet SERA à Guéliz et l'a habillé en motion design.",
+      },
+      en: {
+        title: "All In Kech: tours to camera and the SERA project in Guéliz, in motion design",
+        summary:
+          "All In Kech is a real estate agency in Marrakech. We shot its tours to camera — a triplex, a renovated flat —, presented the SERA project in Guéliz with a map of its walking routes, then dressed that film in motion design and in three versions tested on Instagram.",
+        card: "Tours to camera, the SERA project in Guéliz, and its motion design version tested in three treatments.",
+        facts: [
+          { label: "Location", value: "Marrakech" },
+          { label: "Project", value: "SERA, in Guéliz" },
+          { label: "Films", value: "4" },
+          { label: "Year", value: "2026" },
+        ],
+        delivered: [
+          {
+            title: "The tours",
+            body: "A triplex and a renovated flat, presented to camera and filmed on location, vertically, with and without the price on screen.",
+          },
+          {
+            title: "The SERA project",
+            body: "The project's presentation in Guéliz, with the neighbourhood map and walking routes to the Majorelle Garden, Carré Eden and the Plaza.",
+          },
+          {
+            title: "The motion design",
+            body: "The same film dressed frame by frame in the agency's colours, gold and terracotta: captions timed to the voice, cards, figures and redrawn shots.",
+          },
+          {
+            title: "The trial reels",
+            body: "Three treatments of the same film, published to see which one holds viewers best on Instagram before pushing the winner.",
+          },
+          {
+            title: "The scripts",
+            body: "For a riad in Bab Debbagh: the hook on the rooftop, the routes to the medina, Majorelle and Guéliz, then the renovated, furnished riad.",
+          },
+        ],
+        filmsNote: "tours, the SERA project and its motion design version.",
+        seoTitle: "All In Kech: tours to camera and the SERA project in Guéliz | REV",
+        seoDescription:
+          "Case study: for All In Kech, a real estate agency in Marrakech, REV shot tours to camera, presented the SERA project in Guéliz and dressed it in motion design.",
       },
     },
     galleries: [],

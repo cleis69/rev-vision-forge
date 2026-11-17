@@ -82,10 +82,10 @@ export const ADS: Ad[] = [
  * request, 2026-11-17).
  */
 const MORE: Ad[] = [
-  { id: "ad-22", title: { fr: "Un triplex à Marrakech, présenté face caméra", en: "A triplex in Marrakech, presented to camera" }, category: "agences", duration: 23 },
+  { id: "ad-22", title: { fr: "Un triplex à Marrakech, présenté face caméra", en: "A triplex in Marrakech, presented to camera" }, category: "agences", duration: 23, client: "allinkech" },
   { id: "ad-23", title: { fr: "Une résidence neuve, un cadre de vie avant un plan", en: "A new residence, a way of life before a floor plan" }, category: "programmes", duration: 26, client: "shah" },
   { id: "ad-24", title: { fr: "L'immobilier neuf à Marrakech, face caméra", en: "New-build property in Marrakech, to camera" }, category: "agences", duration: 20, client: "shams" },
-  { id: "ad-25", title: { fr: "Un appartement rénové, visité face caméra", en: "A renovated flat, toured to camera" }, category: "visites", duration: 18 },
+  { id: "ad-25", title: { fr: "Un appartement rénové, visité face caméra", en: "A renovated flat, toured to camera" }, category: "visites", duration: 18, client: "allinkech" },
   { id: "ad-26", title: { fr: "Le budget de l'acheteur", en: "The buyer's budget" }, category: "agences", duration: 16, client: "shams" },
   { id: "ad-27", title: { fr: "Sur le chantier d'un programme neuf", en: "On the site of a new development" }, category: "agences", duration: 21, client: "shah" },
   { id: "ad-28", title: { fr: "Une publicité en darija", en: "An ad in Darija" }, category: "agences", duration: 17, client: "shams" },
@@ -98,7 +98,7 @@ const MORE: Ad[] = [
   { id: "ad-35", title: { fr: "Pas comme les autres agences", en: "Not like the other agencies" }, category: "agences", duration: 21, client: "shams" },
   { id: "ad-36", title: { fr: "Portée par une présentatrice", en: "Led by a presenter" }, category: "agences", duration: 29, client: "shah" },
   { id: "ad-37", title: { fr: "Première visite d'une résidence", en: "First visit to a residence" }, category: "programmes", duration: 30, client: "shah" },
-  { id: "ad-38", title: { fr: "Un programme neuf à Guéliz, à pied", en: "A new development in Guéliz, on foot" }, category: "programmes", duration: 40 },
+  { id: "ad-38", title: { fr: "Un programme neuf à Guéliz, à pied", en: "A new development in Guéliz, on foot" }, category: "programmes", duration: 40, client: "allinkech" },
   { id: "ad-39", title: { fr: "Un riad en location saisonnière", en: "A riad for short lets" }, category: "visites", duration: 63 },
   { id: "ad-40", title: { fr: "Une villa de vacances, pièce par pièce", en: "A holiday villa, room by room" }, category: "visites", duration: 23 },
   { id: "ad-41", title: { fr: "Une villa, de la piscine à la terrasse", en: "A villa, from the pool to the terrace" }, category: "visites", duration: 62 },
@@ -109,6 +109,7 @@ const MORE: Ad[] = [
   { id: "ad-49", title: { fr: "Un agent immobilier, en néerlandais", en: "An estate agent, in Dutch" }, category: "agences", duration: 29, lang: "NL" },
   { id: "ad-50", title: { fr: "« Si je devais investir à Marrakech »", en: "“If I had to invest in Marrakech”" }, category: "films", duration: 26, client: "citystar" },
   { id: "ad-52", title: { fr: "« Venez vérifier »", en: "“Come and check”" }, category: "films", duration: 29, client: "citystar" },
+  { id: "ad-58", title: { fr: "Le projet SERA, en motion design", en: "The SERA project, in motion design" }, category: "programmes", duration: 40, client: "allinkech" },
 ];
 
 const byId = new Map([...ADS, ...MORE].map((ad) => [ad.id, ad]));
@@ -120,7 +121,7 @@ const byId = new Map([...ADS, ...MORE].map((ad) => [ad.id, ad]));
 export const FILMS: Ad[] = [
   "ad-01", "ad-24", "ad-05", "ad-50", "ad-10", "ad-34", "ad-18",
   "ad-22", "ad-16", "ad-39", "ad-02", "ad-29", "ad-11",
-  "ad-43", "ad-38", "ad-08", "ad-30", "ad-03", "ad-40", "ad-17",
+  "ad-43", "ad-58", "ad-38", "ad-08", "ad-30", "ad-03", "ad-40", "ad-17",
   "ad-36", "ad-07", "ad-41", "ad-12", "ad-48", "ad-13",
   "ad-04", "ad-23", "ad-33", "ad-15", "ad-42", "ad-35",
   "ad-52", "ad-37", "ad-14", "ad-09", "ad-31", "ad-20", "ad-25", "ad-28",

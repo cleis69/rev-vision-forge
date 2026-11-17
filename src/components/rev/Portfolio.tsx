@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Play, X } from "lucide-react";
 
 import {
@@ -137,12 +137,14 @@ export function FilmGrid({
   row = false,
   more,
   className,
+  style,
 }: {
   ads: Ad[];
   row?: boolean;
   /** A last tile linking to more films. */
   more?: { href: string; label: string };
   className?: string;
+  style?: CSSProperties;
 }) {
   const locale = useLocale();
   const [open, setOpen] = useState<number | null>(null);
@@ -155,6 +157,7 @@ export function FilmGrid({
             : "grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-7 lg:grid-cols-4",
           className,
         )}
+        style={style}
       >
         {ads.map((ad, i) => (
           <li key={ad.id} className={row ? "w-[44%] shrink-0 snap-start sm:w-auto" : undefined}>

@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
@@ -58,6 +59,13 @@ const COPY = {
     heroAlt: (n: string) => `${n}, the project`,
   },
 };
+
+/** One row of films up to seven (the last tile links to all films), else two rows. */
+const filmColumns = (n: number) =>
+  ({
+    "--l": n <= 7 ? n : Math.ceil(n / 2),
+    "--s": n <= 4 ? n : Math.min(5, Math.ceil(n / 2)),
+  }) as CSSProperties;
 
 const H2 = "font-display text-[clamp(1.5rem,2.6vw,2.1rem)] font-medium leading-[1.1] tracking-[-0.03em]";
 
@@ -181,7 +189,8 @@ export function CaseStudyPage({ study }: { study: CaseStudy }) {
               ads={films}
               row
               more={{ href: `${href("portfolio", locale)}#films`, label: copy.allFilms(FILMS.length) }}
-              className="mt-8 sm:mt-10 sm:grid-cols-5 lg:grid-cols-5"
+              className="mt-8 sm:mt-10 sm:grid-cols-[repeat(var(--s),minmax(0,1fr))] lg:grid-cols-[repeat(var(--l),minmax(0,1fr))]"
+              style={filmColumns(films.length + 1)}
             />
           </Container>
         </Section>

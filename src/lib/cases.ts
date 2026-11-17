@@ -116,7 +116,7 @@ export const CASES: CaseStudy[] = [
           },
           {
             title: "Les films et les pubs 3D",
-            body: "Un film en images générées, un film en texte, les rendus mis en relief et cinq pubs faites des seuls rendus, sans tournage.",
+            body: "Un film en images générées, les rendus mis en relief, des pubs faites à partir des rendus, sans tournage, et le suivi du chantier.",
           },
           {
             title: "Instagram, la brochure et le logo",
@@ -157,7 +157,7 @@ export const CASES: CaseStudy[] = [
           },
           {
             title: "The films and 3D ads",
-            body: "An AI-generated film, a text film, the renders set in relief and five ads made from the renders alone, with no shoot.",
+            body: "An AI-generated film, the renders set in relief, ads made from the renders with no shoot, and construction updates.",
           },
           {
             title: "Instagram, the brochure and the logo",
@@ -263,7 +263,7 @@ export const CASES: CaseStudy[] = [
         images: [
           ["01", "Couverture de la brochure", "The brochure's cover"],
           ["05", "Quatorze villas, trois architectures", "Fourteen villas, three designs"],
-          ["06", "Le plan de masse du domaine", "The estate's site plan"],
+          ["11", "La villa A, avec ascenseur", "Villa A, with a lift"],
           ["07", "Une architecture exigeante", "Demanding architecture"],
         ].map(([n, fr, en]) => ({
           src: media("citystar", `brochure-${n}.webp`),

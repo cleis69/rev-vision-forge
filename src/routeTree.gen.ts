@@ -41,12 +41,14 @@ import { Route as SiteEnInsightsRouteImport } from './routes/_site/en/insights'
 import { Route as SiteEnPortfolioRouteImport } from './routes/_site/en/portfolio'
 import { Route as SiteEnPricingRouteImport } from './routes/_site/en/pricing'
 import { Route as SiteEnServicesRouteImport } from './routes/_site/en/services'
+import { Route as SitePortfolioSlugRouteImport } from './routes/_site/portfolio_.$slug'
 import { Route as AppEspaceIndexRouteImport } from './routes/app/_espace/index'
 import { Route as AppEspaceOrganisationRouteImport } from './routes/app/_espace/organisation'
 import { Route as EmbedVisiteSlugRouteImport } from './routes/embed/visite/$slug'
 import { Route as EnEmbedSlugRouteImport } from './routes/en/embed/$slug'
 import { Route as EnPSlugRouteImport } from './routes/en/p/$slug'
 import { Route as PSlugDonneesPersonnellesRouteImport } from './routes/p/$slug/donnees-personnelles'
+import { Route as SiteEnPortfolioSlugRouteImport } from './routes/_site/en/portfolio_.$slug'
 import { Route as AppEspaceProjetsIdRouteRouteImport } from './routes/app/_espace/projets/$id/route'
 import { Route as EnEmbedTourSlugRouteImport } from './routes/en/embed/tour/$slug'
 import { Route as EnPSlugPrivacyRouteImport } from './routes/en/p/$slug/privacy'
@@ -224,6 +226,11 @@ const SiteEnServicesRoute = SiteEnServicesRouteImport.update({
   path: '/en/services',
   getParentRoute: () => SiteRouteRoute,
 } as any)
+const SitePortfolioSlugRoute = SitePortfolioSlugRouteImport.update({
+  id: '/portfolio_/$slug',
+  path: '/portfolio/$slug',
+  getParentRoute: () => SiteRouteRoute,
+} as any)
 const AppEspaceIndexRoute = AppEspaceIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -255,6 +262,11 @@ const PSlugDonneesPersonnellesRoute =
     path: '/donnees-personnelles',
     getParentRoute: () => PSlugRoute,
   } as any)
+const SiteEnPortfolioSlugRoute = SiteEnPortfolioSlugRouteImport.update({
+  id: '/en/portfolio_/$slug',
+  path: '/en/portfolio/$slug',
+  getParentRoute: () => SiteRouteRoute,
+} as any)
 const AppEspaceProjetsIdRouteRoute = AppEspaceProjetsIdRouteRouteImport.update({
   id: '/projets/$id',
   path: '/projets/$id',
@@ -386,6 +398,7 @@ export interface FileRoutesByFullPath {
   '/en/portfolio': typeof SiteEnPortfolioRoute
   '/en/pricing': typeof SiteEnPricingRoute
   '/en/services': typeof SiteEnServicesRoute
+  '/portfolio/$slug': typeof SitePortfolioSlugRoute
   '/app/organisation': typeof AppEspaceOrganisationRoute
   '/embed/visite/$slug': typeof EmbedVisiteSlugRoute
   '/en/embed/$slug': typeof EnEmbedSlugRoute
@@ -394,6 +407,7 @@ export interface FileRoutesByFullPath {
   '/en/': typeof SiteEnIndexRoute
   '/app/': typeof AppEspaceIndexRoute
   '/app/projets/$id': typeof AppEspaceProjetsIdRouteRouteWithChildren
+  '/en/portfolio/$slug': typeof SiteEnPortfolioSlugRoute
   '/en/embed/tour/$slug': typeof EnEmbedTourSlugRoute
   '/en/p/$slug/privacy': typeof EnPSlugPrivacyRoute
   '/p/$slug/lot/$numero': typeof PSlugLotNumeroRoute
@@ -442,12 +456,14 @@ export interface FileRoutesByTo {
   '/en/portfolio': typeof SiteEnPortfolioRoute
   '/en/pricing': typeof SiteEnPricingRoute
   '/en/services': typeof SiteEnServicesRoute
+  '/portfolio/$slug': typeof SitePortfolioSlugRoute
   '/app/organisation': typeof AppEspaceOrganisationRoute
   '/embed/visite/$slug': typeof EmbedVisiteSlugRoute
   '/en/embed/$slug': typeof EnEmbedSlugRoute
   '/en/p/$slug': typeof EnPSlugRouteWithChildren
   '/p/$slug/donnees-personnelles': typeof PSlugDonneesPersonnellesRoute
   '/en': typeof SiteEnIndexRoute
+  '/en/portfolio/$slug': typeof SiteEnPortfolioSlugRoute
   '/en/embed/tour/$slug': typeof EnEmbedTourSlugRoute
   '/en/p/$slug/privacy': typeof EnPSlugPrivacyRoute
   '/p/$slug/lot/$numero': typeof PSlugLotNumeroRoute
@@ -499,6 +515,7 @@ export interface FileRoutesById {
   '/_site/en/portfolio': typeof SiteEnPortfolioRoute
   '/_site/en/pricing': typeof SiteEnPricingRoute
   '/_site/en/services': typeof SiteEnServicesRoute
+  '/_site/portfolio_/$slug': typeof SitePortfolioSlugRoute
   '/app/_espace/organisation': typeof AppEspaceOrganisationRoute
   '/embed/visite/$slug': typeof EmbedVisiteSlugRoute
   '/en/embed/$slug': typeof EnEmbedSlugRoute
@@ -507,6 +524,7 @@ export interface FileRoutesById {
   '/_site/en/': typeof SiteEnIndexRoute
   '/app/_espace/': typeof AppEspaceIndexRoute
   '/app/_espace/projets/$id': typeof AppEspaceProjetsIdRouteRouteWithChildren
+  '/_site/en/portfolio_/$slug': typeof SiteEnPortfolioSlugRoute
   '/en/embed/tour/$slug': typeof EnEmbedTourSlugRoute
   '/en/p/$slug/privacy': typeof EnPSlugPrivacyRoute
   '/p/$slug/lot/$numero': typeof PSlugLotNumeroRoute
@@ -557,6 +575,7 @@ export interface FileRouteTypes {
     | '/en/portfolio'
     | '/en/pricing'
     | '/en/services'
+    | '/portfolio/$slug'
     | '/app/organisation'
     | '/embed/visite/$slug'
     | '/en/embed/$slug'
@@ -565,6 +584,7 @@ export interface FileRouteTypes {
     | '/en/'
     | '/app/'
     | '/app/projets/$id'
+    | '/en/portfolio/$slug'
     | '/en/embed/tour/$slug'
     | '/en/p/$slug/privacy'
     | '/p/$slug/lot/$numero'
@@ -613,12 +633,14 @@ export interface FileRouteTypes {
     | '/en/portfolio'
     | '/en/pricing'
     | '/en/services'
+    | '/portfolio/$slug'
     | '/app/organisation'
     | '/embed/visite/$slug'
     | '/en/embed/$slug'
     | '/en/p/$slug'
     | '/p/$slug/donnees-personnelles'
     | '/en'
+    | '/en/portfolio/$slug'
     | '/en/embed/tour/$slug'
     | '/en/p/$slug/privacy'
     | '/p/$slug/lot/$numero'
@@ -669,6 +691,7 @@ export interface FileRouteTypes {
     | '/_site/en/portfolio'
     | '/_site/en/pricing'
     | '/_site/en/services'
+    | '/_site/portfolio_/$slug'
     | '/app/_espace/organisation'
     | '/embed/visite/$slug'
     | '/en/embed/$slug'
@@ -677,6 +700,7 @@ export interface FileRouteTypes {
     | '/_site/en/'
     | '/app/_espace/'
     | '/app/_espace/projets/$id'
+    | '/_site/en/portfolio_/$slug'
     | '/en/embed/tour/$slug'
     | '/en/p/$slug/privacy'
     | '/p/$slug/lot/$numero'
@@ -931,6 +955,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteEnServicesRouteImport
       parentRoute: typeof SiteRouteRoute
     }
+    '/_site/portfolio_/$slug': {
+      id: '/_site/portfolio_/$slug'
+      path: '/portfolio/$slug'
+      fullPath: '/portfolio/$slug'
+      preLoaderRoute: typeof SitePortfolioSlugRouteImport
+      parentRoute: typeof SiteRouteRoute
+    }
     '/app/_espace/': {
       id: '/app/_espace/'
       path: '/'
@@ -972,6 +1003,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/p/$slug/donnees-personnelles'
       preLoaderRoute: typeof PSlugDonneesPersonnellesRouteImport
       parentRoute: typeof PSlugRoute
+    }
+    '/_site/en/portfolio_/$slug': {
+      id: '/_site/en/portfolio_/$slug'
+      path: '/en/portfolio/$slug'
+      fullPath: '/en/portfolio/$slug'
+      preLoaderRoute: typeof SiteEnPortfolioSlugRouteImport
+      parentRoute: typeof SiteRouteRoute
     }
     '/app/_espace/projets/$id': {
       id: '/app/_espace/projets/$id'
@@ -1122,7 +1160,9 @@ interface SiteRouteRouteChildren {
   SiteEnPortfolioRoute: typeof SiteEnPortfolioRoute
   SiteEnPricingRoute: typeof SiteEnPricingRoute
   SiteEnServicesRoute: typeof SiteEnServicesRoute
+  SitePortfolioSlugRoute: typeof SitePortfolioSlugRoute
   SiteEnIndexRoute: typeof SiteEnIndexRoute
+  SiteEnPortfolioSlugRoute: typeof SiteEnPortfolioSlugRoute
 }
 
 const SiteRouteRouteChildren: SiteRouteRouteChildren = {
@@ -1145,7 +1185,9 @@ const SiteRouteRouteChildren: SiteRouteRouteChildren = {
   SiteEnPortfolioRoute: SiteEnPortfolioRoute,
   SiteEnPricingRoute: SiteEnPricingRoute,
   SiteEnServicesRoute: SiteEnServicesRoute,
+  SitePortfolioSlugRoute: SitePortfolioSlugRoute,
   SiteEnIndexRoute: SiteEnIndexRoute,
+  SiteEnPortfolioSlugRoute: SiteEnPortfolioSlugRoute,
 }
 
 const SiteRouteRouteWithChildren = SiteRouteRoute._addFileChildren(

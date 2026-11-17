@@ -83,7 +83,7 @@ export function Reveal({
   children: ReactNode;
   delay?: number;
   className?: string;
-  as?: "div" | "section" | "li" | "span" | "p" | "article";
+  as?: "div" | "section" | "li" | "span" | "p" | "article" | "ul";
   y?: number;
   blur?: number;
 }) {

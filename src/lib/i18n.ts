@@ -60,6 +60,9 @@ export function alternatePath(pathname: string, target: Locale): string {
   for (const paths of Object.values(PAGES)) {
     if (paths.fr === p || paths.en === p) return paths[target];
   }
+  // Case studies: /portfolio/<slug> ↔ /en/portfolio/<slug>.
+  const study = /^(?:\/en)?\/portfolio\/([\w-]+)$/.exec(p);
+  if (study) return `${PAGES.portfolio[target]}/${study[1]}`;
   return PAGES.home[target];
 }
 
@@ -70,8 +73,11 @@ export function pageHead(
   page: PageKey,
   locale: Locale,
   { title, description }: { title: string; description: string },
+  /** Path under the page, e.g. "/citystar" for a case study of the portfolio. */
+  sub = "",
 ) {
-  const url = (l: Locale) => `${SITE_URL}${PAGES[page][l] === "/" ? "/" : PAGES[page][l]}`;
+  const url = (l: Locale) =>
+    `${SITE_URL}${PAGES[page][l] === "/" && !sub ? "/" : PAGES[page][l] + sub}`;
   return {
     meta: [
       { title },

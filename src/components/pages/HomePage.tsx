@@ -1,5 +1,6 @@
 import { Hero } from "@/components/rev/Hero";
-import { TrustedBy } from "@/components/rev/TrustedBy";
+import { ClientLogos } from "@/components/rev/ClientLogos";
+import { CaseStudies } from "@/components/rev/CaseStudies";
 import { Ecosystem } from "@/components/rev/Ecosystem";
 import { Services } from "@/components/rev/Services";
 import { Portfolio } from "@/components/rev/Portfolio";
@@ -16,9 +17,10 @@ export function HomePage() {
   return (
     <>
       <Hero />
-      <TrustedBy />
+      <ClientLogos />
       <ProcessSteps />
       <Portfolio limit={8} />
+      <CaseStudies />
       <BrandingProgram />
       <SalesPlanTeaser />
       {isPublic("agent") ? <AgentTeaser /> : null}

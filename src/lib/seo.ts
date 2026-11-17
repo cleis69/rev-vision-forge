@@ -49,14 +49,14 @@ const INSIGHTS = {
 
 const PORTFOLIO = {
   fr: {
-    title: "Portfolio REV — Ads immobilières, room tours et personal branding",
+    title: "Réalisations REV — CITYSTAR, Mars Cabin et 54 films immobiliers",
     description:
-      "Les ads verticales produites par REV pour des promoteurs, des agences, des agents et des conciergeries : programmes neufs, room tours, personal branding et contenu éducatif.",
+      "Les études de cas CITYSTAR et Mars Cabin, et 54 films pour des promoteurs et des agences de Marrakech : publicités, visites, films et 3D. Emara Estates, Shams Immo, Villa Peninsula, Shah Immobilier, BM Immobilier.",
   },
   en: {
-    title: "REV portfolio — Real estate ads, room tours and personal branding",
+    title: "REV work — CITYSTAR, Mars Cabin and 54 real estate films",
     description:
-      "The vertical ads REV produced for developers, agencies, agents and short-let managers: new developments, room tours, personal branding and educational content.",
+      "The CITYSTAR and Mars Cabin case studies, and 54 films for developers and agencies in Marrakech: ads, tours, films and 3D. Emara Estates, Shams Immo, Villa Peninsula, Shah Immobilier, BM Immobilier.",
   },
 } as const;
 

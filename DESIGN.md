@@ -30,8 +30,8 @@ colors:
   site-ink-muted: "#acaba8"
   site-rule: "#262626"
   site-rule-soft: "rgb(38 38 38 / 0.70)"
-  # Open point: --primary as shipped; it renders about #C2A880, its comment and the owner's stated champagne say #C8A96A.
-  site-champagne: "oklch(0.745 0.062 78)"
+  # The champagne of the logo, #C8A96A (resolved 2026-11-17; hover #D9BD85).
+  site-champagne: "oklch(0.748 0.089 84.2)"
   site-champagne-hover: "oklch(0.812 0.052 80)"
   site-on-champagne: "#0b0b0b"
   site-on-champagne-muted: "rgb(0 0 0 / 0.75)"
@@ -520,7 +520,7 @@ A title says itself. Nothing is written above it, one phrase is champagne, and a
 - **Champagne** (`site-champagne`, theme `--primary`; hover `site-champagne-hover`, text on it `site-on-champagne`). As a surface: the stages (offer hero, buyer scenes, promoter-space illustration, the home teaser) and the final band. As an accent: the primary action, the accented phrase of a heading, and what belongs to REV (the « Avec REV » column head, the « Nouveau » marker, step numerals, check marks and the « Vous recevez » head, register numerals on the home page, the fill that follows a film, the available status in the promoter-space illustration). 4px champagne dots at 70% separate the items of an inline list (`TrustedBy`, the tags of `Services`). A FAQ question turns champagne on hover and its plus turns champagne when open. In the header the current language is a champagne fill.
 - **On champagne**: text is `site-on-champagne`; secondary text is black at 75% (`site-on-champagne-muted`), small notes black at 70%, separators black at 40%, underlines black at 30%, the outlined action's border black at 35% (`site-on-champagne-rule`, 70% on hover).
 
-**Open point (not resolved here).** `--primary` is `oklch(0.745 0.062 78)` and renders about #C2A880, while its comment in `src/styles.css` and the owner's stated champagne are #C8A96A. The frontmatter records the value the code ships; the owner has been asked to choose, and until then neither hex is the rule. The same gap exists on the hover step (`oklch(0.812 0.052 80)` renders about #D3BE9C, comment #D9BD85).
+**Resolved (2026-11-17).** `--primary` and `--ring` are `oklch(0.748 0.089 84.2)`, exactly #C8A96A, the champagne of the logo files; the hover step is `oklch(0.809 0.08 84.2)`, #D9BD85. The programme pages' default brand colour follows (#c8a96a). Before, the token rendered about #C2A880, greyer than the logo.
 
 #### Neutral
 - **Ground** (`site-ground`): every part of a page outside the stages and the band; the header once scrolled. **Card** (`site-card`): the product illustration on a stage. **Elevated** (`site-elevated`): what floats inside that illustration (status menu, incoming-request notice) and the hover of a mobile menu row.

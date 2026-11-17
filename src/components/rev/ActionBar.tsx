@@ -56,7 +56,9 @@ export function ActionBar() {
     };
   }, [pathname]);
 
-  const shown = past && !atEnd;
+  // The contact page is itself the way to reach REV.
+  const onContact = pathname === href("contact", "fr") || pathname === href("contact", "en");
+  const shown = past && !atEnd && !onContact;
 
   return (
     <nav

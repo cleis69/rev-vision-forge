@@ -2,7 +2,7 @@
    The pages are dark; the text on the colour (buttons, chips) is black or
    white, whichever reads better, so any colour stays legible. */
 
-export const DEFAULT_BRAND = "#c9a35b";
+export const DEFAULT_BRAND = "#c8a96a";
 /** Background of the public pages. */
 export const PAGE_BACKGROUND = "#080808";
 const DARK_TEXT = "#0a0a0a";

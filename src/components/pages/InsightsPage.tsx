@@ -247,23 +247,31 @@ export function InsightsPage() {
 
       <Section>
         <Container>
-          <Reveal className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0 [&::-webkit-scrollbar]:hidden">
-            {CATEGORIES.map((c) => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => setActive(c)}
-                aria-pressed={active === c}
-                className={cn(
-                  "h-9 shrink-0 whitespace-nowrap rounded-full border px-4 text-xs transition-colors duration-300",
-                  active === c
-                    ? "border-primary/50 bg-primary/10 text-foreground"
-                    : "border-border text-muted-foreground hover:border-foreground/25 hover:text-foreground",
-                )}
-              >
-                {CATEGORY_LABELS[locale][c]}
-              </button>
-            ))}
+          <Reveal className="-mx-5 flex gap-1 overflow-x-auto border-b border-border/70 px-5 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0 [&::-webkit-scrollbar]:hidden">
+            {CATEGORIES.map((c) => {
+              const on = active === c;
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setActive(c)}
+                  aria-pressed={on}
+                  className={cn(
+                    "relative h-11 shrink-0 whitespace-nowrap px-3 text-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-foreground/70",
+                    on ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {CATEGORY_LABELS[locale][c]}
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "absolute inset-x-3 -bottom-px h-0.5 transition-colors duration-200",
+                      on ? "bg-primary" : "bg-transparent",
+                    )}
+                  />
+                </button>
+              );
+            })}
           </Reveal>
 
           <div className="mt-6 grid gap-4 sm:mt-8 md:grid-cols-2 lg:grid-cols-3">

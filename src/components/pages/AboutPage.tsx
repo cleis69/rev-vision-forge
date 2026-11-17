@@ -1,6 +1,8 @@
 import { Container, PageHero, Section, SectionHeading } from "@/components/rev/ui";
 import { Reveal } from "@/components/rev/Reveal";
 import { FinalCta } from "@/components/rev/FinalCta";
+import { ClientLogos } from "@/components/rev/ClientLogos";
+import { cn } from "@/lib/utils";
 import { useLocale, type Locale } from "@/lib/i18n";
 import { photo } from "@/lib/images";
 
@@ -29,7 +31,7 @@ const COPY: Record<
 > = {
   fr: {
     eyebrow: "À propos",
-    title: "Nous ne vendons pas des photos. Nous vendons de la croissance.",
+    title: "Nous ne vendons pas des photos. Nous vendons de la [[croissance]].",
     description:
       "REV — Real Estate Vision est une agence de croissance dédiée à l'immobilier. Nous réunissons studio de production, cellule média et revenue operations dans une seule équipe.",
     imageAlt: "Intérieur de résidence de luxe aux tonalités sombres",
@@ -94,7 +96,7 @@ const COPY: Record<
   },
   en: {
     eyebrow: "About",
-    title: "We don't sell photos. We sell growth.",
+    title: "We don't sell photos. We sell [[growth]].",
     description:
       "REV — Real Estate Vision is a growth agency dedicated to real estate. We bring a production studio, a media unit and revenue operations together in one team.",
     imageAlt: "Dark-toned luxury residence interior",
@@ -160,54 +162,76 @@ export function AboutPage() {
 
       <Section>
         <Container>
-          <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
+          <div className="grid border-t border-border/70 md:grid-cols-2">
             {(
               [
                 ["Vision", copy.vision],
                 ["Mission", copy.mission],
               ] as const
             ).map(([label, block], i) => (
-              <Reveal key={label} className="surface p-6 sm:p-8" delay={i * 80}>
+              <Reveal
+                key={label}
+                delay={i * 80}
+                className={cn(
+                  "border-b border-border/70 py-7 md:border-b-0 md:py-9",
+                  i === 0 ? "md:pr-10" : "md:border-l md:pl-10",
+                )}
+              >
                 <p className="text-xs text-primary">{label}</p>
                 <p className="mt-4 font-display text-xl leading-snug tracking-tight sm:text-2xl">
                   {block.title}
                 </p>
-                <p className="mt-5 text-sm leading-relaxed text-muted-foreground">{block.body}</p>
+                <p className="mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground">{block.body}</p>
               </Reveal>
             ))}
           </div>
         </Container>
       </Section>
 
-      <Section className="border-t border-border/70">
+      <ClientLogos />
+
+      <Section className="border-t-0">
         <Container>
           <SectionHeading
             eyebrow={copy.values.eyebrow}
             title={copy.values.title}
             description={copy.values.description}
           />
-          <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-4 lg:grid-cols-4">
+          <ol className="mt-8 grid border-t border-border/70 sm:mt-10 sm:grid-cols-2 lg:grid-cols-4">
             {copy.values.items.map(([title, body], i) => (
-              <Reveal key={title} delay={i * 70} className="surface h-full p-4 sm:p-6">
-                <h3 className="font-display text-lg font-medium tracking-tight">{title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{body}</p>
+              <Reveal
+                as="li"
+                key={title}
+                delay={i * 70}
+                className="border-b border-border/70 py-5 sm:pr-6 lg:border-b-0"
+              >
+                <span className="font-display text-sm tabular-nums text-primary">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h3 className="mt-2 font-display text-lg font-medium tracking-tight">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
               </Reveal>
             ))}
-          </div>
+          </ol>
         </Container>
       </Section>
 
       <Section className="border-t border-border/70">
         <Container>
           <SectionHeading eyebrow={copy.team.eyebrow} title={copy.team.title} />
-          <div className="mt-8 grid gap-3 sm:mt-10 sm:gap-4 md:grid-cols-2">
+          <ul className="mt-8 border-t border-border/70 sm:mt-10">
             {copy.team.items.map(([title, body], i) => (
-              <Reveal key={title} delay={i * 70} className="surface p-5 sm:p-6">
+              <Reveal
+                as="li"
+                key={title}
+                delay={i * 70}
+                className="grid gap-2 border-b border-border/70 py-5 md:grid-cols-[16rem_minmax(0,1fr)] md:gap-10"
+              >
                 <h3 className="font-display text-lg font-medium tracking-tight">{title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{body}</p>
+                <p className="text-sm leading-relaxed text-muted-foreground">{body}</p>
               </Reveal>
             ))}
-          </div>
+          </ul>
         </Container>
       </Section>
 

@@ -1,16 +1,14 @@
-import { ArrowUpRight, Check } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 import { Container, Cta, PageHero, Section } from "@/components/rev/ui";
 import { Reveal } from "@/components/rev/Reveal";
 import { FinalCta } from "@/components/rev/FinalCta";
+import { ServiceVisual } from "@/components/rev/ServiceVisuals";
+import { cn } from "@/lib/utils";
 import { href, useLocale, type Locale } from "@/lib/i18n";
 import { photo } from "@/lib/images";
 
-const photography = photo("work-photography");
-const matterport = photo("work-matterport");
-const video = photo("work-video");
 const architecture = photo("work-architecture");
-const branding = photo("work-branding");
 
 type Service = {
   title: string;
@@ -21,12 +19,12 @@ type Service = {
   process: string[];
 };
 
-/** Anchor ids and images, shared by both languages (the home page links to the anchors). */
+/** Anchor ids, shared by both languages (the home page links to the anchors). */
 const PILLARS = [
-  { id: "production-visuelle", image: photography },
-  { id: "marketing", image: branding },
-  { id: "acquisition", image: video },
-  { id: "automatisation", image: matterport },
+  { id: "production-visuelle" },
+  { id: "marketing" },
+  { id: "acquisition" },
+  { id: "automatisation" },
 ];
 
 const COPY: Record<
@@ -45,7 +43,7 @@ const COPY: Record<
 > = {
   fr: {
     eyebrow: "Expertises",
-    title: "Quatre piliers, un seul moteur de croissance.",
+    title: "Quatre piliers, un seul [[moteur de croissance]].",
     description:
       "REV n'assemble pas des prestations isolées. Chaque expertise alimente la suivante : le contenu crée l'attention, l'acquisition la capte, l'automatisation la convertit.",
     imageAlt: "Façade en béton aux lignes géométriques dans l'ombre",
@@ -156,7 +154,7 @@ const COPY: Record<
   },
   en: {
     eyebrow: "Services",
-    title: "Four pillars, one growth engine.",
+    title: "Four pillars, one [[growth engine]].",
     description:
       "REV doesn't bolt together isolated services. Each one feeds the next: content creates attention, acquisition captures it, automation converts it.",
     imageAlt: "Concrete façade with geometric lines in shadow",
@@ -283,6 +281,7 @@ export function ServicesPage() {
       {PILLARS.map((pillar, i) => {
         const service = copy.services[i];
         if (!service) return null;
+        const flip = i % 2 === 1;
         return (
           <Section
             key={pillar.id}
@@ -290,76 +289,60 @@ export function ServicesPage() {
             className={i > 0 ? "border-t border-border/70" : ""}
           >
             <Container>
-              <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-16">
-                <Reveal className="lg:sticky lg:top-28 lg:self-start">
-                  <p className="font-display text-sm text-primary">
+              <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
+                <Reveal className={cn(flip && "lg:order-2")}>
+                  <p className="font-display text-sm tabular-nums text-primary">
                     {String(i + 1).padStart(2, "0")}
                   </p>
                   <h2 className="mt-3 font-display text-[clamp(1.6rem,3vw,2.6rem)] font-medium leading-[1.08] tracking-[-0.03em]">
                     {service.title}
                   </h2>
-                  <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground md:text-base">
+                  <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground md:text-base">
                     {service.intro}
                   </p>
-                  <div className="mt-6 aspect-[16/9] overflow-hidden rounded-2xl border border-border lg:aspect-[4/3]">
-                    <img
-                      src={pillar.image.src}
-                      srcSet={pillar.image.srcSet}
-                      sizes="(min-width: 1240px) 540px, (min-width: 1024px) 45vw, 100vw"
-                      alt={service.alt}
-                      loading="lazy"
-                      width={1024}
-                      height={768}
-                      className="h-full w-full object-cover opacity-85"
-                    />
-                  </div>
-                </Reveal>
-
-                <div className="space-y-3 sm:space-y-4">
-                  <Reveal className="surface p-5 sm:p-6">
-                    <p className="text-xs text-muted-foreground">{copy.deliverables}</p>
-                    <ul className="mt-4 grid gap-2.5 sm:grid-cols-2">
-                      {service.deliverables.map((d) => (
-                        <li key={d} className="flex items-start gap-3 text-sm text-foreground/85">
-                          <Check size={15} className="mt-0.5 shrink-0 text-primary" />
-                          {d}
-                        </li>
-                      ))}
-                    </ul>
-                  </Reveal>
-
-                  <Reveal className="surface p-5 sm:p-6" delay={80}>
-                    <p className="text-xs text-muted-foreground">{copy.benefits}</p>
-                    <ul className="mt-4 space-y-2">
-                      {service.benefits.map((b) => (
-                        <li key={b} className="text-sm leading-relaxed text-foreground/85">
-                          {b}
-                        </li>
-                      ))}
-                    </ul>
-                  </Reveal>
-
-                  <Reveal className="surface p-5 sm:p-6" delay={160}>
-                    <p className="text-xs text-muted-foreground">{copy.process}</p>
-                    <ol className="mt-4 space-y-2.5">
+                  <dl className="mt-7 grid gap-x-8 border-t border-border/70 sm:grid-cols-2">
+                    <div className="border-b border-border/70 py-4 sm:border-b-0">
+                      <dt className="text-xs text-muted-foreground">{copy.deliverables}</dt>
+                      <dd className="mt-2">
+                        <ul className="space-y-1.5 text-sm text-foreground/90">
+                          {service.deliverables.map((d) => (
+                            <li key={d}>{d}</li>
+                          ))}
+                        </ul>
+                      </dd>
+                    </div>
+                    <div className="py-4">
+                      <dt className="text-xs text-muted-foreground">{copy.benefits}</dt>
+                      <dd className="mt-2">
+                        <ul className="space-y-1.5 text-sm text-foreground/90">
+                          {service.benefits.map((b) => (
+                            <li key={b}>{b}</li>
+                          ))}
+                        </ul>
+                      </dd>
+                    </div>
+                  </dl>
+                  <ol className="border-t border-border/70 pt-4 text-sm text-muted-foreground">
+                    <li className="mb-2 text-xs">{copy.process}</li>
+                    <li className="flex flex-wrap gap-x-2 gap-y-1">
                       {service.process.map((step, idx) => (
-                        <li key={step} className="flex gap-4">
-                          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-border text-[11px] text-muted-foreground">
-                            {String(idx + 1).padStart(2, "0")}
-                          </span>
-                          <span className="text-sm leading-relaxed text-foreground/85">{step}</span>
-                        </li>
+                        <span key={step} className="whitespace-nowrap">
+                          <span className="tabular-nums text-primary">{idx + 1}</span> {step}
+                          {idx < service.process.length - 1 ? <span className="pl-2 text-border">·</span> : null}
+                        </span>
                       ))}
-                    </ol>
-                  </Reveal>
-
-                  <Reveal delay={240}>
+                    </li>
+                  </ol>
+                  <div className="mt-7">
                     <Cta href={href("contact", locale)}>
                       {copy.cta}
                       <ArrowUpRight size={16} />
                     </Cta>
-                  </Reveal>
-                </div>
+                  </div>
+                </Reveal>
+                <Reveal delay={120} className={cn(flip && "lg:order-1")}>
+                  <ServiceVisual id={pillar.id} locale={locale} />
+                </Reveal>
               </div>
             </Container>
           </Section>

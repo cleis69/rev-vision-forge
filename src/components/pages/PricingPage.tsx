@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowUpRight, Check } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 import { Container, Cta, PageHero, Section } from "@/components/rev/ui";
 import { Reveal } from "@/components/rev/Reveal";
@@ -45,7 +45,7 @@ type Copy = {
 const COPY: Record<Locale, Copy> = {
   fr: {
     eyebrow: "Tarifs",
-    title: "Des offres calibrées par métier.",
+    title: "Des offres calibrées [[par métier]].",
     description:
       "Un promoteur, une agence et un hôte Airbnb n'achètent pas la même chose. Choisissez votre profil : vous ne voyez que la grille qui vous concerne.",
     imageAlt: "Façade en béton aux lignes géométriques dans l'ombre",
@@ -269,7 +269,7 @@ const COPY: Record<Locale, Copy> = {
   },
   en: {
     eyebrow: "Pricing",
-    title: "Offers tailored to each profession.",
+    title: "Offers tailored to [[each profession]].",
     description:
       "A developer, an agency and an Airbnb host don't buy the same thing. Choose your profile: you'll only see the price list that applies to you.",
     imageAlt: "Concrete façade with geometric lines in shadow",
@@ -504,40 +504,84 @@ function OfferCard({
     <Reveal delay={delay} className="h-full">
       <article
         className={cn(
-          "relative flex h-full flex-col rounded-2xl border bg-card p-5 transition-colors duration-300 sm:p-6",
-          offer.featured ? "border-primary" : "border-border hover:border-foreground/25",
+          "relative flex h-full flex-col rounded-[14px] border p-5 transition-colors duration-300 sm:p-6",
+          offer.featured
+            ? "border-primary bg-primary text-primary-foreground"
+            : "border-border bg-card hover:border-foreground/25",
         )}
       >
-        {offer.featured ? (
-          <span className="absolute -top-3 right-6 rounded-lg bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
-            {copy.featured}
-          </span>
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="font-display text-lg font-medium tracking-tight">{offer.name}</h3>
+          {offer.featured ? (
+            <span className="shrink-0 rounded-[6px] bg-primary-foreground px-2 py-0.5 text-xs font-medium text-primary">
+              {copy.featured}
+            </span>
+          ) : null}
+        </div>
+
+        {offer.prefix ? (
+          <p
+            className={cn(
+              "mt-3 text-xs",
+              offer.featured ? "text-primary-foreground/70" : "text-muted-foreground",
+            )}
+          >
+            {offer.prefix}
+          </p>
         ) : null}
 
-        <h3 className="font-display text-lg font-medium tracking-tight">{offer.name}</h3>
-
-        {offer.prefix ? <p className="mt-3 text-xs text-muted-foreground">{offer.prefix}</p> : null}
-
         <p className={cn("flex items-baseline gap-2", offer.prefix ? "mt-1" : "mt-4")}>
-          <span className="font-display text-[2rem] font-medium leading-none tracking-[-0.03em] text-primary">
+          <span
+            className={cn(
+              "font-display text-[2rem] font-medium leading-none tracking-[-0.03em] tabular-nums",
+              offer.featured ? "text-primary-foreground" : "text-primary",
+            )}
+          >
             {offer.price}
           </span>
-          {offer.unit ? <span className="text-sm text-muted-foreground">{offer.unit}</span> : null}
+          {offer.unit ? (
+            <span
+              className={cn(
+                "text-sm",
+                offer.featured ? "text-primary-foreground/70" : "text-muted-foreground",
+              )}
+            >
+              {offer.unit}
+            </span>
+          ) : null}
         </p>
 
-        <ul className="mt-5 space-y-2.5 border-t border-border pt-5">
+        <ul
+          className={cn(
+            "mt-5 space-y-2 border-t pt-5",
+            offer.featured ? "border-primary-foreground/20" : "border-border",
+          )}
+        >
           {offer.features.map((feature, index) => (
-            <li key={feature} className="flex gap-3 text-sm leading-relaxed">
-              <Check size={15} className="mt-1 shrink-0 text-primary" />
-              <span className={index === 0 ? "text-foreground" : "text-muted-foreground"}>
-                {feature}
-              </span>
+            <li
+              key={feature}
+              className={cn(
+                "text-sm leading-relaxed",
+                offer.featured
+                  ? index === 0
+                    ? "font-medium"
+                    : "text-primary-foreground/80"
+                  : index === 0
+                    ? "text-foreground"
+                    : "text-muted-foreground",
+              )}
+            >
+              {feature}
             </li>
           ))}
         </ul>
 
         <div className="mt-auto pt-6">
-          <Cta href={href("contact", locale)} variant="ghost" className="h-11 w-full text-[13px]">
+          <Cta
+            href={href("contact", locale)}
+            variant={offer.featured ? "ink" : "ghost"}
+            className="h-11 w-full text-[13px]"
+          >
             {copy.quote}
             <ArrowUpRight size={15} />
           </Cta>
@@ -569,24 +613,32 @@ export function PricingPage() {
             <div
               role="group"
               aria-label={copy.groupLabel}
-              className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0 [&::-webkit-scrollbar]:hidden"
+              className="-mx-5 flex gap-1 overflow-x-auto border-b border-border/70 px-5 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0 [&::-webkit-scrollbar]:hidden"
             >
-              {copy.segments.map((item, index) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  aria-pressed={index === active}
-                  onClick={() => setActive(index)}
-                  className={cn(
-                    "shrink-0 whitespace-nowrap rounded-lg border px-4 py-2.5 text-[13px] font-medium transition-colors duration-300 active:scale-[0.98]",
-                    index === active
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border text-muted-foreground hover:border-foreground/25 hover:text-foreground",
-                  )}
-                >
-                  {item.label}
-                </button>
-              ))}
+              {copy.segments.map((item, index) => {
+                const on = index === active;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => setActive(index)}
+                    className={cn(
+                      "relative h-11 shrink-0 whitespace-nowrap px-3 text-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-foreground/70",
+                      on ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    {item.label}
+                    <span
+                      aria-hidden
+                      className={cn(
+                        "absolute inset-x-3 -bottom-px h-0.5 transition-colors duration-200",
+                        on ? "bg-primary" : "bg-transparent",
+                      )}
+                    />
+                  </button>
+                );
+              })}
             </div>
           </Reveal>
 
@@ -613,33 +665,38 @@ export function PricingPage() {
               <Reveal>
                 <p className="text-xs font-medium text-primary">{segment.volume.title}</p>
               </Reveal>
-              <div className="mt-6 grid gap-4 sm:grid-cols-3">
+              <ul className="mt-4 border-t border-border/70 sm:grid sm:grid-cols-3 sm:gap-x-8">
                 {segment.volume.rows.map((row, index) => (
-                  <Reveal key={row.label} delay={index * 80}>
-                    <div className="rounded-2xl border border-border bg-card p-6 transition-colors duration-300 hover:border-foreground/25">
-                      <p className="text-sm text-foreground">{row.label}</p>
-                      <p className="mt-3 flex items-baseline gap-3">
-                        <span className="font-display text-2xl font-medium tracking-[-0.03em] text-primary">
-                          {row.price}
-                        </span>
-                        <span className="text-xs text-muted-foreground">{row.note}</span>
-                      </p>
-                    </div>
+                  <Reveal
+                    as="li"
+                    key={row.label}
+                    delay={index * 80}
+                    className="border-b border-border/70 py-4"
+                  >
+                    <p className="text-sm text-foreground">{row.label}</p>
+                    <p className="mt-1.5 flex items-baseline gap-3">
+                      <span className="font-display text-2xl font-medium tabular-nums tracking-[-0.03em] text-primary">
+                        {row.price}
+                      </span>
+                      <span className="text-xs text-muted-foreground">{row.note}</span>
+                    </p>
                   </Reveal>
                 ))}
-              </div>
+              </ul>
             </div>
           ) : null}
 
           <Reveal delay={120}>
-            <div className="mt-10 rounded-2xl border border-border bg-card p-6 md:p-8">
-              <h2 className="font-display text-xl font-medium tracking-tight">
-                {copy.customTitle}
-              </h2>
-              <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                {copy.customBody}
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-12 grid gap-6 border-t border-border/70 pt-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:gap-14">
+              <div>
+                <h2 className="font-display text-xl font-medium tracking-tight">
+                  {copy.customTitle}
+                </h2>
+                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                  {copy.customBody}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-3">
                 <Cta href={href("contact", locale)}>
                   {copy.customCta}
                   <ArrowUpRight size={16} />

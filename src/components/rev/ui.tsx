@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 
 import type { Photo } from "@/lib/images";
@@ -13,6 +13,68 @@ import { SplitText } from "@/components/reactbits/SplitText";
 export function headline(text: string) {
   const t = text.trimEnd();
   return t.endsWith(".") && !/[.!?…]\s/.test(t) && !t.endsWith("...") ? t.slice(0, -1) : t;
+}
+
+/** A part of a title, marked (`[[…]]` in the copy) or not. */
+export type TitlePart = { text: string; mark: boolean };
+
+/** Splits a title on its `[[…]]` marks. */
+export function parseMarks(text: string): TitlePart[] {
+  return text
+    .split(/(\[\[.+?\]\])/)
+    .filter(Boolean)
+    .map((part) =>
+      part.startsWith("[[") ? { text: part.slice(2, -2), mark: true } : { text: part, mark: false },
+    );
+}
+
+/** The title as read aloud and indexed: marks removed. */
+export const plainTitle = (text: string) => text.replace(/\[\[|\]\]/g, "");
+
+/**
+ * A word underlined by hand: a champagne stroke drawn once the title shows.
+ * `now` draws it on load (titles above the fold) instead of in view.
+ */
+export function Mark({ children, now = false, delay }: { children: ReactNode; now?: boolean; delay?: number }) {
+  return (
+    <span className={cn("rev-mark relative inline-block whitespace-nowrap", now && "rev-mark-now")}>
+      {children}
+      <svg
+        aria-hidden
+        viewBox="0 0 200 14"
+        preserveAspectRatio="none"
+        className="pointer-events-none absolute -bottom-[0.16em] left-[-3%] h-[0.3em] w-[106%] overflow-visible text-primary"
+        style={delay === undefined ? undefined : ({ "--mark-delay": `${delay}s` } as CSSProperties)}
+      >
+        <path
+          d="M3 9.6C40 4.6 86 3.1 130 5.3c25 1.2 48 3.4 67 6"
+          pathLength={1}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={3}
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+    </span>
+  );
+}
+
+/** A title whose `[[…]]` parts are underlined by hand. */
+export function Marked({ text, now = false, delay }: { text: string; now?: boolean; delay?: number }) {
+  return (
+    <>
+      {parseMarks(text).map((part, i) =>
+        part.mark ? (
+          <Mark key={i} now={now} {...(delay === undefined ? {} : { delay })}>
+            {part.text}
+          </Mark>
+        ) : (
+          <span key={i}>{part.text}</span>
+        ),
+      )}
+    </>
+  );
 }
 
 /** Entrance played by CSS on load (above-the-fold content, no JavaScript needed). */
@@ -99,7 +161,7 @@ export function Cta({
     "transition-[background-color,border-color,transform] duration-300 active:scale-[0.98]",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
     variant === "primary"
-      ? "bg-primary text-primary-foreground hover:bg-primary-hover focus-visible:ring-primary"
+      ? "rev-sheen bg-primary text-primary-foreground hover:bg-primary-hover focus-visible:ring-primary"
       : variant === "ink"
         ? "bg-primary-foreground text-primary hover:bg-black focus-visible:ring-black focus-visible:ring-offset-primary"
         : variant === "inkGhost"

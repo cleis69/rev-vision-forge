@@ -1,12 +1,29 @@
+import { useEffect, useRef, useState } from "react";
+import {
+  Camera,
+  Clapperboard,
+  Database,
+  Filter,
+  Home,
+  LayoutTemplate,
+  Megaphone,
+  Share2,
+  TrendingUp,
+  UserCheck,
+  Workflow,
+  type LucideIcon,
+} from "lucide-react";
+
 import { useCopy } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Container, Section, SectionHeading } from "./ui";
 import { Reveal } from "./Reveal";
+import { useMotionAllowed } from "./SalesPlanDemo";
 
 const COPY = {
   fr: {
     eyebrow: "Notre écosystème",
-    title: "Un système connecté, du bien immobilier à la signature.",
+    title: "Un système [[connecté]], du bien immobilier à la signature.",
     description:
       "Chaque étape alimente la suivante. Le contenu crée l'attention, la stratégie la convertit, l'automatisation la démultiplie.",
     steps: [
@@ -25,7 +42,7 @@ const COPY = {
   },
   en: {
     eyebrow: "Our ecosystem",
-    title: "One connected system, from the property to the signed deal.",
+    title: "One [[connected]] system, from the property to the signed deal.",
     description:
       "Each step feeds the next. Content creates attention, strategy converts it, automation multiplies it.",
     steps: [
@@ -44,43 +61,108 @@ const COPY = {
   },
 };
 
+/** One icon per step, in the order of the steps. */
+const ICONS: LucideIcon[] = [
+  Home,
+  Camera,
+  Clapperboard,
+  Share2,
+  Megaphone,
+  LayoutTemplate,
+  Database,
+  Filter,
+  Workflow,
+  UserCheck,
+  TrendingUp,
+];
+
+/*
+ * The steps as tiles; a champagne light travels from the property to the
+ * sale, one step after the other, while the grid is in sight (still, on the
+ * last step, for visitors who prefer less motion).
+ */
 export function Ecosystem() {
   const copy = useCopy(COPY);
   const STEPS = copy.steps;
-  const half = Math.ceil(STEPS.length / 2);
+  const motion = useMotionAllowed();
+  const grid = useRef<HTMLOListElement>(null);
+  const [seen, setSeen] = useState(false);
+  const [lit, setLit] = useState(STEPS.length - 1);
+
+  useEffect(() => {
+    const node = grid.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(([entry]) => setSeen(!!entry?.isIntersecting), {
+      threshold: 0.35,
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!(seen && motion)) return;
+    let step = 0;
+    setLit(0);
+    let timer = 0;
+    const next = () => {
+      step = (step + 1) % STEPS.length;
+      setLit(step);
+      // The light rests a little longer on the sale before starting again.
+      timer = window.setTimeout(next, step === STEPS.length - 1 ? 2200 : 850);
+    };
+    timer = window.setTimeout(next, 850);
+    return () => window.clearTimeout(timer);
+  }, [seen, motion, STEPS.length]);
+
   return (
     <Section id="about" className="border-t border-border/70">
       <Container>
         <SectionHeading eyebrow={copy.eyebrow} title={copy.title} description={copy.description} />
 
-        {/* The order is the point: each step feeds the next, down one column then the other. */}
+        {/* The order is the point: each step feeds the next. */}
         <ol
-          className="mt-8 grid border-t border-border sm:mt-10 lg:mt-12 lg:grid-flow-col lg:grid-cols-2 lg:gap-x-14"
-          style={{ gridTemplateRows: `repeat(${half}, auto)` }}
+          ref={grid}
+          className="mt-8 grid grid-cols-2 gap-2 sm:mt-10 sm:grid-cols-3 sm:gap-2.5 lg:mt-12 lg:grid-cols-4"
         >
           {STEPS.map((step, i) => {
+            const on = i === lit;
             const last = i === STEPS.length - 1;
+            const Icon = ICONS[i] ?? TrendingUp;
             return (
-              <Reveal
-                as="li"
-                key={step.label}
-                delay={(i % half) * 40}
-                className="grid grid-cols-[2.25rem_minmax(0,1fr)] items-baseline gap-x-3 border-b border-border/70 py-3.5 sm:grid-cols-[2.25rem_13rem_minmax(0,1fr)] sm:py-4"
-              >
-                <span className="font-display text-sm tabular-nums text-primary">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <h3
+              <Reveal as="li" key={step.label} delay={i * 35} className={cn(last && "col-span-2")}>
+                <div
                   className={cn(
-                    "font-display text-[16px] font-medium leading-snug tracking-tight sm:text-[17px]",
-                    last && "text-primary",
+                    "flex h-full min-h-[8.5rem] flex-col justify-between gap-4 rounded-[14px] border p-4 transition-colors duration-500 sm:min-h-[9.5rem] sm:p-5",
+                    on
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border/80 bg-card/40 text-foreground",
                   )}
                 >
-                  {step.label}
-                </h3>
-                <p className="col-start-2 text-[13px] leading-snug text-muted-foreground sm:col-start-3 sm:text-sm">
-                  {step.note}
-                </p>
+                  <span className="flex items-center justify-between">
+                    <Icon size={20} strokeWidth={1.5} aria-hidden className={on ? "" : "text-primary"} />
+                    <span
+                      className={cn(
+                        "text-xs tabular-nums transition-colors duration-500",
+                        on ? "text-primary-foreground/70" : "text-muted-foreground",
+                      )}
+                    >
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                  </span>
+                  <span>
+                    <h3 className="font-display text-[15px] font-medium leading-snug tracking-tight sm:text-[17px]">
+                      {step.label}
+                    </h3>
+                    <p
+                      className={cn(
+                        "mt-1 text-[12.5px] leading-snug transition-colors duration-500 sm:text-[13px]",
+                        on ? "text-primary-foreground/75" : "text-muted-foreground",
+                      )}
+                    >
+                      {step.note}
+                    </p>
+                  </span>
+                </div>
               </Reveal>
             );
           })}

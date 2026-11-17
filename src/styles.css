@@ -188,6 +188,39 @@
   }
 }
 
+/*
+ * Marked words: a hand-drawn champagne stroke under the key words of a title
+ * ([[…]] in the copy), drawn once the title shows (in view, or on load).
+ */
+.rev-mark path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.is-revealed .rev-mark path,
+.split-now .rev-mark path,
+.rev-mark-now path {
+  animation: rev-mark-draw 0.9s cubic-bezier(0.65, 0, 0.35, 1) var(--mark-delay, 0.55s) forwards;
+}
+@keyframes rev-mark-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* A light that sweeps across the primary button on hover. */
+.rev-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 0.38) 50%, transparent 65%);
+  transform: translateX(-120%);
+  transition: transform 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.rev-sheen:hover::after {
+  transform: translateX(120%);
+}
+
 /* Split headings: each word rises in turn (SplitText). */
 [data-split-part] {
   opacity: 0;
@@ -304,6 +337,9 @@ html.lenis body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .rev-mark path {
+    stroke-dashoffset: 0 !important;
+  }
   [data-split-part],
   .reveal-init {
     opacity: 1 !important;

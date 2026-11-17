@@ -5,13 +5,13 @@ import { adMedia } from "@/lib/ads";
 import { href, useLocale, type Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Container, Cta, Section, SectionHeading } from "./ui";
-import { Reveal } from "./Reveal";
+import { Reveal, useInView } from "./Reveal";
 import { LazyVideo } from "./LazyVideo";
 
 const COPY = {
   fr: {
     eyebrow: "Process",
-    title: "Simple comme un, deux, trois.",
+    title: "Simple comme [[un, deux, trois]].",
     description: "De la réservation à la livraison, vous savez toujours où en est votre tournage.",
     cta: "Voir nos packs",
     step: "Étape",
@@ -36,7 +36,7 @@ const COPY = {
   },
   en: {
     eyebrow: "Process",
-    title: "As easy as one, two, three.",
+    title: "As easy as [[one, two, three]].",
     description: "From booking to delivery, you always know where your shoot stands.",
     cta: "See our packages",
     step: "Step",
@@ -86,7 +86,9 @@ export function ProcessSteps() {
           </Reveal>
         </div>
 
-        <ol className="-mx-5 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:mx-0 sm:mt-10 sm:grid sm:snap-none sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:mt-12 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
+        <Timeline count={STEPS.length} />
+
+        <ol className="-mx-5 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:mx-0 sm:mt-10 sm:grid sm:snap-none sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:mt-5 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
           {STEPS.map((step, i) => (
             <Reveal
               as="li"
@@ -111,6 +113,40 @@ export function ProcessSteps() {
         </ol>
       </Container>
     </Section>
+  );
+}
+
+/**
+ * Above the four steps (computers): a line drawn from the first to the last,
+ * each step lighting up as the line reaches it, once the section is in sight.
+ */
+function Timeline({ count }: { count: number }) {
+  const { ref, inView } = useInView<HTMLDivElement>(0.6);
+  return (
+    <div ref={ref} aria-hidden className="relative mt-12 hidden h-8 lg:grid lg:grid-cols-4 lg:gap-5">
+      <span className="absolute left-[12.5%] right-[12.5%] top-1/2 h-px -translate-y-1/2 bg-border" />
+      <span
+        className={cn(
+          "absolute left-[12.5%] right-[12.5%] top-1/2 h-px -translate-y-1/2 origin-left bg-primary transition-transform duration-[1800ms] ease-[cubic-bezier(0.65,0,0.35,1)] motion-reduce:transition-none",
+          inView ? "scale-x-100" : "scale-x-0",
+        )}
+      />
+      {Array.from({ length: count }, (_, i) => (
+        <span key={i} className="relative grid place-items-center">
+          <span
+            className={cn(
+              "grid size-8 place-items-center rounded-full border text-xs font-medium tabular-nums transition-colors duration-500 motion-reduce:transition-none",
+              inView
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-border bg-background text-muted-foreground",
+            )}
+            style={{ transitionDelay: inView ? `${(i * 1800) / Math.max(1, count - 1)}ms` : "0ms" }}
+          >
+            {i + 1}
+          </span>
+        </span>
+      ))}
+    </div>
   );
 }
 

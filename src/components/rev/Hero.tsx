@@ -5,14 +5,14 @@ import { AD_STATS, ADS, adMedia, formatCount, type Ad } from "@/lib/ads";
 import { href, useLocale, type Locale } from "@/lib/i18n";
 import { useDeferredMedia } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import { Container, Cta, fadeUp, headline } from "./ui";
+import { Container, Cta, Marked, fadeUp, headline } from "./ui";
 import { LazyVideo } from "./LazyVideo";
 import { PhoneReel } from "./PhoneReel";
 
 const COPY = {
   fr: {
     eyebrow: "Agence de croissance immobilière",
-    title: "Le marketing visuel qui accélère les ventes immobilières.",
+    title: "Le marketing visuel qui [[accélère]] les ventes immobilières.",
     body: "Ads, room tours et personal branding pour promoteurs, agences et agents — puis l'acquisition et l'automatisation qui transforment les vues en rendez-vous.",
     ads: "Voir toutes nos ads",
     meetingShort: "Rendez-vous",
@@ -23,7 +23,7 @@ const COPY = {
   },
   en: {
     eyebrow: "Real estate growth agency",
-    title: "Visual marketing that sells real estate faster.",
+    title: "Visual marketing that sells real estate [[faster]].",
     body: "Ads, room tours and personal branding for developers, agencies and agents — then the acquisition and automation that turn views into viewings.",
     ads: "Watch all our ads",
     meetingShort: "Book a call",
@@ -58,7 +58,7 @@ export function Hero() {
             className="font-display text-[clamp(2.15rem,3.7vw,3.6rem)] [text-wrap:balance] font-medium leading-[1.03] tracking-[-0.04em] text-foreground"
             style={fadeUp(0)}
           >
-            {headline(copy.title)}
+            <Marked text={headline(copy.title)} now delay={0.75} />
           </h1>
 
           <p

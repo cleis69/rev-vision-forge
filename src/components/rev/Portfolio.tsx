@@ -21,7 +21,7 @@ type Filter = "all" | AdCategory;
 const COPY = {
   fr: {
     all: "Tout",
-    title: "Des films qui font vendre",
+    title: "Des films qui [[font vendre]]",
     description: (n: number) =>
       `${n} films pour des promoteurs, des agences, des agents et des conciergeries : publicités, visites, films et 3D, en français, en darija, en néerlandais et en italien.`,
     filters: "Filtrer les films",
@@ -33,7 +33,7 @@ const COPY = {
   },
   en: {
     all: "All",
-    title: "Films that sell",
+    title: "Films that [[sell]]",
     description: (n: number) =>
       `${n} films for developers, agencies, agents and short-let managers: ads, tours, films and 3D, in French, Darija, Dutch and Italian.`,
     filters: "Filter the films",

@@ -115,7 +115,7 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
         {/* Scroll reveals need JavaScript; without it, show everything. */}
         <noscript>
-          <style>{".reveal-init,[data-split-part]{opacity:1!important;transform:none!important;filter:none!important}"}</style>
+          <style>{".reveal-init,[data-split-part]{opacity:1!important;transform:none!important;filter:none!important}.rev-mark path{stroke-dashoffset:0!important}"}</style>
         </noscript>
       </head>
       <body>

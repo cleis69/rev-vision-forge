@@ -11,22 +11,25 @@ import { Reveal } from "./Reveal";
 import { ClientMark } from "./ClientLogos";
 
 /*
- * The case studies as register rows: the programme on its champagne stage on
- * one side, what was done on the other, alternating from one row to the next.
+ * The case studies as register rows. The two complete ones (a website, films
+ * and more) get the programme on its champagne stage, alternating sides; the
+ * others follow as compact lines: logo, what was done, two facts.
  */
+
+const FEATURED = 2;
 
 const COPY = {
   fr: {
-    title: "Deux programmes, de bout en bout",
+    title: "Sept études de cas, promoteur par promoteur",
     description:
-      "Le site, les films, les réseaux, la brochure, le logo, et pour CITYSTAR le plan de vente 3D : tout ce qu'un programme montre à ses acheteurs.",
+      "Le site, les films, les réseaux, les campagnes, et pour CITYSTAR le plan de vente 3D : ce que nous avons fait pour chacun.",
     read: "Lire l'étude de cas",
     stageAlt: (n: string) => `${n}, le projet`,
   },
   en: {
-    title: "Two developments, end to end",
+    title: "Seven case studies, developer by developer",
     description:
-      "The website, the films, social media, the brochure, the logo and, for CITYSTAR, the 3D sales plan: everything a development shows its buyers.",
+      "The website, the films, social media, the campaigns and, for CITYSTAR, the 3D sales plan: what we did for each of them.",
     read: "Read the case study",
     stageAlt: (n: string) => `${n}, the project`,
   },
@@ -40,7 +43,7 @@ export function CaseStudies({ className }: { className?: string }) {
       <Container>
         <SectionHeading title={copy.title} description={copy.description} />
         <ul className="mt-10 border-b border-border/70 sm:mt-12">
-          {CASES.map((study, i) => {
+          {CASES.slice(0, FEATURED).map((study, i) => {
             const text = study.copy[locale];
             const client = CLIENTS.find((c) => c.id === study.client);
             const href = casePath(study.slug, locale);
@@ -85,6 +88,41 @@ export function CaseStudies({ className }: { className?: string }) {
                     </Link>
                   </div>
                 </Reveal>
+              </li>
+            );
+          })}
+        </ul>
+        <ul className="border-b border-border/70">
+          {CASES.slice(FEATURED).map((study) => {
+            const text = study.copy[locale];
+            const client = CLIENTS.find((c) => c.id === study.client);
+            return (
+              <li key={study.slug} className="border-t border-border/70 first:border-t-0">
+                <Link
+                  to={casePath(study.slug, locale) as never}
+                  className="group grid items-center gap-x-8 gap-y-3 py-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-foreground/70 sm:grid-cols-[11rem_minmax(0,1fr)_auto] lg:grid-cols-[13rem_minmax(0,1fr)_minmax(0,18rem)_auto]"
+                >
+                  <span className="flex h-12 items-center text-foreground/80 transition-colors duration-200 group-hover:text-foreground">
+                    {client ? <ClientMark client={client} className="[--k:0.85]" /> : null}
+                  </span>
+                  <span>
+                    <span className="block font-display text-[17px] font-medium tracking-tight transition-colors duration-200 group-hover:text-primary">
+                      {study.name}
+                    </span>
+                    <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">{text.card}</span>
+                  </span>
+                  <span className="hidden text-sm text-muted-foreground lg:block">
+                    {text.facts
+                      .slice(1, 3)
+                      .map((f) => f.value)
+                      .join(" · ")}
+                  </span>
+                  <ArrowRight
+                    size={18}
+                    aria-hidden
+                    className="hidden text-muted-foreground transition-colors duration-200 group-hover:text-primary sm:block"
+                  />
+                </Link>
               </li>
             );
           })}

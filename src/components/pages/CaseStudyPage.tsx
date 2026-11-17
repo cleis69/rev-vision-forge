@@ -31,7 +31,9 @@ const COPY = {
     site: "Le site, en usage",
     siteCaption: (site: string) => `${site}, enregistré sur ordinateur et sur téléphone`,
     films: "Les films",
-    filmsText: (n: number) => `${n} films, du film en images générées aux pubs faites des seuls rendus 3D.`,
+    filmsText: (n: number, note?: string) => (note ? `${n} films, ${note}` : `${n} films.`),
+    seeFilms: "Voir les films",
+    results: "Les résultats",
     plan: "Le plan de vente 3D",
     planText:
       "Le programme publié sur notre plan de vente : la résidence en 3D qui tourne du doigt, chaque villa colorée selon son statut mis à jour en direct, et la visite 360° de la villa A.",
@@ -49,7 +51,9 @@ const COPY = {
     site: "The website, in use",
     siteCaption: (site: string) => `${site}, recorded on a computer and on a phone`,
     films: "The films",
-    filmsText: (n: number) => `${n} films, from the AI-generated film to ads made from the 3D renders alone.`,
+    filmsText: (n: number, note?: string) => (note ? `${n} films, ${note}` : `${n} films.`),
+    seeFilms: "See the films",
+    results: "The results",
     plan: "The 3D sales plan",
     planText:
       "The development published on our sales plan: the residence in 3D, turned with a finger, every villa coloured by its live status, and the 360° tour of villa A.",
@@ -60,11 +64,15 @@ const COPY = {
   },
 };
 
-/** One row of films up to seven (the last tile links to all films), else two rows. */
+/**
+ * One row of films up to seven (the last tile links to all films), else two
+ * rows; a short row keeps tiles at the size of a seven-film row.
+ */
 const filmColumns = (n: number) =>
   ({
     "--l": n <= 7 ? n : Math.ceil(n / 2),
     "--s": n <= 4 ? n : Math.min(5, Math.ceil(n / 2)),
+    ...(n < 5 ? { maxWidth: `${n * 11}rem` } : {}),
   }) as CSSProperties;
 
 const H2 = "font-display text-[clamp(1.5rem,2.6vw,2.1rem)] font-medium leading-[1.1] tracking-[-0.03em]";
@@ -114,21 +122,27 @@ export function CaseStudyPage({ study }: { study: CaseStudy }) {
                     {copy.salesPlan}
                     <ArrowUpRight size={16} aria-hidden />
                   </Cta>
-                ) : (
+                ) : study.website ? (
                   <Cta href={study.website.href} newTab>
                     {copy.visit(study.website.label)}
                     <ArrowUpRight size={16} aria-hidden />
                   </Cta>
+                ) : (
+                  <Cta href={href("contact", locale)}>{copy.contact}</Cta>
                 )}
-                {study.salesPlan ? (
+                {study.salesPlan && study.website ? (
                   <Cta href={study.website.href} newTab variant="ghost">
                     {copy.visit(study.website.label)}
                   </Cta>
-                ) : (
+                ) : study.website ? (
                   <Cta href={href("contact", locale)} variant="ghost">
                     {copy.contact}
                   </Cta>
-                )}
+                ) : films.length > 0 ? (
+                  <Cta href="#films" variant="ghost">
+                    {copy.seeFilms}
+                  </Cta>
+                ) : null}
               </div>
             </div>
             <div className="rounded-[14px] bg-primary p-4 sm:p-6" style={fadeUp(0.15)}>
@@ -165,24 +179,47 @@ export function CaseStudyPage({ study }: { study: CaseStudy }) {
         </Container>
       </Section>
 
+      {text.results ? (
+        <Section className="border-t border-border/70">
+          <Container>
+            <Reveal>
+              <h2 className={H2}>{copy.results}</h2>
+            </Reveal>
+            <dl className="mt-8 grid border-t border-border/70 sm:mt-10 sm:grid-cols-3">
+              {text.results.map((r) => (
+                <div key={r.label} className="border-b border-border/70 py-5 sm:border-b-0 sm:pr-8">
+                  <dd className="font-display text-[clamp(2.2rem,4vw,3.4rem)] font-medium leading-none tracking-[-0.04em] text-primary tabular-nums">
+                    {r.value}
+                  </dd>
+                  <dt className="mt-2 max-w-[16rem] text-sm leading-snug text-muted-foreground">{r.label}</dt>
+                </div>
+              ))}
+            </dl>
+            {text.resultsNote ? (
+              <p className="mt-6 max-w-2xl text-xs leading-relaxed text-muted-foreground">{text.resultsNote}</p>
+            ) : null}
+          </Container>
+        </Section>
+      ) : null}
+
       {study.scenes ? (
         <Section className="border-t border-border/70">
           <Container>
             <Reveal className="mb-8 sm:mb-10">
               <h2 className={H2}>{copy.site}</h2>
             </Reveal>
-            <CaseScenes slug={study.slug} scenes={study.scenes} caption={copy.siteCaption(study.website.label)} />
+            <CaseScenes slug={study.slug} scenes={study.scenes} caption={copy.siteCaption(study.website?.label ?? study.name)} />
           </Container>
         </Section>
       ) : null}
 
       {films.length > 0 ? (
-        <Section className="border-t border-border/70">
+        <Section id="films" className="border-t border-border/70">
           <Container>
             <Reveal className="max-w-2xl">
               <h2 className={H2}>{copy.films}</h2>
               <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-                {copy.filmsText(films.length)}
+                {copy.filmsText(films.length, text.filmsNote)}
               </p>
             </Reveal>
             <FilmGrid

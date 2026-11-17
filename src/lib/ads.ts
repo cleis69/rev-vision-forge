@@ -3,7 +3,8 @@
  * ADS are the 21 vertical ads of the home page's phone (they have a teaser);
  * FILMS is the whole portfolio: those 21, plus agency, short-let and 3D films.
  * Ads are identified by a neutral id. A client is named (CLIENTS, see
- * clients.ts) only for the developers the owner listed on 2026-11-17.
+ * clients.ts) only for the developers the owner listed on 2026-11-17, from the
+ * file name or the logo at the end of the film.
  * Media files live outside git and are deployed with the static site under
  * /media; builds without VITE_MEDIA_BASE (e.g. Lovable) read them from the
  * production domain.
@@ -53,14 +54,14 @@ export type Ad = {
 
 export const ADS: Ad[] = [
   { id: "ad-01", title: { fr: "Villa à partir de 3 490 000 MAD", en: "Villa from MAD 3,490,000" }, category: "programmes", duration: 31, client: "peninsula" },
-  { id: "ad-02", title: { fr: "Emplacement prisé, piscine et meilleures unités", en: "Prime location, pool and the best units" }, category: "programmes", duration: 26 },
-  { id: "ad-03", title: { fr: "Y vivre ou investir, à 3 min de Guéliz", en: "Live or invest, 3 minutes from Guéliz" }, category: "programmes", duration: 23 },
+  { id: "ad-02", title: { fr: "Emplacement prisé, piscine et meilleures unités", en: "Prime location, pool and the best units" }, category: "programmes", duration: 26, client: "emara" },
+  { id: "ad-03", title: { fr: "Y vivre ou investir, à 3 min de Guéliz", en: "Live or invest, 3 minutes from Guéliz" }, category: "programmes", duration: 23, client: "shah" },
   { id: "ad-04", title: { fr: "Room tour d'un appartement", en: "Apartment room tour" }, category: "visites", duration: 46 },
   { id: "ad-05", title: { fr: "Le calme, et les meilleurs lots", en: "Calm surroundings, the best plots" }, category: "programmes", duration: 26, client: "shah" },
   { id: "ad-06", title: { fr: "Des visuels qui subliment vos biens", en: "Visuals that elevate your properties" }, category: "agences", duration: 39 },
   { id: "ad-07", title: { fr: "Une offre avant la montée des prix", en: "An offer before prices go up" }, category: "programmes", duration: 30, client: "shah" },
   { id: "ad-08", title: { fr: "Vivre et investir dans le même projet", en: "Live and invest in the same project" }, category: "programmes", duration: 29, client: "emara" },
-  { id: "ad-09", title: { fr: "Personal branding d'agent immobilier", en: "Real estate agent personal branding" }, category: "agences", duration: 21 },
+  { id: "ad-09", title: { fr: "Personal branding d'agent immobilier", en: "Real estate agent personal branding" }, category: "agences", duration: 21, client: "shah" },
   { id: "ad-10", title: { fr: "Room tour d'une villa", en: "Villa room tour" }, category: "visites", duration: 118 },
   { id: "ad-11", title: { fr: "Pour le prix d'un 30 m² à Paris", en: "For the price of 30 m² in Paris" }, category: "programmes", duration: 21, client: "shah" },
   { id: "ad-12", title: { fr: "Acheter sur plan, version néerlandaise", en: "Buying off-plan, Dutch version" }, category: "programmes", duration: 41, lang: "NL" },
@@ -71,7 +72,7 @@ export const ADS: Ad[] = [
   { id: "ad-17", title: { fr: "Un investissement clé en main", en: "A turnkey investment" }, category: "programmes", duration: 27, client: "shah" },
   { id: "ad-18", title: { fr: "Choisir un promoteur fiable", en: "Choosing a reliable developer" }, category: "programmes", duration: 24, client: "emara" },
   { id: "ad-19", title: { fr: "Un intermédiaire de confiance, en néerlandais", en: "A trusted intermediary, in Dutch" }, category: "agences", duration: 30, lang: "NL" },
-  { id: "ad-20", title: { fr: "Rêver sa vie, ou vivre son rêve", en: "Dream your life, or live your dream" }, category: "programmes", duration: 36 },
+  { id: "ad-20", title: { fr: "Rêver sa vie, ou vivre son rêve", en: "Dream your life, or live your dream" }, category: "programmes", duration: 36, client: "emara" },
   { id: "ad-21", title: { fr: "Investir au soleil", en: "Invest in the sun" }, category: "programmes", duration: 13, client: "bm" },
 ];
 
@@ -81,21 +82,21 @@ export const ADS: Ad[] = [
  */
 const MORE: Ad[] = [
   { id: "ad-22", title: { fr: "Un triplex à Marrakech, présenté face caméra", en: "A triplex in Marrakech, presented to camera" }, category: "agences", duration: 23 },
-  { id: "ad-23", title: { fr: "Une résidence neuve, un cadre de vie avant un plan", en: "A new residence, a way of life before a floor plan" }, category: "programmes", duration: 26 },
+  { id: "ad-23", title: { fr: "Une résidence neuve, un cadre de vie avant un plan", en: "A new residence, a way of life before a floor plan" }, category: "programmes", duration: 26, client: "shah" },
   { id: "ad-24", title: { fr: "L'immobilier neuf à Marrakech, face caméra", en: "New-build property in Marrakech, to camera" }, category: "agences", duration: 20, client: "shams" },
   { id: "ad-25", title: { fr: "Un appartement rénové, visité face caméra", en: "A renovated flat, toured to camera" }, category: "visites", duration: 18 },
-  { id: "ad-26", title: { fr: "Le budget de l'acheteur", en: "The buyer's budget" }, category: "agences", duration: 16 },
-  { id: "ad-27", title: { fr: "Sur le chantier d'un programme neuf", en: "On the site of a new development" }, category: "agences", duration: 21 },
-  { id: "ad-28", title: { fr: "Une publicité en darija", en: "An ad in Darija" }, category: "agences", duration: 17 },
-  { id: "ad-29", title: { fr: "Une présentatrice, deux rôles", en: "One presenter, two parts" }, category: "agences", duration: 22 },
-  { id: "ad-30", title: { fr: "Face caméra, avec des titres animés", en: "To camera, with animated titles" }, category: "agences", duration: 22 },
+  { id: "ad-26", title: { fr: "Le budget de l'acheteur", en: "The buyer's budget" }, category: "agences", duration: 16, client: "shams" },
+  { id: "ad-27", title: { fr: "Sur le chantier d'un programme neuf", en: "On the site of a new development" }, category: "agences", duration: 21, client: "shah" },
+  { id: "ad-28", title: { fr: "Une publicité en darija", en: "An ad in Darija" }, category: "agences", duration: 17, client: "shams" },
+  { id: "ad-29", title: { fr: "Une présentatrice, deux rôles", en: "One presenter, two parts" }, category: "agences", duration: 22, client: "shams" },
+  { id: "ad-30", title: { fr: "Face caméra, avec des titres animés", en: "To camera, with animated titles" }, category: "agences", duration: 22, client: "shams" },
   { id: "ad-31", title: { fr: "Le film d'équipe d'une agence", en: "An agency's team film" }, category: "films", duration: 39, aspect: "16/9" },
   { id: "ad-32", title: { fr: "Deux présentateurs visitent un bien", en: "Two presenters tour a property" }, category: "visites", duration: 141 },
-  { id: "ad-33", title: { fr: "L'objection de l'acheteur", en: "The buyer's objection" }, category: "agences", duration: 23 },
-  { id: "ad-34", title: { fr: "Un programme dans la Palmeraie", en: "A development in the Palmeraie" }, category: "programmes", duration: 20 },
-  { id: "ad-35", title: { fr: "Pas comme les autres agences", en: "Not like the other agencies" }, category: "agences", duration: 21 },
-  { id: "ad-36", title: { fr: "Portée par une présentatrice", en: "Led by a presenter" }, category: "agences", duration: 29 },
-  { id: "ad-37", title: { fr: "Première visite d'une résidence", en: "First visit to a residence" }, category: "programmes", duration: 30 },
+  { id: "ad-33", title: { fr: "L'objection de l'acheteur", en: "The buyer's objection" }, category: "agences", duration: 23, client: "shams" },
+  { id: "ad-34", title: { fr: "Un programme dans la Palmeraie", en: "A development in the Palmeraie" }, category: "programmes", duration: 20, client: "shams" },
+  { id: "ad-35", title: { fr: "Pas comme les autres agences", en: "Not like the other agencies" }, category: "agences", duration: 21, client: "shams" },
+  { id: "ad-36", title: { fr: "Portée par une présentatrice", en: "Led by a presenter" }, category: "agences", duration: 29, client: "shah" },
+  { id: "ad-37", title: { fr: "Première visite d'une résidence", en: "First visit to a residence" }, category: "programmes", duration: 30, client: "shah" },
   { id: "ad-38", title: { fr: "Un programme neuf à Guéliz, à pied", en: "A new development in Guéliz, on foot" }, category: "programmes", duration: 40 },
   { id: "ad-39", title: { fr: "Un riad en location saisonnière", en: "A riad for short lets" }, category: "visites", duration: 63 },
   { id: "ad-40", title: { fr: "Une villa de vacances, pièce par pièce", en: "A holiday villa, room by room" }, category: "visites", duration: 23 },

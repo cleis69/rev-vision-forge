@@ -3,7 +3,8 @@ import type { ClientId } from "./clients";
 import { PAGES, type Locale } from "./i18n";
 
 /*
- * Case studies: two programmes the owner asked to show in full (2026-11-17).
+ * Case studies: CITYSTAR and Mars Cabin in full, then the other developers the
+ * owner listed (2026-11-17), from their films, scripts and reports.
  * Facts only — what was delivered, as published on the clients' own sites
  * and on the agency's case studies; no figures or results that were not
  * measured. Media live with the films under /media/cases/<slug>/ (outside
@@ -11,7 +12,7 @@ import { PAGES, type Locale } from "./i18n";
  * only for display.
  */
 
-export type CaseSlug = "citystar" | "mars-cabin";
+export type CaseSlug = "citystar" | "mars-cabin" | "shah" | "shams" | "emara" | "peninsula" | "bm";
 
 type Text = Record<Locale, string>;
 
@@ -38,12 +39,12 @@ export type CaseStudy = {
   client: ClientId;
   name: string;
   year: string;
-  website: { label: string; href: string };
+  website?: { label: string; href: string };
   /** The programme's page on the REV 3D sales plan, and a capture of it. */
   salesPlan?: Record<Locale, string>;
   planShot?: { src: string; small: string };
-  /** Hero: a film (landscape) or a capture of the site. */
-  hero: { film: string; poster: string } | { shot: string; shotSmall: string };
+  /** Hero: a landscape film, a capture of the site, or one of the films in a phone (by its id). */
+  hero: { film: string; poster: string } | { shot: string; shotSmall: string } | { phone: string };
   copy: Record<
     Locale,
     {
@@ -52,6 +53,11 @@ export type CaseStudy = {
       card: string;
       facts: { label: string; value: string }[];
       delivered: { title: string; body: string }[];
+      /** One line above the films (their number is added before it). */
+      filmsNote?: string;
+      /** Measured results, from the client's own reports. */
+      results?: { value: string; label: string }[];
+      resultsNote?: string;
       seoTitle: string;
       seoDescription: string;
     }
@@ -59,6 +65,8 @@ export type CaseStudy = {
   scenes?: SiteScene[];
   galleries: Gallery[];
 };
+
+const NB = "\u00a0";
 
 const media = (slug: CaseSlug, file: string) => `${MEDIA_BASE}/cases/${slug}/${file}`;
 
@@ -168,6 +176,7 @@ export const CASES: CaseStudy[] = [
             body: "The 14 villas on our sales plan: the residence in 3D, turning, the live status of every villa, and the 360° tour of villa A, room by room.",
           },
         ],
+        filmsNote: "from the AI-generated film to ads made from the 3D renders.",
         seoTitle: "CITYSTAR, 14 villas in Marrakech: website, films and 3D sales plan | REV",
         seoDescription:
           "Case study: for CITYSTAR, 14 villas in Marrakech, REV designed the six-language website and its CRM, the films and 3D ads, Instagram, the brochure, the logo and the 3D sales plan.",
@@ -439,6 +448,441 @@ export const CASES: CaseStudy[] = [
         ],
       },
     ],
+  },
+  {
+    slug: "shah",
+    client: "shah",
+    name: "Shah Immobilier",
+    year: "2026",
+    hero: { phone: "ad-05" },
+    copy: {
+      fr: {
+        title: "Shah Immobilier : douze films pour les programmes d'un promoteur de Marrakech",
+        summary:
+          "Promoteur à Marrakech, Shah Immobilier vend ses résidences et ses villas avec Shah Homes, sa conciergerie. Nous avons écrit et tourné ses publicités programme par programme, ses contenus sur le plan de paiement et ses films avec des présentatrices, pour Meta et Snapchat.",
+        card: "Douze films pour un promoteur : publicités par programme, contenus sur le plan de paiement, films avec des présentatrices.",
+        facts: [
+          { label: "Lieu", value: "Marrakech" },
+          { label: "Programmes", value: "Miraya, Jardin Blanc, L'Alhambra" },
+          { label: "Films", value: "12" },
+          { label: "Année", value: "2026" },
+        ],
+        delivered: [
+          {
+            title: "Les scripts",
+            body: `Une idée par film, écrite seconde par seconde. Pour L'Alhambra${NB}: 20${NB}secondes, une accroche face caméra, « villa + conciergerie incluse », une rafale de services en plans très courts, puis l'appel à l'action.`,
+          },
+          {
+            title: "Le tournage",
+            body: "Des présentatrices face caméra, dans les résidences, au bord des piscines et dans les jardins, en vertical pour les réseaux.",
+          },
+          {
+            title: "Les programmes",
+            body: "Miraya, Jardin Blanc, L'Alhambra : un film par résidence, avec son emplacement, son prix d'entrée et sa fin vers le formulaire.",
+          },
+          {
+            title: "Les contenus pédagogiques",
+            body: "Le plan de paiement expliqué pas à pas, pour les acheteurs qui découvrent l'achat sur plan au Maroc.",
+          },
+          {
+            title: "Shah Homes",
+            body: "Des films pour la conciergerie du promoteur, qui gère les locations des acquéreurs.",
+          },
+        ],
+        filmsNote: "publicités, visites et contenus, tous tournés en vertical.",
+        seoTitle: "Shah Immobilier : 12 films pour un promoteur de Marrakech | REV",
+        seoDescription:
+          "Étude de cas : pour Shah Immobilier, promoteur à Marrakech, REV a écrit et tourné douze films : publicités par programme (Miraya, Jardin Blanc, L'Alhambra), plan de paiement, Shah Homes.",
+      },
+      en: {
+        title: "Shah Immobilier: twelve films for a Marrakech developer's developments",
+        summary:
+          "A developer in Marrakech, Shah Immobilier sells its residences and villas with Shah Homes, its concierge service. We wrote and shot its ads development by development, its explainers on the payment plan and its films with presenters, for Meta and Snapchat.",
+        card: "Twelve films for a developer: ads per development, payment-plan explainers, films with presenters.",
+        facts: [
+          { label: "Location", value: "Marrakech" },
+          { label: "Developments", value: "Miraya, Jardin Blanc, L'Alhambra" },
+          { label: "Films", value: "12" },
+          { label: "Year", value: "2026" },
+        ],
+        delivered: [
+          {
+            title: "The scripts",
+            body: "One idea per film, written second by second. For L'Alhambra: 20 seconds, a hook to camera, “villa + concierge included”, a burst of services in very short shots, then the call to action.",
+          },
+          {
+            title: "The shoot",
+            body: "Presenters to camera, in the residences, by the pools and in the gardens, shot vertically for social media.",
+          },
+          {
+            title: "The developments",
+            body: "Miraya, Jardin Blanc, L'Alhambra: one film per residence, with its location, entry price and an ending that leads to the form.",
+          },
+          {
+            title: "The explainers",
+            body: "The payment plan explained step by step, for buyers discovering off-plan purchase in Morocco.",
+          },
+          {
+            title: "Shah Homes",
+            body: "Films for the developer's concierge service, which manages the owners' rentals.",
+          },
+        ],
+        filmsNote: "ads, tours and explainers, all shot vertically.",
+        seoTitle: "Shah Immobilier: 12 films for a Marrakech developer | REV",
+        seoDescription:
+          "Case study: for Shah Immobilier, a developer in Marrakech, REV wrote and shot twelve films: ads per development (Miraya, Jardin Blanc, L'Alhambra), the payment plan, Shah Homes.",
+      },
+    },
+    galleries: [],
+  },
+  {
+    slug: "shams",
+    client: "shams",
+    name: "Shams Immo",
+    year: "2026",
+    hero: { phone: "ad-29" },
+    copy: {
+      fr: {
+        title: "Shams Immo : des publicités face caméra, en français et en darija",
+        summary:
+          "Shams Immo vend de l'immobilier neuf à Marrakech. Nous avons écrit, tourné et monté ses publicités face caméra, une idée par film — le prix d'entrée, le paiement en plusieurs fois, la plus-value, l'objection de l'acheteur —, puis les avons habillées en motion design.",
+        card: "Huit publicités face caméra pour une agence d'immobilier neuf, en français et en darija, habillées en motion design.",
+        facts: [
+          { label: "Lieu", value: "Marrakech" },
+          { label: "Langues", value: "Français, darija" },
+          { label: "Films", value: "8" },
+          { label: "Année", value: "2026" },
+        ],
+        delivered: [
+          {
+            title: "Les scripts",
+            body: "Une seule idée par publicité, en cinq répliques : le prix d'entrée et la livraison, le paiement jusqu'à la livraison, la plus-value, le budget, l'objection.",
+          },
+          {
+            title: "Le tournage",
+            body: "Une présentatrice face caméra, en extérieur et en intérieur, en 4K vertical, avec plusieurs prises par réplique.",
+          },
+          {
+            title: "Le montage",
+            body: "La meilleure prise de chaque réplique, coupée à l'image près, la voix nettoyée et mise au même niveau sur toutes les pubs.",
+          },
+          {
+            title: "Le motion design",
+            body: "Sous-titres mot à mot, plan de paiement animé qui passe derrière la présentatrice, logo en 3D et cartes « derniers lots », aux couleurs de la marque.",
+          },
+        ],
+        filmsNote: "publicités face caméra, en français et en darija.",
+        seoTitle: "Shams Immo : publicités face caméra en français et en darija | REV",
+        seoDescription:
+          "Étude de cas : pour Shams Immo, agence d'immobilier neuf à Marrakech, REV a écrit, tourné, monté et habillé en motion design huit publicités face caméra, en français et en darija.",
+      },
+      en: {
+        title: "Shams Immo: ads to camera, in French and Darija",
+        summary:
+          "Shams Immo sells new-build property in Marrakech. We wrote, shot and edited its ads to camera, one idea per film — the entry price, paying in instalments, capital gain, the buyer's objection — then dressed them with motion design.",
+        card: "Eight ads to camera for a new-build agency, in French and Darija, dressed with motion design.",
+        facts: [
+          { label: "Location", value: "Marrakech" },
+          { label: "Languages", value: "French, Darija" },
+          { label: "Films", value: "8" },
+          { label: "Year", value: "2026" },
+        ],
+        delivered: [
+          {
+            title: "The scripts",
+            body: "A single idea per ad, in five lines: the entry price and delivery, paying until delivery, capital gain, the budget, the objection.",
+          },
+          {
+            title: "The shoot",
+            body: "A presenter to camera, outdoors and indoors, in vertical 4K, with several takes per line.",
+          },
+          {
+            title: "The edit",
+            body: "The best take of every line, cut to the frame, the voice cleaned and levelled across all the ads.",
+          },
+          {
+            title: "The motion design",
+            body: "Word-by-word captions, an animated payment plan that passes behind the presenter, a 3D logo and “last units” cards, in the brand's colours.",
+          },
+        ],
+        filmsNote: "ads to camera, in French and Darija.",
+        seoTitle: "Shams Immo: ads to camera in French and Darija | REV",
+        seoDescription:
+          "Case study: for Shams Immo, a new-build agency in Marrakech, REV wrote, shot, edited and dressed with motion design eight ads to camera, in French and Darija.",
+      },
+    },
+    galleries: [],
+  },
+  {
+    slug: "emara",
+    client: "emara",
+    name: "Emara Estates",
+    year: "2026",
+    hero: { phone: "ad-02" },
+    copy: {
+      fr: {
+        title: "Emara Estates : le lancement d'Honest Signature 7, en plein cœur de Guéliz",
+        summary:
+          "Pour lancer Honest Signature 7, résidence à une minute à pied de la Plaza, Emara Estates n'avait encore aucun outil. Nous avons posé tout le dispositif — messagerie, CRM, téléphonie, automatisations, suivi des conversions —, écrit et tourné ses publicités, créé ses flyers et lancé ses campagnes Meta et Snapchat.",
+        card: "Le dispositif complet d'un lancement : outils, CRM, téléphonie, publicités, flyers et campagnes Meta et Snapchat.",
+        facts: [
+          { label: "Lieu", value: "Guéliz, Marrakech" },
+          { label: "Programme", value: "Honest Signature 7" },
+          { label: "Campagnes", value: "Meta, Snapchat" },
+          { label: "Année", value: "2026" },
+        ],
+        delivered: [
+          {
+            title: "L'organisation",
+            body: "Les adresses e-mail professionnelles, le Drive et ses règles de classement, les rôles et les accès de chacun.",
+          },
+          {
+            title: "Le CRM et la téléphonie",
+            body: "HubSpot configuré avec son pipeline de vente et ses sources de leads, relié à la téléphonie pour garder chaque appel dans la fiche du contact.",
+          },
+          {
+            title: "Les automatisations",
+            body: "Chaque demande des formulaires et des publicités arrive seule dans le CRM, attribuée et prête à être rappelée.",
+          },
+          {
+            title: "Le site et le suivi",
+            body: "Le cadrage du site avec son développeur — pages, parcours, formulaires de brochure et de rendez-vous — et le suivi des formulaires, appels et clics WhatsApp.",
+          },
+          {
+            title: "Les publicités et les flyers",
+            body: "Des scripts et des tournages autour de l'emplacement, de la fiabilité du promoteur et du rendement, et une série de flyers pour le programme.",
+          },
+          {
+            title: "Le rapport commercial",
+            body: "Chaque semaine, du lead à la vente : réponses, intérêt, rendez-vous, par source et par commercial, avec les actions de la semaine suivante.",
+          },
+        ],
+        filmsNote: "publicités pour Honest Signature 7 et pour la marque.",
+        seoTitle: "Emara Estates : lancement d'Honest Signature 7 à Guéliz | REV",
+        seoDescription:
+          "Étude de cas : pour Emara Estates, REV a mis en place le CRM, la téléphonie et les automatisations, tourné les publicités, créé les flyers et lancé les campagnes Meta et Snapchat d'Honest Signature 7, à Guéliz.",
+      },
+      en: {
+        title: "Emara Estates: launching Honest Signature 7, in the heart of Guéliz",
+        summary:
+          "To launch Honest Signature 7, a residence one minute's walk from the Plaza, Emara Estates had no tools yet. We set up the whole system — email, CRM, telephony, automations, conversion tracking —, wrote and shot its ads, made its flyers and launched its Meta and Snapchat campaigns.",
+        card: "The complete system of a launch: tools, CRM, telephony, ads, flyers and Meta and Snapchat campaigns.",
+        facts: [
+          { label: "Location", value: "Guéliz, Marrakech" },
+          { label: "Development", value: "Honest Signature 7" },
+          { label: "Campaigns", value: "Meta, Snapchat" },
+          { label: "Year", value: "2026" },
+        ],
+        delivered: [
+          {
+            title: "The organisation",
+            body: "Professional email addresses, the shared Drive and its filing rules, everyone's roles and access.",
+          },
+          {
+            title: "The CRM and telephony",
+            body: "HubSpot set up with its sales pipeline and lead sources, connected to the telephony so every call stays on the contact's record.",
+          },
+          {
+            title: "The automations",
+            body: "Every request from the forms and ads reaches the CRM on its own, assigned and ready to be called back.",
+          },
+          {
+            title: "The website and tracking",
+            body: "The website's brief with its developer — pages, paths, brochure and appointment forms — and tracking of forms, calls and WhatsApp clicks.",
+          },
+          {
+            title: "The ads and flyers",
+            body: "Scripts and shoots about the location, the developer's track record and the yield, and a series of flyers for the development.",
+          },
+          {
+            title: "The sales report",
+            body: "Every week, from lead to sale: replies, interest, appointments, by source and by salesperson, with the next week's actions.",
+          },
+        ],
+        filmsNote: "ads for Honest Signature 7 and for the brand.",
+        seoTitle: "Emara Estates: launching Honest Signature 7 in Guéliz | REV",
+        seoDescription:
+          "Case study: for Emara Estates, REV set up the CRM, telephony and automations, shot the ads, made the flyers and launched the Meta and Snapchat campaigns of Honest Signature 7, in Guéliz.",
+      },
+    },
+    galleries: [
+      {
+        id: "flyers",
+        title: { fr: "Les flyers", en: "The flyers" },
+        text: {
+          fr: "Une série pour Honest Signature 7 : l'emplacement, le chantier, les finitions, l'accès au Guéliz.",
+          en: "A series for Honest Signature 7: the location, the building site, the finishes, access to Guéliz.",
+        },
+        layout: "posts",
+        images: [
+          ["01", "Le luxe se voit, le confort se vit", "Luxury you can see, comfort you can live"],
+          ["02", "L'hypercentre qui travaille pour vous", "The city centre working for you"],
+          ["03", "Le prestige du Guéliz", "The prestige of Guéliz"],
+          ["04", "Le bon moment, c'est maintenant", "The right time is now"],
+          ["05", "L'adresse que tout le monde cherche", "The address everyone is looking for"],
+          ["06", "Une signature qui se voit déjà", "A signature you can already see"],
+        ].map(([n, fr, en]) => ({
+          src: media("emara", `flyer-${n}-480.webp`),
+          full: media("emara", `flyer-${n}.png`),
+          width: 941,
+          height: 1672,
+          alt: { fr: `Flyer Honest Signature 7${NB}: ${fr}`, en: `Honest Signature 7 flyer: ${en}` },
+        })),
+      },
+    ],
+  },
+  {
+    slug: "peninsula",
+    client: "peninsula",
+    name: "Villa Peninsula",
+    year: "2026",
+    website: { label: "villa-peninsula.com", href: "https://villa-peninsula.com" },
+    hero: { phone: "ad-01" },
+    copy: {
+      fr: {
+        title: "Villa Peninsula : une résidence de 92 villas, présentée en français et en néerlandais",
+        summary:
+          "Résidence privée de 92 villas avec piscine, 60 Oasis et 32 Atlas, sur la route d'Amizmiz, face à l'Atlas et à moins de 15 minutes du centre de Marrakech. Nous avons tourné ses publicités : la présentation de la résidence en français, et une version en néerlandais pour les acheteurs néerlandophones.",
+        card: "Les publicités d'une résidence de 92 villas, en français et en néerlandais.",
+        facts: [
+          { label: "Lieu", value: "Route d'Amizmiz, Marrakech" },
+          { label: "Résidence", value: "92 villas" },
+          { label: "Langues", value: "Français, néerlandais" },
+          { label: "Année", value: "2026" },
+        ],
+        delivered: [
+          {
+            title: "Le film de présentation",
+            body: "La résidence présentée face caméra, de la villa à la piscine, jusqu'au formulaire pour recevoir la liste des villas.",
+          },
+          {
+            title: "La version néerlandaise",
+            body: "Le même parcours, tourné en néerlandais, pour un marché où le programme recrute une partie de ses acheteurs.",
+          },
+          {
+            title: "Les fins de film",
+            body: "Chaque film se termine sur le logo et sur l'action attendue : compléter le formulaire.",
+          },
+        ],
+        filmsNote: "films de présentation, en français et en néerlandais.",
+        seoTitle: "Villa Peninsula : publicités en français et en néerlandais | REV",
+        seoDescription:
+          "Étude de cas : pour Villa Peninsula, résidence de 92 villas route d'Amizmiz à Marrakech, REV a tourné les publicités de présentation en français et en néerlandais.",
+      },
+      en: {
+        title: "Villa Peninsula: a 92-villa residence, presented in French and Dutch",
+        summary:
+          "A private residence of 92 villas with pools, 60 Oasis and 32 Atlas, on the Amizmiz road, facing the Atlas and less than 15 minutes from central Marrakech. We shot its ads: the residence presented in French, and a Dutch version for Dutch-speaking buyers.",
+        card: "The ads of a 92-villa residence, in French and Dutch.",
+        facts: [
+          { label: "Location", value: "Amizmiz road, Marrakech" },
+          { label: "Residence", value: "92 villas" },
+          { label: "Languages", value: "French, Dutch" },
+          { label: "Year", value: "2026" },
+        ],
+        delivered: [
+          {
+            title: "The presentation film",
+            body: "The residence presented to camera, from the villa to the pool, ending on the form to receive the list of villas.",
+          },
+          {
+            title: "The Dutch version",
+            body: "The same path, shot in Dutch, for a market where the development finds part of its buyers.",
+          },
+          {
+            title: "The endings",
+            body: "Every film ends on the logo and on the expected action: filling in the form.",
+          },
+        ],
+        filmsNote: "presentation films, in French and Dutch.",
+        seoTitle: "Villa Peninsula: ads in French and Dutch | REV",
+        seoDescription:
+          "Case study: for Villa Peninsula, a 92-villa residence on the Amizmiz road in Marrakech, REV shot the presentation ads in French and Dutch.",
+      },
+    },
+    galleries: [],
+  },
+  {
+    slug: "bm",
+    client: "bm",
+    name: "BM Immobilier",
+    year: "2026",
+    hero: { phone: "ad-21" },
+    copy: {
+      fr: {
+        title: "BM Immobilier : les publicités d'une agence de Marrakech, sur Snapchat, Facebook et TikTok",
+        summary:
+          "Agence immobilière à Marrakech, BM Immobilier voulait se faire connaître au Maroc. Nous avons tourné ses publicités face caméra et dans les biens, monté une version par réseau, puis suivi les campagnes Snapchat et Facebook pendant six semaines.",
+        card: "Les publicités d'une agence de Marrakech, et six semaines de campagnes Snapchat et Facebook au Maroc.",
+        facts: [
+          { label: "Lieu", value: "Marrakech" },
+          { label: "Réseaux", value: "Snapchat, Facebook, TikTok" },
+          { label: "Campagnes", value: "6 semaines" },
+          { label: "Année", value: "2026" },
+        ],
+        delivered: [
+          {
+            title: "Le tournage",
+            body: "Face caméra et dans les biens : les villas, les intérieurs, les rendez-vous, jusqu'à la remise des clés.",
+          },
+          {
+            title: "Les déclinaisons",
+            body: "Une version par réseau, pour Snapchat, Facebook et TikTok, avec la nouvelle identité de l'agence en fin de film.",
+          },
+          {
+            title: "Le suivi des campagnes",
+            body: "Un rapport par plateforme et par création, et les prochaines étapes : décliner la vidéo gagnante, passer d'un objectif de trafic à un objectif de demandes.",
+          },
+        ],
+        filmsNote: "publicités pour l'agence.",
+        results: [
+          { value: `100${NB}056`, label: "affichages" },
+          { value: `3${NB}678`, label: "clics" },
+          { value: "1,66 %", label: "de clics sur les affichages Snapchat" },
+        ],
+        resultsNote: "Campagnes Snapchat et Facebook au Maroc, du 1er janvier au 14 février 2026, d'après le rapport des plateformes.",
+        seoTitle: "BM Immobilier : publicités Snapchat, Facebook et TikTok | REV",
+        seoDescription:
+          "Étude de cas : pour BM Immobilier, agence à Marrakech, REV a tourné les publicités, monté les versions Snapchat, Facebook et TikTok et suivi six semaines de campagnes au Maroc.",
+      },
+      en: {
+        title: "BM Immobilier: a Marrakech agency's ads, on Snapchat, Facebook and TikTok",
+        summary:
+          "A real estate agency in Marrakech, BM Immobilier wanted to be known in Morocco. We shot its ads to camera and in the properties, edited a version per network, then followed the Snapchat and Facebook campaigns for six weeks.",
+        card: "The ads of a Marrakech agency, and six weeks of Snapchat and Facebook campaigns in Morocco.",
+        facts: [
+          { label: "Location", value: "Marrakech" },
+          { label: "Networks", value: "Snapchat, Facebook, TikTok" },
+          { label: "Campaigns", value: "6 weeks" },
+          { label: "Year", value: "2026" },
+        ],
+        delivered: [
+          {
+            title: "The shoot",
+            body: "To camera and in the properties: the villas, the interiors, the meetings, up to the handover of the keys.",
+          },
+          {
+            title: "The versions",
+            body: "One version per network, for Snapchat, Facebook and TikTok, with the agency's new identity at the end of each film.",
+          },
+          {
+            title: "Following the campaigns",
+            body: "A report by platform and by creative, and the next steps: build on the winning video, move from a traffic goal to an enquiries goal.",
+          },
+        ],
+        filmsNote: "ads for the agency.",
+        results: [
+          { value: "100,056", label: "impressions" },
+          { value: "3,678", label: "clicks" },
+          { value: "1.66%", label: "click-through rate on Snapchat" },
+        ],
+        resultsNote: "Snapchat and Facebook campaigns in Morocco, 1 January to 14 February 2026, from the platforms' report.",
+        seoTitle: "BM Immobilier: Snapchat, Facebook and TikTok ads | REV",
+        seoDescription:
+          "Case study: for BM Immobilier, an agency in Marrakech, REV shot the ads, edited the Snapchat, Facebook and TikTok versions and followed six weeks of campaigns in Morocco.",
+      },
+    },
+    galleries: [],
   },
 ];
 

@@ -27,7 +27,7 @@ export function caseHead(slug: CaseSlug, locale: Locale) {
           inLanguage: locale === "fr" ? "fr-FR" : "en-GB",
           dateCreated: study.year,
           creator: { "@type": "Organization", name: "REV — Real Estate Vision", url: SITE_URL },
-          about: { "@type": "Organization", name: study.name, url: study.website.href },
+          about: { "@type": "Organization", name: study.name, ...(study.website ? { url: study.website.href } : {}) },
         }),
       },
     ],

@@ -5,6 +5,7 @@ import { adMedia } from "@/lib/ads";
 import type { Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { PhoneFilm } from "./CaseMedia";
+import { GlassStage } from "./Glass";
 import { useInView } from "./Reveal";
 import { useMotionAllowed } from "./SalesPlanDemo";
 
@@ -30,11 +31,15 @@ function useTicker(steps: number, ms: number) {
   return { ref, step };
 }
 
-const CARD = "rounded-[12px] border border-white/10 bg-[#111] text-white shadow-[0_30px_60px_-28px_rgb(0_0_0/0.75)]";
+const CARD =
+  "rounded-[14px] border border-white/12 bg-black/55 text-white shadow-[0_30px_60px_-28px_rgb(0_0_0/0.8)] backdrop-blur-md";
 
 export function ServiceVisual({ id, locale }: { id: string; locale: Locale }) {
   return (
-    <div className="grid min-h-[22rem] place-items-center rounded-[14px] bg-primary p-5 sm:min-h-[26rem] sm:p-8">
+    <GlassStage
+      backdrop={id === "production-visuelle" ? adMedia("ad-10").stillSrc : undefined}
+      className="grid min-h-[22rem] place-items-center p-5 sm:min-h-[26rem] sm:p-8"
+    >
       {id === "production-visuelle" ? (
         <PhoneFilm id="ad-10" alt="" className="py-0" />
       ) : id === "marketing" ? (
@@ -44,7 +49,7 @@ export function ServiceVisual({ id, locale }: { id: string; locale: Locale }) {
       ) : (
         <Pipeline locale={locale} />
       )}
-    </div>
+    </GlassStage>
   );
 }
 

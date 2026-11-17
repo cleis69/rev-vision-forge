@@ -4,6 +4,7 @@ import { Play } from "lucide-react";
 import { sceneMedia, type CaseSlug, type SiteScene } from "@/lib/cases";
 import { useLocale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { GlassStage } from "./Glass";
 import { useMotionAllowed } from "./SalesPlanDemo";
 
 /*
@@ -117,13 +118,14 @@ export function CaseScenes({ slug, scenes, caption }: { slug: CaseSlug; scenes: 
         })}
       </div>
 
-      <div
+      <GlassStage
         ref={stage}
         role="tabpanel"
         aria-label={scene.title[locale]}
-        className="-mx-5 overflow-hidden bg-primary text-primary-foreground sm:mx-0 sm:rounded-[14px] order-1 lg:order-2"
+        backdrop={media.poster}
+        className="order-1 text-white lg:order-2"
       >
-        <p className="px-5 pt-4 text-[13px] font-medium lg:px-7 lg:pt-5">{caption}</p>
+        <p className="px-5 pt-4 text-[13px] font-medium text-white/85 lg:px-7 lg:pt-5">{caption}</p>
         <div className="grid min-h-[min(80vw,30rem)] place-items-center px-5 pb-6 pt-3 lg:min-h-[28rem] lg:px-7 lg:pb-7">
           <div
             className={cn(
@@ -167,7 +169,7 @@ export function CaseScenes({ slug, scenes, caption }: { slug: CaseSlug; scenes: 
             ) : null}
           </div>
         </div>
-      </div>
+      </GlassStage>
     </div>
   );
 }

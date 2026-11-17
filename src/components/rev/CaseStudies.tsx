@@ -1,11 +1,12 @@
 import { ArrowRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
-import { CASES, casePath } from "@/lib/cases";
+import { CASES, casePath, heroBackdrop } from "@/lib/cases";
 import { CLIENTS } from "@/lib/clients";
 import { useCopy, useLocale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { CaseHeroMedia } from "./CaseMedia";
+import { GlassStage } from "./Glass";
 import { Container, Section, SectionHeading } from "./ui";
 import { Reveal } from "./Reveal";
 import { ClientMark } from "./ClientLogos";
@@ -50,14 +51,16 @@ export function CaseStudies({ className }: { className?: string }) {
             return (
               <li key={study.slug} className="border-t border-border/70 py-8 sm:py-10">
                 <Reveal className="grid items-center gap-7 lg:grid-cols-2 lg:gap-14">
-                  <Link
+                  <GlassStage
+                    as={Link}
                     to={href as never}
                     tabIndex={-1}
                     aria-hidden
-                    className={cn("block rounded-[14px] bg-primary p-4 sm:p-6", i % 2 === 1 && "lg:order-2")}
+                    backdrop={heroBackdrop(study)}
+                    className={cn("block p-4 sm:p-6", i % 2 === 1 && "lg:order-2")}
                   >
                     <CaseHeroMedia study={study} alt={copy.stageAlt(study.name)} />
-                  </Link>
+                  </GlassStage>
                   <div className={cn(i % 2 === 1 && "lg:order-1")}>
                     {client ? <ClientMark client={client} className="text-foreground/80" /> : null}
                     <h3 className="mt-5 font-display text-[clamp(1.35rem,2.2vw,1.85rem)] font-medium leading-[1.15] tracking-[-0.02em] [text-wrap:balance]">

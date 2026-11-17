@@ -99,7 +99,7 @@ export function Header() {
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-[padding,background-color,border-color] duration-300",
         scrolled
-          ? "border-b border-border/70 bg-background py-2"
+          ? "border-b border-white/10 bg-background/55 py-2 shadow-[inset_0_-1px_0_rgb(255_255_255/0.04)] backdrop-blur-xl backdrop-saturate-150"
           : "border-b border-transparent py-4",
       )}
     >

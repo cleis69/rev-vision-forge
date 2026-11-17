@@ -31,7 +31,7 @@ export function CaseHeroMedia({
   if ("logo" in hero) {
     const client = CLIENTS.find((c) => c.id === study.client);
     return (
-      <div className={cn("grid aspect-[16/10] place-items-center text-primary-foreground", className)}>
+      <div className={cn("grid aspect-[16/10] place-items-center text-white/90", className)}>
         {client ? <ClientMark client={client} className="[--k:2.6] max-w-[80%]" /> : null}
       </div>
     );

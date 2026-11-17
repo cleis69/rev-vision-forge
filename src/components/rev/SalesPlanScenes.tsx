@@ -13,6 +13,7 @@ import mFiche from "@/assets/scenes/m-fiche.mp4?url";
 import mVues from "@/assets/scenes/m-vues.mp4?url";
 import { photo } from "@/lib/images";
 import { cn } from "@/lib/utils";
+import { GlassStage } from "./Glass";
 import { useMotionAllowed } from "./SalesPlanDemo";
 
 /*
@@ -203,11 +204,12 @@ export function SalesPlanScenes({
         })}
       </div>
 
-      <div
+      <GlassStage
         ref={stage}
         role="tabpanel"
         aria-label={item.title}
-        className="-mx-5 overflow-hidden bg-primary text-primary-foreground sm:mx-0 sm:rounded-[14px]"
+        backdrop={(tall ? tallPoster : widePoster).src}
+        className="text-white"
       >
         <div className="flex items-center justify-between gap-4 px-5 pt-4 text-[13px] lg:px-7 lg:pt-5">
           <span className="font-medium">{caption}</span>
@@ -215,7 +217,7 @@ export function SalesPlanScenes({
             href={demoHref}
             target="_blank"
             rel="noopener"
-            className="inline-flex h-8 shrink-0 items-center gap-1 rounded-[6px] font-medium underline decoration-black/30 underline-offset-4 transition-colors duration-200 hover:decoration-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/70"
+            className="inline-flex h-8 shrink-0 items-center gap-1 rounded-[6px] font-medium underline decoration-white/30 underline-offset-4 transition-colors duration-200 hover:decoration-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >
             {openDemo}
             <ArrowUpRight size={14} aria-hidden />
@@ -269,7 +271,7 @@ export function SalesPlanScenes({
             ) : null}
           </div>
         </div>
-      </div>
+      </GlassStage>
 
       {/* Phones: what the current moment is, under the stage. */}
       <div className="lg:hidden">

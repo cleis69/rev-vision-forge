@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { RevLogo } from "@/components/rev/Logo";
+import { GlassStage } from "@/components/rev/Glass";
 import { DemoPhone, demoPath } from "@/components/rev/SalesPlanDemo";
 import { SalesPlanScenes, type SceneItem } from "@/components/rev/SalesPlanScenes";
 import { closing } from "@/components/rev/AccentHeading";
@@ -656,13 +657,15 @@ function Hero({ copy }: { copy: Copy }) {
             </div>
           </div>
 
-          {/* The product itself, on champagne: a film of the demo, and the door to it. */}
-          <a
+          {/* The product itself, on glass: a film of the demo, and the door to it. */}
+          <GlassStage
+            as="a"
+            backdrop={photo("demo-phone").src}
             href={path}
             target="_blank"
             rel="noopener"
             style={fadeUp(0.12)}
-            className="group -mx-5 block bg-primary px-5 pb-6 pt-9 text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:mx-0 sm:rounded-[14px] lg:px-16 lg:pb-7 lg:pt-11"
+            className="group block px-5 pb-6 pt-9 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 lg:px-16 lg:pb-7 lg:pt-11"
           >
             <DemoPhone alt="" className="mx-auto w-[250px] lg:w-[280px]" />
             <span className="mt-6 flex items-center justify-center gap-1.5 text-[13px] font-medium lg:mt-7">
@@ -674,7 +677,7 @@ function Hero({ copy }: { copy: Copy }) {
               />
               <span className="sr-only"> {h.newTab}</span>
             </span>
-          </a>
+          </GlassStage>
         </div>
       </Container>
     </section>
@@ -960,10 +963,10 @@ function Teams({ copy }: { copy: Copy }) {
     <Part id="equipes">
       <div className="grid gap-x-14 gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,29rem)]">
         <Heading before={t.before} accent={t.accent} after={t.after} description={t.description} />
-        {/* The promoter space at work, on champagne. */}
-        <div className="-mx-5 bg-primary p-5 sm:mx-0 sm:rounded-[14px] sm:p-7 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-start">
+        {/* The promoter space at work, on glass. */}
+        <GlassStage className="p-5 sm:p-7 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-start">
           <TeamsMock copy={copy} />
-        </div>
+        </GlassStage>
         <ul className="border-t border-border lg:col-start-1">
           {t.lines.map((line, i) => (
             <Line
@@ -1161,35 +1164,37 @@ function FinalCta({ copy }: { copy: Copy }) {
   const locale = useLocale();
   const f = copy.final;
   return (
-    <section id="rendez-vous" className="scroll-mt-20 bg-primary text-primary-foreground">
-      <Container className="py-14 sm:py-16 lg:py-20">
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
-          <div className="max-w-3xl">
-            <h2 className="font-display text-[clamp(1.9rem,3.6vw,3rem)] font-medium leading-[1.06] tracking-[-0.03em] [text-wrap:balance]">
-              {headline(`${f.before} ${f.accent}`)}
-            </h2>
-            <p className="mt-4 max-w-[58ch] text-[15px] leading-relaxed text-black/75 md:text-base">
-              {f.body}
-            </p>
-            <p className="mt-4 text-[13px] text-black/70">
-              {f.notes[0]}
-              <span aria-hidden className="mx-2 text-black/40">
-                ·
-              </span>
-              {f.notes[1]}
-            </p>
+    <section id="rendez-vous" className="scroll-mt-20 py-10 sm:py-14 lg:py-16">
+      <Container>
+        <GlassStage className="px-6 py-10 sm:px-10 sm:py-12 lg:px-14 lg:py-14">
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
+            <div className="max-w-3xl">
+              <h2 className="font-display text-[clamp(1.9rem,3.6vw,3rem)] font-medium leading-[1.06] tracking-[-0.03em] [text-wrap:balance]">
+                {headline(`${f.before} ${f.accent}`)}
+              </h2>
+              <p className="mt-4 max-w-[58ch] text-[15px] leading-relaxed text-white/75 md:text-base">
+                {f.body}
+              </p>
+              <p className="mt-4 text-[13px] text-white/65">
+                {f.notes[0]}
+                <span aria-hidden className="mx-2 text-white/35">
+                  ·
+                </span>
+                {f.notes[1]}
+              </p>
+            </div>
+            <div className="grid shrink-0 grid-cols-1 gap-2.5 sm:flex sm:gap-3">
+              <Cta href={salesPlanDemoUrl(locale)}>
+                {copy.demoCta}
+                <ArrowUpRight size={16} aria-hidden />
+              </Cta>
+              <Cta href={demoPath(locale)} newTab variant="ghost">
+                {copy.hero.openDemo}
+                <span className="sr-only"> {copy.hero.newTab}</span>
+              </Cta>
+            </div>
           </div>
-          <div className="grid shrink-0 grid-cols-1 gap-2.5 sm:flex sm:gap-3">
-            <Cta href={salesPlanDemoUrl(locale)} variant="ink">
-              {copy.demoCta}
-              <ArrowUpRight size={16} aria-hidden />
-            </Cta>
-            <Cta href={demoPath(locale)} newTab variant="inkGhost">
-              {copy.hero.openDemo}
-              <span className="sr-only"> {copy.hero.newTab}</span>
-            </Cta>
-          </div>
-        </div>
+        </GlassStage>
       </Container>
     </section>
   );

@@ -5,12 +5,13 @@ import { Link } from "@tanstack/react-router";
 import { BrowserShot, CaseHeroMedia } from "@/components/rev/CaseMedia";
 import { CaseScenes } from "@/components/rev/CaseScenes";
 import { ClientMark } from "@/components/rev/ClientLogos";
+import { GlassStage } from "@/components/rev/Glass";
 import { FinalCta } from "@/components/rev/FinalCta";
 import { FilmGrid } from "@/components/rev/Portfolio";
 import { Reveal } from "@/components/rev/Reveal";
 import { Container, Cta, Section, fadeUp, headline } from "@/components/rev/ui";
 import { FILMS, filmsOf } from "@/lib/ads";
-import { CASES, casePath, type CaseStudy, type Gallery } from "@/lib/cases";
+import { CASES, casePath, heroBackdrop, type CaseStudy, type Gallery } from "@/lib/cases";
 import { CLIENTS } from "@/lib/clients";
 import { href, useLocale, type Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -145,9 +146,9 @@ export function CaseStudyPage({ study }: { study: CaseStudy }) {
                 ) : null}
               </div>
             </div>
-            <div className="rounded-[14px] bg-primary p-4 sm:p-6" style={fadeUp(0.15)}>
+            <GlassStage backdrop={heroBackdrop(study)} className="p-4 sm:p-6" style={fadeUp(0.15)}>
               <CaseHeroMedia study={study} alt={copy.heroAlt(study.name)} priority />
-            </div>
+            </GlassStage>
           </div>
           <dl className="mt-10 grid grid-cols-2 border-t border-border/70 sm:grid-cols-4 lg:mt-14">
             {text.facts.map((f) => (
@@ -252,13 +253,15 @@ export function CaseStudyPage({ study }: { study: CaseStudy }) {
             </Reveal>
             {study.planShot ? (
               <Reveal>
-                <a
+                <GlassStage
+                  as="a"
+                  backdrop={study.planShot.small}
                   href={study.salesPlan[locale]}
                   target="_blank"
                   rel="noopener"
                   tabIndex={-1}
                   aria-hidden
-                  className="block rounded-[14px] bg-primary p-4 sm:p-6"
+                  className="block p-4 sm:p-6"
                 >
                   <div className="overflow-hidden rounded-[10px] shadow-[0_30px_60px_-28px_rgb(0_0_0/0.7)]">
                     <BrowserShot
@@ -268,7 +271,7 @@ export function CaseStudyPage({ study }: { study: CaseStudy }) {
                       alt=""
                     />
                   </div>
-                </a>
+                </GlassStage>
               </Reveal>
             ) : null}
           </Container>

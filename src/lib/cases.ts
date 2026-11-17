@@ -1014,5 +1014,14 @@ export const CASES: CaseStudy[] = [
 
 export const caseBySlug = (slug: string) => CASES.find((c) => c.slug === slug);
 
+/** The picture blurred behind a case's glass stage. */
+export function heroBackdrop(study: CaseStudy): string | undefined {
+  const hero = study.hero;
+  if ("film" in hero) return hero.once?.end ?? hero.poster;
+  if ("shot" in hero) return hero.shotSmall;
+  if ("phone" in hero) return `${MEDIA_BASE}/still/${hero.phone}-360.webp?v=3`;
+  return undefined;
+}
+
 /** /portfolio/<slug> in French, /en/portfolio/<slug> in English. */
 export const casePath = (slug: CaseSlug, locale: Locale) => `${PAGES.portfolio[locale]}/${slug}`;

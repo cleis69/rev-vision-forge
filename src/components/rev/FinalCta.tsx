@@ -1,7 +1,9 @@
 import { ArrowUpRight, Mail, MessageCircle, Phone } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
-import { Container, Cta } from "./ui";
+import { Container, Cta, Marked } from "./ui";
+import { GlassStage } from "./Glass";
+import { Reveal } from "./Reveal";
 import { WHATSAPP_DISPLAY, whatsappUrl } from "@/lib/contact";
 import { href, isPublic, useLocale, type Locale, type PageKey } from "@/lib/i18n";
 import { RevLogo } from "./Logo";
@@ -22,7 +24,7 @@ const NAV = ALL_NAV.filter((item) => isPublic(item.page));
 
 const COPY = {
   fr: {
-    title: "Prêt à accélérer vos ventes immobilières ?",
+    title: "Prêt à [[accélérer]] vos ventes immobilières ?",
     body: "Un appel de 30 minutes suffit pour cartographier votre stratégie de contenu, d'acquisition et d'automatisation.",
     primary: "Planifier un appel stratégique",
     secondary: "Découvrir nos réalisations",
@@ -34,7 +36,7 @@ const COPY = {
     rights: "Tous droits réservés.",
   },
   en: {
-    title: "Ready to sell your properties faster?",
+    title: "Ready to sell your properties [[faster]]?",
     body: "A 30-minute call is all it takes to map out your content, acquisition and automation strategy.",
     primary: "Book a strategy call",
     secondary: "See our work",
@@ -51,30 +53,32 @@ export function FinalCta() {
   const locale = useLocale();
   const copy = COPY[locale];
   return (
-    <section id="contact" className="scroll-mt-20 bg-primary text-primary-foreground">
-      <Container className="py-14 sm:py-16 lg:py-20">
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
-          <div className="max-w-3xl">
-            <h2 className="font-display text-[clamp(1.9rem,3.6vw,3rem)] font-medium leading-[1.06] tracking-[-0.03em] [text-wrap:balance]">
-              {copy.title}
-            </h2>
-            <p className="mt-4 max-w-[58ch] text-[15px] leading-relaxed text-black/75 md:text-base">
-              {copy.body}
-            </p>
+    <section id="contact" className="scroll-mt-20 py-10 sm:py-14 lg:py-16">
+      <Container>
+        <GlassStage className="px-6 py-10 sm:px-10 sm:py-12 lg:px-14 lg:py-14">
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
+            <Reveal className="max-w-3xl">
+              <h2 className="font-display text-[clamp(1.9rem,3.6vw,3rem)] font-medium leading-[1.06] tracking-[-0.03em] [text-wrap:balance]">
+                <Marked text={copy.title} />
+              </h2>
+              <p className="mt-4 max-w-[58ch] text-[15px] leading-relaxed text-white/75 md:text-base">
+                {copy.body}
+              </p>
+            </Reveal>
+            <div className="grid shrink-0 grid-cols-1 gap-2.5 sm:flex sm:gap-3">
+              <Cta href={href("contact", locale)}>
+                {copy.primary}
+                <ArrowUpRight
+                  size={16}
+                  className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                />
+              </Cta>
+              <Cta href={href("portfolio", locale)} variant="ghost">
+                {copy.secondary}
+              </Cta>
+            </div>
           </div>
-          <div className="grid shrink-0 grid-cols-1 gap-2.5 sm:flex sm:gap-3">
-            <Cta href={href("contact", locale)} variant="ink">
-              {copy.primary}
-              <ArrowUpRight
-                size={16}
-                className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-              />
-            </Cta>
-            <Cta href={href("portfolio", locale)} variant="inkGhost">
-              {copy.secondary}
-            </Cta>
-          </div>
-        </div>
+        </GlassStage>
       </Container>
     </section>
   );

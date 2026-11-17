@@ -1,6 +1,8 @@
 import { ArrowUpRight } from "lucide-react";
 
 import { href, useLocale } from "@/lib/i18n";
+import { GlassStage } from "./Glass";
+import { photo } from "@/lib/images";
 import { DemoPhone, demoPath } from "./SalesPlanDemo";
 import { Reveal } from "./Reveal";
 import { Container, Cta, Section, headline } from "./ui";
@@ -82,11 +84,13 @@ export function SalesPlanTeaser() {
             </div>
           </Reveal>
 
-          <a
+          <GlassStage
+            as="a"
+            backdrop={photo("demo-phone").src}
             href={path}
             target="_blank"
             rel="noopener"
-            className="group -mx-5 block bg-primary px-5 pb-6 pt-9 text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:mx-0 sm:rounded-[14px] lg:px-16 lg:pb-7 lg:pt-11"
+            className="group block px-5 pb-6 pt-9 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 lg:px-16 lg:pb-7 lg:pt-11"
           >
             <DemoPhone alt="" className="mx-auto w-[250px] lg:w-[280px]" />
             <span className="mt-6 flex items-center justify-center gap-1.5 text-[13px] font-medium lg:mt-7">
@@ -94,7 +98,7 @@ export function SalesPlanTeaser() {
               <ArrowUpRight size={14} aria-hidden />
               <span className="sr-only"> {t.newTab}</span>
             </span>
-          </a>
+          </GlassStage>
         </div>
       </Container>
     </Section>

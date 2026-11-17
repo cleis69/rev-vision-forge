@@ -4,6 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 import { Container, Cta, PageHero, Section } from "@/components/rev/ui";
 import { Reveal } from "@/components/rev/Reveal";
 import { FinalCta } from "@/components/rev/FinalCta";
+import { GlassStage } from "@/components/rev/Glass";
 import { WHATSAPP_DISPLAY, whatsappUrl } from "@/lib/contact";
 import { href, useLocale, type Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -502,18 +503,18 @@ function OfferCard({
 }) {
   return (
     <Reveal delay={delay} className="h-full">
-      <article
+      <GlassStage
+        as="article"
         className={cn(
-          "relative flex h-full flex-col rounded-[14px] border p-5 transition-colors duration-300 sm:p-6",
-          offer.featured
-            ? "border-primary bg-primary text-primary-foreground"
-            : "border-border bg-card hover:border-foreground/25",
+          "flex h-full flex-col p-5 sm:p-6",
+          !offer.featured && "rounded-[14px] border border-border bg-card transition-colors duration-300 hover:border-foreground/25",
         )}
+        {...(offer.featured ? {} : { plain: true })}
       >
         <div className="flex items-start justify-between gap-3">
           <h3 className="font-display text-lg font-medium tracking-tight">{offer.name}</h3>
           {offer.featured ? (
-            <span className="shrink-0 rounded-[6px] bg-primary-foreground px-2 py-0.5 text-xs font-medium text-primary">
+            <span className="shrink-0 rounded-[6px] bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground">
               {copy.featured}
             </span>
           ) : null}
@@ -523,7 +524,7 @@ function OfferCard({
           <p
             className={cn(
               "mt-3 text-xs",
-              offer.featured ? "text-primary-foreground/70" : "text-muted-foreground",
+              "text-muted-foreground",
             )}
           >
             {offer.prefix}
@@ -534,7 +535,7 @@ function OfferCard({
           <span
             className={cn(
               "font-display text-[2rem] font-medium leading-none tracking-[-0.03em] tabular-nums",
-              offer.featured ? "text-primary-foreground" : "text-primary",
+              "text-primary",
             )}
           >
             {offer.price}
@@ -543,7 +544,7 @@ function OfferCard({
             <span
               className={cn(
                 "text-sm",
-                offer.featured ? "text-primary-foreground/70" : "text-muted-foreground",
+                "text-muted-foreground",
               )}
             >
               {offer.unit}
@@ -554,7 +555,7 @@ function OfferCard({
         <ul
           className={cn(
             "mt-5 space-y-2 border-t pt-5",
-            offer.featured ? "border-primary-foreground/20" : "border-border",
+            offer.featured ? "border-white/15" : "border-border",
           )}
         >
           {offer.features.map((feature, index) => (
@@ -562,13 +563,7 @@ function OfferCard({
               key={feature}
               className={cn(
                 "text-sm leading-relaxed",
-                offer.featured
-                  ? index === 0
-                    ? "font-medium"
-                    : "text-primary-foreground/80"
-                  : index === 0
-                    ? "text-foreground"
-                    : "text-muted-foreground",
+                index === 0 ? "text-foreground" : offer.featured ? "text-foreground/80" : "text-muted-foreground",
               )}
             >
               {feature}
@@ -579,14 +574,14 @@ function OfferCard({
         <div className="mt-auto pt-6">
           <Cta
             href={href("contact", locale)}
-            variant={offer.featured ? "ink" : "ghost"}
+            variant={offer.featured ? "primary" : "ghost"}
             className="h-11 w-full text-[13px]"
           >
             {copy.quote}
             <ArrowUpRight size={15} />
           </Cta>
         </div>
-      </article>
+      </GlassStage>
     </Reveal>
   );
 }

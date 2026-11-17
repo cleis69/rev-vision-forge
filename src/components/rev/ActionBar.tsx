@@ -64,7 +64,7 @@ export function ActionBar() {
     <nav
       aria-label={copy.label}
       className={cn(
-        "fixed inset-x-3 bottom-3 z-40 mx-auto flex max-w-[22rem] gap-1.5 rounded-[14px] border border-white/10 bg-[#141414]/90 p-1.5 shadow-[0_20px_50px_-20px_rgb(0_0_0/0.9)] backdrop-blur-md sm:bottom-5",
+        "liquid-glass fixed inset-x-3 bottom-3 z-40 mx-auto flex max-w-[22rem] gap-1.5 rounded-[18px] bg-black/60 p-1.5 sm:bottom-5",
         "transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none",
         shown ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-[140%] opacity-0",
       )}
@@ -73,7 +73,7 @@ export function ActionBar() {
       <Link
         to={href("contact", locale) as never}
         tabIndex={shown ? 0 : -1}
-        className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-[10px] text-sm font-medium text-foreground transition-colors duration-200 hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70"
+        className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-[13px] text-sm font-medium text-foreground transition-colors duration-200 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70"
       >
         <CalendarDays size={16} aria-hidden />
         {copy.meet}
@@ -83,7 +83,7 @@ export function ActionBar() {
         target="_blank"
         rel="noopener"
         tabIndex={shown ? 0 : -1}
-        className="rev-sheen relative isolate inline-flex h-11 flex-1 items-center justify-center gap-2 overflow-hidden rounded-[10px] bg-primary text-sm font-medium text-primary-foreground transition-colors duration-200 hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#141414]"
+        className="rev-sheen relative isolate inline-flex h-11 flex-1 items-center justify-center gap-2 overflow-hidden rounded-[13px] bg-primary text-sm font-medium text-primary-foreground transition-colors duration-200 hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#141414]"
       >
         <MessageCircle size={16} aria-hidden />
         {copy.whatsapp}

@@ -43,8 +43,16 @@ export type CaseStudy = {
   /** The programme's page on the REV 3D sales plan, and a capture of it. */
   salesPlan?: Record<Locale, string>;
   planShot?: { src: string; small: string };
-  /** Hero: a landscape film, a capture of the site, or one of the films in a phone (by its id). */
-  hero: { film: string; poster: string } | { shot: string; shotSmall: string } | { phone: string };
+  /**
+   * Hero: a landscape film (looping, or played once and held on its last
+   * image), a capture of the site, one of the films in a phone (by its id), or
+   * the client's logo.
+   */
+  hero:
+    | { film: string; poster: string; once?: { end: string } }
+    | { shot: string; shotSmall: string }
+    | { phone: string }
+    | { logo: true };
   copy: Record<
     Locale,
     {
@@ -83,8 +91,8 @@ const POSTS: { n: string; fr: string; en: string }[] = [
   { n: "05", fr: "Loin de l'agitation, proche de l'essentiel", en: "Far from the bustle, close to what matters" },
   { n: "06", fr: "Visitez depuis Paris, Bruxelles ou Montréal", en: "Visit from Paris, Brussels or Montreal" },
   { n: "07", fr: "Livraison prévue en août 2027", en: "Delivery planned for August 2027" },
-  { n: "08", fr: "À 19 minutes", en: "19 minutes away" },
   { n: "09", fr: "Bientôt, pousser la porte", en: "Soon, opening the door" },
+  { n: "10", fr: "Réserver en confiance", en: "Booking with confidence" },
 ];
 
 export const CASES: CaseStudy[] = [
@@ -96,7 +104,11 @@ export const CASES: CaseStudy[] = [
     website: { label: "citystar.ma", href: "https://www.citystar.ma" },
     salesPlan: { fr: "/p/city-star", en: "/en/p/city-star" },
     planShot: { src: media("citystar", "plan-1440.webp"), small: media("citystar", "plan-960.webp") },
-    hero: { film: `${MEDIA_BASE}/full/ad-47.mp4`, poster: `${MEDIA_BASE}/poster/ad-47-1280.webp` },
+    hero: {
+      film: media("citystar", "intro-3d.mp4"),
+      poster: media("citystar", "intro-3d-start.webp"),
+      once: { end: media("citystar", "intro-3d-end.webp") },
+    },
     copy: {
       fr: {
         title: "CITYSTAR, quatorze villas à Marrakech : le site, les films et le plan de vente 3D",
@@ -124,7 +136,7 @@ export const CASES: CaseStudy[] = [
           },
           {
             title: "Les films et les pubs 3D",
-            body: "Un film en images générées, les rendus mis en relief, des pubs faites à partir des rendus, sans tournage, et le suivi du chantier.",
+            body: "Des pubs faites à partir des rendus, sans tournage, le suivi du chantier, et la résidence modélisée en 3D, survolée et photographiée du ciel.",
           },
           {
             title: "Instagram, la brochure et le logo",
@@ -135,6 +147,7 @@ export const CASES: CaseStudy[] = [
             body: "Les 14 villas sur notre plan de vente : la résidence en 3D qui tourne, le statut de chaque villa en direct et la visite 360° de la villa A, pièce par pièce.",
           },
         ],
+        filmsNote: "des pubs faites à partir des rendus 3D et le suivi du chantier.",
         seoTitle: "CITYSTAR, 14 villas à Marrakech : site, films et plan de vente 3D | REV",
         seoDescription:
           "Étude de cas : pour CITYSTAR, 14 villas à Marrakech, REV a conçu le site en six langues et son CRM, les films et pubs 3D, Instagram, la brochure, le logo et le plan de vente 3D.",
@@ -165,7 +178,7 @@ export const CASES: CaseStudy[] = [
           },
           {
             title: "The films and 3D ads",
-            body: "An AI-generated film, the renders set in relief, ads made from the renders with no shoot, and construction updates.",
+            body: "Ads made from the renders with no shoot, construction updates, and the residence modelled in 3D, flown over and photographed from the air.",
           },
           {
             title: "Instagram, the brochure and the logo",
@@ -176,7 +189,7 @@ export const CASES: CaseStudy[] = [
             body: "The 14 villas on our sales plan: the residence in 3D, turning, the live status of every villa, and the 360° tour of villa A, room by room.",
           },
         ],
-        filmsNote: "from the AI-generated film to ads made from the 3D renders.",
+        filmsNote: "ads made from the 3D renders and construction updates.",
         seoTitle: "CITYSTAR, 14 villas in Marrakech: website, films and 3D sales plan | REV",
         seoDescription:
           "Case study: for CITYSTAR, 14 villas in Marrakech, REV designed the six-language website and its CRM, the films and 3D ads, Instagram, the brochure, the logo and the 3D sales plan.",
@@ -245,6 +258,25 @@ export const CASES: CaseStudy[] = [
       },
     ],
     galleries: [
+      {
+        id: "3d",
+        title: { fr: "La résidence en 3D", en: "The residence in 3D" },
+        text: {
+          fr: "Les 14 villas modélisées d'après le plan de masse, puis photographiées du ciel, de jour et au crépuscule : les mêmes images que la vue 3D du plan de vente.",
+          en: "The 14 villas modelled from the site plan, then photographed from the air, by day and at dusk: the same images as the sales plan's 3D view.",
+        },
+        layout: "pages",
+        images: [
+          ["01-vue-aerienne-residence", "La résidence vue du ciel, de jour", "The residence from the air, by day"],
+          ["02-vue-aerienne-crepuscule", "La résidence vue du ciel, au crépuscule", "The residence from the air, at dusk"],
+        ].map(([f, fr, en]) => ({
+          src: media("citystar", `${f}-1600.webp`),
+          full: media("citystar", `${f}.png`),
+          width: 3840,
+          height: 2160,
+          alt: { fr: `CITYSTAR en 3D${NB}: ${fr}`, en: `CITYSTAR in 3D: ${en}` },
+        })),
+      },
       {
         id: "instagram",
         title: { fr: "Instagram", en: "Instagram" },
@@ -807,13 +839,13 @@ export const CASES: CaseStudy[] = [
     client: "bm",
     name: "BM Immobilier",
     year: "2026",
-    hero: { phone: "ad-21" },
+    hero: { logo: true },
     copy: {
       fr: {
-        title: "BM Immobilier : les publicités d'une agence de Marrakech, sur Snapchat, Facebook et TikTok",
+        title: "BM Immobilier : six semaines de campagnes au Maroc pour une agence de Marrakech",
         summary:
           "Agence immobilière à Marrakech, BM Immobilier voulait se faire connaître au Maroc. Nous avons tourné ses publicités face caméra et dans les biens, monté une version par réseau, puis suivi les campagnes Snapchat et Facebook pendant six semaines.",
-        card: "Les publicités d'une agence de Marrakech, et six semaines de campagnes Snapchat et Facebook au Maroc.",
+        card: "Six semaines de campagnes Snapchat et Facebook au Maroc pour une agence de Marrakech.",
         facts: [
           { label: "Lieu", value: "Marrakech" },
           { label: "Réseaux", value: "Snapchat, Facebook, TikTok" },
@@ -846,10 +878,10 @@ export const CASES: CaseStudy[] = [
           "Étude de cas : pour BM Immobilier, agence à Marrakech, REV a tourné les publicités, monté les versions Snapchat, Facebook et TikTok et suivi six semaines de campagnes au Maroc.",
       },
       en: {
-        title: "BM Immobilier: a Marrakech agency's ads, on Snapchat, Facebook and TikTok",
+        title: "BM Immobilier: six weeks of campaigns in Morocco for a Marrakech agency",
         summary:
           "A real estate agency in Marrakech, BM Immobilier wanted to be known in Morocco. We shot its ads to camera and in the properties, edited a version per network, then followed the Snapchat and Facebook campaigns for six weeks.",
-        card: "The ads of a Marrakech agency, and six weeks of Snapchat and Facebook campaigns in Morocco.",
+        card: "Six weeks of Snapchat and Facebook campaigns in Morocco for a Marrakech agency.",
         facts: [
           { label: "Location", value: "Marrakech" },
           { label: "Networks", value: "Snapchat, Facebook, TikTok" },

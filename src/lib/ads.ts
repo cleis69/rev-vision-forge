@@ -73,12 +73,13 @@ export const ADS: Ad[] = [
   { id: "ad-18", title: { fr: "Choisir un promoteur fiable", en: "Choosing a reliable developer" }, category: "programmes", duration: 24, client: "emara" },
   { id: "ad-19", title: { fr: "Un intermédiaire de confiance, en néerlandais", en: "A trusted intermediary, in Dutch" }, category: "agences", duration: 30, lang: "NL" },
   { id: "ad-20", title: { fr: "Rêver sa vie, ou vivre son rêve", en: "Dream your life, or live your dream" }, category: "programmes", duration: 36, client: "emara" },
-  { id: "ad-21", title: { fr: "Investir au soleil", en: "Invest in the sun" }, category: "programmes", duration: 13, client: "bm" },
 ];
 
 /**
  * The rest of the portfolio (rev-vision-forge-media/encode-v4.sh): no teaser.
- * ad-46, ad-51 and ad-53 (CITYSTAR) are left out: they show the old site plan.
+ * Left out: ad-45, ad-46, ad-47, ad-51, ad-53, ad-54 (CITYSTAR, they show the
+ * old site plan or aerials made from it) and the BM Immobilier films (owner's
+ * request, 2026-11-17).
  */
 const MORE: Ad[] = [
   { id: "ad-22", title: { fr: "Un triplex à Marrakech, présenté face caméra", en: "A triplex in Marrakech, presented to camera" }, category: "agences", duration: 23 },
@@ -104,13 +105,10 @@ const MORE: Ad[] = [
   { id: "ad-42", title: { fr: "Une villa, du salon à la façade", en: "A villa, from the lounge to the façade" }, category: "visites", duration: 95 },
   { id: "ad-43", title: { fr: "Une villa visitée en deux minutes", en: "A villa toured in two minutes" }, category: "visites", duration: 112 },
   { id: "ad-44", title: { fr: "L'avancement du chantier", en: "Construction update" }, category: "programmes", duration: 27, client: "citystar" },
-  { id: "ad-45", title: { fr: "Le film en images générées", en: "The AI-generated film" }, category: "films", duration: 39, aspect: "16/9", client: "citystar" },
-  { id: "ad-47", title: { fr: "Les rendus 3D en relief", en: "The 3D renders in relief" }, category: "films", duration: 36, aspect: "16/9", client: "citystar" },
   { id: "ad-48", title: { fr: "Une agente immobilière, en italien", en: "An estate agent, in Italian" }, category: "agences", duration: 21, lang: "IT" },
   { id: "ad-49", title: { fr: "Un agent immobilier, en néerlandais", en: "An estate agent, in Dutch" }, category: "agences", duration: 29, lang: "NL" },
   { id: "ad-50", title: { fr: "« Si je devais investir à Marrakech »", en: "“If I had to invest in Marrakech”" }, category: "films", duration: 26, client: "citystar" },
   { id: "ad-52", title: { fr: "« Venez vérifier »", en: "“Come and check”" }, category: "films", duration: 29, client: "citystar" },
-  { id: "ad-54", title: { fr: "Une journée sur place", en: "A day on site" }, category: "films", duration: 27, client: "citystar" },
 ];
 
 const byId = new Map([...ADS, ...MORE].map((ad) => [ad.id, ad]));
@@ -121,10 +119,10 @@ const byId = new Map([...ADS, ...MORE].map((ad) => [ad.id, ad]));
  */
 export const FILMS: Ad[] = [
   "ad-01", "ad-24", "ad-05", "ad-50", "ad-10", "ad-34", "ad-18",
-  "ad-45", "ad-22", "ad-16", "ad-39", "ad-02", "ad-29", "ad-54", "ad-11",
-  "ad-43", "ad-38", "ad-08", "ad-30", "ad-47", "ad-03", "ad-40", "ad-17",
+  "ad-22", "ad-16", "ad-39", "ad-02", "ad-29", "ad-11",
+  "ad-43", "ad-38", "ad-08", "ad-30", "ad-03", "ad-40", "ad-17",
   "ad-36", "ad-07", "ad-41", "ad-12", "ad-48", "ad-13",
-  "ad-04", "ad-23", "ad-33", "ad-15", "ad-42", "ad-21", "ad-35",
+  "ad-04", "ad-23", "ad-33", "ad-15", "ad-42", "ad-35",
   "ad-52", "ad-37", "ad-14", "ad-09", "ad-31", "ad-20", "ad-25", "ad-28",
   "ad-44", "ad-06", "ad-32", "ad-19", "ad-26", "ad-27", "ad-49",
 ].map((id) => {

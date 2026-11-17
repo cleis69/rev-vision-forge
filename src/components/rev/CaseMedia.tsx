@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
 import { adMedia } from "@/lib/ads";
+import { CLIENTS } from "@/lib/clients";
+import { ClientMark } from "./ClientLogos";
 import type { CaseStudy } from "@/lib/cases";
 import { cn } from "@/lib/utils";
 import { useMotionAllowed } from "./SalesPlanDemo";
@@ -26,10 +28,24 @@ export function CaseHeroMedia({
   if ("phone" in hero) {
     return <PhoneFilm id={hero.phone} alt={alt} priority={priority} className={className} />;
   }
+  if ("logo" in hero) {
+    const client = CLIENTS.find((c) => c.id === study.client);
+    return (
+      <div className={cn("grid aspect-[16/10] place-items-center text-primary-foreground", className)}>
+        {client ? <ClientMark client={client} className="[--k:2.6] max-w-[80%]" /> : null}
+      </div>
+    );
+  }
   return (
     <div className={cn("overflow-hidden rounded-[10px] bg-black shadow-[0_30px_60px_-28px_rgb(0_0_0/0.7)]", className)}>
       {"film" in hero ? (
-        <LoopFilm src={hero.film} poster={hero.poster} alt={alt} priority={priority} />
+        <LoopFilm
+          src={hero.film}
+          poster={hero.poster}
+          end={hero.once?.end}
+          alt={alt}
+          priority={priority}
+        />
       ) : (
         <BrowserShot src={hero.shot} small={hero.shotSmall} label={study.website?.label ?? study.name} alt={alt} priority={priority} />
       )}
@@ -109,14 +125,20 @@ export function PhoneFilm({
   );
 }
 
+/**
+ * A muted landscape film that plays while in sight. With `end`, it plays once
+ * and holds its last image (the image shown without motion).
+ */
 export function LoopFilm({
   src,
   poster,
+  end,
   alt,
   priority = false,
 }: {
   src: string;
   poster: string;
+  end?: string | undefined;
   alt: string;
   priority?: boolean;
 }) {
@@ -145,7 +167,7 @@ export function LoopFilm({
   return (
     <div ref={box} className="relative aspect-video">
       <img
-        src={poster}
+        src={end ?? poster}
         alt={alt}
         width={1280}
         height={720}
@@ -160,7 +182,7 @@ export function LoopFilm({
           src={src}
           poster={poster}
           muted
-          loop
+          loop={!end}
           playsInline
           preload={priority ? "auto" : "metadata"}
           aria-hidden

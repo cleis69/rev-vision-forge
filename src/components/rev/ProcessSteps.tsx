@@ -280,7 +280,7 @@ function ShootVisual() {
 }
 
 function DeliveryVisual() {
-  const media = adMedia("ad-07");
+  const media = adMedia("ad-34");
   return (
     <LazyVideo
       src={media.preview}

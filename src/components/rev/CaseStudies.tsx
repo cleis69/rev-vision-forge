@@ -21,14 +21,14 @@ const FEATURED = 2;
 
 const COPY = {
   fr: {
-    title: "Huit études de cas, [[client par client]]",
+    title: "Six études de cas, [[client par client]]",
     description:
       "Le site, les films, les réseaux, les campagnes, et pour CITYSTAR le plan de vente 3D : ce que nous avons fait pour chacun.",
     read: "Lire l'étude de cas",
     stageAlt: (n: string) => `${n}, le projet`,
   },
   en: {
-    title: "Eight case studies, [[client by client]]",
+    title: "Six case studies, [[client by client]]",
     description:
       "The website, the films, social media, the campaigns and, for CITYSTAR, the 3D sales plan: what we did for each of them.",
     read: "Read the case study",

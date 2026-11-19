@@ -56,7 +56,7 @@ const COPY = {
 export function BrandingProgram() {
   const locale = useLocale();
   const copy = COPY[locale];
-  const media = adMedia("ad-09");
+  const media = adMedia("ad-48");
 
   return (
     <Section id="personal-branding" className="border-t border-border/70">

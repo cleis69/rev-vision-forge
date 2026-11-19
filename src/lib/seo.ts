@@ -49,14 +49,14 @@ const INSIGHTS = {
 
 const PORTFOLIO = {
   fr: {
-    title: "Réalisations REV — 8 études de cas et 48 films immobiliers à Marrakech",
+    title: "Réalisations REV — 6 études de cas et 32 films immobiliers à Marrakech",
     description:
-      "Les études de cas CITYSTAR, Mars Cabin, Shah Immobilier, Shams Immo, Emara Estates, Villa Peninsula, BM Immobilier et All In Kech, et 48 films pour des promoteurs et des agences de Marrakech.",
+      "Les études de cas CITYSTAR, Mars Cabin, Shams Immo, All In Kech, Villa Peninsula et BM Immobilier, et 32 films pour des promoteurs et des agences de Marrakech.",
   },
   en: {
-    title: "REV work — 8 case studies and 48 real estate films in Marrakech",
+    title: "REV work — 6 case studies and 32 real estate films in Marrakech",
     description:
-      "Case studies for CITYSTAR, Mars Cabin, Shah Immobilier, Shams Immo, Emara Estates, Villa Peninsula, BM Immobilier and All In Kech, and 48 films for developers and agencies in Marrakech.",
+      "Case studies for CITYSTAR, Mars Cabin, Shams Immo, All In Kech, Villa Peninsula and BM Immobilier, and 32 films for developers and agencies in Marrakech.",
   },
 } as const;
 

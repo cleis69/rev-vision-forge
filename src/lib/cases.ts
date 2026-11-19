@@ -15,10 +15,8 @@ import { PAGES, type Locale } from "./i18n";
 export type CaseSlug =
   | "citystar"
   | "mars-cabin"
-  | "shah"
   | "shams"
   | "allinkech"
-  | "emara"
   | "peninsula"
   | "bm";
 
@@ -490,92 +488,6 @@ export const CASES: CaseStudy[] = [
     ],
   },
   {
-    slug: "shah",
-    client: "shah",
-    name: "Shah Immobilier",
-    year: "2026",
-    hero: { phone: "ad-05" },
-    copy: {
-      fr: {
-        title: "Shah Immobilier : douze films pour les programmes d'un promoteur de Marrakech",
-        summary:
-          "Promoteur à Marrakech, Shah Immobilier vend ses résidences et ses villas avec Shah Homes, sa conciergerie. Nous avons écrit et tourné ses publicités programme par programme, ses contenus sur le plan de paiement et ses films avec des présentatrices, pour Meta et Snapchat.",
-        card: "Douze films pour un promoteur : publicités par programme, contenus sur le plan de paiement, films avec des présentatrices.",
-        facts: [
-          { label: "Lieu", value: "Marrakech" },
-          { label: "Programmes", value: "Miraya, Jardin Blanc, L'Alhambra" },
-          { label: "Films", value: "12" },
-          { label: "Année", value: "2026" },
-        ],
-        delivered: [
-          {
-            title: "Les scripts",
-            body: `Une idée par film, écrite seconde par seconde. Pour L'Alhambra${NB}: 20${NB}secondes, une accroche face caméra, « villa + conciergerie incluse », une rafale de services en plans très courts, puis l'appel à l'action.`,
-          },
-          {
-            title: "Le tournage",
-            body: "Des présentatrices face caméra, dans les résidences, au bord des piscines et dans les jardins, en vertical pour les réseaux.",
-          },
-          {
-            title: "Les programmes",
-            body: "Miraya, Jardin Blanc, L'Alhambra : un film par résidence, avec son emplacement, son prix d'entrée et sa fin vers le formulaire.",
-          },
-          {
-            title: "Les contenus pédagogiques",
-            body: "Le plan de paiement expliqué pas à pas, pour les acheteurs qui découvrent l'achat sur plan au Maroc.",
-          },
-          {
-            title: "Shah Homes",
-            body: "Des films pour la conciergerie du promoteur, qui gère les locations des acquéreurs.",
-          },
-        ],
-        filmsNote: "publicités, visites et contenus, tous tournés en vertical.",
-        seoTitle: "Shah Immobilier : 12 films pour un promoteur de Marrakech | REV",
-        seoDescription:
-          "Étude de cas : pour Shah Immobilier, promoteur à Marrakech, REV a écrit et tourné douze films : publicités par programme (Miraya, Jardin Blanc, L'Alhambra), plan de paiement, Shah Homes.",
-      },
-      en: {
-        title: "Shah Immobilier: twelve films for a Marrakech developer's developments",
-        summary:
-          "A developer in Marrakech, Shah Immobilier sells its residences and villas with Shah Homes, its concierge service. We wrote and shot its ads development by development, its explainers on the payment plan and its films with presenters, for Meta and Snapchat.",
-        card: "Twelve films for a developer: ads per development, payment-plan explainers, films with presenters.",
-        facts: [
-          { label: "Location", value: "Marrakech" },
-          { label: "Developments", value: "Miraya, Jardin Blanc, L'Alhambra" },
-          { label: "Films", value: "12" },
-          { label: "Year", value: "2026" },
-        ],
-        delivered: [
-          {
-            title: "The scripts",
-            body: "One idea per film, written second by second. For L'Alhambra: 20 seconds, a hook to camera, “villa + concierge included”, a burst of services in very short shots, then the call to action.",
-          },
-          {
-            title: "The shoot",
-            body: "Presenters to camera, in the residences, by the pools and in the gardens, shot vertically for social media.",
-          },
-          {
-            title: "The developments",
-            body: "Miraya, Jardin Blanc, L'Alhambra: one film per residence, with its location, entry price and an ending that leads to the form.",
-          },
-          {
-            title: "The explainers",
-            body: "The payment plan explained step by step, for buyers discovering off-plan purchase in Morocco.",
-          },
-          {
-            title: "Shah Homes",
-            body: "Films for the developer's concierge service, which manages the owners' rentals.",
-          },
-        ],
-        filmsNote: "ads, tours and explainers, all shot vertically.",
-        seoTitle: "Shah Immobilier: 12 films for a Marrakech developer | REV",
-        seoDescription:
-          "Case study: for Shah Immobilier, a developer in Marrakech, REV wrote and shot twelve films: ads per development (Miraya, Jardin Blanc, L'Alhambra), the payment plan, Shah Homes.",
-      },
-    },
-    galleries: [],
-  },
-  {
     slug: "shams",
     client: "shams",
     name: "Shams Immo",
@@ -738,124 +650,6 @@ export const CASES: CaseStudy[] = [
       },
     },
     galleries: [],
-  },
-  {
-    slug: "emara",
-    client: "emara",
-    name: "Emara Estates",
-    year: "2026",
-    hero: { phone: "ad-02" },
-    copy: {
-      fr: {
-        title: "Emara Estates : le lancement d'Honest Signature 7, en plein cœur de Guéliz",
-        summary:
-          "Pour lancer Honest Signature 7, résidence à une minute à pied de la Plaza, Emara Estates n'avait encore aucun outil. Nous avons posé tout le dispositif — messagerie, CRM, téléphonie, automatisations, suivi des conversions —, écrit et tourné ses publicités, créé ses flyers et lancé ses campagnes Meta et Snapchat.",
-        card: "Le dispositif complet d'un lancement : outils, CRM, téléphonie, publicités, flyers et campagnes Meta et Snapchat.",
-        facts: [
-          { label: "Lieu", value: "Guéliz, Marrakech" },
-          { label: "Programme", value: "Honest Signature 7" },
-          { label: "Campagnes", value: "Meta, Snapchat" },
-          { label: "Année", value: "2026" },
-        ],
-        delivered: [
-          {
-            title: "L'organisation",
-            body: "Les adresses e-mail professionnelles, le Drive et ses règles de classement, les rôles et les accès de chacun.",
-          },
-          {
-            title: "Le CRM et la téléphonie",
-            body: "HubSpot configuré avec son pipeline de vente et ses sources de leads, relié à la téléphonie pour garder chaque appel dans la fiche du contact.",
-          },
-          {
-            title: "Les automatisations",
-            body: "Chaque demande des formulaires et des publicités arrive seule dans le CRM, attribuée et prête à être rappelée.",
-          },
-          {
-            title: "Le site et le suivi",
-            body: "Le cadrage du site avec son développeur — pages, parcours, formulaires de brochure et de rendez-vous — et le suivi des formulaires, appels et clics WhatsApp.",
-          },
-          {
-            title: "Les publicités et les flyers",
-            body: "Des scripts et des tournages autour de l'emplacement, de la fiabilité du promoteur et du rendement, et une série de flyers pour le programme.",
-          },
-          {
-            title: "Le rapport commercial",
-            body: "Chaque semaine, du lead à la vente : réponses, intérêt, rendez-vous, par source et par commercial, avec les actions de la semaine suivante.",
-          },
-        ],
-        filmsNote: "publicités pour Honest Signature 7 et pour la marque.",
-        seoTitle: "Emara Estates : lancement d'Honest Signature 7 à Guéliz | REV",
-        seoDescription:
-          "Étude de cas : pour Emara Estates, REV a mis en place le CRM, la téléphonie et les automatisations, tourné les publicités, créé les flyers et lancé les campagnes Meta et Snapchat d'Honest Signature 7, à Guéliz.",
-      },
-      en: {
-        title: "Emara Estates: launching Honest Signature 7, in the heart of Guéliz",
-        summary:
-          "To launch Honest Signature 7, a residence one minute's walk from the Plaza, Emara Estates had no tools yet. We set up the whole system — email, CRM, telephony, automations, conversion tracking —, wrote and shot its ads, made its flyers and launched its Meta and Snapchat campaigns.",
-        card: "The complete system of a launch: tools, CRM, telephony, ads, flyers and Meta and Snapchat campaigns.",
-        facts: [
-          { label: "Location", value: "Guéliz, Marrakech" },
-          { label: "Development", value: "Honest Signature 7" },
-          { label: "Campaigns", value: "Meta, Snapchat" },
-          { label: "Year", value: "2026" },
-        ],
-        delivered: [
-          {
-            title: "The organisation",
-            body: "Professional email addresses, the shared Drive and its filing rules, everyone's roles and access.",
-          },
-          {
-            title: "The CRM and telephony",
-            body: "HubSpot set up with its sales pipeline and lead sources, connected to the telephony so every call stays on the contact's record.",
-          },
-          {
-            title: "The automations",
-            body: "Every request from the forms and ads reaches the CRM on its own, assigned and ready to be called back.",
-          },
-          {
-            title: "The website and tracking",
-            body: "The website's brief with its developer — pages, paths, brochure and appointment forms — and tracking of forms, calls and WhatsApp clicks.",
-          },
-          {
-            title: "The ads and flyers",
-            body: "Scripts and shoots about the location, the developer's track record and the yield, and a series of flyers for the development.",
-          },
-          {
-            title: "The sales report",
-            body: "Every week, from lead to sale: replies, interest, appointments, by source and by salesperson, with the next week's actions.",
-          },
-        ],
-        filmsNote: "ads for Honest Signature 7 and for the brand.",
-        seoTitle: "Emara Estates: launching Honest Signature 7 in Guéliz | REV",
-        seoDescription:
-          "Case study: for Emara Estates, REV set up the CRM, telephony and automations, shot the ads, made the flyers and launched the Meta and Snapchat campaigns of Honest Signature 7, in Guéliz.",
-      },
-    },
-    galleries: [
-      {
-        id: "flyers",
-        title: { fr: "Les flyers", en: "The flyers" },
-        text: {
-          fr: "Une série pour Honest Signature 7 : l'emplacement, le chantier, les finitions, l'accès au Guéliz.",
-          en: "A series for Honest Signature 7: the location, the building site, the finishes, access to Guéliz.",
-        },
-        layout: "posts",
-        images: [
-          ["01", "Le luxe se voit, le confort se vit", "Luxury you can see, comfort you can live"],
-          ["02", "L'hypercentre qui travaille pour vous", "The city centre working for you"],
-          ["03", "Le prestige du Guéliz", "The prestige of Guéliz"],
-          ["04", "Le bon moment, c'est maintenant", "The right time is now"],
-          ["05", "L'adresse que tout le monde cherche", "The address everyone is looking for"],
-          ["06", "Une signature qui se voit déjà", "A signature you can already see"],
-        ].map(([n, fr, en]) => ({
-          src: media("emara", `flyer-${n}-480.webp`),
-          full: media("emara", `flyer-${n}.png`),
-          width: 941,
-          height: 1672,
-          alt: { fr: `Flyer Honest Signature 7${NB}: ${fr}`, en: `Honest Signature 7 flyer: ${en}` },
-        })),
-      },
-    ],
   },
   {
     slug: "peninsula",

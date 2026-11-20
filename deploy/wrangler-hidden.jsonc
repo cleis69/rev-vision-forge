@@ -1,0 +1,9 @@
+// The site hidden: the same worker and domain, every request answers 404
+// (deploy/hidden.js). To reopen the site, deploy deploy/wrangler.jsonc again.
+{
+  "name": "realestatevision360",
+  "compatibility_date": "2026-10-01",
+  "main": "hidden.js",
+  "routes": [{ "pattern": "realestatevision360.com", "custom_domain": true }],
+  "workers_dev": true
+}

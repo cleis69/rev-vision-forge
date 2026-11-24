@@ -1,9 +1,10 @@
 /*
  * The site is hidden (owner's request, 2026-11-20): every address of the
- * domain, the public programme pages and the media included, answers 404 with
- * an empty black page, so search engines drop it too.
- * Deployed with deploy/wrangler-hidden.jsonc. To reopen the site, deploy the
- * normal config again (deploy/wrangler.jsonc).
+ * domain answers 404 with an empty black page, so search engines drop it too.
+ * Since 2026-11-24 the programmes listed in OPEN_ONLY stay open (City Star:
+ * its page, 360° tour, lot pages and embedded plan), see deploy/worker.js.
+ * Deployed with deploy/wrangler-hidden.jsonc. To reopen the whole site,
+ * deploy the normal config again (deploy/wrangler.jsonc).
  */
 
 const PAGE = `<!doctype html>
@@ -25,15 +26,13 @@ const PAGE = `<!doctype html>
 </html>
 `;
 
-export default {
-  fetch(request) {
-    return new Response(request.method === "HEAD" ? null : PAGE, {
-      status: 404,
-      headers: {
-        "content-type": "text/html; charset=utf-8",
-        "cache-control": "no-store",
-        "x-robots-tag": "noindex, nofollow",
-      },
-    });
-  },
-};
+export function hiddenPage(request) {
+  return new Response(request.method === "HEAD" ? null : PAGE, {
+    status: 404,
+    headers: {
+      "content-type": "text/html; charset=utf-8",
+      "cache-control": "no-store",
+      "x-robots-tag": "noindex, nofollow",
+    },
+  });
+}

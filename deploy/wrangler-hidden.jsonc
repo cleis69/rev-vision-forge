@@ -1,9 +1,26 @@
-// The site hidden: the same worker and domain, every request answers 404
-// (deploy/hidden.js). To reopen the site, deploy deploy/wrangler.jsonc again.
+// The site hidden (since 2026-11-20): the same worker and domain, every request
+// answers the black 404 page of deploy/hidden.js, except the programmes listed
+// in OPEN_ONLY (since 2026-11-24: City Star — its page, lot pages, 360° tour and
+// embedded plan stay open). The Worker runs first for every request so that
+// nothing else of the site is served. Build first (bun run build && bun run
+// build:static). To reopen the whole site, deploy deploy/wrangler.jsonc again.
 {
   "name": "realestatevision360",
   "compatibility_date": "2026-10-01",
-  "main": "hidden.js",
+  "main": "worker.js",
   "routes": [{ "pattern": "realestatevision360.com", "custom_domain": true }],
-  "workers_dev": true
+  "workers_dev": true,
+  "vars": {
+    "OPEN_ONLY": "city-star",
+    // Link previews of the open programme pages (see deploy/wrangler.jsonc).
+    "SUPABASE_URL": "https://hbihlcnhmjommcnpujam.supabase.co",
+    "SUPABASE_KEY": "sb_publishable_RWzgJ5zeKV7Ke0x-KRrTDg_LPLR-8_V"
+  },
+  "assets": {
+    "directory": "../dist/client",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page",
+    "run_worker_first": true
+  }
 }

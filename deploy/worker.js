@@ -10,24 +10,35 @@
 //   rendered in the browser from the SPA shell (_shell.html); for /p/… the
 //   Worker also writes the link preview (title, description, image).
 // Everything else on the site is served straight from static assets.
+//
+// While the site is hidden (deploy/wrangler-hidden.jsonc sets OPEN_ONLY and
+// runs this Worker first for every request), only the programmes listed in
+// OPEN_ONLY answer — their page, lot pages, privacy page, 360° tour and
+// embedded plan, with the files the SPA shell needs — and every other
+// address gets the black 404 page of deploy/hidden.js.
 import SIZES from "./media-sizes.json";
+import { hiddenPage } from "./hidden.js";
 import { loadPreview, metaTags } from "./og.js";
 
 const PRIVATE = /^\/(agent-ia|en\/ai-agent)(\.html|\/)?$/;
 // Promoter space and public programme pages: rendered in the browser from the
 // SPA shell of the build, never indexed (programmes are shared by link).
 const APP = /^\/app(\/|$)/;
-const PROGRAMME = /^\/(?:en\/)?p\/[^/]+/;
+const PROGRAMME = /^\/(?:en\/)?p\/([^/]+)/;
 // Sales plan alone, embedded in an iframe on the promoter's own website.
 // The 360° tour alone too: /embed/visite/$slug, /en/embed/tour/$slug.
-const EMBED = /^\/(?:en\/)?embed\/(?:(?:visite|tour)\/)?[^/]+\/?$/;
+const EMBED = /^\/(?:en\/)?embed\/(?:(?:visite|tour)\/)?([^/]+)\/?$/;
 // Programme page or lot page (in French, or in English under /en), whose link
 // preview is written by the Worker.
 const PREVIEWED = /^\/(en\/)?p\/([^/]+)(?:\/lot\/([^/]+))?\/?$/;
+// Files the SPA shell of the programme pages loads (scripts, styles, REV logo, icons).
+const SHELL_FILES =
+  /^\/(?:assets|brand)\/[^/]+$|^\/(?:favicon\.(?:ico|svg)|apple-touch-icon\.png|icon-(?:192|512)\.png|og\.jpg)$/;
 
 export default {
   async fetch(request, env) {
     const { pathname } = new URL(request.url);
+    if (env.OPEN_ONLY !== undefined) return openOnly(request, env, pathname);
     if (PRIVATE.test(pathname)) return privatePage(request, env);
     if (PROGRAMME.test(pathname)) return programmePage(request, env);
     if (APP.test(pathname) || EMBED.test(pathname)) return appShell(request, env);
@@ -96,6 +107,32 @@ function slice(start, end) {
       if (chunkEnd > end) controller.terminate();
     },
   });
+}
+
+/** The hidden site: only the programmes in OPEN_ONLY (slugs, comma-separated) answer. */
+async function openOnly(request, env, pathname) {
+  const open = env.OPEN_ONLY.split(",").map((slug) => slug.trim()).filter(Boolean);
+  const programme = PROGRAMME.exec(pathname);
+  const match = programme ?? EMBED.exec(pathname);
+  if (match) {
+    let slug;
+    try {
+      slug = decodeURIComponent(match[1]);
+    } catch {
+      return hiddenPage(request);
+    }
+    if (!open.includes(slug)) return hiddenPage(request);
+    return programme ? programmePage(request, env) : appShell(request, env);
+  }
+  if (!SHELL_FILES.test(pathname)) return hiddenPage(request);
+  const res = await env.ASSETS.fetch(request);
+  // 304: the browser revalidating a file it already has.
+  if (res.status !== 200 && res.status !== 304) return hiddenPage(request);
+  if (!pathname.startsWith("/assets/")) return res;
+  // Fingerprinted build files: kept for a year, as _headers asks for the open site.
+  const headers = new Headers(res.headers);
+  headers.set("cache-control", "public, max-age=31536000, immutable");
+  return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
 }
 
 async function appShell(request, env) {
